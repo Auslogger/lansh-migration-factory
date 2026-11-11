@@ -1,0 +1,97 @@
+# S04 answer key (evaluation only: factory code must never read this file).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based, in legacy_path.
+job_id: S04
+legacy_path: estate/sas/S04_risk_scoring.sas
+summary: >-
+  Customer risk score and referral tier by line of business for underwriting. Reads
+  dw.claims_enriched (S01), rpt.premium_band_summary (S03) and dw.dim_customer (T01), and
+  uses the protected attributes age (from date of birth) and county as loadings, which is
+  exactly what the H2 bias decision is about. A %macro loops over MOT, HOM and TRV; PROC SQL
+  remerges each line's mean paid onto every customer row; a DATA step builds points on a
+  half-point grid, applies 2-decimal loadings, rounds with SAS ROUND and assigns the tier.
+  Planted: BUG-10 (tier first assigned 'HIGH', so 'MEDIUM' is stored as 'MEDI'), SAS-11,
+  SAS-10, SAS-13 and SAS-15. Upstream bugs flow in: S01's BUG-08 inflates n_recoveries and
+  T01's BUG-01 supplies stale counties. On our data the job writes 4,933 rows: tier HIGH
+  440, MEDI 1,384, LOW 3,109. Not planted, and not a defect to penalise: age is
+  int((as_of - date_of_birth) / 365.25), which differs from true age for 9 of 9,952
+  customers, none of whom crosses a loading band. paid, severity and loss_ratio are sums of
+  doubles whose last bits depend on the order SAS read its inputs (a relative difference of
+  at most 4e-16 when the inputs are shuffled), so they need a float_rel policy; every other
+  column reproduces exactly.
+traps:
+  - trap_id: SAS-11
+    kind: semantic
+    armed: true
+    lines: [99, 101]
+    where: "if score >= 35 then tier = 'HIGH'; else if score >= 22 then tier = 'MEDIUM'; else tier = 'LOW';"
+    effect: >-
+      A character variable's length is fixed by its first assignment in the DATA step, here
+      'HIGH' (4), so 'MEDIUM' is silently cut to 'MEDI' on 1,384 of 4,933 rows. Spark strings
+      have no fixed length; reproduce with substring(tier, 1, 4) (and flag it).
+    check: S04_SAS11_tier_length_from_first_assignment
+  - trap_id: SAS-10
+    kind: semantic
+    armed: true
+    lines: [65, 69]
+    where: "select x.customer_id, ..., x.paid / mean(x.paid) as severity from work.experience x where x.lob_code = \"&lob\";"
+    effect: >-
+      PROC SQL remerges the line's mean paid onto every detail row because the query has no
+      GROUP BY (the log notes the remerge): severity equals paid / line mean on all 4,933
+      rows. Spark SQL refuses a non-grouped column alongside an aggregate; reproduce with
+      avg(paid) over (partition by lob_code). A per-customer mean instead would change
+      sev_points on 3,582 rows.
+    check: S04_SAS10_remerged_line_mean
+  - trap_id: SAS-13
+    kind: construct
+    armed: true
+    lines: [60, 74]
+    where: "%macro score_lines(lobs); %do i = 1 %to %sysfunc(countw(&lobs)); ... %mend; %score_lines(MOT HOM TRV);"
+    effect: >-
+      The macro generates one PROC SQL per line of business (work.score_MOT, _HOM, _TRV),
+      which the later UNION ALL reads back. The real program only exists after expansion
+      (options mprint); a translation loops in Python or partitions by lob_code.
+  - trap_id: SAS-15
+    kind: semantic
+    armed: true
+    lines: [98, 98]
+    where: "score  = round(points * age_load * county_load, 0.01);"
+    effect: >-
+      SAS ROUND fuzzes a value within about 1e-12 of a rounding tie to the tie, then rounds
+      half up. Spark's round() rounds half up on the shortest decimal form of the double, so a
+      product that lands just below a tie rounds down: 87.5 * 1.00 * 1.15 =
+      100.62499999999999 gives 100.63 in SAS and 100.62 in Spark; 51.5 * 1.15 =
+      59.224999999999994 gives 59.23 and 59.22. The score differs on 267 of 4,933 rows.
+      Exact translation: multiply in DECIMAL and round half up. Note also that SAS's second
+      argument is a rounding unit (0.01), not a number of decimal places.
+    check: S04_SAS15_round_fuzz
+  - trap_id: SAS-15
+    kind: semantic
+    armed: true
+    lines: [96, 96]
+    where: "lob_points = round(2.5 * loss_ratio, 0.5);"
+    effect: >-
+      round(v, 0.5) rounds to the nearest half point (SAS's second argument is a unit). Spark
+      SQL's round(v, 0.5) silently uses scale 0 and PySpark's F.round(col, 0.5) raises an
+      error; rounding to whole points changes lob_points, and so points and score, on 2,861 of
+      4,933 rows. Exact translation: round(v * 2) / 2.
+    check: S04_SAS15_round_unit
+  - trap_id: SAS-01
+    kind: semantic
+    armed: false
+    lines: [25, 26]
+    where: "if missing(age) then age_load = 1.00; else if age < 25 then age_load = 1.40;"
+    effect: >-
+      A missing age (no date of birth) would satisfy age < 25 in SAS, but the explicit
+      missing() test comes first, so both engines give 1.00 (24 output rows have no age). The
+      severity tests (lines 94-95) only use >=, which a missing value fails in both engines.
+bugs:
+  - bug_id: BUG-10
+    lines: [99, 101]
+    where: "if score >= 35 then tier = 'HIGH'; else if score >= 22 then tier = 'MEDIUM'; else tier = 'LOW';"
+    does: >-
+      tier gets its length (4) from its first assignment, 'HIGH', so customers in the middle
+      band are stored with tier 'MEDI': 1,384 of 4,933 rows. The underwriting referral queue
+      filters on 'MEDIUM' and never sees them.
+    intended: "Declare length tier $6 before the first assignment, so the middle tier is 'MEDIUM'."
+    via_trap: SAS-11
+    check: S04_BUG10_medium_stored_as_medi

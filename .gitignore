@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.venv
+.pytest_cache/
+.ruff_cache/
+
+# Secrets: only ever in .env and ~/.authinfo
+.env
+.authinfo
+
+# EXL material is never committed (plan decision D2). The rest of docs/ is tracked.
+docs/
+
+*.md
+
+# Local machine files
+.DS_Store
+.vscode/
+.idea/
+/p
+/p.dSYM/
+
+# Generated and rebuildable
+lakehouse/
+spark-warehouse/
+metastore_db/
+derby.log
+estate/data/csv/
+estate/golden/_sas_drop/
+runs/*
+!runs/showcase/
+!runs/cassettes/

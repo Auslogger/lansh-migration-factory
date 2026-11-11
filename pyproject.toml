@@ -1,0 +1,75 @@
+[project]
+name = "lansh"
+version = "0.1.0"
+description = "LANSH: a reconciliation-first agentic migration factory (T-SQL and SAS to PySpark on Delta)"
+readme = "README.md"
+authors = [
+    { name = "Auslogger", email = "6confon6@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "datacompy>=1.2.0",
+    "delta-spark==4.4.1",
+    "faker>=40.52.0",
+    "jinja2>=3.1.6",
+    "networkx>=3.7",
+    "numpy>=2.5.4",
+    "pandas>=2.3,<3",
+    "pyarrow>=26.0.1",
+    "pydantic>=2.14.3",
+    "pymssql>=2.4.6",
+    "pyspark==4.2.0",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
+    "saspy>=5.110.0",
+    "sqlglot>=30.30.0",
+    "streamlit>=1.67.0",
+    "typer>=0.29.0",
+]
+
+[project.scripts]
+lansh = "lansh.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests", "scripts", "spikes"]
+# Legacy code and documents are not Python we lint.
+extend-exclude = ["estate", "docs", "runs", "lakehouse"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "T20", "PT"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # Irish names and en dashes are intentional
+
+[tool.ruff.lint.flake8-bugbear]
+# Typer declares options as argument defaults by design.
+extend-immutable-calls = ["typer.Option", "typer.Argument"]
+
+[tool.ruff.lint.per-file-ignores]
+# Scripts and spikes report to the terminal by design.
+"scripts/*" = ["T20"]
+"spikes/*" = ["T20"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Offline by default: integration tests need Docker, SAS or Claude and are opt-in (make test-*).
+addopts = "-ra -m 'not mssql and not sas and not live_llm'"
+markers = [
+    "mssql: needs the SQL Server container (make legacy-up)",
+    "sas: needs SAS OnDemand through saspy",
+    "live_llm: makes a live Claude Code call on the subscription",
+    "spark: starts a local Spark session (slower, but offline)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:pyspark.*",
+]

@@ -1,0 +1,57 @@
+# S03 answer key (evaluation only: factory code must never read this file).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based, in legacy_path.
+job_id: S03
+legacy_path: estate/sas/S03_premium_bands.sas
+summary: >-
+  Written and earned premium by line of business and premium band for pricing. Each policy
+  is banded once, on the written premium of its first transaction in input order (proc sort
+  nodupkey over dw.fact_premium_earned, staged in key order, i.e. by txn_id), with a PROC
+  FORMAT of '-<' ranges; every transaction is then merged onto its policy's band and summed
+  with PROC MEANS CLASS lob_code prem_band NWAY, with a policy count from a second PROC MEANS.
+  No planted bug (plan §7.2). On our data the job writes 13 rows. One motor policy lands in
+  the NEGATIVE band because T03's CROSS APPLY dropped its opening sterling transaction, so
+  its first remaining transaction is a refund: a cross-job effect a migration must reproduce.
+traps:
+  - trap_id: SAS-12
+    kind: semantic
+    armed: true
+    lines: [21, 29]
+    where: "value premband low -< 0 / 0 -< 250 / 250 -< 500 / 500 -< 1000 / 1000 - high / other"
+    effect: >-
+      '-<' excludes the upper end, so a premium of exactly 250, 500 or 1000 belongs to the
+      band above. 70 policies open on exactly one of those values. A translation with BETWEEN
+      or <= on the upper bound bands them one band lower (and moves their transactions'
+      premium with them). Missing values fall to 'other', as Spark's otherwise() would need
+      to say explicitly.
+    check: S03_SAS12_format_range_boundaries
+  - trap_id: SAS-09
+    kind: semantic
+    armed: true
+    lines: [32, 35]
+    where: "proc sort data=dw.fact_premium_earned(...) out=work.opening nodupkey; by policy_id;"
+    effect: >-
+      NODUPKEY keeps the first observation of each policy in input order (SAS sorts are
+      stable), and the input arrives in key order (_row_seq by txn_id), so the kept row is the
+      opening transaction. 2,800 of 30,716 policies would change band if a different row were
+      kept: Spark's dropDuplicates() keeps an arbitrary one. Reproduce with row_number() over
+      (partition by policy_id order by _row_seq) = 1.
+    check: S03_SAS09_nodupkey_keeps_first
+  - trap_id: SAS-14
+    kind: construct
+    armed: true
+    lines: [55, 67]
+    where: "proc means ... nway; class lob_code prem_band; output out=..."
+    effect: >-
+      PROC MEANS with CLASS and NWAY returns only the full lob_code x prem_band combinations
+      (no subtotal rows), which a groupBy reproduces. The sums are doubles accumulated in
+      input order, so they may differ from Spark's in the last bits: a float_rel policy, not a
+      code change.
+  - trap_id: SAS-05
+    kind: semantic
+    armed: false
+    lines: [49, 53]
+    where: "merge work.txn(in=t) work.policy_band; by policy_id; if t;"
+    effect: >-
+      A one-to-many MERGE with IN=; every transaction's policy has a band (both come from the
+      same table), so it behaves exactly like a left join here.
+bugs: []

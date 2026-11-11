@@ -1,0 +1,89 @@
+# T05 rpt.usp_claim_aging: planted traps and bug (answer key, evaluation only).
+# Line numbers are 1-based lines of estate/tsql/T05_usp_claim_aging.sql.
+# Counts are from the committed data, as at 2025-12-31 (2,238 output rows).
+job_id: T05
+legacy_path: estate/tsql/T05_usp_claim_aging.sql
+summary: >-
+  Ageing of open and re-opened claims by days since their last activity (last payment up
+  to @AsOfDate, else the notification date), built row by row: a cursor over the open
+  claims and, for each claim, a nested cursor over its staged payments in payment_date,
+  payment_id order. Traps: the open-status filter matches case and trailing-space variants
+  (TSQL-01, TSQL-02), weeks_open counts Sunday boundaries (TSQL-04), cursor loops whose
+  running total turns NULL at an unkeyed payment (TSQL-12), temp tables (TSQL-13). Bug:
+  the ageing bands leave exactly 30 days in no band, reported as 'UNKNOWN' (BUG-04).
+traps:
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [73, 73]
+    where: "WHERE c.status IN ('OPEN', 'REOPENED'), building #open_claims"
+    effect: >-
+      Under the case-insensitive collation the IN list also matches 'Open' (86), 'open' (26)
+      and 'Reopened' (17): 129 claims in the output. A case-sensitive Spark filter
+      (status IN ('OPEN', 'REOPENED')) drops them; compare case-insensitively, for example
+      upper(rtrim(status)) IN ('OPEN', 'REOPENED') or a UTF8_LCASE_RTRIM collation.
+    check: T05_TSQL01_open_status_case_variants
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [73, 73]
+    where: "WHERE c.status IN ('OPEN', 'REOPENED'), building #open_claims"
+    effect: >-
+      SQL Server ignores trailing spaces when comparing, so status 'OPEN ' (43 claims) is
+      treated as open and those claims are in the output. An exact Spark comparison drops
+      them; trailing spaces must be trimmed before comparing.
+    check: T05_TSQL02_open_status_trailing_spaces
+  - trap_id: TSQL-04
+    kind: semantic
+    armed: true
+    lines: [142, 142]
+    where: "SET @weeks = DATEDIFF(WEEK, @reported, @AsOfDate), stored as weeks_open"
+    effect: >-
+      DATEDIFF(WEEK) counts the week boundaries crossed, and a week always starts on Sunday
+      for DATEDIFF whatever SET DATEFIRST says. It is not the number of elapsed 7-day weeks:
+      floor(datediff(as_of, reported_date) / 7) is one lower on 930 of 2,238 rows (the
+      as-of date, 2025-12-31, is a Wednesday). Reproduce it as the difference of
+      Sunday-anchored week numbers, e.g. floor(datediff(d, DATE'1899-12-31') / 7).
+    check: T05_TSQL04_weeks_open_counts_sundays
+  - trap_id: TSQL-12
+    kind: construct
+    armed: true
+    lines: [104, 159]
+    where: >-
+      Cursor claim_cur over #open_claims (lines 104-159) with the nested cursor pay_cur over
+      #pay in payment_date, payment_id order (lines 118-137); the running total
+      SET @total = @total + @amount is on line 130
+    effect: >-
+      The row-by-row loops become a set-based aggregation per claim, which must keep the
+      loop's semantics. The running total starts at 0, so a claim with no payments up to the
+      as-of date gets total_paid 0.00 (not NULL). A NULL (unkeyed) amount turns the total
+      NULL for good, so total_paid is NULL for the 43 claims with an unkeyed payment; for 42
+      of them SUM(amount), which skips NULLs, would return a number instead. n_payments
+      counts every payment row, NULL amounts included (count(*), not count(amount)), and
+      last_payment_date is the date of the last row fetched, i.e. the latest payment_date.
+    check: T05_TSQL12_null_amount_voids_total
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [63, 101]
+    where: >-
+      #open_claims and #pay created with SELECT ... INTO (lines 71 and 82, clustered index on
+      #pay at line 88) and #aging with CREATE TABLE (lines 92-101); read back by the cursors
+      (lines 106, 120), filled at lines 151-153 and joined in the final INSERT (lines 174-175)
+    effect: >-
+      Session-scoped intermediate tables become DataFrames or temporary views (the index has
+      no counterpart). Results are unchanged.
+bugs:
+  - bug_id: BUG-04
+    lines: [145, 149]
+    where: >-
+      SET @band = CASE WHEN @days < 30 THEN '0-29' WHEN @days BETWEEN 31 AND 60 THEN '31-60'
+      WHEN @days > 60 THEN '61+' ELSE 'UNKNOWN' END, stored as aging_band
+    does: >-
+      The bands leave a gap at exactly 30 days: a claim whose last activity was 30 days
+      before the as-of date matches no band and is reported as 'UNKNOWN' (37 claims).
+    intended: >-
+      Contiguous ageing bands, so every claim with a valid day count falls in a real band and
+      'UNKNOWN' never occurs: 30 days belongs to the first band (e.g. WHEN @days <= 30 THEN
+      '0-30').
+    check: T05_BUG04_thirty_days_unbanded

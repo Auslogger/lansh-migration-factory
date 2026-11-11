@@ -1,0 +1,156 @@
+# T01 dw.usp_load_dim_customer: planted traps and bug (answer key, evaluation only).
+# Format: lansh.estate.labels.JobLabel. Line numbers refer to legacy_path.
+# Counts in effect/does are from the run on the committed data (as-of 2025-12-31).
+job_id: T01
+legacy_path: estate/tsql/T01_usp_load_dim_customer.sql
+summary: >-
+  Customer dimension: one row per CRM customer (10,000) from the change-data-capture extract
+  stg.customers (11,956 versions), with sales region from county, Eircode check, initials,
+  standard-segment flag, shared-email count and age at join. Plants BUG-01 (keeps each
+  customer's oldest version) and the semantic traps TSQL-01, TSQL-02, TSQL-04 and TSQL-15,
+  all armed by our data; temp tables (TSQL-13) are the only construct trap.
+
+traps:
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [134, 140]
+    where: >-
+      region CASE: k.county IN ('Dublin', 'Kildare', ...) THEN 'EAST' ... ELSE 'UNKNOWN',
+      raw county compared with title-case literals
+    effect: >-
+      SQL Server compares county case-insensitively, so 'DUBLIN' and 'dublin' get their region.
+      A literal Spark isin() is case-sensitive: 570 customers (450 upper-case and 120 lower-case
+      counties) fall to UNKNOWN. Compare upper(rtrim(county)) with upper-cased lists and keep the
+      county column as keyed.
+    check: T01_TSQL01_region_county_case
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [134, 140]
+    where: >-
+      region CASE: k.county IN (...) on VARCHAR county keyed with trailing spaces ('Dublin ')
+    effect: >-
+      SQL Server ignores trailing spaces in the comparison, so 'Dublin ' maps to EAST. Spark
+      compares exactly: 188 customers (all otherwise in the list's exact case) fall to UNKNOWN.
+      rtrim the county before the comparison.
+    check: T01_TSQL02_region_county_padding
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [126, 127]
+    where: >-
+      email_shared_count: CASE WHEN k.email IS NULL THEN 0 ELSE COUNT(*) OVER
+      (PARTITION BY k.email) END over the kept customers
+    effect: >-
+      The partition groups emails case-insensitively, so 'Mary.Ryan1@x.example' and
+      'mary.ryan1@x.example' are one address (count 2 for both customers). Partitioned on the
+      raw string, as Spark does, 164 customers get 1 instead of 2. Partition by
+      upper(rtrim(email)) and output the email as keyed.
+    check: T01_TSQL01_email_shared_case
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [126, 127]
+    where: >-
+      email_shared_count: COUNT(*) OVER (PARTITION BY k.email) on emails keyed with a trailing
+      space
+    effect: >-
+      Trailing spaces are ignored in the partition, so 'x@y.example ' and 'x@y.example' share a
+      count of 2. On the exact value, as Spark partitions, 60 customers get 1 instead of 2.
+    check: T01_TSQL02_email_shared_padding
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [148, 148]
+    where: >-
+      is_standard_segment: CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END, with
+      segment_code CHAR(4)
+    effect: >-
+      CHAR(4) holds STD as 'STD ' (the extract carries the padding). SQL Server ignores the
+      trailing space, so the test is true; Spark's = is false and all 5,490 standard customers
+      would get 'N'. Compare rtrim(segment_code) = 'STD' and keep segment_code padded in the
+      output.
+    check: T01_TSQL02_segment_char_padding
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: false
+    lines: [144, 144]
+    where: "eircode_valid: SUBSTRING(k.eircode, 4, 1) = ' '"
+    effect: >-
+      In SQL Server ' ' also equals '' (trailing spaces ignored), so the test would be true for
+      an empty substring, where Spark's would be false. The LEN(k.eircode) = 8 guard means the
+      fourth character always exists, so our data gives the same result on both engines.
+
+  - trap_id: TSQL-04
+    kind: semantic
+    armed: true
+    lines: [129, 129]
+    where: "age_at_join: DATEDIFF(YEAR, k.date_of_birth, k.customer_since)"
+    effect: >-
+      DATEDIFF(YEAR) counts 1 January boundaries crossed, not birthdays: it is
+      year(customer_since) - year(date_of_birth). Translated as an age in whole years, 4,177 of
+      the 9,952 customers with a date of birth (those who joined before their birthday that
+      year) get one year less; floor(months_between(...) / 12) gives 4,175, because it counts
+      29 February birthdays as reached on 28 February. Reproduce the boundary count.
+    check: T01_TSQL04_age_at_join_year_boundaries
+
+  - trap_id: TSQL-15
+    kind: semantic
+    armed: true
+    lines: [143, 146]
+    where: >-
+      eircode_valid: CASE WHEN LEN(k.eircode) = 7 THEN 'Y' WHEN LEN(k.eircode) = 8 AND
+      SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y' ELSE 'N' END
+    effect: >-
+      LEN ignores trailing spaces, so a 7-character Eircode keyed with a trailing space
+      ('F91N63P ') passes as 7 characters. Spark's length() counts the space (8) and the
+      fourth character is not a space, so 281 customers would get 'N'. Use length(rtrim(eircode)).
+    check: T01_TSQL15_eircode_len_trailing_space
+
+  - trap_id: TSQL-15
+    kind: semantic
+    armed: true
+    lines: [124, 124]
+    where: "initials: UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2))"
+    effect: >-
+      T-SQL SUBSTRING from position 0 for 2 characters covers positions 0 and 1, so it returns
+      only the first character and initials are two letters ('SF'). Spark's substring(x, 0, 2)
+      treats position 0 as 1 and returns two characters ('SHFR'), so all 10,000 customers'
+      initials change. Use substring(x, 1, 1).
+    check: T01_TSQL15_initials_substring_from_0
+
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [69, 104]
+    where: >-
+      #customer_versions and #customer built with SELECT ... INTO (with tempdb existence
+      checks), read by the final INSERT at line 155
+    effect: >-
+      Temp tables become DataFrames or temporary views; results do not change. Exercised on
+      every run.
+
+bugs:
+  - bug_id: BUG-01
+    lines: [101, 104]
+    where: >-
+      Step 2, under the comment 'Keep the current version of each customer':
+      ROW_NUMBER() OVER (PARTITION BY cv.customer_id ORDER BY cv.updated_at, cv._row_seq)
+      AS version_no ... WHERE v.version_no = 1
+    does: >-
+      Numbers each customer's CRM versions oldest first and keeps version 1, so the dimension
+      holds the oldest saved version. All 1,657 customers with several versions are affected:
+      1,648 keep an earlier save and 1,530 show superseded details (name, email, address,
+      county, Eircode, segment or opt-in). For the 9 customers whose oldest and latest saves
+      share the same second, _row_seq decides which version is kept.
+    intended: >-
+      Keep the latest version, ORDER BY updated_at DESC, _row_seq DESC (the later extract row
+      wins a same-second tie), as the header, the change log (CR-1702) and the step comment
+      say.
+    check: T01_BUG01_oldest_version_kept

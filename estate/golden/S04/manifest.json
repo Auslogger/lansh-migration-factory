@@ -1,0 +1,196 @@
+{
+  "job_id": "S04",
+  "engine": "sas",
+  "engine_version": "SAS 9.04.01M9P06052025",
+  "legacy_path": "estate/sas/S04_risk_scoring.sas",
+  "legacy_sha256": "c1d72f4893edd62876d4761f52b901aa90dfef5174bbc3f8bb269afea9e46504",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "dw.claims_enriched",
+      "path": "estate/golden/S01/dw.claims_enriched.parquet",
+      "rows": 2911,
+      "file_sha256": "7b43e96e93a30def3af72af6ff433c31c4f78b3f0c422ab51cdbe72a3fee5f6e",
+      "content_sha256": "ad9abf25a1f07ee384712267385c9c36ff9ecf60fe7e9b55c959f467856ee2f0"
+    },
+    {
+      "table": "rpt.premium_band_summary",
+      "path": "estate/golden/S03/rpt.premium_band_summary.parquet",
+      "rows": 13,
+      "file_sha256": "76fd8749dd30d935f26818474ca19230ec47638d37b4500fcb89c8e7ae56d356",
+      "content_sha256": "9c0afce322a3f969e936256b8ae9f0b4d696cb1697f881d9393d99acefb67982"
+    },
+    {
+      "table": "dw.dim_customer",
+      "path": "estate/golden/T01/dw.dim_customer.parquet",
+      "rows": 20000,
+      "file_sha256": "ce3bb44daec8b5e3b3e6e113d77c0b0ae01f47d12fa03643bfeebf7beb85ec78",
+      "content_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "rpt.risk_scores",
+      "rows": 2645,
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "char 5 format=$CHAR",
+          "nullable": true,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "n_claims",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "paid",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "n_recoveries",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "severity",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "age",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "age_load",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "county_load",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "loss_ratio",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "points",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "score",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "tier",
+          "data_type": "string",
+          "legacy_type": "char 4",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=YYMMDD",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/S04/rpt.risk_scores.csv",
+      "raw_sha256": "75b6cfc5f5eee87c66fe99df032fdd458a9dbb96b48db694cb2a2013203d7882",
+      "parquet_path": "estate/golden/S04/rpt.risk_scores.parquet",
+      "parquet_sha256": "fa1a7821a25827e32a6866d66737452b62aef8a02643655b1a5d1353164403b6",
+      "content_sha256": "71253df912139772cc0b108ce5fab25a10cc5afdaf1f4e2ce22d26d7023e0513",
+      "volatile_columns": [],
+      "sidecars": [
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.contents.csv",
+          "sha256": "f26fd6112c3ce0713ee040987aed604cef2c28a75cc9cbf9c9f023009a6d939b"
+        },
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.hex.csv",
+          "sha256": "f444d186fd7b2e9e037da24d36cea8ba92b941bcc398f3c0cd8d5aceef0ba60d"
+        },
+        {
+          "path": "estate/golden/S04/sas.log",
+          "sha256": "e5db81cf9caba06b555d893cf5752a6bbd82314afd5f9c66f7d3c90df3c7f1da"
+        }
+      ]
+    }
+  ],
+  "log_excerpt": "NOTE: The data set DW.DIM_CUSTOMER has 20000 observations and 24 variables.\nNOTE: There were 20000 observations read from the data set DW.DIM_CUSTOMER.\nNOTE: The data set WORK.CUST has 20000 observations and 4 variables.\nNOTE: There were 2645 observations read from the data set WORK.SCORING.\nNOTE: The data set RPT.RISK_SCORES has 2645 observations and 14 variables.\nNOTE: The data set WORK._LANSH_META_RAW has 14 observations and 41 variables.\nNOTE: There were 14 observations read from the data set WORK._LANSH_META_RAW.\nNOTE: The data set WORK._LANSH_META_RAW has 14 observations and 41 variables.\nNOTE: There were 14 observations read from the data set WORK._LANSH_META_RAW.\nNOTE: The data set WORK._LANSH_META has 14 observations and 11 variables.\nNOTE: There were 14 observations read from the data set WORK._LANSH_META.\nNOTE: There were 2645 observations read from the data set RPT.RISK_SCORES.",
+  "captured_at": "2026-11-11T22:51:21.862207Z",
+  "capture_seconds": 15.955,
+  "lansh_version": "0.1.0"
+}

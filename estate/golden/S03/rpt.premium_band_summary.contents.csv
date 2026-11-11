@@ -1,0 +1,8 @@
+"varnum","name","type","length","format","formatl","formatd","informat","label","nobs","category"
+1,"lob_code","char",5,"$CHAR",5,0,,,13,"char"
+2,"prem_band","char",8,,0,0,,,13,"char"
+3,"n_policies","num",8,,0,0,,,13,"num"
+4,"n_transactions","num",8,,0,0,,,13,"num"
+5,"written_eur","num",8,"BEST",32,0,,,13,"num"
+6,"earned_eur","num",8,"BEST",32,0,,,13,"num"
+7,"as_of_date","num",8,"YYMMDD",10,0,,,13,"date"

@@ -1,0 +1,119 @@
+{
+  "job_id": "S03",
+  "engine": "sas",
+  "engine_version": "SAS 9.04.01M9P06052025",
+  "legacy_path": "estate/sas/S03_premium_bands.sas",
+  "legacy_sha256": "c40650f2177f8a2808693aa0e79675464a0df999a505a2fcad32c4f9c4bf0132",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "dw.fact_premium_earned",
+      "path": "estate/golden/T03/dw.fact_premium_earned.parquet",
+      "rows": 67879,
+      "file_sha256": "0d7e48f75842a0582d9d082fc47e9041bdc7507f1ba69f54f7dfdbfec7023378",
+      "content_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "rpt.premium_band_summary",
+      "rows": 13,
+      "columns": [
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "char 5 format=$CHAR",
+          "nullable": true,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "prem_band",
+          "data_type": "string",
+          "legacy_type": "char 8",
+          "nullable": true,
+          "max_length": 8,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "n_policies",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "n_transactions",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "written_eur",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "earned_eur",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=YYMMDD",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/S03/rpt.premium_band_summary.csv",
+      "raw_sha256": "548b0fa5b2125d3c1333eb3664387b3dbf304c5b4c8f136eca304c24cfbf2733",
+      "parquet_path": "estate/golden/S03/rpt.premium_band_summary.parquet",
+      "parquet_sha256": "76fd8749dd30d935f26818474ca19230ec47638d37b4500fcb89c8e7ae56d356",
+      "content_sha256": "9c0afce322a3f969e936256b8ae9f0b4d696cb1697f881d9393d99acefb67982",
+      "volatile_columns": [],
+      "sidecars": [
+        {
+          "path": "estate/golden/S03/rpt.premium_band_summary.contents.csv",
+          "sha256": "65da7bde788d59734c163195e4dbb929012fe3e266a2cd123021cf7931d0fc17"
+        },
+        {
+          "path": "estate/golden/S03/rpt.premium_band_summary.hex.csv",
+          "sha256": "0ee458f23c5d53cc9cfb45fcfb3135df823344db99403f3dc98dbd0e08d35c3b"
+        },
+        {
+          "path": "estate/golden/S03/sas.log",
+          "sha256": "13c9f9ddc3279696bf0fb97b77bfab1ad8a9f49df78dd0b8023680fb0e9493e2"
+        }
+      ]
+    }
+  ],
+  "log_excerpt": "NOTE: The data set DW.FACT_PREMIUM_EARNED has 67879 observations and 22 variables.\nNOTE: There were 67879 observations read from the data set DW.FACT_PREMIUM_EARNED.\nNOTE: The data set WORK.OPENING has 61441 observations and 3 variables.\nNOTE: There were 61441 observations read from the data set WORK.OPENING.\nNOTE: The data set WORK.POLICY_BAND has 61441 observations and 3 variables.\nNOTE: There were 67879 observations read from the data set DW.FACT_PREMIUM_EARNED.\nNOTE: The data set WORK.TXN has 67879 observations and 3 variables.\nNOTE: There were 67879 observations read from the data set WORK.TXN.\nNOTE: There were 61441 observations read from the data set WORK.POLICY_BAND.\nNOTE: The data set WORK.TXN_BAND has 67879 observations and 5 variables.\nNOTE: There were 67879 observations read from the data set WORK.TXN_BAND.\nNOTE: The data set WORK.PREMIUM_SUMS has 13 observations and 5 variables.\nNOTE: There were 61441 observations read from the data set WORK.POLICY_BAND.\nNOTE: The data set WORK.POLICY_COUNTS has 13 observations and 3 variables.\nNOTE: There were 13 observations read from the data set WORK.POLICY_COUNTS.\nNOTE: There were 13 observations read from the data set WORK.PREMIUM_SUMS.\nNOTE: The data set RPT.PREMIUM_BAND_SUMMARY has 13 observations and 7 variables.\nNOTE: The data set WORK._LANSH_META_RAW has 7 observations and 41 variables.\nNOTE: There were 7 observations read from the data set WORK._LANSH_META_RAW.\nNOTE: The data set WORK._LANSH_META_RAW has 7 observations and 41 variables.\nNOTE: There were 7 observations read from the data set WORK._LANSH_META_RAW.\nNOTE: The data set WORK._LANSH_META has 7 observations and 11 variables.\nNOTE: There were 7 observations read from the data set WORK._LANSH_META.\nNOTE: There were 13 observations read from the data set RPT.PREMIUM_BAND_SUMMARY.",
+  "captured_at": "2026-11-11T22:45:52.711062Z",
+  "capture_seconds": 22.538,
+  "lansh_version": "0.1.0"
+}

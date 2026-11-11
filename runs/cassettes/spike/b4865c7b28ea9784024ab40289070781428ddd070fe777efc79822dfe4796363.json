@@ -1,0 +1,262 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-10T18:59:33.108181Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": null,
+    "json_schema": {
+      "$defs": {
+        "Finding": {
+          "additionalProperties": false,
+          "description": "One trap occurrence (shaped like ``lansh.contracts.TrapFinding``).",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "kind": {
+              "$ref": "#/$defs/TrapKind"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "One sentence: how Spark's result would differ.",
+              "minLength": 1,
+              "title": "Note",
+              "type": "string"
+            },
+            "snippet": {
+              "description": "The code on those lines that sets the trap.",
+              "minLength": 1,
+              "title": "Snippet",
+              "type": "string"
+            },
+            "trap_id": {
+              "description": "A trap card ID, e.g. TSQL-04.",
+              "pattern": "^TSQL-\\d{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "kind",
+            "line_start",
+            "line_end",
+            "snippet",
+            "confidence",
+            "note"
+          ],
+          "title": "Finding",
+          "type": "object"
+        },
+        "TrapKind": {
+          "enum": [
+            "semantic",
+            "construct"
+          ],
+          "title": "TrapKind",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The trap scanner's answer.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScan",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Column types:\nstg.claims: claim_id INT, policy_id INT, loss_date DATE, reported_date DATE, days_open INT, status VARCHAR(10), region VARCHAR(20)\nstg.policy_snapshots: policy_id INT, inception_date DATE, broker_id INT\nstg.brokers: broker_id INT, broker_code CHAR(6)\n\nCode:\n 1 SELECT c.claim_id,\n 2        c.policy_id,\n 3        DATEDIFF(year, p.inception_date, c.loss_date) AS policy_age_years,\n 4        c.days_open / 30 AS months_open,\n 5        b.broker_code + '-' + c.region AS route_key\n 6 FROM stg.claims AS c\n 7 JOIN stg.policy_snapshots AS p ON p.policy_id = c.policy_id\n 8 LEFT JOIN stg.brokers AS b ON b.broker_id = p.broker_id\n 9 WHERE c.status = 'OPEN'\n10   AND c.reported_date >= '2025-01-01';",
+    "system_prompt": "You are the trap scanner of LANSH, a factory that migrates legacy T-SQL jobs (SQL Server 2022, collation SQL_Latin1_General_CP1_CI_AS) to PySpark 4.2 with ANSI mode on.\nA trap is code whose result differs between SQL Server and Spark unless the migration handles it.\nReport every trap occurrence in the code you are given, using only these trap cards:\n- TSQL-01 (semantic): =, GROUP BY, DISTINCT and joins on strings ignore case under the collation.\n- TSQL-02 (semantic): comparisons ignore trailing spaces; CHAR(n) values are space-padded.\n- TSQL-03 (semantic): integer division truncates.\n- TSQL-04 (semantic): DATEDIFF counts datepart boundaries crossed, not whole elapsed units.\n- TSQL-05 (semantic): + concatenation; a NULL operand makes the whole result NULL.\n- TSQL-07 (semantic): DECIMAL scale, and ROUND on computed values.\n- TSQL-08 (semantic): TOP and TOP WITH TIES.\n- TSQL-16 (semantic): CONVERT style codes.\nLine numbers are the 1-based numbers at the start of each line. Report one finding per trap per occurrence. Don't report code that behaves the same on both engines."
+  },
+  "request_sha256": "b4865c7b28ea9784024ab40289070781428ddd070fe777efc79822dfe4796363",
+  "response": {
+    "duration_api_ms": 9640,
+    "duration_ms": 10019,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 2375,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 2375,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.042508000000000004,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 1175,
+        "provider": "firstParty",
+        "thinkingTokens": 339,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.95,
+          "kind": "semantic",
+          "line_end": 3,
+          "line_start": 3,
+          "note": "SQL Server counts year boundaries crossed (e.g. 2024-12-31 to 2025-01-01 = 1), but a naive Spark translation using months_between/12 or floor of elapsed years gives 0.",
+          "snippet": "DATEDIFF(year, p.inception_date, c.loss_date)",
+          "trap_id": "TSQL-04"
+        },
+        {
+          "confidence": 0.95,
+          "kind": "semantic",
+          "line_end": 4,
+          "line_start": 4,
+          "note": "INT / INT truncates to an integer in SQL Server, but Spark's / returns a fractional double (e.g. 45/30 = 1.5 instead of 1).",
+          "snippet": "c.days_open / 30",
+          "trap_id": "TSQL-03"
+        },
+        {
+          "confidence": 0.9,
+          "kind": "semantic",
+          "line_end": 5,
+          "line_start": 5,
+          "note": "With the LEFT JOIN, broker_code can be NULL, which makes the whole key NULL in SQL Server. In Spark, + on strings fails under ANSI mode, and concat_ws would skip the NULL instead of returning NULL.",
+          "snippet": "b.broker_code + '-' + c.region",
+          "trap_id": "TSQL-05"
+        },
+        {
+          "confidence": 0.6,
+          "kind": "semantic",
+          "line_end": 5,
+          "line_start": 5,
+          "note": "CHAR(6) broker_code is space-padded in SQL Server, so a short code gives 'AB    -REGION'. If Spark reads the column as an unpadded string, the key comes out without the padding spaces.",
+          "snippet": "b.broker_code + '-'",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.9,
+          "kind": "semantic",
+          "line_end": 9,
+          "line_start": 9,
+          "note": "Under the CI collation, 'open' and 'Open' match, but Spark's string equality is case-sensitive, so it drops those rows.",
+          "snippet": "c.status = 'OPEN'",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "kind": "semantic",
+          "line_end": 9,
+          "line_start": 9,
+          "note": "SQL Server ignores trailing spaces, so 'OPEN ' matches 'OPEN', but Spark's string equality does not and drops those rows.",
+          "snippet": "c.status = 'OPEN'",
+          "trap_id": "TSQL-02"
+        }
+      ]
+    },
+    "total_cost_usd": 0.042508000000000004,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 2375,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 2375,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2375,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 2375,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 1175,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 1175,
+      "output_tokens_details": {
+        "thinking_tokens": 339
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

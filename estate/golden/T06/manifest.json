@@ -1,0 +1,203 @@
+{
+  "job_id": "T06",
+  "engine": "mssql",
+  "engine_version": "SQL Server 16.0.4305.5",
+  "legacy_path": "estate/tsql/T06_usp_loss_triangle.sql",
+  "legacy_sha256": "cee60f041de5a268d53d966f273fdde67f2a7710f57427e91412a791d568b613",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "stg.claims",
+      "path": "estate/data/claims.parquet",
+      "rows": 2911,
+      "file_sha256": "f1bd4a653fbb851b20e2aba0eb07510e94e589463344f548ab77d8e23c36551c",
+      "content_sha256": "7fc2a10a4dbc983798fcf213f4aecf34597263466c023e300256325826a77808"
+    },
+    {
+      "table": "stg.claim_payments",
+      "path": "estate/data/claim_payments.parquet",
+      "rows": 10247,
+      "file_sha256": "f78ad9e7e7202ba6e080f0e7a06808c152cb400609cbd8a07049e1e95479ac33",
+      "content_sha256": "8706780e1d29862846d2d861e6c797c1ccc2ee9059dc2e145d976446ab49680a"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "rpt.loss_triangle_paid",
+      "rows": 21,
+      "columns": [
+        {
+          "name": "accident_year",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "dev_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "cumulative_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/T06/rpt.loss_triangle_paid.csv",
+      "raw_sha256": "6ba82bd51b1e14ac9a8873cd7d0c2ee82fd787ebac37e74c7bc76f7a8f22d6f0",
+      "parquet_path": "estate/golden/T06/rpt.loss_triangle_paid.parquet",
+      "parquet_sha256": "53f7e659a328d4b23175d975076c56f1f785baafd0b6d3ce531606f28260198a",
+      "content_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "volatile_columns": [],
+      "sidecars": []
+    }
+  ],
+  "log_excerpt": "STARTED Start\nINFO Load #claims rows=2911\nINFO Load #paid rows=9918\nINFO Pivot #tri rows=21\nINFO Insert rpt.loss_triangle_paid rows=21\nINFO Cumulative paid rows=21\nSUCCESS End",
+  "captured_at": "2026-11-11T22:45:13.070027Z",
+  "capture_seconds": 0.147,
+  "lansh_version": "0.1.0"
+}

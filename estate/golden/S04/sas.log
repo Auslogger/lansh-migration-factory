@@ -1,0 +1,1331 @@
+201                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2290       
+2291       data _null_;
+2292         length _lansh_p $1024;
+2293         if fileexist('~/lansh') = 0 then _lansh_p = dcreate('lansh', '~');
+2294         if fileexist('~/lansh/golden') = 0 then _lansh_p = dcreate('golden', '~/lansh');
+2295         if fileexist('~/lansh/golden/stg') = 0 then _lansh_p = dcreate('stg', '~/lansh/golden');
+2296         if fileexist('~/lansh/golden/stg') then put 'LANSH_DIR=OK';
+2297         else put 'LANSH_DIR=MISSING';
+2298       run;
+
+LANSH_DIR=OK
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              349.81k
+      OS Memory           19672.00k
+      Timestamp           11/11/2026 10:51:05 p.m.
+      Step Count                        72  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     14
+      Page Swaps                        0
+      Voluntary Context Switches        4
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2299       
+2300       
+2301       
+202                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2302       
+
+203                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2305       
+2306       data _null_;
+2307         length _lansh_p $1024;
+2308         if fileexist('~/lansh') = 0 then _lansh_p = dcreate('lansh', '~');
+2309         if fileexist('~/lansh/golden') = 0 then _lansh_p = dcreate('golden', '~/lansh');
+2310         if fileexist('~/lansh/golden/dw') = 0 then _lansh_p = dcreate('dw', '~/lansh/golden');
+2311         if fileexist('~/lansh/golden/dw') then put 'LANSH_DIR=OK';
+2312         else put 'LANSH_DIR=MISSING';
+2313       run;
+
+LANSH_DIR=OK
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              349.81k
+      OS Memory           19672.00k
+      Timestamp           11/11/2026 10:51:06 p.m.
+      Step Count                        73  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     14
+      Page Swaps                        0
+      Voluntary Context Switches        4
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           8
+      
+
+2314       
+2315       
+2316       
+204                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2317       
+
+205                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2320       
+2321       data _null_;
+2322         length _lansh_p $1024;
+2323         if fileexist('~/lansh') = 0 then _lansh_p = dcreate('lansh', '~');
+2324         if fileexist('~/lansh/golden') = 0 then _lansh_p = dcreate('golden', '~/lansh');
+2325         if fileexist('~/lansh/golden/rpt') = 0 then _lansh_p = dcreate('rpt', '~/lansh/golden');
+2326         if fileexist('~/lansh/golden/rpt') then put 'LANSH_DIR=OK';
+2327         else put 'LANSH_DIR=MISSING';
+2328       run;
+
+LANSH_DIR=OK
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              349.81k
+      OS Memory           19672.00k
+      Timestamp           11/11/2026 10:51:06 p.m.
+      Step Count                        74  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     14
+      Page Swaps                        0
+      Voluntary Context Switches        4
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2329       
+2330       
+2331       
+206                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2332       
+
+207                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2335       
+2336       libname stg '~/lansh/golden/stg';
+NOTE: Libref STG was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: ~/lansh/golden/stg
+2337       libname dw '~/lansh/golden/dw';
+NOTE: Libref DW was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: ~/lansh/golden/dw
+2338       libname rpt '~/lansh/golden/rpt';
+NOTE: Libref RPT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: ~/lansh/golden/rpt
+2339       
+2340       
+2341       
+2342       
+208                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2343       
+
+209                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2346       
+2347       data _null_;
+2348         length _lansh_p $1024;
+2349         if fileexist('~/lansh') = 0 then _lansh_p = dcreate('lansh', '~');
+2350         if fileexist('~/lansh/golden') = 0 then _lansh_p = dcreate('golden', '~/lansh');
+2351         if fileexist('~/lansh/golden/incoming') = 0 then _lansh_p = dcreate('incoming',
+2351     ! '~/lansh/golden');
+2352         if fileexist('~/lansh/golden/incoming') then put 'LANSH_DIR=OK';
+2353         else put 'LANSH_DIR=MISSING';
+2354       run;
+
+LANSH_DIR=OK
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              349.81k
+      OS Memory           19672.00k
+      Timestamp           11/11/2026 10:51:06 p.m.
+      Step Count                        75  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     14
+      Page Swaps                        0
+      Voluntary Context Switches        4
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2355       
+2356       
+2357       
+210                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2358       
+
+211                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2361       
+2362       data _null_;
+2363         if 0 then set dw.claims_enriched nobs=_lansh_n;
+2364         put 'LANSH_NOBS=' _lansh_n;
+2365         stop;
+2366       run;
+
+LANSH_NOBS=2911
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              1003.03k
+      OS Memory           20188.00k
+      Timestamp           11/11/2026 10:51:06 p.m.
+      Step Count                        76  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     112
+      Page Swaps                        0
+      Voluntary Context Switches        7
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2367       
+2368       
+2369       
+2370       
+212                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2371       
+
+213                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2374       
+2375       data _null_;
+2376         if 0 then set rpt.premium_band_summary nobs=_lansh_n;
+2377         put 'LANSH_NOBS=' _lansh_n;
+2378         stop;
+2379       run;
+
+LANSH_NOBS=13
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              597.84k
+      OS Memory           19676.00k
+      Timestamp           11/11/2026 10:51:07 p.m.
+      Step Count                        77  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     48
+      Page Swaps                        0
+      Voluntary Context Switches        7
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2380       
+2381       
+2382       
+2383       
+214                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2384       
+
+221                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2420       
+2421       filename _sp_updn '~/lansh/golden/incoming/dw_dim_customer.csv' recfm=N permission='';
+2422       
+2423       
+2424       
+222                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2425       223                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2428       
+2429       filename _sp_updn;
+NOTE: Fileref _SP_UPDN has been deassigned.
+2430       
+2431       
+2432       
+224                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2433       
+
+233                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2512       
+2513       /* LANSH: read dw_dim_customer.csv into dw.dim_customer with explicit informats */
+2514       data dw.dim_customer;
+2515         infile '~/lansh/golden/incoming/dw_dim_customer.csv' dsd dlm=',' firstobs=2 truncover lrecl=2061
+2516           encoding='utf-8' termstr=LF;
+2517         length
+2518           customer_id         8
+2519           first_name          $80
+2520           last_name           $120
+2521           full_name           $202
+2522           initials            $4
+2523           email               $120
+2524           email_shared_count  8
+2525           date_of_birth       8
+2526           age_at_join         8
+2527           address_line1       $200
+2528           town                $100
+2529           county              $30
+2530           region              $12
+2531           eircode             $10
+2532           eircode_valid       $1
+2533           segment_code        $4
+2534           is_standard_segment $1
+2535           marketing_opt_in    $1
+2536           customer_since      8
+2537           source_system       $10
+2538           version_count       8
+2539           record_updated_at   8
+2540           as_of_date          8
+2541           _row_seq            8
+2542           _lansh_t22          $26
+2543         ;
+2544         format
+2545           customer_id         BEST32.
+2546           first_name          $CHAR80.
+2547           last_name           $CHAR120.
+2548           full_name           $CHAR202.
+2549           initials            $CHAR4.
+2550           email               $CHAR120.
+2551           email_shared_count  BEST32.
+2552           date_of_birth       YYMMDD10.
+2553           age_at_join         BEST32.
+2554           address_line1       $CHAR200.
+2555           town                $CHAR100.
+2556           county              $CHAR30.
+2557           region              $CHAR12.
+2558           eircode             $CHAR10.
+2559           eircode_valid       $CHAR1.
+2560           segment_code        $CHAR4.
+2561           is_standard_segment $CHAR1.
+2562           marketing_opt_in    $CHAR1.
+2563           customer_since      YYMMDD10.
+2564           source_system       $CHAR10.
+2565           version_count       BEST32.
+2566           record_updated_at   E8601DT26.6
+2567           as_of_date          YYMMDD10.
+2568           _row_seq            BEST32.
+2569         ;
+2570         input
+2571           customer_id         :BEST32.
+2572           first_name          :$CHAR80.
+2573           last_name           :$CHAR120.
+2574           full_name           :$CHAR202.
+2575           initials            :$CHAR4.
+2576           email               :$CHAR120.
+2577           email_shared_count  :BEST32.
+2578           date_of_birth       :YYMMDD10.
+2579           age_at_join         :BEST32.
+2580           address_line1       :$CHAR200.
+2581           town                :$CHAR100.
+2582           county              :$CHAR30.
+2583           region              :$CHAR12.
+2584           eircode             :$CHAR10.
+2585           eircode_valid       :$CHAR1.
+2586           segment_code        :$CHAR4.
+2587           is_standard_segment :$CHAR1.
+2588           marketing_opt_in    :$CHAR1.
+2589           customer_since      :YYMMDD10.
+2590           source_system       :$CHAR10.
+2591           version_count       :BEST32.
+2592           _lansh_t22          :$26.
+2593           as_of_date          :YYMMDD10.
+2594           _row_seq            :BEST32.
+2595         ;
+2596         if not missing(_lansh_t22) then record_updated_at = input(_lansh_t22, E8601DT26.6);
+2597         drop _lansh_t22;
+2598       run;
+
+NOTE: The infile '~/lansh/golden/incoming/dw_dim_customer.csv' is:
+      Filename=~/lansh/golden/incoming/dw_dim_customer.csv,
+      Owner Name=<user>,Group Name=oda,
+      Access Permission=-rw-r--r--,
+      Last Modified=11 November 2026 22:51:13,
+      File Size (bytes)=4739629
+
+NOTE: 20000 records were read from the infile '~/lansh/golden/incoming/dw_dim_customer.csv'.
+      The minimum record length was 179.
+      The maximum record length was 377.
+NOTE: The data set DW.DIM_CUSTOMER has 20000 observations and 24 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.11 seconds
+      user cpu time       0.04 seconds
+      system cpu time     0.01 seconds
+      memory              1913.89k
+      OS Memory           20700.00k
+      Timestamp           11/11/2026 10:51:14 p.m.
+      Step Count                        81  Switch Count  1
+      Page Faults                       0
+      Page Reclaims                     205
+      Page Swaps                        0
+      Voluntary Context Switches        754
+      Involuntary Context Switches      2
+      Block Input Operations            0
+      Block Output Operations           38160
+      
+
+2599       
+2600       
+2601       
+2602       
+234                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2603       
+
+235                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2606       
+2607       data _null_;
+2608         if 0 then set dw.dim_customer nobs=_lansh_n;
+2609         put 'LANSH_NOBS=' _lansh_n;
+2610         stop;
+2611       run;
+
+LANSH_NOBS=20000
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              1954.40k
+      OS Memory           20700.00k
+      Timestamp           11/11/2026 10:51:14 p.m.
+      Step Count                        82  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     243
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           0
+      
+
+2612       
+2613       
+2614       
+2615       
+236                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2616       
+
+237                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2619       
+2620       options mprint;
+2621       %let as_of = '31DEC2025'd;
+2622       /******************************************************************************
+2623         Program  : risk_scoring.sas
+2624         Purpose  : Customer risk score and referral tier by line of business for
+2625                    underwriting. Claims experience (claim count, recoveries and
+2626                    severity against the line's average) plus the line's loss ratio,
+2627                    loaded for the policyholder's age and county.
+2628         Inputs   : dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer
+2629         Output   : rpt.risk_scores (rebuilt on every run)
+2630         Params   : as_of - reporting date (SAS date), set by the scheduler
+2631         Author   : TF
+2632       
+2633         Change log
+2634           2015-06-02  TF    Initial version (motor only)
+2635           2016-11-21  TF    Home and travel added; scoring per line in a macro
+2636                             (CR-0998)
+2637           2018-04-09  GH    Age and county loadings from the pricing review (CR-1302)
+2638           2020-01-27  GH    Line loss ratio from premium_bands.sas (CR-1544)
+2639           2022-09-12  TF    Referral tiers for the underwriting queue (CR-2011)
+2640       ******************************************************************************/
+2641       
+2642       /* policyholder loadings: age at the reporting date and county */
+2643       data work.cust(keep=customer_id age age_load county_load);
+2644         set dw.dim_customer(keep=customer_id date_of_birth county);
+2645         age = int((&as_of - date_of_birth) / 365.25);
+2646         if missing(age) then age_load = 1.00;
+2647         else if age < 25 then age_load = 1.40;
+2648         else if age >= 70 then age_load = 1.25;
+2649         else age_load = 1.00;
+2650         select (upcase(strip(county)));
+2651           when ('DUBLIN') county_load = 1.15;
+2652           when ('CORK', 'LIMERICK', 'GALWAY') county_load = 1.05;
+2653           otherwise county_load = 1.00;
+2654         end;
+2655       run;
+
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      86 at 2645:9    86 at 2645:21   86 at 2645:38   
+NOTE: There were 20000 observations read from the data set DW.DIM_CUSTOMER.
+NOTE: The data set WORK.CUST has 20000 observations and 4 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.03 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.01 seconds
+      memory              2707.56k
+      OS Memory           21472.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        83  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     419
+      Page Swaps                        0
+      Voluntary Context Switches        213
+      Involuntary Context Switches      1
+      Block Input Operations            0
+      Block Output Operations           1288
+      
+
+2656       
+2657       /* claims experience per customer and line of business */
+2658       proc sql;
+2659         create table work.experience as
+2660         select customer_id, lob_code,
+2661                count(*)          as n_claims,
+2662                sum(total_paid)   as paid,
+2663                sum(n_recoveries) as n_recoveries
+2664         from   dw.claims_enriched
+2665         group  by customer_id, lob_code;
+NOTE: Table WORK.EXPERIENCE created, with 2645 rows and 5 columns.
+
+2666       quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              5897.18k
+      OS Memory           25312.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        84  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     317
+      Page Swaps                        0
+      Voluntary Context Switches        15
+      Involuntary Context Switches      1
+      Block Input Operations            0
+      Block Output Operations           280
+      
+
+2667       
+2668       /* loss ratio per line: paid on the claims book over earned premium */
+2669       proc sql;
+2670         create table work.lob_ratio as
+2671         select e.lob_code, sum(e.paid) / p.earned as loss_ratio
+2672         from   work.experience e,
+2673                (select lob_code, sum(earned_eur) as earned
+2674                 from   rpt.premium_band_summary
+2675                 group  by lob_code) p
+2676         where  e.lob_code = p.lob_code
+2677         group  by e.lob_code, p.earned;
+NOTE: Table WORK.LOB_RATIO created, with 3 rows and 2 columns.
+
+2678       quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              5963.43k
+      OS Memory           25316.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        85  Switch Count  3
+      Page Faults                       0
+      Page Reclaims                     420
+      Page Swaps                        0
+      Voluntary Context Switches        27
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           280
+      
+
+2679       
+2680       /* each customer against the average for the line */
+2681       %macro score_lines(lobs);
+2682         %local i lob;
+2683         %do i = 1 %to %sysfunc(countw(&lobs));
+2684           %let lob = %scan(&lobs, &i);
+2685           proc sql;
+2686             create table work.score_&lob as
+2687             select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,
+2688                    x.paid / mean(x.paid) as severity
+2689             from   work.experience x
+2690             where  x.lob_code = "&lob";
+2691           quit;
+2692         %end;
+2693       %mend score_lines;
+2694       
+2695       %score_lines(MOT HOM TRV);
+MPRINT(SCORE_LINES):   proc sql;
+MPRINT(SCORE_LINES):   create table work.score_MOT as select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries, x.paid 
+/ mean(x.paid) as severity from work.experience x where x.lob_code = "MOT";
+NOTE: The query requires remerging summary statistics back with the original data.
+NOTE: Table WORK.SCORE_MOT created, with 1577 rows and 6 columns.
+
+MPRINT(SCORE_LINES):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5497.79k
+      OS Memory           26336.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        86  Switch Count  3
+      Page Faults                       0
+      Page Reclaims                     133
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           272
+      
+
+MPRINT(SCORE_LINES):   proc sql;
+MPRINT(SCORE_LINES):   create table work.score_HOM as select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries, x.paid 
+/ mean(x.paid) as severity from work.experience x where x.lob_code = "HOM";
+NOTE: The query requires remerging summary statistics back with the original data.
+NOTE: Table WORK.SCORE_HOM created, with 835 rows and 6 columns.
+
+MPRINT(SCORE_LINES):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              5497.84k
+      OS Memory           26336.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        87  Switch Count  3
+      Page Faults                       0
+      Page Reclaims                     141
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           272
+      
+
+MPRINT(SCORE_LINES):   proc sql;
+MPRINT(SCORE_LINES):   create table work.score_TRV as select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries, x.paid 
+/ mean(x.paid) as severity from work.experience x where x.lob_code = "TRV";
+NOTE: The query requires remerging summary statistics back with the original data.
+NOTE: Table WORK.SCORE_TRV created, with 233 rows and 6 columns.
+
+MPRINT(SCORE_LINES):   quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              5498.10k
+      OS Memory           26336.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        88  Switch Count  3
+      Page Faults                       0
+      Page Reclaims                     148
+      Page Swaps                        0
+      Voluntary Context Switches        10
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           272
+      
+
+2696       
+2697       proc sql;
+2698         create table work.scoring as
+2699         select s.*, c.age, c.age_load, c.county_load, r.loss_ratio
+2700         from   (select * from work.score_mot
+2701                 union all
+2702                 select * from work.score_hom
+2703                 union all
+2704                 select * from work.score_trv) s
+2705                left join work.cust c on c.customer_id = s.customer_id
+2706                left join work.lob_ratio r on r.lob_code = s.lob_code
+2707         order  by s.customer_id, s.lob_code;
+NOTE: Table WORK.SCORING created, with 2645 rows and 10 columns.
+
+2708       quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           0.02 seconds
+      user cpu time       0.02 seconds
+      system cpu time     0.00 seconds
+      memory              22495.48k
+      OS Memory           42216.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        89  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     1446
+      Page Swaps                        0
+      Voluntary Context Switches        67
+      Involuntary Context Switches      4
+      Block Input Operations            0
+      Block Output Operations           528
+      
+
+2709       
+2710       /* points, loadings and the referral tier */
+2711       data rpt.risk_scores(keep=customer_id lob_code n_claims paid n_recoveries severity age
+2712                                 age_load county_load loss_ratio points score tier as_of_date);
+2713         set work.scoring;
+2714         sev_points = 0;
+2715         if severity >= 2 then sev_points = 10;
+2716         else if severity >= 1 then sev_points = 5;
+2717         lob_points = round(2.5 * loss_ratio, 0.5);
+2718         points = 12.5 * min(n_claims, 4) + 7.5 * n_recoveries + sev_points + lob_points;
+2719         score  = round(points * age_load * county_load, 0.01);
+2720         if score >= 35 then tier = 'HIGH';
+2721         else if score >= 22 then tier = 'MEDIUM';
+2722         else tier = 'LOW';
+2723         format as_of_date yymmdd10.;
+2724         as_of_date = &as_of;
+2725       run;
+
+NOTE: There were 2645 observations read from the data set WORK.SCORING.
+NOTE: The data set RPT.RISK_SCORES has 2645 observations and 14 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              1220.04k
+      OS Memory           22496.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        90  Switch Count  1
+      Page Faults                       0
+      Page Reclaims                     82
+      Page Swaps                        0
+      Voluntary Context Switches        41
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           784
+      
+
+2726       
+2727       
+2728       
+2729       
+238                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2730       
+
+239                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2733       
+2734       data _null_;
+2735         length _lansh_p $1024;
+2736         if fileexist('~/lansh') = 0 then _lansh_p = dcreate('lansh', '~');
+2737         if fileexist('~/lansh/golden') = 0 then _lansh_p = dcreate('golden', '~/lansh');
+2738         if fileexist('~/lansh/golden/export') = 0 then _lansh_p = dcreate('export',
+2738     ! '~/lansh/golden');
+2739         if fileexist('~/lansh/golden/export') then put 'LANSH_DIR=OK';
+2740         else put 'LANSH_DIR=MISSING';
+2741       run;
+
+LANSH_DIR=OK
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              348.12k
+      OS Memory           21464.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        91  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     14
+      Page Swaps                        0
+      Voluntary Context Switches        4
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           8
+      
+
+2742       
+2743       
+2744       
+240                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2745       
+
+241                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2748       
+2749       /* LANSH: metadata of rpt.risk_scores */
+2750       proc contents data=rpt.risk_scores out=work._lansh_meta_raw noprint;
+2751       run;
+
+NOTE: The data set WORK._LANSH_META_RAW has 14 observations and 41 variables.
+NOTE: PROCEDURE CONTENTS used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              1322.26k
+      OS Memory           22372.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        92  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     177
+      Page Swaps                        0
+      Voluntary Context Switches        18
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           272
+      
+
+2752       proc sort data=work._lansh_meta_raw;
+2753         by varnum;
+2754       run;
+
+NOTE: There were 14 observations read from the data set WORK._LANSH_META_RAW.
+NOTE: The data set WORK._LANSH_META_RAW has 14 observations and 41 variables.
+NOTE: PROCEDURE SORT used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              847.73k
+      OS Memory           21984.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        93  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     109
+      Page Swaps                        0
+      Voluntary Context Switches        8
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           264
+      
+
+2755       data work._lansh_meta;
+2756         length type $4 category $8;
+2757         set work._lansh_meta_raw(keep=varnum name type length format formatl formatd informat label nobs
+2758           rename=(type=_lansh_type));
+2759         type = ifc(_lansh_type = 2, 'char', 'num');
+2760         if _lansh_type = 2 then category = 'char';
+2761         else if format = ' ' then category = 'num';
+2762         else category = lowcase(fmtinfo(format, 'cat'));
+2763         if type = 'num' and category not in ('date', 'datetime', 'time') then
+2764           category = 'num';
+2765         drop _lansh_type;
+2766       run;
+
+NOTE: There were 14 observations read from the data set WORK._LANSH_META_RAW.
+NOTE: The data set WORK._LANSH_META has 14 observations and 11 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              868.79k
+      OS Memory           21984.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        94  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     111
+      Page Swaps                        0
+      Voluntary Context Switches        9
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           264
+      
+
+2767       proc datasets lib=work nolist;
+2768         delete _lansh_meta_raw;
+2769       quit;
+
+NOTE: Deleting WORK._LANSH_META_RAW (memtype=DATA).
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.00 seconds
+      memory              346.26k
+      OS Memory           21724.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        95  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     49
+      Page Swaps                        0
+      Voluntary Context Switches        8
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           8
+      
+
+2770       /* LANSH: export work._lansh_meta with explicit formats */
+2771       filename _lxcsv '~/lansh/golden/export/rpt_risk_scores.contents.csv' encoding='utf-8' nobom termstr=LF
+2771     ! lrecl=912;
+2772       data _null_;
+2773         length _lansh_v $32767 _lansh_l 8;
+2774         if _n_ = 1 then do;
+2775           file _lxcsv;
+2776           put '"varnum"' @;
+2777           put ',"name"' @;
+2778           put ',"type"' @;
+2779           put ',"length"' @;
+2780           put ',"format"' @;
+2781           put ',"formatl"' @;
+2782           put ',"formatd"' @;
+2783           put ',"informat"' @;
+2784           put ',"label"' @;
+2785           put ',"nobs"' @;
+2786           put ',"category"' @;
+2787           put;
+2788         end;
+2789         set work._lansh_meta;
+2790         file _lxcsv;
+2791         /* varnum: num num -> BEST32. */
+2792         if missing(varnum) then _lansh_l = 0;
+2793         else do; _lansh_v = strip(put(varnum, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+2794         put _lansh_v $varying32767. _lansh_l @;
+2795         /* name: char char -> $CHAR32. */
+2796         if missing(name) then _lansh_l = 0;
+2797         else do;
+2798           _lansh_v = tranwrd(put(name, $CHAR32.), '"', '""');
+2799           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2800           _lansh_l = lengthn(_lansh_v);
+2801         end;
+2802         put ',' @;
+2803         put _lansh_v $varying32767. _lansh_l @;
+2804         /* type: char char -> $CHAR4. */
+2805         if missing(type) then _lansh_l = 0;
+2806         else do;
+2807           _lansh_v = tranwrd(put(type, $CHAR4.), '"', '""');
+2808           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2809           _lansh_l = lengthn(_lansh_v);
+2810         end;
+2811         put ',' @;
+2812         put _lansh_v $varying32767. _lansh_l @;
+2813         /* length: num num -> BEST32. */
+2814         if missing(length) then _lansh_l = 0;
+2815         else do; _lansh_v = strip(put(length, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+2816         put ',' @;
+2817         put _lansh_v $varying32767. _lansh_l @;
+2818         /* format: char char -> $CHAR32. */
+2819         if missing(format) then _lansh_l = 0;
+2820         else do;
+2821           _lansh_v = tranwrd(put(format, $CHAR32.), '"', '""');
+2822           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2823           _lansh_l = lengthn(_lansh_v);
+2824         end;
+2825         put ',' @;
+2826         put _lansh_v $varying32767. _lansh_l @;
+2827         /* formatl: num num -> BEST32. */
+2828         if missing(formatl) then _lansh_l = 0;
+2829         else do; _lansh_v = strip(put(formatl, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+2830         put ',' @;
+2831         put _lansh_v $varying32767. _lansh_l @;
+2832         /* formatd: num num -> BEST32. */
+2833         if missing(formatd) then _lansh_l = 0;
+2834         else do; _lansh_v = strip(put(formatd, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+2835         put ',' @;
+2836         put _lansh_v $varying32767. _lansh_l @;
+2837         /* informat: char char -> $CHAR32. */
+2838         if missing(informat) then _lansh_l = 0;
+2839         else do;
+2840           _lansh_v = tranwrd(put(informat, $CHAR32.), '"', '""');
+2841           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2842           _lansh_l = lengthn(_lansh_v);
+2843         end;
+2844         put ',' @;
+2845         put _lansh_v $varying32767. _lansh_l @;
+2846         /* label: char char -> $CHAR256. */
+2847         if missing(label) then _lansh_l = 0;
+2848         else do;
+2849           _lansh_v = tranwrd(put(label, $CHAR256.), '"', '""');
+2850           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2851           _lansh_l = lengthn(_lansh_v);
+2852         end;
+2853         put ',' @;
+2854         put _lansh_v $varying32767. _lansh_l @;
+2855         /* nobs: num num -> BEST32. */
+2856         if missing(nobs) then _lansh_l = 0;
+2857         else do; _lansh_v = strip(put(nobs, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+2858         put ',' @;
+2859         put _lansh_v $varying32767. _lansh_l @;
+2860         /* category: char char -> $CHAR8. */
+2861         if missing(category) then _lansh_l = 0;
+2862         else do;
+2863           _lansh_v = tranwrd(put(category, $CHAR8.), '"', '""');
+2864           _lansh_v = '"' || trimn(_lansh_v) || '"';
+2865           _lansh_l = lengthn(_lansh_v);
+2866         end;
+2867         put ',' @;
+2868         put _lansh_v $varying32767. _lansh_l @;
+2869         put;
+2870       run;
+
+NOTE: The file _LXCSV is:
+      Filename=~/lansh/golden/export/rpt_risk_scores.contents.csv,
+      Owner Name=<user>,Group Name=oda,
+      Access Permission=-rw-r--r--,
+      Last Modified=11 November 2026 22:51:15
+
+NOTE: 15 records were written to the file _LXCSV.
+      The minimum record length was 33.
+      The maximum record length was 97.
+NOTE: There were 14 observations read from the data set WORK._LANSH_META.
+NOTE: DATA statement used (Total process time):
+      real time           0.01 seconds
+      user cpu time       0.01 seconds
+      system cpu time     0.00 seconds
+      memory              1034.34k
+      OS Memory           22244.00k
+      Timestamp           11/11/2026 10:51:15 p.m.
+      Step Count                        96  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     108
+      Page Swaps                        0
+      Voluntary Context Switches        9
+      Involuntary Context Switches      1
+      Block Input Operations            0
+      Block Output Operations           24
+      
+
+2871       filename _lxcsv clear;
+NOTE: Fileref _LXCSV has been deassigned.
+2872       
+2873       
+2874       
+2875       
+242                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2876       
+
+251                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2955       
+2956       filename _sp_updn '~/lansh/golden/export/rpt_risk_scores.contents.csv' recfm=F encoding=binary lrecl=4096;
+2957       
+2958       
+2959       
+252                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2960       253                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2963       
+2964       
+254                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2965       255                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2968       
+2969       filename _sp_updn;
+NOTE: Fileref _SP_UPDN has been deassigned.
+2970       
+2971       
+2972       
+256                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2973       
+
+257                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+2976       
+2977       /* LANSH: export rpt.risk_scores with explicit formats */
+2978       filename _lxcsv '~/lansh/golden/export/rpt_risk_scores.csv' encoding='utf-8' nobom termstr=LF lrecl=399;
+2979       filename _lxhex '~/lansh/golden/export/rpt_risk_scores.hex.csv' encoding='utf-8' nobom termstr=LF lrecl=256
+2979     ! ;
+2980       data _null_;
+2981         length _lansh_v $32767 _lansh_l 8;
+2982         if _n_ = 1 then do;
+2983           file _lxcsv;
+2984           put '"customer_id"' @;
+2985           put ',"lob_code"' @;
+2986           put ',"n_claims"' @;
+2987           put ',"paid"' @;
+2988           put ',"n_recoveries"' @;
+2989           put ',"severity"' @;
+2990           put ',"age"' @;
+2991           put ',"age_load"' @;
+2992           put ',"county_load"' @;
+2993           put ',"loss_ratio"' @;
+2994           put ',"points"' @;
+2995           put ',"score"' @;
+2996           put ',"tier"' @;
+2997           put ',"as_of_date"' @;
+2998           put;
+2999           file _lxhex;
+3000           put '"_lansh_obs"' @;
+3001           put ',"customer_id"' @;
+3002           put ',"n_claims"' @;
+3003           put ',"paid"' @;
+3004           put ',"n_recoveries"' @;
+3005           put ',"severity"' @;
+3006           put ',"age"' @;
+3007           put ',"age_load"' @;
+3008           put ',"county_load"' @;
+3009           put ',"loss_ratio"' @;
+3010           put ',"points"' @;
+3011           put ',"score"' @;
+3012           put ',"as_of_date"' @;
+3013           put;
+3014         end;
+3015         set rpt.risk_scores;
+3016         file _lxcsv;
+3017         /* customer_id: num num -> BEST32. */
+3018         if missing(customer_id) then _lansh_l = 0;
+3019         else do; _lansh_v = strip(put(customer_id, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3020         put _lansh_v $varying32767. _lansh_l @;
+3021         /* lob_code: char char -> $CHAR5. */
+3022         if missing(lob_code) then _lansh_l = 0;
+3023         else do;
+3024           _lansh_v = tranwrd(put(lob_code, $CHAR5.), '"', '""');
+3025           _lansh_v = '"' || trimn(_lansh_v) || '"';
+3026           _lansh_l = lengthn(_lansh_v);
+3027         end;
+3028         put ',' @;
+3029         put _lansh_v $varying32767. _lansh_l @;
+3030         /* n_claims: num num -> BEST32. */
+3031         if missing(n_claims) then _lansh_l = 0;
+3032         else do; _lansh_v = strip(put(n_claims, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3033         put ',' @;
+3034         put _lansh_v $varying32767. _lansh_l @;
+3035         /* paid: num num -> BEST32. */
+3036         if missing(paid) then _lansh_l = 0;
+3037         else do; _lansh_v = strip(put(paid, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3038         put ',' @;
+3039         put _lansh_v $varying32767. _lansh_l @;
+3040         /* n_recoveries: num num -> BEST32. */
+3041         if missing(n_recoveries) then _lansh_l = 0;
+3042         else do; _lansh_v = strip(put(n_recoveries, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3043         put ',' @;
+3044         put _lansh_v $varying32767. _lansh_l @;
+3045         /* severity: num num -> BEST32. */
+3046         if missing(severity) then _lansh_l = 0;
+3047         else do; _lansh_v = strip(put(severity, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3048         put ',' @;
+3049         put _lansh_v $varying32767. _lansh_l @;
+3050         /* age: num num -> BEST32. */
+3051         if missing(age) then _lansh_l = 0;
+3052         else do; _lansh_v = strip(put(age, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3053         put ',' @;
+3054         put _lansh_v $varying32767. _lansh_l @;
+3055         /* age_load: num num -> BEST32. */
+3056         if missing(age_load) then _lansh_l = 0;
+3057         else do; _lansh_v = strip(put(age_load, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3058         put ',' @;
+3059         put _lansh_v $varying32767. _lansh_l @;
+3060         /* county_load: num num -> BEST32. */
+3061         if missing(county_load) then _lansh_l = 0;
+3062         else do; _lansh_v = strip(put(county_load, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3063         put ',' @;
+3064         put _lansh_v $varying32767. _lansh_l @;
+3065         /* loss_ratio: num num -> BEST32. */
+3066         if missing(loss_ratio) then _lansh_l = 0;
+3067         else do; _lansh_v = strip(put(loss_ratio, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3068         put ',' @;
+3069         put _lansh_v $varying32767. _lansh_l @;
+3070         /* points: num num -> BEST32. */
+3071         if missing(points) then _lansh_l = 0;
+3072         else do; _lansh_v = strip(put(points, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3073         put ',' @;
+3074         put _lansh_v $varying32767. _lansh_l @;
+3075         /* score: num num -> BEST32. */
+3076         if missing(score) then _lansh_l = 0;
+3077         else do; _lansh_v = strip(put(score, BEST32.)); _lansh_l = lengthn(_lansh_v); end;
+3078         put ',' @;
+3079         put _lansh_v $varying32767. _lansh_l @;
+3080         /* tier: char char -> $CHAR4. */
+3081         if missing(tier) then _lansh_l = 0;
+3082         else do;
+3083           _lansh_v = tranwrd(put(tier, $CHAR4.), '"', '""');
+3084           _lansh_v = '"' || trimn(_lansh_v) || '"';
+3085           _lansh_l = lengthn(_lansh_v);
+3086         end;
+3087         put ',' @;
+3088         put _lansh_v $varying32767. _lansh_l @;
+3089         /* as_of_date: num date -> YYMMDD10. */
+3090         if missing(as_of_date) then _lansh_l = 0;
+3091         else do; _lansh_v = put(as_of_date, YYMMDD10.); _lansh_l = lengthn(_lansh_v); end;
+3092         put ',' @;
+3093         put _lansh_v $varying32767. _lansh_l @;
+3094         put;
+3095         file _lxhex;
+3096         _lansh_v = strip(put(_n_, BEST32.)); _lansh_l = lengthn(_lansh_v);
+3097         put _lansh_v $varying32767. _lansh_l @;
+3098         /* customer_id: exact bits */
+3099         if missing(customer_id) then _lansh_l = 0;
+3100         else do; _lansh_v = put(customer_id, HEX16.); _lansh_l = 16; end;
+3101         put ',' @;
+3102         put _lansh_v $varying32767. _lansh_l @;
+3103         /* n_claims: exact bits */
+3104         if missing(n_claims) then _lansh_l = 0;
+3105         else do; _lansh_v = put(n_claims, HEX16.); _lansh_l = 16; end;
+3106         put ',' @;
+3107         put _lansh_v $varying32767. _lansh_l @;
+3108         /* paid: exact bits */
+3109         if missing(paid) then _lansh_l = 0;
+3110         else do; _lansh_v = put(paid, HEX16.); _lansh_l = 16; end;
+3111         put ',' @;
+3112         put _lansh_v $varying32767. _lansh_l @;
+3113         /* n_recoveries: exact bits */
+3114         if missing(n_recoveries) then _lansh_l = 0;
+3115         else do; _lansh_v = put(n_recoveries, HEX16.); _lansh_l = 16; end;
+3116         put ',' @;
+3117         put _lansh_v $varying32767. _lansh_l @;
+3118         /* severity: exact bits */
+3119         if missing(severity) then _lansh_l = 0;
+3120         else do; _lansh_v = put(severity, HEX16.); _lansh_l = 16; end;
+3121         put ',' @;
+3122         put _lansh_v $varying32767. _lansh_l @;
+3123         /* age: exact bits */
+3124         if missing(age) then _lansh_l = 0;
+3125         else do; _lansh_v = put(age, HEX16.); _lansh_l = 16; end;
+3126         put ',' @;
+3127         put _lansh_v $varying32767. _lansh_l @;
+3128         /* age_load: exact bits */
+3129         if missing(age_load) then _lansh_l = 0;
+3130         else do; _lansh_v = put(age_load, HEX16.); _lansh_l = 16; end;
+3131         put ',' @;
+3132         put _lansh_v $varying32767. _lansh_l @;
+3133         /* county_load: exact bits */
+3134         if missing(county_load) then _lansh_l = 0;
+3135         else do; _lansh_v = put(county_load, HEX16.); _lansh_l = 16; end;
+3136         put ',' @;
+3137         put _lansh_v $varying32767. _lansh_l @;
+3138         /* loss_ratio: exact bits */
+3139         if missing(loss_ratio) then _lansh_l = 0;
+3140         else do; _lansh_v = put(loss_ratio, HEX16.); _lansh_l = 16; end;
+3141         put ',' @;
+3142         put _lansh_v $varying32767. _lansh_l @;
+3143         /* points: exact bits */
+3144         if missing(points) then _lansh_l = 0;
+3145         else do; _lansh_v = put(points, HEX16.); _lansh_l = 16; end;
+3146         put ',' @;
+3147         put _lansh_v $varying32767. _lansh_l @;
+3148         /* score: exact bits */
+3149         if missing(score) then _lansh_l = 0;
+3150         else do; _lansh_v = put(score, HEX16.); _lansh_l = 16; end;
+3151         put ',' @;
+3152         put _lansh_v $varying32767. _lansh_l @;
+3153         /* as_of_date: exact bits */
+3154         if missing(as_of_date) then _lansh_l = 0;
+3155         else do; _lansh_v = put(as_of_date, HEX16.); _lansh_l = 16; end;
+3156         put ',' @;
+3157         put _lansh_v $varying32767. _lansh_l @;
+3158         put;
+3159       run;
+
+NOTE: The file _LXCSV is:
+      Filename=~/lansh/golden/export/rpt_risk_scores.csv,
+      Owner Name=<user>,Group Name=oda,
+      Access Permission=-rw-r--r--,
+      Last Modified=11 November 2026 22:51:17
+
+NOTE: The file _LXHEX is:
+      Filename=~/lansh/golden/export/rpt_risk_scores.hex.csv,
+      Owner Name=<user>,Group Name=oda,
+      Access Permission=-rw-r--r--,
+      Last Modified=11 November 2026 22:51:17
+
+NOTE: 2646 records were written to the file _LXCSV.
+      The minimum record length was 67.
+      The maximum record length was 149.
+NOTE: 2646 records were written to the file _LXHEX.
+      The minimum record length was 144.
+      The maximum record length was 208.
+NOTE: There were 2645 observations read from the data set RPT.RISK_SCORES.
+NOTE: DATA statement used (Total process time):
+      real time           1.26 seconds
+      user cpu time       1.24 seconds
+      system cpu time     0.00 seconds
+      memory              1612.64k
+      OS Memory           22532.00k
+      Timestamp           11/11/2026 10:51:18 p.m.
+      Step Count                        99  Switch Count  0
+      Page Faults                       0
+      Page Reclaims                     167
+      Page Swaps                        0
+      Voluntary Context Switches        48
+      Involuntary Context Switches      5
+      Block Input Operations            0
+      Block Output Operations           1576
+      
+
+3160       filename _lxcsv clear;
+NOTE: Fileref _LXCSV has been deassigned.
+3161       filename _lxhex clear;
+NOTE: Fileref _LXHEX has been deassigned.
+3162       proc datasets lib=work nolist;
+3163         delete _lansh_meta;
+3164       quit;
+
+NOTE: Deleting WORK._LANSH_META (memtype=DATA).
+NOTE: PROCEDURE DATASETS used (Total process time):
+      real time           0.00 seconds
+      user cpu time       0.00 seconds
+      system cpu time     0.01 seconds
+      memory              346.26k
+      OS Memory           21468.00k
+      Timestamp           11/11/2026 10:51:18 p.m.
+      Step Count                        100  Switch Count  2
+      Page Faults                       0
+      Page Reclaims                     48
+      Page Swaps                        0
+      Voluntary Context Switches        8
+      Involuntary Context Switches      0
+      Block Input Operations            0
+      Block Output Operations           8
+      
+
+3165       
+3166       
+3167       
+3168       
+258                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3169       
+
+267                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3248       
+3249       filename _sp_updn '~/lansh/golden/export/rpt_risk_scores.csv' recfm=F encoding=binary lrecl=4096;
+3250       
+3251       
+3252       
+268                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3253       269                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3256       
+3257       
+270                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3258       271                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3261       
+3262       filename _sp_updn;
+NOTE: Fileref _SP_UPDN has been deassigned.
+3263       
+3264       
+3265       
+272                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3266       
+
+281                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3345       
+3346       filename _sp_updn '~/lansh/golden/export/rpt_risk_scores.hex.csv' recfm=F encoding=binary lrecl=4096;
+3347       
+3348       
+3349       
+282                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3350       283                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3353       
+3354       
+284                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3355       285                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3358       
+3359       filename _sp_updn;
+NOTE: Fileref _SP_UPDN has been deassigned.
+3360       
+3361       
+3362       
+286                                                        The SAS System                   Wednesday 11 November 2026 10:50:00 p.m.
+
+3363       

@@ -1,0 +1,170 @@
+# Data dictionary for SynthInsure's source extracts: the nine bronze tables (schema stg).
+#
+# This file is the single source of truth for the source tables:
+# - estate/tsql/ddl/01_stg_tables.sql is generated from it (`lansh estate ddl`);
+# - the generator's output is validated against it;
+# - its tags drive privacy masking and the bias checks at gate H2.
+#
+# Tags: pii = personal data about a (fictional) person; protected = a protected attribute or
+# a likely proxy for one. All data is synthetic (see estate/README.md).
+#
+# legacy_type is the SQL Server type; data_type is the logical (Spark-side) type.
+# Every table has _row_seq: the row's position in the extract file, because Spark has no
+# physical row order and some legacy logic depends on it.
+tables:
+  - name: stg.customers
+    layer: bronze
+    description: >-
+      CRM customer extract. Change-data-capture style: each customer appears once per version
+      of their record, so customer_id repeats and updated_at tells the versions apart.
+    row_order_column: _row_seq
+    columns:
+      - {name: customer_id, data_type: int, legacy_type: INT, nullable: false, description: "CRM customer number. Repeats once per version of the record."}
+      - {name: first_name, data_type: string, legacy_type: NVARCHAR(40), nullable: false, tags: [pii], description: "Given name as keyed in the CRM."}
+      - {name: last_name, data_type: string, legacy_type: NVARCHAR(60), nullable: false, tags: [pii], description: "Family name as keyed in the CRM."}
+      - {name: email, data_type: string, legacy_type: VARCHAR(120), nullable: true, tags: [pii], description: "Contact email (always an .example address)."}
+      - {name: date_of_birth, data_type: date, legacy_type: DATE, nullable: true, tags: [pii, protected], description: "Date of birth; age is a protected attribute."}
+      - {name: address_line1, data_type: string, legacy_type: NVARCHAR(100), nullable: true, tags: [pii], description: "First line of the postal address."}
+      - {name: town, data_type: string, legacy_type: NVARCHAR(50), nullable: true, tags: [pii], description: "Town."}
+      - {name: county, data_type: string, legacy_type: VARCHAR(30), nullable: true, tags: [protected], description: "County as keyed (spelling and case vary). Can act as a proxy for protected attributes."}
+      - {name: eircode, data_type: string, legacy_type: VARCHAR(10), nullable: true, tags: [pii], description: "Irish postcode, with or without the space."}
+      - {name: segment_code, data_type: string, legacy_type: CHAR(4), nullable: true, description: "Marketing segment (GOLD, SILV, STD). Fixed-width."}
+      - {name: marketing_opt_in, data_type: string, legacy_type: CHAR(1), nullable: true, description: "Y or N; NULL when never asked."}
+      - {name: customer_since, data_type: date, legacy_type: DATE, nullable: false, description: "Date the person first became a customer."}
+      - {name: source_system, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "Channel that created the record (CRM, WEB, BROKER)."}
+      - {name: updated_at, data_type: timestamp_ntz, legacy_type: DATETIME2(0), nullable: false, description: "When this version of the record was written."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.brokers
+    layer: bronze
+    description: Broker register from the distribution system.
+    primary_key: [broker_code]
+    row_order_column: _row_seq
+    columns:
+      - {name: broker_code, data_type: string, legacy_type: CHAR(6), nullable: false, description: "Broker code. Fixed-width, so shorter codes are space-padded."}
+      - {name: broker_name, data_type: string, legacy_type: NVARCHAR(80), nullable: false, description: "Trading name."}
+      - {name: region, data_type: string, legacy_type: VARCHAR(20), nullable: true, description: "Sales region."}
+      - {name: commission_rate, data_type: 'decimal(5,4)', legacy_type: 'DECIMAL(5,4)', nullable: false, description: "Commission as a fraction of premium."}
+      - {name: status, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "ACTIVE or INACTIVE (case varies)."}
+      - {name: appointed_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date the broker agency was appointed."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.products
+    layer: bronze
+    description: Product catalogue.
+    primary_key: [product_code]
+    row_order_column: _row_seq
+    columns:
+      - {name: product_code, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "Product code."}
+      - {name: product_name, data_type: string, legacy_type: NVARCHAR(60), nullable: false, description: "Marketing name."}
+      - {name: lob_code, data_type: string, legacy_type: VARCHAR(5), nullable: false, description: "Line of business (MOT, HOM, TRV)."}
+      - {name: term_months, data_type: int, legacy_type: INT, nullable: true, description: "Standard term in months; NULL when the term varies (single-trip travel)."}
+      - {name: levy_rate, data_type: 'decimal(5,4)', legacy_type: 'DECIMAL(5,4)', nullable: false, description: "Government levy on premium."}
+      - {name: launched_on, data_type: date, legacy_type: DATE, nullable: false, description: "Launch date."}
+      - {name: withdrawn_on, data_type: date, legacy_type: DATE, nullable: true, description: "Withdrawal date, if withdrawn."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.policy_snapshots
+    layer: bronze
+    description: >-
+      Policy administration extract taken on two snapshot dates (2025-06-30 and 2025-12-31).
+      Each snapshot lists every policy term incepted on or before that date, with its
+      attributes as they stood on that date. One row per policy term per snapshot.
+    primary_key: [snapshot_date, policy_id]
+    row_order_column: _row_seq
+    columns:
+      - {name: snapshot_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date of the extract."}
+      - {name: policy_id, data_type: int, legacy_type: INT, nullable: false, description: "Policy term identifier. A renewal is a new policy_id."}
+      - {name: policy_number, data_type: string, legacy_type: VARCHAR(20), nullable: false, description: "Printed policy reference."}
+      - {name: customer_id, data_type: int, legacy_type: INT, nullable: false, description: "Policyholder (CRM customer number)."}
+      - {name: product_code, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "Product (case varies)."}
+      - {name: broker_code, data_type: string, legacy_type: VARCHAR(10), nullable: true, description: "Introducing broker; NULL for direct business. Case and padding vary."}
+      - {name: inception_date, data_type: date, legacy_type: DATE, nullable: false, description: "Start of cover."}
+      - {name: expiry_date, data_type: date, legacy_type: DATE, nullable: false, description: "Last day of cover."}
+      - {name: status, data_type: string, legacy_type: VARCHAR(12), nullable: false, description: "ACTIVE, EXPIRED, CANCELLED or LAPSED as at the snapshot date (case varies)."}
+      - {name: cancellation_date, data_type: date, legacy_type: DATE, nullable: true, description: "Date cover was cancelled, if it was."}
+      - {name: annual_premium, data_type: 'decimal(12,2)', legacy_type: 'DECIMAL(12,2)', nullable: false, description: "Annual premium in the policy currency."}
+      - {name: currency, data_type: string, legacy_type: CHAR(3), nullable: false, description: "Policy currency (EUR, GBP, USD)."}
+      - {name: sum_insured, data_type: 'decimal(14,2)', legacy_type: 'DECIMAL(14,2)', nullable: true, description: "Sum insured, where the product has one."}
+      - {name: payment_frequency, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "ANNUAL or MONTHLY."}
+      - {name: vehicle_reg, data_type: string, legacy_type: VARCHAR(12), nullable: true, description: "Vehicle registration (motor only). Free text; may be empty or NULL."}
+      - {name: ncd_years, data_type: int, legacy_type: INT, nullable: true, description: "Years of no-claims discount (motor only)."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.premium_transactions
+    layer: bronze
+    description: Premium ledger from the policy system. One row per premium transaction.
+    primary_key: [txn_id]
+    row_order_column: _row_seq
+    columns:
+      - {name: txn_id, data_type: int, legacy_type: INT, nullable: false, description: "Transaction identifier."}
+      - {name: policy_id, data_type: int, legacy_type: INT, nullable: false, description: "Policy term the transaction belongs to."}
+      - {name: txn_type, data_type: string, legacy_type: VARCHAR(4), nullable: false, description: 'NB new business, REN renewal, MTA mid-term adjustment, CAN cancellation.'}
+      - {name: txn_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date the transaction was booked."}
+      - {name: effective_from, data_type: date, legacy_type: DATE, nullable: false, description: "First day of cover the amount pays for."}
+      - {name: effective_to, data_type: date, legacy_type: DATE, nullable: false, description: "Last day of cover the amount pays for."}
+      - {name: amount, data_type: 'decimal(12,2)', legacy_type: 'DECIMAL(12,2)', nullable: false, description: "Premium in the transaction currency; negative for refunds."}
+      - {name: currency, data_type: string, legacy_type: CHAR(3), nullable: false, description: "Transaction currency."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.claims
+    layer: bronze
+    description: Claims register from the claims system. One row per claim.
+    primary_key: [claim_id]
+    row_order_column: _row_seq
+    columns:
+      - {name: claim_id, data_type: int, legacy_type: INT, nullable: false, description: "Claim identifier."}
+      - {name: claim_number, data_type: string, legacy_type: VARCHAR(20), nullable: false, description: "Printed claim reference."}
+      - {name: policy_id, data_type: int, legacy_type: INT, nullable: false, description: "Policy term the claim is made under."}
+      - {name: customer_id, data_type: int, legacy_type: INT, nullable: false, description: "Policyholder (CRM customer number)."}
+      - {name: lob_code, data_type: string, legacy_type: VARCHAR(5), nullable: false, description: "Line of business as keyed by the handler (case and padding vary)."}
+      - {name: loss_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date of the loss."}
+      - {name: reported_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date the claim was notified."}
+      - {name: status, data_type: string, legacy_type: VARCHAR(12), nullable: false, description: "OPEN, CLOSED or REOPENED (case and padding vary)."}
+      - {name: closed_date, data_type: date, legacy_type: DATE, nullable: true, description: "Date the claim was last closed."}
+      - {name: cause_code, data_type: string, legacy_type: VARCHAR(10), nullable: true, description: "Cause of loss."}
+      - {name: handler_code, data_type: string, legacy_type: VARCHAR(8), nullable: true, description: "Claims handler; NULL when unassigned."}
+      - {name: description, data_type: string, legacy_type: NVARCHAR(200), nullable: true, description: "Free-text loss description."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.claim_payments
+    layer: bronze
+    description: Claim payments and recoveries. One row per payment.
+    primary_key: [payment_id]
+    row_order_column: _row_seq
+    columns:
+      - {name: payment_id, data_type: int, legacy_type: INT, nullable: false, description: "Payment identifier."}
+      - {name: claim_id, data_type: int, legacy_type: INT, nullable: false, description: "Claim paid (a few refer to claims missing from the register)."}
+      - {name: payment_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date paid (or scheduled)."}
+      - {name: amount, data_type: 'decimal(12,2)', legacy_type: 'DECIMAL(12,2)', nullable: true, description: "Amount in EUR; negative for recoveries; NULL when not yet keyed."}
+      - {name: payment_type, data_type: string, legacy_type: VARCHAR(12), nullable: false, description: "INDEMNITY, EXPENSE or RECOVERY (case varies)."}
+      - {name: payee_type, data_type: string, legacy_type: VARCHAR(12), nullable: true, description: "Who was paid."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.claim_reserves
+    layer: bronze
+    description: >-
+      Case reserve history. Each row sets the outstanding estimate for one reserve type of a
+      claim from its reserve_date until the next row of the same type.
+    primary_key: [reserve_id]
+    row_order_column: _row_seq
+    columns:
+      - {name: reserve_id, data_type: int, legacy_type: INT, nullable: false, description: "Reserve entry identifier."}
+      - {name: claim_id, data_type: int, legacy_type: INT, nullable: false, description: "Claim."}
+      - {name: reserve_date, data_type: date, legacy_type: DATE, nullable: false, description: "Date the estimate was set."}
+      - {name: reserve_type, data_type: string, legacy_type: VARCHAR(12), nullable: false, description: "INDEMNITY or EXPENSE."}
+      - {name: reserve_amount, data_type: 'decimal(12,2)', legacy_type: 'DECIMAL(12,2)', nullable: false, description: "Outstanding estimate in EUR from this date."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}
+
+  - name: stg.fx_rates
+    layer: bronze
+    description: >-
+      Daily reference exchange rates (EUR per unit of currency) on business days. Gaps on
+      weekends and holidays; a later row for the same date and currency is a revision.
+    row_order_column: _row_seq
+    columns:
+      - {name: rate_date, data_type: date, legacy_type: DATE, nullable: false, description: "Business day of the rate."}
+      - {name: currency, data_type: string, legacy_type: CHAR(3), nullable: false, description: "Currency (GBP, USD)."}
+      - {name: rate_to_eur, data_type: 'decimal(18,8)', legacy_type: 'DECIMAL(18,8)', nullable: false, description: "EUR per one unit of the currency."}
+      - {name: source, data_type: string, legacy_type: VARCHAR(10), nullable: false, description: "Publisher (ECB) or a manual revision (ECB-REV)."}
+      - {name: _row_seq, data_type: int, legacy_type: INT, nullable: false, description: "Position of the row in the extract file."}

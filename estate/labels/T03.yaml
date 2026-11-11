@@ -1,0 +1,123 @@
+# T03 answer key (evaluation only: factory code must never read this file).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based, in legacy_path.
+job_id: T03
+legacy_path: estate/tsql/T03_usp_build_fact_premium_earned.sql
+summary: >-
+  Premium fact for finance: one row per premium transaction booked on or before @AsOfDate,
+  converted to EUR (EUR at 1; GBP and USD at the latest rate on or before the booking date,
+  the later extract row winning on a revised rate), with days of cover, days earned by the
+  reporting date, earned and unearned premium, a truncated daily rate, a monthly instalment,
+  the first instalment due date, and policy_sk and lob_code from the current dw.dim_policy
+  version (T02's IDENTITY key, a foreign key to a surrogate). Planted: BUG-02 (earned premium
+  divides by a hard-coded 365 instead of the days in the cover period), TSQL-03 (INT / INT in
+  earned_pct and the instalment count), TSQL-07 (ROUND(x, 4, 1) truncates; DECIMAL scale on
+  computed money), TSQL-09 (CROSS APPLY TOP 1, which drops foreign-currency transactions
+  booked before the first published rate) and TSQL-18 (DATEADD(MONTH, 1, EOMONTH(d)) is not
+  the next month-end). On our data the job writes 33,888 rows from 33,893 transactions.
+traps:
+  - trap_id: TSQL-03
+    kind: semantic
+    armed: true
+    lines: [124, 124]
+    where: "e.earned_days * 100 / e.term_days"
+    effect: >-
+      Both operands are INT, so T-SQL truncates before the value is stored in the
+      DECIMAL(5,2) column: a cover 100 days into 365 stores 27.00, where decimal or double
+      division stores 27.40. earned_pct differs on 12,120 rows. Reproduce with integer
+      division (div, or floor on these non-negative values) before the cast.
+    check: T03_TSQL03_integer_division
+  - trap_id: TSQL-03
+    kind: semantic
+    armed: true
+    lines: [128, 128]
+    where: "ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2)"
+    effect: >-
+      term_days / 30 is integer division: a 365-day cover has 12 instalments, a 200-day
+      mid-term adjustment 6, and a cover under 30 days 0, which NULLIF/ISNULL turns into 1.
+      monthly_instalment_eur differs from division by term_days / 30.0 on 33,584 rows.
+      Spark's / would give 12.1667 instalments and a different amount on almost every row.
+    check: T03_TSQL03_integer_division
+  - trap_id: TSQL-07
+    kind: semantic
+    armed: true
+    lines: [127, 127]
+    where: "ROUND(e.written_eur / e.term_days, 4, 1)"
+    effect: >-
+      ROUND with a third argument of 1 truncates toward zero instead of rounding, on a computed
+      DECIMAL whose scale comes from SQL Server's division rules. 16,486 of 33,888 daily rates
+      differ from ROUND(x, 4). Spark's round(x, 4) rounds half up, and Spark has no numeric
+      truncate: floor() is wrong on the 1,865 negative (refund) rows (it changes 1,768 of
+      them). Exact: when(q >= 0, floor(q * 10000)).otherwise(ceil(q * 10000)) / 10000, keeping
+      the DECIMAL scale of the division.
+    check: T03_TSQL07_round_truncates
+  - trap_id: TSQL-07
+    kind: semantic
+    armed: false
+    lines: [92, 92]
+    where: "CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur"
+    effect: >-
+      DECIMAL(12,2) * DECIMAL(18,8) has scale 10 in both engines and the product is exact,
+      so ROUND(..., 2) agrees as long as the translation multiplies decimals, not doubles. Not
+      armed by our data when done in decimals; a double multiply would drift by cents.
+  - trap_id: TSQL-09
+    kind: construct
+    armed: true
+    lines: [77, 81]
+    where: "CROSS APPLY (SELECT TOP 1 r.rate_to_eur ... ORDER BY r.rate_date DESC, r._row_seq DESC) fx"
+    effect: >-
+      The latest rate on or before the booking date, the later extract row winning when a rate
+      was revised (the tiebreak decides 1 transaction). CROSS APPLY drops the 5 foreign-currency
+      transactions with no rate on or before their booking date (4 GBP, 1 USD, 18-29 December
+      2018); a LEFT join or OUTER APPLY would keep them.
+      Reproduce with a window or an inner range join.
+    check: T03_TSQL09_cross_apply_drops_unrated
+  - trap_id: TSQL-18
+    kind: semantic
+    armed: true
+    lines: [129, 129]
+    where: "DATEADD(MONTH, 1, EOMONTH(e.effective_from))"
+    effect: >-
+      DATEADD keeps the day of the month, clamped to the target month's length, so the month
+      after a 30-day month or February does not end on its last day (cover from April gives 30
+      May, not 31 May; from February 2019 gives 28 March). 13,834 first_due_date values differ
+      from EOMONTH(effective_from, 1). Spark's add_months(last_day(d), 1) matches the legacy
+      value; a translator that "fixes" it to last_day(add_months(d, 1)) changes results.
+    check: T03_TSQL18_month_end_dateadd
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: false
+    lines: [69, 82]
+    where: "t.currency = 'EUR' / r.currency = t.currency / t.currency <> 'EUR'"
+    effect: >-
+      Text comparisons under the case-insensitive collation, but currency codes have no case or
+      trailing-space variants in our data, so they behave the same in both engines.
+  - trap_id: TSQL-07
+    kind: semantic
+    armed: false
+    lines: [125, 126]
+    where: "ROUND(e.written_eur * e.earned_days / 365, 2)"
+    effect: >-
+      SQL Server truncates a DECIMAL quotient to the result scale (DECIMAL(29,6) here) where
+      Spark rounds it. Provably harmless for these divisors: the dropped digits never move the
+      final ROUND(..., 2), so both engines agree on our data.
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [62, 99]
+    where: "#txn and #earn temp tables"
+    effect: >-
+      Intermediate temp tables; they become DataFrames. #txn is filled in two statements (EUR,
+      then the rest).
+bugs:
+  - bug_id: BUG-02
+    lines: [125, 126]
+    where: "ROUND(e.written_eur * e.earned_days / 365, 2)"
+    does: >-
+      Earns premium as written_eur * earned_days / 365, whatever the length of the cover:
+      a fully earned 366-day cover (2024) is earned at 366/365 of its premium, leaving a
+      negative unearned premium, and short covers (single-trip travel, mid-term adjustments,
+      cancellations) are under-earned. 10,479 of 33,888 rows differ from earning over the
+      cover period, 5,225 of them 366-day covers; net effect EUR -15,866.72. unearned_eur
+      (line 126) inherits the error.
+    intended: "Divide by the days in the cover period: ROUND(written_eur * earned_days / term_days, 2)."
+    check: T03_BUG02_earned_divides_by_365

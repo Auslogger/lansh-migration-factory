@@ -1,0 +1,229 @@
+# T02 dw.usp_load_dim_policy: planted traps (answer key, evaluation only).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based lines of legacy_path.
+# Counts are from the run on the committed data: deploy, then batch 1 (@SnapshotDate =
+# 2025-06-30) and batch 2 (@SnapshotDate = 2025-12-31).
+job_id: T02
+legacy_path: estate/tsql/T02_usp_load_dim_policy.sql
+summary: >-
+  Policy dimension with type-2 history, loaded once per policy snapshot (2025-06-30, then
+  2025-12-31): #src takes the snapshot's policies with product name and lob_code from
+  stg.products, broker name from stg.brokers and customer segment from dw.dim_customer (T01);
+  a MERGE closes the current version of every policy whose status, broker, annual premium or
+  vehicle registration changed, compared the legacy way (ISNULL(src.x, '') <> ISNULL(tgt.x,
+  '')); an INSERT ... SELECT ... ORDER BY policy_id then opens the new versions, numbering
+  policy_sk with IDENTITY(1,1). load_ts = SYSDATETIME() is the one volatile column. The
+  deployment script recreates the table empty, so the identity restarts at 1 on every full
+  run. Planted, all armed by our data: TSQL-11 (MERGE and type-2 history), TSQL-06 (ISNULL
+  typing cuts 'DIRECT-SALES' to 'DIRECT-SAL'; NULL equals '' in the change test), TSQL-01
+  (case-insensitive status change test, product join and broker join) and TSQL-02 (product
+  and broker joins ignore trailing spaces, including the CHAR(6) padding of the broker
+  register). No bug. Output: 34,631 rows (batch 1 opens 23,370; batch 2 closes 3,911 and
+  opens 11,261, of which 7,350 are new policies), 30,720 current.
+
+traps:
+  - trap_id: TSQL-06
+    kind: semantic
+    armed: true
+    lines: [95, 95]
+    where: >-
+      #src: ISNULL(p.broker_code, 'DIRECT-SALES') AS broker_code, with
+      stg.policy_snapshots.broker_code VARCHAR(10), stored in dw.dim_policy.broker_code
+      VARCHAR(12)
+    effect: >-
+      ISNULL returns the data type of its first argument, so the replacement is silently cut
+      to VARCHAR(10) and every direct-business version is stored as 'DIRECT-SAL': 18,856 of
+      the 34,631 rows (16,753 policies). COALESCE, and Spark's coalesce, take the type from
+      all arguments and return 'DIRECT-SALES', which fits the VARCHAR(12) column, so a naive
+      translation differs on all of these rows (and on any downstream filter on the code).
+      Exact translation: coalesce(broker_code, 'DIRECT-SAL'), i.e. the literal cut to the
+      first argument's length (10). The change test (line 132) compares the cut value on both
+      sides, so it opens no extra versions.
+    check: T02_TSQL06_direct_sales_truncated
+
+  - trap_id: TSQL-06
+    kind: semantic
+    armed: true
+    lines: [134, 134]
+    where: "MERGE change test: OR ISNULL(src.vehicle_reg, '') <> ISNULL(tgt.vehicle_reg, '')"
+    effect: >-
+      ISNULL maps NULL to '', so a registration that goes from NULL to '' or from '' to NULL
+      between snapshots is no change. 150 policies flip between NULL and '' from the June to
+      the December snapshot; 30 of them change another tracked column anyway, so 120 keep
+      their June version as current (63 hold NULL where the snapshot now has '', 57 hold ''
+      where it now has NULL). A translation with a NULL-safe comparison (NOT (a <=> b), IS
+      DISTINCT FROM), or one that treats NULL and '' as different, closes these 120 versions
+      and opens 120 more, and because new versions are numbered in policy_id order, it also
+      shifts policy_sk on every later batch-2 insert. Exact translation:
+      coalesce(src.vehicle_reg, '') <> coalesce(tgt.vehicle_reg, ''), keeping vehicle_reg as
+      keyed (NULL and '' stay distinct in the output).
+    check: T02_TSQL06_vehicle_reg_null_equals_empty
+
+  - trap_id: TSQL-06
+    kind: semantic
+    armed: false
+    lines: [131, 133]
+    where: >-
+      MERGE change test: ISNULL(src.status, '') <> ISNULL(tgt.status, ''),
+      ISNULL(src.broker_code, '') <> ISNULL(tgt.broker_code, ''), ISNULL(src.annual_premium,
+      0) <> ISNULL(tgt.annual_premium, 0)
+    effect: >-
+      The same NULL-as-empty pattern, but status and annual_premium are never NULL and
+      broker_code was already replaced at line 95, so neither the NULL/'' equivalence nor
+      ISNULL typing (DECIMAL(12,2) with 0 stays DECIMAL(12,2)) changes anything. Not armed.
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [131, 131]
+    where: "MERGE change test: WHEN MATCHED AND (   ISNULL(src.status, '') <> ISNULL(tgt.status, '') ..."
+    effect: >-
+      status is kept as keyed and compared under SQL_Latin1_General_CP1_CI_AS, so a status
+      re-keyed only in case between snapshots ('EXPIRED' -> 'Expired', 'ACTIVE' -> 'Active',
+      'LAPSED' -> 'Lapsed', 'CANCELLED' -> 'Cancelled') is no change. 138 policies change
+      only in case; 6 change another tracked column anyway, so 132 current versions keep the
+      June text (71 EXPIRED, 26 ACTIVE, 27 LAPSED, 8 CANCELLED). Spark compares strings
+      case-sensitively: it closes these 132 versions and opens 132 new ones with the new
+      spelling, shifting policy_sk on every later batch-2 insert. Exact translation: compare
+      upper(rtrim(status)) on both sides (or a UTF8_LCASE_RTRIM collation) and store status
+      as keyed.
+    check: T02_TSQL01_status_case_change_ignored
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: false
+    lines: [131, 131]
+    where: "MERGE change test: ISNULL(src.status, '') <> ISNULL(tgt.status, '')"
+    effect: >-
+      status has trailing-space variants ('ACTIVE ', 'EXPIRED ') and SQL Server's <> ignores
+      trailing spaces, but no policy's status changes only by trailing spaces between the two
+      snapshots (every padded change also changes the word or its case), so an exact
+      comparison opens the same versions. Not armed; rtrim both sides anyway.
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: false
+    lines: [132, 132]
+    where: "MERGE change test: ISNULL(src.broker_code, '') <> ISNULL(tgt.broker_code, '')"
+    effect: >-
+      broker_code is kept as keyed, with case variants ('brk001', 'Brk001', 'bk102'), and
+      compared case-insensitively. All 79 broker changes between the snapshots are changes
+      of broker, none a re-keying of the same code in another case, so a case-sensitive
+      comparison opens the same versions. Not armed.
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: false
+    lines: [132, 132]
+    where: "MERGE change test: ISNULL(src.broker_code, '') <> ISNULL(tgt.broker_code, '')"
+    effect: >-
+      broker_code is kept as keyed, with padding variants ('BRK001  ', 'BK102' against
+      'BK102  '), and the comparison ignores trailing spaces. No policy's broker code changes
+      only in padding between the snapshots, so an exact comparison opens the same versions.
+      Not armed.
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: false
+    lines: [134, 134]
+    where: "MERGE change test: ISNULL(src.vehicle_reg, '') <> ISNULL(tgt.vehicle_reg, '')"
+    effect: >-
+      vehicle_reg is free text compared case- and trailing-space-insensitively (one
+      lower-case value, 'd-12345', on 110 snapshot rows, and no trailing spaces), but no
+      registration changes only in case or padding between the snapshots. Not armed; the
+      armed effect of this line is TSQL-06 (NULL versus '').
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [107, 108]
+    where: >-
+      JOIN stg.products pr WITH (NOLOCK) ON pr.product_code = p.product_code (inner join;
+      product_code, product_name and lob_code come from the catalogue)
+    effect: >-
+      The join is case-insensitive, so product codes keyed in lower case ('mot-comp',
+      'hom-bc': 8 spellings) find their catalogue row and the version stores the catalogue's
+      code. Joined case-sensitively, as Spark joins strings, they find no product and the
+      inner join drops them: 202 versions of 181 policies go missing (with TSQL-02, 274 of
+      the 23,370 policies of batch 1). Exact translation: join on upper(rtrim(...)) of both
+      codes, or a UTF8_LCASE_RTRIM collation.
+    check: T02_TSQL01_product_join_case
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [107, 108]
+    where: "JOIN stg.products pr WITH (NOLOCK) ON pr.product_code = p.product_code"
+    effect: >-
+      The comparison ignores trailing spaces, so product codes keyed with one ('HOM-BC ',
+      'MOT-COMP ': 8 spellings) match the catalogue. Compared exactly, they find no product
+      and the inner join drops them: 200 versions of 179 policies go missing. rtrim the keyed
+      code before joining (see TSQL-01 on the same join).
+    check: T02_TSQL02_product_join_padding
+
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [109, 110]
+    where: >-
+      LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = p.broker_code (broker_name
+      from the register; broker_code stored as keyed)
+    effect: >-
+      The join is case-insensitive, so broker codes keyed as 'brk001', 'Brk001', 'bk102' or
+      'Bk102' find their broker. Joined case-sensitively, as Spark joins strings, broker_name
+      is NULL on 897 versions of 787 policies (466 of those versions keyed all in lower case). Exact
+      translation: join on upper(rtrim(...)) of both codes and keep broker_code as keyed.
+    check: T02_TSQL01_broker_join_case
+
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [109, 110]
+    where: >-
+      LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = p.broker_code, with the
+      register's broker_code CHAR(6) and the keyed one VARCHAR(10)
+    effect: >-
+      SQL Server pads the shorter value before comparing, so 'BK102' (VARCHAR) matches the
+      register's CHAR(6) 'BK102 ', and codes keyed with extra spaces ('BRK001  ', 'BK102  ')
+      match too. The register's value really is 'BK102 ' in the extract, so compared exactly
+      broker_name is NULL on 1,964 versions of 1,738 policies: 1,520 with a 5-character code
+      (even when keyed in the register's own case) and 444 keyed with extra trailing spaces.
+      Exact translation: rtrim both sides before joining.
+    check: T02_TSQL02_broker_join_padding
+
+  - trap_id: TSQL-11
+    kind: construct
+    armed: true
+    lines: [127, 161]
+    where: >-
+      MERGE dw.dim_policy AS tgt USING #src AS src ON tgt.policy_id = src.policy_id AND
+      tgt.is_current = 'Y' WHEN MATCHED AND (change test) THEN UPDATE SET valid_to =
+      DATEADD(DAY, -1, @SnapshotDate), is_current = 'N' (lines 127-137); then INSERT ...
+      SELECT ... FROM #src WHERE NOT EXISTS (a current version) ORDER BY s.policy_id into the
+      IDENTITY(1,1) policy_sk declared at line 33 (lines 142-161)
+    effect: >-
+      Type-2 history over two batches that must run in order. Batch 1 (2025-06-30) closes
+      nothing and opens 23,370 versions, policy_sk 1-23,370 in policy_id order. Batch 2
+      (2025-12-31) closes 3,911 versions (valid_to 2025-12-30, is_current 'N') and opens
+      11,261 (3,911 new versions and 7,350 new policies), policy_sk 23,371-34,631 in
+      policy_id order. In Spark: a Delta MERGE INTO with the same match and change test for
+      the expiry, then new versions numbered max(policy_sk) + row_number() over (order by
+      policy_id); monotonically_increasing_id or an unordered row_number does not match.
+      The keys are deterministic only because the rows go in with INSERT ... SELECT ...
+      ORDER BY (a MERGE ... INSERT gives no such guarantee) and the deployment script
+      recreates the table (lines 29-57), restarting the identity at 1. Any change-test
+      difference (TSQL-01, TSQL-06) shifts every later key. load_ts = SYSDATETIME() (line
+      155) differs on every run and is excluded from comparison.
+
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [85, 121]
+    where: >-
+      #src: dropped with IF OBJECT_ID('tempdb..#src') IS NOT NULL, built with SELECT ...
+      INTO (lines 88-113), clustered index on policy_id (line 121); read by the MERGE (line
+      128) and the INSERT (line 156)
+    effect: >-
+      A session temp table holds the snapshot rows; in Spark it becomes a DataFrame or a
+      temporary view (the index has no counterpart). No effect on results.
+
+bugs: []

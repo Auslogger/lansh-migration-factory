@@ -1,0 +1,201 @@
+# T08 answer key (evaluation only: factory code must never read this file).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based, in legacy_path.
+job_id: T08
+legacy_path: estate/tsql/T08_usp_fraud_flags.sql
+summary: >-
+  Rule-based fraud indicators for the Special Investigations Unit: one row per claim notified
+  in the twelve months to @AsOfDate (reported_date after DATEADD(MONTH, -12, @AsOfDate), up to
+  and including @AsOfDate), with its policy from the latest policy snapshot on or before
+  @AsOfDate and customer_since from dw.dim_customer (T01's output). Four 0/1 indicators (early
+  notification, invalid motor registration, new customer, line-of-business mismatch) are
+  summed into fraud_score and banded HIGH (2 or more), MEDIUM (1) or LOW (0), with a yyyymmdd
+  loss_day_key and a reason text. Built through #temp tables. Planted: BUG-07 (the
+  early-notification rule measures from the policy's expiry date instead of its inception
+  date), TSQL-14 (NOT LIKE with [0-9] and [A-Z] character classes), TSQL-15
+  (SUBSTRING(policy_number, 0, 4) returns 3 characters), TSQL-16 (CONVERT styles 112 and 103),
+  and TSQL-01 and TSQL-02 (the claim's lob_code is compared as keyed, ignoring case and
+  trailing spaces, and only normalised with UPPER(RTRIM) for the output). On our data the job
+  writes 2,805 rows: 2,535 LOW, 261 MEDIUM and 9 HIGH.
+traps:
+  - trap_id: TSQL-14
+    kind: semantic
+    armed: true
+    lines: [112, 112]
+    where: "AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'  (invalid_reg_flag, motor claims)"
+    effect: >-
+      [0-9] and [A-Z] are T-SQL LIKE character classes, so the pattern accepts Irish
+      registrations (two or three digits, county letters, number) and the flag is set on the
+      49 motor claims whose registration is 'UNKNOWN' (20), 'TBC' (8), '' (8), 'N/A' (7) or
+      'd-12345' (6). Spark's LIKE knows only % and _ and reads the brackets as plain text, so
+      the same NOT LIKE in Spark SQL (or Column.like) is true for every non-NULL registration:
+      the flag would be set on all 1,776 motor claims with a non-NULL registration, 1,727 rows
+      would differ and each would move up one fraud_band. A NULL registration (15 motor
+      claims) makes the condition NULL and the CASE return 0 in both engines. Exact
+      translation: NOT rlike('^[0-9][0-9].*-[A-Za-z].*-[0-9].*$'), anchored because LIKE
+      matches the whole value while rlike searches within it (under the CI collation [A-Z]
+      also matches lower-case letters; no registration in our data depends on that).
+    check: T08_TSQL14_like_character_classes
+  - trap_id: TSQL-15
+    kind: semantic
+    armed: true
+    lines: [118, 118]
+    where: "CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code  (lob_mismatch_flag)"
+    effect: >-
+      T-SQL SUBSTRING counts positions from 1 and a start of 0 lies before the string, so
+      SUBSTRING(x, 0, 4) returns positions 1 to 3: 'MOT' from 'MOT/2024/500001'. Every policy
+      number's prefix matches its claim's line of business, so lob_mismatch_flag is 0 on all
+      2,805 rows. Spark's substring(x, 0, 4) treats position 0 as 1 and returns four
+      characters ('MOT/'), which never equals a line of business: lob_mismatch_flag would be 1
+      on all 2,805 rows, fraud_score one higher everywhere and fraud_band different on 2,796
+      (all 2,535 LOW rows become MEDIUM and all 261 MEDIUM rows HIGH). Exact translation:
+      substring(policy_number, 1, 3), compared as described under TSQL-01 and TSQL-02.
+    check: T08_TSQL15_substring_from_position_zero
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [118, 118]
+    where: "SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code  (the claim's lob_code as keyed)"
+    effect: >-
+      #claims keeps lob_code as keyed; it is upper-cased only for the output (line 140). Under
+      SQL_Latin1_General_CP1_CI_AS the <> ignores case, so claims keyed 'mot' (17), 'Mot '
+      (17), 'hom' (11), 'Hom ' (4) or 'Trv ' (1) match their policy's 'MOT', 'HOM' or 'TRV'
+      prefix. Spark compares case-sensitively, so even with the prefix length right these 50
+      claims would get lob_mismatch_flag = 1 and move up one fraud_band. Exact translation:
+      compare upper(rtrim(lob_code)) with the prefix (or use a UTF8_LCASE_RTRIM collation).
+    check: T08_TSQL01_lob_code_compared_ignoring_case
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: true
+    lines: [118, 118]
+    where: "SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code  (the claim's lob_code as keyed)"
+    effect: >-
+      SQL Server pads the shorter operand with spaces before comparing, so a claim keyed 'MOT '
+      (13), 'HOM ' (11), 'TRV ' (1), 'Mot ' (17), 'Hom ' (4) or 'Trv ' (1) equals its
+      policy's prefix. Spark compares strings exactly, so even a case-insensitive translation
+      (upper(lob_code), or a UTF8_LCASE collation without RTRIM) flags these 47 claims as
+      line-of-business mismatches and moves each up one fraud_band. Exact translation: rtrim
+      lob_code before comparing (see TSQL-01). A comparison that ignores neither case nor
+      trailing spaces flags 75 claims.
+    check: T08_TSQL02_lob_code_compared_ignoring_trailing_spaces
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: true
+    lines: [111, 111]
+    where: "CASE WHEN cl.lob_code = 'MOT'  (motor test for invalid_reg_flag, lob_code as keyed)"
+    effect: >-
+      The motor test also compares lob_code as keyed, so the case-insensitive = treats claims
+      keyed 'mot' (17) or 'Mot ' (17) as motor. One of them matters on our data: claim 305527
+      (lob_code 'mot', registration 'UNKNOWN') gets invalid_reg_flag = 1, fraud_score 1 and
+      reason 'REG'; a case-sensitive lob_code = 'MOT' leaves its flag at 0. Exact translation:
+      upper(rtrim(lob_code)) = 'MOT'.
+    check: T08_TSQL01_motor_test_ignores_case
+  - trap_id: TSQL-02
+    kind: semantic
+    armed: false
+    lines: [111, 111]
+    where: "CASE WHEN cl.lob_code = 'MOT'  (motor test for invalid_reg_flag, lob_code as keyed)"
+    effect: >-
+      The = also ignores trailing spaces, so claims keyed 'MOT ' (13) or 'Mot ' (17) count as
+      motor. None of these 30 claims has a registration outside the pattern, so a test in which
+      trailing spaces count gives the same invalid_reg_flag on our data. Not armed.
+  - trap_id: TSQL-01
+    kind: semantic
+    armed: false
+    lines: [112, 112]
+    where: "cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'  (LIKE under the CI collation)"
+    effect: >-
+      LIKE follows the column's case-insensitive collation, so [A-Z] also matches lower-case
+      letters, while a regex [A-Z] in Spark does not. The only lower-case registrations in our
+      data are the 6 'd-12345' values, which fail on the leading digits either way: a
+      case-sensitive evaluation gives the same invalid_reg_flag on all 1,791 motor claims.
+      Not armed.
+  - trap_id: TSQL-16
+    kind: semantic
+    armed: true
+    lines: [152, 152]
+    where: "CONVERT(CHAR(8), cl.loss_date, 112)  (loss_day_key)"
+    effect: >-
+      Style 112 is yyyymmdd ('20250307'). Casting the date to text instead gives yyyy-mm-dd and
+      differs on all 2,805 rows (into a CHAR(8) column it would even keep '2025-03-'). Exact
+      translation: date_format(loss_date, 'yyyyMMdd').
+    check: T08_TSQL16_convert_style_codes
+  - trap_id: TSQL-16
+    kind: semantic
+    armed: true
+    lines: [153, 153]
+    where: "'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)  (reason_text)"
+    effect: >-
+      Style 103 is the British dd/mm/yyyy. Reading it as US mm/dd/yyyy (style 101) changes the
+      reason text on 2,732 of the 2,805 rows, 989 of which still look like valid dates (day 12
+      or less); a cast to text gives yyyy-mm-dd on every row. Exact translation:
+      date_format(reported_date, 'dd/MM/yyyy').
+    check: T08_TSQL16_convert_style_codes
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [72, 162]
+    where: >-
+      #claims and #flags, each dropped with IF OBJECT_ID('tempdb..#x') IS NOT NULL and built
+      with SELECT ... INTO (#flags over a derived table), then joined by the final INSERT ...
+      SELECT
+    effect: >-
+      Session temp tables hold the intermediate steps; in Spark they become DataFrames or
+      temporary views. No effect on results.
+  - trap_id: TSQL-04
+    kind: semantic
+    armed: false
+    lines: [108, 108]
+    where: "DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30"
+    effect: >-
+      DATEDIFF counts the boundaries crossed; with DAY on DATE values each boundary is one
+      whole day, so it equals Spark's datediff(reported_date, expiry_date) on every row. Not
+      armed (the wrong date column on this line is BUG-07).
+  - trap_id: TSQL-04
+    kind: semantic
+    armed: false
+    lines: [115, 115]
+    where: "DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180  (new_customer_flag)"
+    effect: >-
+      Day boundaries are whole days, so datediff(loss_date, customer_since) < 180 sets the
+      same 139 new-customer flags. A NULL customer_since would give 0 in both engines (every
+      claim's customer is in dw.dim_customer on our data). Not armed.
+  - trap_id: TSQL-18
+    kind: semantic
+    armed: false
+    lines: [93, 93]
+    where: "WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)"
+    effect: >-
+      DATEADD(MONTH, ...) from a month-end: T-SQL keeps the day of the month, clamped to the
+      target month's length, and Spark's add_months does the same (it no longer snaps to the
+      month-end since Spark 3), so 2025-12-31 gives 2024-12-31 in both. Not armed. The bound is
+      exclusive: the 6 claims reported on 2024-12-31 are left out.
+  - trap_id: TSQL-05
+    kind: semantic
+    armed: false
+    lines: [153, 158]
+    where: "'Notified ' + CONVERT(...) + CASE ... END + ...  (reason_text)"
+    effect: >-
+      + concatenation gives NULL when any part is NULL, but reported_date is NOT NULL and every
+      CASE has an ELSE, so no part is ever NULL and concat() gives the same text. Not armed.
+      (In Spark SQL + on strings is arithmetic, so the expression must become concat or ||.)
+bugs:
+  - bug_id: BUG-07
+    lines: [108, 109]
+    where: >-
+      CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0
+      END AS early_notification_flag, under the comment "claim notified within 30 days of the
+      cover starting"
+    does: >-
+      Measures early notification from the policy's expiry date, so the flag is set on claims
+      notified up to 30 days after the cover ended (late notifications), while inception_date,
+      selected into #claims for this rule (line 82), is never used. On our data the flag is set
+      on 91 claims, every one notified 0-30 days after expiry and none within 30 days of
+      inception, and it misses the 200 claims notified within 30 days of the cover starting:
+      early_notification_flag is wrong on 291 of the 2,805 rows and fraud_band on 290 (161
+      LOW and 2 HIGH rows should be MEDIUM, 89 MEDIUM rows LOW and 38 MEDIUM rows HIGH). SIU
+      gets 9 HIGH referrals instead of 45.
+    intended: >-
+      What the comment and the indicator's name say (CR-0954): flag a claim notified within 30
+      days of the cover starting, DATEDIFF(DAY, cl.inception_date, cl.reported_date) BETWEEN 0
+      AND 30.
+    check: T08_BUG07_early_flag_uses_expiry_date

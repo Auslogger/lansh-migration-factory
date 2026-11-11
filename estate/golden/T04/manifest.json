@@ -1,0 +1,244 @@
+{
+  "job_id": "T04",
+  "engine": "mssql",
+  "engine_version": "SQL Server 16.0.4305.5",
+  "legacy_path": "estate/tsql/T04_usp_build_claims_summary.sql",
+  "legacy_sha256": "632841c99f0c5919975c6fd2266ab04b33e1ba87424c55bbfbe7b0223f3bc975",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "stg.claims",
+      "path": "estate/data/claims.parquet",
+      "rows": 2911,
+      "file_sha256": "f1bd4a653fbb851b20e2aba0eb07510e94e589463344f548ab77d8e23c36551c",
+      "content_sha256": "7fc2a10a4dbc983798fcf213f4aecf34597263466c023e300256325826a77808"
+    },
+    {
+      "table": "stg.claim_payments",
+      "path": "estate/data/claim_payments.parquet",
+      "rows": 10247,
+      "file_sha256": "f78ad9e7e7202ba6e080f0e7a06808c152cb400609cbd8a07049e1e95479ac33",
+      "content_sha256": "8706780e1d29862846d2d861e6c797c1ccc2ee9059dc2e145d976446ab49680a"
+    },
+    {
+      "table": "stg.claim_reserves",
+      "path": "estate/data/claim_reserves.parquet",
+      "rows": 15262,
+      "file_sha256": "6dd321560a88d306f1e227b02ee09be1066f81ba4c2f9d67ba4a5f8ad244ad64",
+      "content_sha256": "0acfa9ba9cf980ef97bf6d1c4a1e1e3494fa65700e76504efc66baa02c86fd51"
+    },
+    {
+      "table": "stg.policy_snapshots",
+      "path": "estate/data/policy_snapshots.parquet",
+      "rows": 108523,
+      "file_sha256": "722b2ae597d7ad1333bf07ed48fae900acfaa26de2cdcf278a12d2ff616c19e3",
+      "content_sha256": "bc0e9d38ddbb875fce9c484b482a396ba7cb3c256aa8b8de5561a3e1e698b17c"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "rpt.claims_summary",
+      "rows": 823,
+      "columns": [
+        {
+          "name": "claim_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "claim_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "claim_ref",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(40)",
+          "nullable": true,
+          "max_length": 40,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": true,
+          "max_length": 20,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "status",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "handler_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(8)",
+          "nullable": true,
+          "max_length": 8,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "loss_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "loss_date_text",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "reported_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "reported_period",
+          "data_type": "string",
+          "legacy_type": "CHAR(6)",
+          "nullable": false,
+          "max_length": 6,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "days_open",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "n_payments",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "total_paid",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "indemnity_reserve",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "expense_reserve",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "current_reserve",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "incurred",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/T04/rpt.claims_summary.csv",
+      "raw_sha256": "a47458bf233ad225ddf8cc053a98ff3211610a07baa52403194a88e28d88d990",
+      "parquet_path": "estate/golden/T04/rpt.claims_summary.parquet",
+      "parquet_sha256": "dd2879ed93a25835f0c30cefb9211846916ca2f8b8215290f8415c915ebab28f",
+      "content_sha256": "88c8666437935bb67f9c1fe30679770d9e064ef4f046d699881fe8842effcb19",
+      "volatile_columns": [],
+      "sidecars": []
+    }
+  ],
+  "log_excerpt": "STARTED start\nINFO open claims rows=823\nINFO case reserves rows=1185\nINFO paid and reserves rows=823\nINFO rpt.claims_summary rows=823\nSUCCESS end",
+  "captured_at": "2026-11-11T22:45:12.714158Z",
+  "capture_seconds": 0.35,
+  "lansh_version": "0.1.0"
+}

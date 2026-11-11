@@ -1,0 +1,13 @@
+{
+  "archive": "holdout.tar.gz",
+  "sha256": "51591fd9b9d54fd8486249eef25e6c96dd395d6e04cc3463781db7761ffad3e1",
+  "files": [
+    "LABELS.md",
+    "X1_usp_broker_production.sql",
+    "X2_usp_large_loss_watchlist.sql",
+    "checks.sql",
+    "jobs.yaml"
+  ],
+  "sealed_at": "2026-11-10T19:14:12+00:00",
+  "note": "X1 and X2 written by an isolated Claude Code session (claude -p, --setting-sources '', --permission-mode dontAsk); verified to deploy, run deterministically and pass their bug checks before sealing."
+}

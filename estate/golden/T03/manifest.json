@@ -1,0 +1,246 @@
+{
+  "job_id": "T03",
+  "engine": "mssql",
+  "engine_version": "SQL Server 16.0.4305.5",
+  "legacy_path": "estate/tsql/T03_usp_build_fact_premium_earned.sql",
+  "legacy_sha256": "5fbf16f70c9c202ea4f177ec504f51992cf11022b0d992bc484b0cfa10e93670",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "stg.premium_transactions",
+      "path": "estate/data/premium_transactions.parquet",
+      "rows": 67886,
+      "file_sha256": "8d4ac7e7f44d149662cce4deea9ad082bda3301b9e1010cc2b8040a155a2b072",
+      "content_sha256": "cec7cb91f77e8c22a65f089c312988969292070d1055f28153bacd892cc2ca84"
+    },
+    {
+      "table": "stg.fx_rates",
+      "path": "estate/data/fx_rates.parquet",
+      "rows": 3586,
+      "file_sha256": "493902354eddadceb7d5ec8385d0ca2ecc345dc433919a658165cd41894e2dea",
+      "content_sha256": "b9cb5f99ee814558c54f49e3e110e67cecaaa377eb3175a08bede7c5c9405597"
+    },
+    {
+      "table": "dw.dim_policy",
+      "path": "estate/golden/T02/dw.dim_policy.parquet",
+      "rows": 69255,
+      "file_sha256": "a50988b3091d2ba4a165bd4154fa8988794663fadb56f7806124e85bc345dfe0",
+      "content_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "dw.fact_premium_earned",
+      "rows": 67879,
+      "columns": [
+        {
+          "name": "txn_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_sk",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "txn_type",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(4)",
+          "nullable": false,
+          "max_length": 4,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "txn_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "effective_from",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "effective_to",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "currency",
+          "data_type": "string",
+          "legacy_type": "CHAR(3)",
+          "nullable": false,
+          "max_length": 3,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "amount",
+          "data_type": "decimal(12,2)",
+          "legacy_type": "DECIMAL(12,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "fx_rate",
+          "data_type": "decimal(18,8)",
+          "legacy_type": "DECIMAL(18,8)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "written_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "term_days",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "earned_days",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "earned_pct",
+          "data_type": "decimal(5,2)",
+          "legacy_type": "DECIMAL(5,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "earned_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "unearned_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "daily_rate_eur",
+          "data_type": "decimal(12,4)",
+          "legacy_type": "DECIMAL(12,4)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "monthly_instalment_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "first_due_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/T03/dw.fact_premium_earned.csv",
+      "raw_sha256": "87d8aa9497cfc7a477e65fde1651dae230660585e0d58c4ed9f70154c5095e58",
+      "parquet_path": "estate/golden/T03/dw.fact_premium_earned.parquet",
+      "parquet_sha256": "0d7e48f75842a0582d9d082fc47e9041bdc7507f1ba69f54f7dfdbfec7023378",
+      "content_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+      "volatile_columns": [],
+      "sidecars": []
+    }
+  ],
+  "log_excerpt": "STARTED start\nINFO transactions rows=67879\nINFO dw.fact_premium_earned rows=67879\nSUCCESS end",
+  "captured_at": "2026-11-11T22:45:12.363571Z",
+  "capture_seconds": 4.99,
+  "lansh_version": "0.1.0"
+}

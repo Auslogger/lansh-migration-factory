@@ -1,0 +1,144 @@
+# SynthInsure legacy estate inventory: the jobs the factory migrates.
+#
+# This is what the client's run book says about each job: where the code is, how the
+# scheduler calls it, and which tables it reads and writes. The format is
+# lansh.contracts.EstateInventory. Sealed held-out jobs are not listed until unsealed.
+version: 1
+as_of_date: '2025-12-31'
+legacy_database: SynthInsureDW
+sources:
+  - stg.customers
+  - stg.brokers
+  - stg.products
+  - stg.policy_snapshots
+  - stg.premium_transactions
+  - stg.claims
+  - stg.claim_payments
+  - stg.claim_reserves
+  - stg.fx_rates
+# Written by every T-SQL job's logging; never reconciled.
+audit_tables:
+  - etl.etl_log
+jobs:
+  - job_id: T01
+    name: usp_load_dim_customer
+    language: tsql
+    path: estate/tsql/T01_usp_load_dim_customer.sql
+    entrypoint: dw.usp_load_dim_customer
+    description: Customer dimension, one row per CRM customer.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.customers]
+    outputs:
+      - table: dw.dim_customer
+
+  - job_id: T02
+    name: usp_load_dim_policy
+    language: tsql
+    path: estate/tsql/T02_usp_load_dim_policy.sql
+    entrypoint: dw.usp_load_dim_policy
+    description: Policy dimension with type-2 history, loaded once per policy snapshot.
+    invocations:
+      - label: batch 1
+        params: {SnapshotDate: '2025-06-30'}
+      - label: batch 2
+        params: {SnapshotDate: '2025-12-31'}
+    inputs: [stg.policy_snapshots, stg.brokers, stg.products, dw.dim_customer]
+    outputs:
+      - table: dw.dim_policy
+        volatile_columns: [load_ts]
+    # Batch 2 reads the history batch 1 wrote.
+    state_tables: [dw.dim_policy]
+
+  - job_id: T03
+    name: usp_build_fact_premium_earned
+    language: tsql
+    path: estate/tsql/T03_usp_build_fact_premium_earned.sql
+    entrypoint: dw.usp_build_fact_premium_earned
+    description: Written and earned premium in EUR per premium transaction.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.premium_transactions, stg.fx_rates, dw.dim_policy]
+    outputs:
+      - table: dw.fact_premium_earned
+
+  - job_id: T04
+    name: usp_build_claims_summary
+    language: tsql
+    path: estate/tsql/T04_usp_build_claims_summary.sql
+    entrypoint: rpt.usp_build_claims_summary
+    description: Open claims with paid, reserve and incurred to date.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.claims, stg.claim_payments, stg.claim_reserves, stg.policy_snapshots]
+    outputs:
+      - table: rpt.claims_summary
+
+  - job_id: T05
+    name: usp_claim_aging
+    language: tsql
+    path: estate/tsql/T05_usp_claim_aging.sql
+    entrypoint: rpt.usp_claim_aging
+    description: Ageing of open claims by time since last activity.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.claims, stg.claim_payments]
+    outputs:
+      - table: rpt.claim_aging
+
+  - job_id: T06
+    name: usp_loss_triangle
+    language: tsql
+    path: estate/tsql/T06_usp_loss_triangle.sql
+    entrypoint: rpt.usp_loss_triangle
+    description: Paid loss development triangle by accident year and line of business.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.claims, stg.claim_payments]
+    outputs:
+      - table: rpt.loss_triangle_paid
+
+  - job_id: T08
+    name: usp_fraud_flags
+    language: tsql
+    path: estate/tsql/T08_usp_fraud_flags.sql
+    entrypoint: rpt.usp_fraud_flags
+    description: Rule-based fraud indicators for recently notified claims.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.claims, stg.policy_snapshots, dw.dim_customer]
+    outputs:
+      - table: rpt.claim_fraud_flags
+
+  - job_id: S01
+    name: claims_enrich.sas
+    language: sas
+    path: estate/sas/S01_claims_enrich.sas
+    description: Claim-level payment history and indicators.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [stg.claims, stg.claim_payments]
+    outputs:
+      - table: dw.claims_enriched
+
+  - job_id: S03
+    name: premium_bands.sas
+    language: sas
+    path: estate/sas/S03_premium_bands.sas
+    description: Earned premium summarised by premium band.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [dw.fact_premium_earned]
+    outputs:
+      - table: rpt.premium_band_summary
+
+  - job_id: S04
+    name: risk_scoring.sas
+    language: sas
+    path: estate/sas/S04_risk_scoring.sas
+    description: Customer risk score and tier from claims experience.
+    invocations:
+      - params: {AsOfDate: '2025-12-31'}
+    inputs: [dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer]
+    outputs:
+      - table: rpt.risk_scores

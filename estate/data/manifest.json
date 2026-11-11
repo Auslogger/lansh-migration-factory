@@ -1,0 +1,73 @@
+{
+  "generator": "lansh.estate.generate",
+  "lansh_version": "0.1.0",
+  "seed": 20251231,
+  "as_of_date": "2025-12-31",
+  "synthetic": true,
+  "tables": [
+    {
+      "table": "stg.customers",
+      "path": "estate/data/customers.parquet",
+      "rows": 23799,
+      "file_sha256": "fe21bdab0cd12dde5ea5dcaf8d016943340140bfcc2ce530b818b5661b1fda81",
+      "content_sha256": "a6a760dae500275de9f4e0ec668b97eb4758189efdff09b82d38b59259a99cdc"
+    },
+    {
+      "table": "stg.brokers",
+      "path": "estate/data/brokers.parquet",
+      "rows": 45,
+      "file_sha256": "f821ac141a356ef9390bd118e50b3fcbd6fa9a1965510d7aa403a314e946b603",
+      "content_sha256": "eccb3e464ed5e0b7551a18d420313db318261520e0be392074e47bfd9ce096f0"
+    },
+    {
+      "table": "stg.products",
+      "path": "estate/data/products.parquet",
+      "rows": 8,
+      "file_sha256": "9f3d2d37a7c1645b2333bcdfb7aef387b59a5f4d8c42361b70ea457bd0c1cf71",
+      "content_sha256": "2af627af4cfceb861db6bc8252e4b495c6ed8dd66754a624948da676db69009e"
+    },
+    {
+      "table": "stg.policy_snapshots",
+      "path": "estate/data/policy_snapshots.parquet",
+      "rows": 108523,
+      "file_sha256": "722b2ae597d7ad1333bf07ed48fae900acfaa26de2cdcf278a12d2ff616c19e3",
+      "content_sha256": "bc0e9d38ddbb875fce9c484b482a396ba7cb3c256aa8b8de5561a3e1e698b17c"
+    },
+    {
+      "table": "stg.premium_transactions",
+      "path": "estate/data/premium_transactions.parquet",
+      "rows": 67886,
+      "file_sha256": "8d4ac7e7f44d149662cce4deea9ad082bda3301b9e1010cc2b8040a155a2b072",
+      "content_sha256": "cec7cb91f77e8c22a65f089c312988969292070d1055f28153bacd892cc2ca84"
+    },
+    {
+      "table": "stg.claims",
+      "path": "estate/data/claims.parquet",
+      "rows": 2911,
+      "file_sha256": "f1bd4a653fbb851b20e2aba0eb07510e94e589463344f548ab77d8e23c36551c",
+      "content_sha256": "7fc2a10a4dbc983798fcf213f4aecf34597263466c023e300256325826a77808"
+    },
+    {
+      "table": "stg.claim_payments",
+      "path": "estate/data/claim_payments.parquet",
+      "rows": 10247,
+      "file_sha256": "f78ad9e7e7202ba6e080f0e7a06808c152cb400609cbd8a07049e1e95479ac33",
+      "content_sha256": "8706780e1d29862846d2d861e6c797c1ccc2ee9059dc2e145d976446ab49680a"
+    },
+    {
+      "table": "stg.claim_reserves",
+      "path": "estate/data/claim_reserves.parquet",
+      "rows": 15262,
+      "file_sha256": "6dd321560a88d306f1e227b02ee09be1066f81ba4c2f9d67ba4a5f8ad244ad64",
+      "content_sha256": "0acfa9ba9cf980ef97bf6d1c4a1e1e3494fa65700e76504efc66baa02c86fd51"
+    },
+    {
+      "table": "stg.fx_rates",
+      "path": "estate/data/fx_rates.parquet",
+      "rows": 3586,
+      "file_sha256": "493902354eddadceb7d5ec8385d0ca2ecc345dc433919a658165cd41894e2dea",
+      "content_sha256": "b9cb5f99ee814558c54f49e3e110e67cecaaa377eb3175a08bede7c5c9405597"
+    }
+  ],
+  "total_rows": 232267
+}

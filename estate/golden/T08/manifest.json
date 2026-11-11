@@ -1,0 +1,210 @@
+{
+  "job_id": "T08",
+  "engine": "mssql",
+  "engine_version": "SQL Server 16.0.4305.5",
+  "legacy_path": "estate/tsql/T08_usp_fraud_flags.sql",
+  "legacy_sha256": "6e90a4a5ad66f2169982f70407d488edd7b7e0053a0617f71b9e9947cb9de886",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "stg.claims",
+      "path": "estate/data/claims.parquet",
+      "rows": 2911,
+      "file_sha256": "f1bd4a653fbb851b20e2aba0eb07510e94e589463344f548ab77d8e23c36551c",
+      "content_sha256": "7fc2a10a4dbc983798fcf213f4aecf34597263466c023e300256325826a77808"
+    },
+    {
+      "table": "stg.policy_snapshots",
+      "path": "estate/data/policy_snapshots.parquet",
+      "rows": 108523,
+      "file_sha256": "722b2ae597d7ad1333bf07ed48fae900acfaa26de2cdcf278a12d2ff616c19e3",
+      "content_sha256": "bc0e9d38ddbb875fce9c484b482a396ba7cb3c256aa8b8de5561a3e1e698b17c"
+    },
+    {
+      "table": "dw.dim_customer",
+      "path": "estate/golden/T01/dw.dim_customer.parquet",
+      "rows": 20000,
+      "file_sha256": "ce3bb44daec8b5e3b3e6e113d77c0b0ae01f47d12fa03643bfeebf7beb85ec78",
+      "content_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "rpt.claim_fraud_flags",
+      "rows": 1042,
+      "columns": [
+        {
+          "name": "claim_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "claim_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "policy_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": true,
+          "max_length": 20,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "customer_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "loss_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "reported_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "early_notification_flag",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "invalid_reg_flag",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "new_customer_flag",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "lob_mismatch_flag",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "fraud_score",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "fraud_band",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(6)",
+          "nullable": false,
+          "max_length": 6,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "loss_day_key",
+          "data_type": "string",
+          "legacy_type": "CHAR(8)",
+          "nullable": false,
+          "max_length": 8,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "reason_text",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(100)",
+          "nullable": false,
+          "max_length": 100,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/T08/rpt.claim_fraud_flags.csv",
+      "raw_sha256": "60143cdfaa131571f93e059e19bdf5d97b6139b6daedc7b4ad21096b85d5806d",
+      "parquet_path": "estate/golden/T08/rpt.claim_fraud_flags.parquet",
+      "parquet_sha256": "51ae3968ceb982a9ff15131dee96c065aa2748c884eee8af2ffeae085dd8cd25",
+      "content_sha256": "dbeb53828d46d4afd07eef07546eb17860032141a15895bdb2bd9516a24903a0",
+      "volatile_columns": [],
+      "sidecars": []
+    }
+  ],
+  "log_excerpt": "STARTED start\nINFO claims notified rows=1042\nINFO indicators rows=1042\nINFO rpt.claim_fraud_flags rows=1042\nSUCCESS end",
+  "captured_at": "2026-11-11T22:45:13.235312Z",
+  "capture_seconds": 0.165,
+  "lansh_version": "0.1.0"
+}

@@ -1,0 +1,68 @@
+# T06 answer key (evaluation only: factory code must never read this file).
+# Format: lansh.estate.labels.JobLabel. Lines are 1-based, in legacy_path.
+job_id: T06
+legacy_path: estate/tsql/T06_usp_loss_triangle.sql
+summary: >-
+  Paid loss development triangle for the actuarial team: one row per accident year
+  (2019-2025) and line of business (UPPER(RTRIM(lob_code))), with incremental paid by
+  development year in dev_0..dev_6 (PIVOT over #temp tables) and cumulative paid in
+  cumulative_0..cumulative_6, NULL after the as-at date. Planted: BUG-05 (payments made on the loss date are
+  dropped), TSQL-04 (development year from DATEDIFF(YEAR), which counts calendar-year
+  boundaries), TSQL-17 (PIVOT) and TSQL-13 (temp tables). lob_code is normalised before it is
+  grouped and the job compares no other text, so no TSQL-01/02 comparison is armed.
+traps:
+  - trap_id: TSQL-04
+    kind: semantic
+    armed: true
+    lines: [86, 86]
+    where: DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year
+    effect: >-
+      T-SQL DATEDIFF(YEAR, a, b) counts the calendar-year boundaries crossed, so a payment on
+      2024-01-15 for a loss on 2023-11-20 is development year 1. A naive translation counts
+      whole years since the loss and puts it in development year 0: Spark SQL's
+      datediff(YEAR, a, b) has the same syntax but does exactly that, as do timestampdiff(YEAR,
+      ...), floor(months_between(b, a) / 12) and days / 365. On our data 6,967 of the 25,710
+      payments that reach the triangle would move back one development year, changing 74 cells
+      in 18 of the 21 output rows (accident year 2025 is unaffected) and every cumulative
+      column after them. Exact translation: year(payment_date) - year(loss_date).
+    check: T06_TSQL04_dev_year_counts_calendar_years
+  - trap_id: TSQL-17
+    kind: construct
+    armed: true
+    lines: [105, 112]
+    where: >-
+      SELECT pv.accident_year, pv.lob_code, pv.[0] AS d0, ... pv.[6] AS d6 INTO #tri FROM
+      (SELECT accident_year, lob_code, dev_year, amount FROM #paid) AS src PIVOT (SUM(amount)
+      FOR dev_year IN ([0], [1], [2], [3], [4], [5], [6])) AS pv
+    effect: >-
+      PIVOT turns development years into columns and groups implicitly by every other column
+      of the derived table (accident_year, lob_code); a development year with no payments
+      comes out NULL, which step 4 turns into 0 inside the triangle and keeps NULL after the
+      as-at date. In Spark: groupBy(accident_year, lob_code).pivot(dev_year, [0..6])
+      .agg(sum(amount)) with the value list fixed (or seven conditional sums), so all seven
+      columns exist whatever the data. Exercised by every run, but a faithful translation
+      gives the same result on our data (all seven development years occur, so even a pivot
+      without a value list gets every column), hence not armed.
+  - trap_id: TSQL-13
+    kind: construct
+    armed: true
+    lines: [62, 137]
+    where: >-
+      #claims, #paid and #tri, each dropped with IF OBJECT_ID('tempdb..#x') IS NOT NULL and
+      built with SELECT ... INTO, then read by the next step
+    effect: >-
+      Session temp tables hold the intermediate steps; in Spark they become DataFrames or
+      temporary views. No effect on results.
+bugs:
+  - bug_id: BUG-05
+    lines: [93, 93]
+    where: 'AND  p.payment_date >  cl.loss_date   -- dated before the loss = keying error'
+    does: >-
+      Keeps only payments dated strictly after the loss date, so payments made on the loss
+      date itself are dropped: dev_0, and with it every cumulative column, is understated. On
+      our data 511 payments (EUR 945,140.21) are left out and 20 of the 21 output rows are
+      short (accident year 2019 travel has no payment on a loss date).
+    intended: >-
+      Exclude only payments keyed with a date before the loss, as the comment and change-log
+      entry INC-2318 say: p.payment_date >= cl.loss_date, so day-0 payments count in dev_0.
+    check: T06_BUG05_loss_date_payments_dropped

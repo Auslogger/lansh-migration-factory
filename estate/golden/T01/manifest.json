@@ -1,0 +1,250 @@
+{
+  "job_id": "T01",
+  "engine": "mssql",
+  "engine_version": "SQL Server 16.0.4305.5",
+  "legacy_path": "estate/tsql/T01_usp_load_dim_customer.sql",
+  "legacy_sha256": "d38c02712a8ae80f9e6e8fff845b41ac7d89026778fc03455b34ded21bba4dc6",
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "table": "stg.customers",
+      "path": "estate/data/customers.parquet",
+      "rows": 23799,
+      "file_sha256": "fe21bdab0cd12dde5ea5dcaf8d016943340140bfcc2ce530b818b5661b1fda81",
+      "content_sha256": "a6a760dae500275de9f4e0ec668b97eb4758189efdff09b82d38b59259a99cdc"
+    }
+  ],
+  "outputs": [
+    {
+      "table": "dw.dim_customer",
+      "rows": 20000,
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "first_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(40)",
+          "nullable": false,
+          "max_length": 40,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "last_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(60)",
+          "nullable": false,
+          "max_length": 60,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "full_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(101)",
+          "nullable": false,
+          "max_length": 101,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "initials",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(2)",
+          "nullable": false,
+          "max_length": 2,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "email",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(120)",
+          "nullable": true,
+          "max_length": 120,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "email_shared_count",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "date_of_birth",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "age_at_join",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "address_line1",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(100)",
+          "nullable": true,
+          "max_length": 100,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "town",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(50)",
+          "nullable": true,
+          "max_length": 50,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "county",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(30)",
+          "nullable": true,
+          "max_length": 30,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "region",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "eircode",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": true,
+          "max_length": 10,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "eircode_valid",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "segment_code",
+          "data_type": "string",
+          "legacy_type": "CHAR(4)",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "is_standard_segment",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "marketing_opt_in",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "customer_since",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "source_system",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "version_count",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "record_updated_at",
+          "data_type": "timestamp_ntz",
+          "legacy_type": "DATETIME2(0)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null
+        }
+      ],
+      "raw_path": "estate/golden/T01/dw.dim_customer.csv",
+      "raw_sha256": "7b80fc8dc05a6322f4a03cf9391947df865a483dc03fb6c68c59fc20958f52cb",
+      "parquet_path": "estate/golden/T01/dw.dim_customer.parquet",
+      "parquet_sha256": "ce3bb44daec8b5e3b3e6e113d77c0b0ae01f47d12fa03643bfeebf7beb85ec78",
+      "content_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "volatile_columns": [],
+      "sidecars": []
+    }
+  ],
+  "log_excerpt": "STARTED start\nINFO customer versions rows=23799\nINFO current versions rows=20000\nINFO dw.dim_customer rows=20000\nSUCCESS end",
+  "captured_at": "2026-11-11T22:45:01.468190Z",
+  "capture_seconds": 1.714,
+  "lansh_version": "0.1.0"
+}
