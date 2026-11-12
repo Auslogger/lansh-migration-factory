@@ -45,7 +45,9 @@ line-length = 100
 target-version = "py314"
 src = ["src", "tests", "scripts", "spikes"]
 # Legacy code and documents are not Python we lint.
-extend-exclude = ["estate", "docs", "runs", "lakehouse"]
+# Generated code (migrated jobs and fixtures copied from them) is checked by the guardrails;
+# reformatting it would change what recorded agent answers were asked about.
+extend-exclude = ["estate", "docs", "runs", "lakehouse", "migrated", "tests/fixtures"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "T20", "PT"]
@@ -59,12 +61,17 @@ extend-immutable-calls = ["typer.Option", "typer.Argument"]
 # Scripts and spikes report to the terminal by design.
 "scripts/*" = ["T20"]
 "spikes/*" = ["T20"]
+# the Control Tower lays out tables as dict literals, which read best on one line each
+"src/lansh/ui/*" = ["E501"]
+"src/lansh/scorecard.py" = ["E501"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-# Offline by default: integration tests need Docker, SAS or Claude and are opt-in (make test-*).
-addopts = "-ra -m 'not mssql and not sas and not live_llm'"
+testpaths = ["tests", "migrated/tests"]
+# Offline by default: integration tests need Docker, SAS or Claude and are opt-in (make test-*);
+# the end-to-end runs are offline too, but take minutes (make test-e2e).
+addopts = "-ra -m 'not mssql and not sas and not live_llm and not e2e'"
 markers = [
+    "e2e: runs a job through the whole factory in replay mode (offline, minutes)",
     "mssql: needs the SQL Server container (make legacy-up)",
     "sas: needs SAS OnDemand through saspy",
     "live_llm: makes a live Claude Code call on the subscription",
