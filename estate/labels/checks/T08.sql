@@ -146,7 +146,7 @@ SELECT 'T08_TSQL01_lob_code_compared_ignoring_case' AS check_id,
                    (SELECT STRING_AGG(CONCAT('''', v.lob_code, ''' ', v.n), ', ') WITHIN GROUP (ORDER BY v.lob_code)
                     FROM  (SELECT lob_code COLLATE Latin1_General_BIN2 AS lob_code, COUNT(*) AS n
                            FROM   hit
-                           GROUP BY lob_code COLLATE Latin1_General_BIN2) AS v))
+                           GROUP BY lob_code COLLATE Latin1_General_BIN2, DATALENGTH(lob_code)) AS v))
             AS NVARCHAR(200)) AS detail;
 GO
 -- check: T08_TSQL01_motor_test_ignores_case
@@ -177,7 +177,7 @@ SELECT 'T08_TSQL01_motor_test_ignores_case' AS check_id,
                    ' motor claims are motor only case-insensitively; invalid_reg_flag differs on ',
                    SUM(CASE WHEN legacy_flag <> cs_flag THEN 1 ELSE 0 END), ': ',
                    STRING_AGG(CASE WHEN legacy_flag <> cs_flag
-                                   THEN CONCAT('claim ', claim_id, ' lob_code ''', lob_code, ''' reg ''', vehicle_reg, '''') END, ', ')
+                                   THEN CONCAT(claim_id, ' ''', lob_code, '''/''', vehicle_reg, '''') END, ', ')
                        WITHIN GROUP (ORDER BY claim_id))
             AS NVARCHAR(200)) AS detail
 FROM   cmp;
@@ -220,4 +220,37 @@ SELECT 'T08_TSQL02_lob_code_compared_ignoring_trailing_spaces' AS check_id,
                            GROUP BY lob_code COLLATE Latin1_General_BIN2) AS v),
                    '; motor test: invalid_reg_flag differs on ', (SELECT SUM(reg_differs) FROM cmp))
             AS NVARCHAR(200)) AS detail;
+GO
+-- check: T08_TSQL02_motor_test_ignores_trailing_spaces
+-- proves: the motor test cl.lob_code = 'MOT' ignores trailing spaces, so a claim keyed 'Mot ' or 'MOT ' is treated as motor and its registration checked; where trailing spaces count (Spark, even compared case-insensitively) such a claim whose registration is outside the pattern would lose its invalid_reg_flag
+WITH pol AS (
+    SELECT p.policy_id, p.vehicle_reg
+    FROM   stg.policy_snapshots AS p
+    WHERE  p.snapshot_date = (SELECT MAX(s.snapshot_date)
+                              FROM   stg.policy_snapshots AS s
+                              WHERE  s.snapshot_date <= (SELECT MAX(as_of_date) FROM rpt.claim_fraud_flags))
+),
+cmp AS (
+    SELECT f.claim_id,
+           c.lob_code,
+           pol.vehicle_reg,
+           f.invalid_reg_flag AS legacy_flag,
+           CASE WHEN c.lob_code + '|' = 'MOT|'                         -- trailing spaces count; case still ignored
+                 AND pol.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'
+                THEN 1 ELSE 0 END AS ts_flag
+    FROM   rpt.claim_fraud_flags AS f
+    JOIN   stg.claims AS c ON c.claim_id = f.claim_id
+    LEFT JOIN pol ON pol.policy_id = f.policy_id
+    WHERE  c.lob_code = 'MOT'                                          -- motor claims as the legacy test sees them
+)
+SELECT 'T08_TSQL02_motor_test_ignores_trailing_spaces' AS check_id,
+       SUM(CASE WHEN legacy_flag <> ts_flag THEN 1 ELSE 0 END) AS affected,
+       CAST(CONCAT(SUM(CASE WHEN DATALENGTH(lob_code) > 3 THEN 1 ELSE 0 END), ' of ', COUNT(*),
+                   ' motor claims are keyed with a trailing space; invalid_reg_flag differs on ',
+                   SUM(CASE WHEN legacy_flag <> ts_flag THEN 1 ELSE 0 END), ': ',
+                   STRING_AGG(CASE WHEN legacy_flag <> ts_flag
+                                   THEN CONCAT(claim_id, ' ''', lob_code, '''/''', vehicle_reg, '''') END, ', ')
+                       WITHIN GROUP (ORDER BY claim_id))
+            AS NVARCHAR(200)) AS detail
+FROM   cmp;
 GO

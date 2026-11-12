@@ -14,7 +14,7 @@ summary: >-
   spaces), TSQL-05 (claim_ref built with + is NULL without a handler) and TSQL-16 (CONVERT
   styles 103 and 112 into CHAR(6)). The only other text comparisons are on reserve_type,
   whose data has no case or space variants, so they are labelled unarmed. On our data the
-  job writes 2,238 rows.
+  job writes 823 rows.
 traps:
   - trap_id: TSQL-01
     kind: semantic
@@ -23,10 +23,10 @@ traps:
     where: "WHERE   c.status IN ('OPEN', 'REOPENED')"
     effect: >-
       Under the database collation SQL_Latin1_General_CP1_CI_AS the IN list matches status
-      values in any case, so the open book includes claims keyed 'Open' (86), 'open' (26)
-      and 'Reopened' (17). A naive translation, status.isin('OPEN', 'REOPENED') or the same
-      IN in Spark SQL, compares case-sensitively and drops these 129 claims (with TSQL-02,
-      172 of the 2,238 output rows go missing). Exact translation:
+      values in any case, so the open book includes claims keyed 'Open' (34), 'open' (13)
+      and 'Reopened' (2). A naive translation, status.isin('OPEN', 'REOPENED') or the same
+      IN in Spark SQL, compares case-sensitively and drops these 49 claims (with TSQL-02,
+      60 of the 823 output rows go missing). Exact translation:
       upper(rtrim(status)).isin('OPEN', 'REOPENED'), or a UTF8_LCASE_RTRIM collation, while
       the output keeps status as stored.
     check: T04_TSQL01_status_filter_ignores_case
@@ -37,7 +37,7 @@ traps:
     where: "WHERE   c.status IN ('OPEN', 'REOPENED')"
     effect: >-
       SQL Server ignores trailing spaces when it compares strings with = (and so with IN),
-      so the filter also keeps the 43 claims whose status is stored as 'OPEN ' (5 bytes).
+      so the filter also keeps the 11 claims whose status is stored as 'OPEN ' (5 bytes).
       Spark compares strings exactly, so even a case-insensitive translation
       (upper(status).isin(...), or a UTF8_LCASE collation without RTRIM) drops them. The
       output keeps the stored value 'OPEN ' with its trailing space. Exact translation:
@@ -50,9 +50,9 @@ traps:
     where: "oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code  (claim_ref)"
     effect: >-
       With + (CONCAT_NULL_YIELDS_NULL ON) the whole claim reference is NULL when
-      handler_code is NULL: 313 of the 2,238 output rows. A translation that uses
+      handler_code is NULL: 109 of the 823 output rows. A translation that uses
       concat_ws, T-SQL CONCAT() semantics (NULL as empty) or coalesce on each part writes
-      'HOM/CLM-2019-00016/' instead; format_string writes '.../null' and a Python f-string
+      'HOM/CLM-2021-00193/' instead; format_string writes '.../null' and a Python f-string
       '.../None'. A literal + does not even resolve in Spark SQL (+ is arithmetic only).
       Exact translation: Spark's concat() (or ||), which also returns NULL when any
       argument is NULL.
@@ -64,7 +64,7 @@ traps:
     where: "CONVERT(VARCHAR(10), oc.loss_date, 103)  (loss_date_text)"
     effect: >-
       Style 103 is the British/French dd/mm/yyyy. Mapping it to US mm/dd/yyyy (style 101)
-      changes 2,184 of the 2,238 rows, 799 of which still look like valid dates (day 12 or
+      changes 798 of the 823 rows, 293 of which still look like valid dates (day 12 or
       less); ignoring the style and casting the date to text gives yyyy-mm-dd on every
       row. Exact translation: date_format(loss_date, 'dd/MM/yyyy').
     check: T04_TSQL16_convert_style_codes
@@ -76,7 +76,7 @@ traps:
     effect: >-
       Style 112 is yyyymmdd; converting into CHAR(6) silently keeps the first six
       characters, yyyymm. A translation that maps style 112 to 'yyyyMMdd' without the
-      truncation (or casts the date to text) differs on every one of the 2,238 rows. Exact
+      truncation (or casts the date to text) differs on every one of the 823 rows. Exact
       translation: date_format(reported_date, 'yyyyMM').
     check: T04_TSQL16_convert_style_codes
   - trap_id: TSQL-13
@@ -100,7 +100,7 @@ traps:
       A PARTITION BY on a text column groups case and trailing-space variants together in
       SQL Server but not in Spark. reserve_type holds only 'INDEMNITY' and 'EXPENSE',
       exactly, in our data, so the partitions are the same in both engines. Not armed. The
-      ORDER BY ends with the unique reserve_id, so the 67 claim/reserve-type pairs whose
+      ORDER BY ends with the unique reserve_id, so the 24 claim/reserve-type pairs whose
       latest reserve date holds a same-day correction (different amounts) resolve the same
       way in both engines.
   - trap_id: TSQL-01
@@ -145,9 +145,9 @@ bugs:
       payment once per reserve type. For claims with both an indemnity and an expense
       reserve, total_paid, and with it incurred, is exactly doubled. COUNT(DISTINCT
       p.payment_id) keeps n_payments right, and MAX picks the right reserve per type, which
-      hides the problem. On our data 735 of the 2,238 claims are over-stated, by EUR
-      3,863,131.39 in total: the output reports EUR 13,706,209.13 paid against EUR
-      9,843,077.74 actually paid to date.
+      hides the problem. On our data 289 of the 823 claims are over-stated, by EUR
+      1,288,029.36 in total: the output reports EUR 4,267,583.98 paid against EUR
+      2,979,554.62 actually paid to date.
     intended: >-
       Aggregate payments and reserves separately: total_paid = SUM(amount) of the claim's
       payments up to @AsOfDate (one row per claim), current reserve from #reserve, then

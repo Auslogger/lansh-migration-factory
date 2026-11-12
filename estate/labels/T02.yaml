@@ -17,8 +17,8 @@ summary: >-
   typing cuts 'DIRECT-SALES' to 'DIRECT-SAL'; NULL equals '' in the change test), TSQL-01
   (case-insensitive status change test, product join and broker join) and TSQL-02 (product
   and broker joins ignore trailing spaces, including the CHAR(6) padding of the broker
-  register). No bug. Output: 34,631 rows (batch 1 opens 23,370; batch 2 closes 3,911 and
-  opens 11,261, of which 7,350 are new policies), 30,720 current.
+  register). No bug. Output: 69,255 rows (batch 1 opens 47,076; batch 2 closes 7,808 and
+  opens 22,179, of which 14,371 are new policies), 61,447 current.
 
 traps:
   - trap_id: TSQL-06
@@ -31,8 +31,8 @@ traps:
       VARCHAR(12)
     effect: >-
       ISNULL returns the data type of its first argument, so the replacement is silently cut
-      to VARCHAR(10) and every direct-business version is stored as 'DIRECT-SAL': 18,856 of
-      the 34,631 rows (16,753 policies). COALESCE, and Spark's coalesce, take the type from
+      to VARCHAR(10) and every direct-business version is stored as 'DIRECT-SAL': 37,801 of
+      the 69,255 rows (33,634 policies). COALESCE, and Spark's coalesce, take the type from
       all arguments and return 'DIRECT-SALES', which fits the VARCHAR(12) column, so a naive
       translation differs on all of these rows (and on any downstream filter on the code).
       Exact translation: coalesce(broker_code, 'DIRECT-SAL'), i.e. the literal cut to the
@@ -48,11 +48,11 @@ traps:
     effect: >-
       ISNULL maps NULL to '', so a registration that goes from NULL to '' or from '' to NULL
       between snapshots is no change. 150 policies flip between NULL and '' from the June to
-      the December snapshot; 30 of them change another tracked column anyway, so 120 keep
-      their June version as current (63 hold NULL where the snapshot now has '', 57 hold ''
+      the December snapshot; 22 of them change another tracked column anyway, so 128 keep
+      their June version as current (62 hold NULL where the snapshot now has '', 66 hold ''
       where it now has NULL). A translation with a NULL-safe comparison (NOT (a <=> b), IS
-      DISTINCT FROM), or one that treats NULL and '' as different, closes these 120 versions
-      and opens 120 more, and because new versions are numbered in policy_id order, it also
+      DISTINCT FROM), or one that treats NULL and '' as different, closes these 128 versions
+      and opens 128 more, and because new versions are numbered in policy_id order, it also
       shifts policy_sk on every later batch-2 insert. Exact translation:
       coalesce(src.vehicle_reg, '') <> coalesce(tgt.vehicle_reg, ''), keeping vehicle_reg as
       keyed (NULL and '' stay distinct in the output).
@@ -79,10 +79,10 @@ traps:
     effect: >-
       status is kept as keyed and compared under SQL_Latin1_General_CP1_CI_AS, so a status
       re-keyed only in case between snapshots ('EXPIRED' -> 'Expired', 'ACTIVE' -> 'Active',
-      'LAPSED' -> 'Lapsed', 'CANCELLED' -> 'Cancelled') is no change. 138 policies change
-      only in case; 6 change another tracked column anyway, so 132 current versions keep the
-      June text (71 EXPIRED, 26 ACTIVE, 27 LAPSED, 8 CANCELLED). Spark compares strings
-      case-sensitively: it closes these 132 versions and opens 132 new ones with the new
+      'LAPSED' -> 'Lapsed', 'CANCELLED' -> 'Cancelled') is no change. 266 policies change
+      only in case; 3 change another tracked column anyway, so 263 current versions keep the
+      June text (167 EXPIRED, 51 ACTIVE, 41 LAPSED, 4 CANCELLED). Spark compares strings
+      case-sensitively: it closes these 263 versions and opens 263 new ones with the new
       spelling, shifting policy_sk on every later batch-2 insert. Exact translation: compare
       upper(rtrim(status)) on both sides (or a UTF8_LCASE_RTRIM collation) and store status
       as keyed.
@@ -106,7 +106,7 @@ traps:
     where: "MERGE change test: ISNULL(src.broker_code, '') <> ISNULL(tgt.broker_code, '')"
     effect: >-
       broker_code is kept as keyed, with case variants ('brk001', 'Brk001', 'bk102'), and
-      compared case-insensitively. All 79 broker changes between the snapshots are changes
+      compared case-insensitively. All 76 broker changes between the snapshots are changes
       of broker, none a re-keying of the same code in another case, so a case-sensitive
       comparison opens the same versions. Not armed.
 
@@ -128,7 +128,7 @@ traps:
     where: "MERGE change test: ISNULL(src.vehicle_reg, '') <> ISNULL(tgt.vehicle_reg, '')"
     effect: >-
       vehicle_reg is free text compared case- and trailing-space-insensitively (one
-      lower-case value, 'd-12345', on 110 snapshot rows, and no trailing spaces), but no
+      lower-case value, 'd-12345', on 288 snapshot rows, and no trailing spaces), but no
       registration changes only in case or padding between the snapshots. Not armed; the
       armed effect of this line is TSQL-06 (NULL versus '').
 
@@ -143,8 +143,8 @@ traps:
       The join is case-insensitive, so product codes keyed in lower case ('mot-comp',
       'hom-bc': 8 spellings) find their catalogue row and the version stores the catalogue's
       code. Joined case-sensitively, as Spark joins strings, they find no product and the
-      inner join drops them: 202 versions of 181 policies go missing (with TSQL-02, 274 of
-      the 23,370 policies of batch 1). Exact translation: join on upper(rtrim(...)) of both
+      inner join drops them: 402 versions of 354 policies go missing (with TSQL-02, 572 of
+      the 47,076 policies of batch 1). Exact translation: join on upper(rtrim(...)) of both
       codes, or a UTF8_LCASE_RTRIM collation.
     check: T02_TSQL01_product_join_case
 
@@ -156,7 +156,7 @@ traps:
     effect: >-
       The comparison ignores trailing spaces, so product codes keyed with one ('HOM-BC ',
       'MOT-COMP ': 8 spellings) match the catalogue. Compared exactly, they find no product
-      and the inner join drops them: 200 versions of 179 policies go missing. rtrim the keyed
+      and the inner join drops them: 478 versions of 418 policies go missing. rtrim the keyed
       code before joining (see TSQL-01 on the same join).
     check: T02_TSQL02_product_join_padding
 
@@ -170,7 +170,7 @@ traps:
     effect: >-
       The join is case-insensitive, so broker codes keyed as 'brk001', 'Brk001', 'bk102' or
       'Bk102' find their broker. Joined case-sensitively, as Spark joins strings, broker_name
-      is NULL on 897 versions of 787 policies (466 of those versions keyed all in lower case). Exact
+      is NULL on 1,656 versions of 1,452 policies (855 of those versions keyed all in lower case). Exact
       translation: join on upper(rtrim(...)) of both codes and keep broker_code as keyed.
     check: T02_TSQL01_broker_join_case
 
@@ -185,8 +185,8 @@ traps:
       SQL Server pads the shorter value before comparing, so 'BK102' (VARCHAR) matches the
       register's CHAR(6) 'BK102 ', and codes keyed with extra spaces ('BRK001  ', 'BK102  ')
       match too. The register's value really is 'BK102 ' in the extract, so compared exactly
-      broker_name is NULL on 1,964 versions of 1,738 policies: 1,520 with a 5-character code
-      (even when keyed in the register's own case) and 444 keyed with extra trailing spaces.
+      broker_name is NULL on 3,857 versions of 3,436 policies: 3,034 with a 5-character code
+      (even when keyed in the register's own case) and 823 keyed with extra trailing spaces.
       Exact translation: rtrim both sides before joining.
     check: T02_TSQL02_broker_join_padding
 
@@ -202,9 +202,9 @@ traps:
       IDENTITY(1,1) policy_sk declared at line 33 (lines 142-161)
     effect: >-
       Type-2 history over two batches that must run in order. Batch 1 (2025-06-30) closes
-      nothing and opens 23,370 versions, policy_sk 1-23,370 in policy_id order. Batch 2
-      (2025-12-31) closes 3,911 versions (valid_to 2025-12-30, is_current 'N') and opens
-      11,261 (3,911 new versions and 7,350 new policies), policy_sk 23,371-34,631 in
+      nothing and opens 47,076 versions, policy_sk 1-47,076 in policy_id order. Batch 2
+      (2025-12-31) closes 7,808 versions (valid_to 2025-12-30, is_current 'N') and opens
+      22,179 (7,808 new versions and 14,371 new policies), policy_sk 47,077-69,255 in
       policy_id order. In Spark: a Delta MERGE INTO with the same match and change test for
       the expiry, then new versions numbered max(policy_sk) + row_number() over (order by
       policy_id); monotonically_increasing_id or an unordered row_number does not match.

@@ -21,8 +21,8 @@ traps:
       2024-01-15 for a loss on 2023-11-20 is development year 1. A naive translation counts
       whole years since the loss and puts it in development year 0: Spark SQL's
       datediff(YEAR, a, b) has the same syntax but does exactly that, as do timestampdiff(YEAR,
-      ...), floor(months_between(b, a) / 12) and days / 365. On our data 6,967 of the 25,710
-      payments that reach the triangle would move back one development year, changing 74 cells
+      ...), floor(months_between(b, a) / 12) and days / 365. On our data 2,718 of the 9,918
+      payments that reach the triangle would move back one development year, changing 59 cells
       in 18 of the 21 output rows (accident year 2025 is unaffected) and every cumulative
       column after them. Exact translation: year(payment_date) - year(loss_date).
     check: T06_TSQL04_dev_year_counts_calendar_years
@@ -42,7 +42,8 @@ traps:
       .agg(sum(amount)) with the value list fixed (or seven conditional sums), so all seven
       columns exist whatever the data. Exercised by every run, but a faithful translation
       gives the same result on our data (all seven development years occur, so even a pivot
-      without a value list gets every column), hence not armed.
+      without a value list gets every column). Armed in the construct sense only: present
+      and run on our data.
   - trap_id: TSQL-13
     kind: construct
     armed: true
@@ -60,8 +61,8 @@ bugs:
     does: >-
       Keeps only payments dated strictly after the loss date, so payments made on the loss
       date itself are dropped: dev_0, and with it every cumulative column, is understated. On
-      our data 511 payments (EUR 945,140.21) are left out and 20 of the 21 output rows are
-      short (accident year 2019 travel has no payment on a loss date).
+      our data 196 payments (EUR 390,467.67) are left out and 19 of the 21 output rows are
+      short (accident years 2019 and 2020 travel have no payment on a loss date).
     intended: >-
       Exclude only payments keyed with a date before the loss, as the comment and change-log
       entry INC-2318 say: p.payment_date >= cl.loss_date, so day-0 payments count in dev_0.

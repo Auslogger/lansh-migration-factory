@@ -13,7 +13,7 @@ summary: >-
   earned_pct and the instalment count), TSQL-07 (ROUND(x, 4, 1) truncates; DECIMAL scale on
   computed money), TSQL-09 (CROSS APPLY TOP 1, which drops foreign-currency transactions
   booked before the first published rate) and TSQL-18 (DATEADD(MONTH, 1, EOMONTH(d)) is not
-  the next month-end). On our data the job writes 33,888 rows from 33,893 transactions.
+  the next month-end). On our data the job writes 67,879 rows from 67,886 transactions.
 traps:
   - trap_id: TSQL-03
     kind: semantic
@@ -23,7 +23,7 @@ traps:
     effect: >-
       Both operands are INT, so T-SQL truncates before the value is stored in the
       DECIMAL(5,2) column: a cover 100 days into 365 stores 27.00, where decimal or double
-      division stores 27.40. earned_pct differs on 12,120 rows. Reproduce with integer
+      division stores 27.40. earned_pct differs on 24,201 rows. Reproduce with integer
       division (div, or floor on these non-negative values) before the cast.
     check: T03_TSQL03_integer_division
   - trap_id: TSQL-03
@@ -34,7 +34,7 @@ traps:
     effect: >-
       term_days / 30 is integer division: a 365-day cover has 12 instalments, a 200-day
       mid-term adjustment 6, and a cover under 30 days 0, which NULLIF/ISNULL turns into 1.
-      monthly_instalment_eur differs from division by term_days / 30.0 on 33,584 rows.
+      monthly_instalment_eur differs from division by term_days / 30.0 on 67,338 rows.
       Spark's / would give 12.1667 instalments and a different amount on almost every row.
     check: T03_TSQL03_integer_division
   - trap_id: TSQL-07
@@ -44,9 +44,9 @@ traps:
     where: "ROUND(e.written_eur / e.term_days, 4, 1)"
     effect: >-
       ROUND with a third argument of 1 truncates toward zero instead of rounding, on a computed
-      DECIMAL whose scale comes from SQL Server's division rules. 16,486 of 33,888 daily rates
+      DECIMAL whose scale comes from SQL Server's division rules. 32,841 of 67,879 daily rates
       differ from ROUND(x, 4). Spark's round(x, 4) rounds half up, and Spark has no numeric
-      truncate: floor() is wrong on the 1,865 negative (refund) rows (it changes 1,768 of
+      truncate: floor() is wrong on the 3,678 negative (refund) rows (it changes 3,523 of
       them). Exact: when(q >= 0, floor(q * 10000)).otherwise(ceil(q * 10000)) / 10000, keeping
       the DECIMAL scale of the division.
     check: T03_TSQL07_round_truncates
@@ -58,7 +58,8 @@ traps:
     effect: >-
       DECIMAL(12,2) * DECIMAL(18,8) has scale 10 in both engines and the product is exact,
       so ROUND(..., 2) agrees as long as the translation multiplies decimals, not doubles. Not
-      armed by our data when done in decimals; a double multiply would drift by cents.
+      armed by our data when done in decimals; a double multiply is inexact and could drift by
+      a cent, though on our data it rounds all 3,089 foreign-currency products the same.
   - trap_id: TSQL-09
     kind: construct
     armed: true
@@ -66,8 +67,8 @@ traps:
     where: "CROSS APPLY (SELECT TOP 1 r.rate_to_eur ... ORDER BY r.rate_date DESC, r._row_seq DESC) fx"
     effect: >-
       The latest rate on or before the booking date, the later extract row winning when a rate
-      was revised (the tiebreak decides 1 transaction). CROSS APPLY drops the 5 foreign-currency
-      transactions with no rate on or before their booking date (4 GBP, 1 USD, 18-29 December
+      was revised (the tiebreak decides 12 transactions). CROSS APPLY drops the 7 foreign-currency
+      transactions with no rate on or before their booking date (6 GBP, 1 USD, 18-28 December
       2018); a LEFT join or OUTER APPLY would keep them.
       Reproduce with a window or an inner range join.
     check: T03_TSQL09_cross_apply_drops_unrated
@@ -79,7 +80,7 @@ traps:
     effect: >-
       DATEADD keeps the day of the month, clamped to the target month's length, so the month
       after a 30-day month or February does not end on its last day (cover from April gives 30
-      May, not 31 May; from February 2019 gives 28 March). 13,834 first_due_date values differ
+      May, not 31 May; from February 2019 gives 28 March). 26,779 first_due_date values differ
       from EOMONTH(effective_from, 1). Spark's add_months(last_day(d), 1) matches the legacy
       value; a translator that "fixes" it to last_day(add_months(d, 1)) changes results.
     check: T03_TSQL18_month_end_dateadd
@@ -116,8 +117,8 @@ bugs:
       Earns premium as written_eur * earned_days / 365, whatever the length of the cover:
       a fully earned 366-day cover (2024) is earned at 366/365 of its premium, leaving a
       negative unearned premium, and short covers (single-trip travel, mid-term adjustments,
-      cancellations) are under-earned. 10,479 of 33,888 rows differ from earning over the
-      cover period, 5,225 of them 366-day covers; net effect EUR -15,866.72. unearned_eur
+      cancellations) are under-earned. 21,145 of 67,879 rows differ from earning over the
+      cover period, 10,572 of them 366-day covers; net effect EUR -39,365.43. unearned_eur
       (line 126) inherits the error.
     intended: "Divide by the days in the cover period: ROUND(written_eur * earned_days / term_days, 2)."
     check: T03_BUG02_earned_divides_by_365

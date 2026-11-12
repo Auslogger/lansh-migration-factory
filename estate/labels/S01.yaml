@@ -2,7 +2,7 @@
 # only: factory code must never read this file).
 # Format: lansh.estate.labels.JobLabel. Lines are 1-based lines of
 # estate/sas/S01_claims_enrich.sas. Counts are from the committed data, as at 2025-12-31
-# (7,618 output rows: 6,421 claims with payments up to the as-of date, 1,197 without).
+# (2,911 output rows: 2,466 claims with payments up to the as-of date, 445 without).
 job_id: S01
 legacy_path: estate/sas/S01_claims_enrich.sas
 summary: >-
@@ -27,12 +27,12 @@ traps:
     lines: [73, 73]
     where: "if amount < 0 then do;  (work.pay_summary DATA step)"
     effect: >-
-      SAS orders a missing value below every number, so amount < 0 is true for the 224
-      payments with no amount up to the as-of date (177 indemnity, 47 expense; on 219
+      SAS orders a missing value below every number, so amount < 0 is true for the 86
+      payments with no amount up to the as-of date (73 indemnity, 13 expense; on 86
       claims). In Spark NULL < 0 is NULL, which when() and filter() treat as false, so a
-      direct translation (F.col('amount') < 0) counts 224 fewer recoveries: n_recoveries
-      changes on 219 rows (the output totals 549 against 325 negative amounts) and
-      recovery_flag on 204. It silently fixes BUG-08 and fails reconciliation. Exact
+      direct translation (F.col('amount') < 0) counts 86 fewer recoveries: n_recoveries
+      changes on 86 rows (the output totals 218 against 132 negative amounts) and
+      recovery_flag on 81. It silently fixes BUG-08 and fails reconciliation. Exact
       translation: amount.isNull() | (amount < 0).
     check: S01_SAS01_missing_lt_zero
   - trap_id: SAS-01
@@ -44,7 +44,7 @@ traps:
       A WHERE comparison also treats a missing value as smaller than any number, so a
       missing payment_date would pass payment_date <= &as_of in SAS and fail in Spark.
       payment_date is never missing in our data (NOT NULL in the extract), so both engines
-      keep the same 26,470 of the 26,539 payments. Not armed.
+      keep the same 10,225 of the 10,247 payments. Not armed.
   - trap_id: SAS-02
     kind: semantic
     armed: true
@@ -55,10 +55,10 @@ traps:
       recovery_amt = recovery_amt + amount;  (retained, reset to 0 at first.claim_id)
     effect: >-
       Added up with the + operator, a component turns missing at the first payment with no
-      amount and stays missing for the rest of the claim: indemnity_amt is missing on 172
-      claims and expense_amt on 47 (recovery amounts are always keyed, so recovery_amt
+      amount and stays missing for the rest of the claim: indemnity_amt is missing on 73
+      claims and expense_amt on 13 (recovery amounts are always keyed, so recovery_amt
       never is). A grouped Spark sum (sum(when(type = 'INDEMNITY', amount))) skips the
-      NULLs and returns a value on 199 of those 219 claims (on the other 20 every amount of
+      NULLs and returns a value on 76 of those 86 claims (on the other 10 every amount of
       that type is missing). Exact translation: NULL when any amount of that type up to
       the as-of date is NULL, otherwise the sum (0 when the claim has none of that type).
     check: S01_SAS02_plus_vs_sum
@@ -71,13 +71,13 @@ traps:
       recovery_amt);
     effect: >-
       + propagates a missing value; the sum() function ignores missing arguments (and is
-      missing only when all of them are). gross_paid is missing on the 219 paid claims with
-      an unkeyed indemnity or expense payment (and on the 1,197 unpaid claims), while
-      net_paid has a value on every one of the 6,421 paid claims (on the 219 it leaves out
+      missing only when all of them are). gross_paid is missing on the 86 paid claims with
+      an unkeyed indemnity or expense payment (and on the 445 unpaid claims), while
+      net_paid has a value on every one of the 2,466 paid claims (on the 86 it leaves out
       the missing component). Translating sum(a, b, c) as a + b + c makes net_paid NULL on
-      those 219 rows; treating + as if missing were 0 (coalesce) fills gross_paid on them
-      (sum(indemnity_amt, expense_amt) gives EUR 174,133.98; from the keyed amounts, as
-      Spark's sum would, EUR 928,455.55). Exact translation: gross_paid = indemnity_amt +
+      those 86 rows; treating + as if missing were 0 (coalesce) fills gross_paid on them
+      (sum(indemnity_amt, expense_amt) gives EUR 72,972.68; from the keyed amounts, as
+      Spark's sum would, EUR 367,407.33). Exact translation: gross_paid = indemnity_amt +
       expense_amt (Spark's + is NULL-propagating too); net_paid = NULL when all three are
       NULL, else the sum of the non-NULL ones.
     check: S01_SAS02_plus_vs_sum
@@ -91,11 +91,11 @@ traps:
       = 0; end;
     effect: >-
       MERGE BY is a full outer join on claim_id, and the subsetting IF c keeps the rows
-      whose claim is on the register. So the 1,197 claims with no payment up to the as-of
+      whose claim is on the register. So the 445 claims with no payment up to the as-of
       date are kept (has_payment 0, counts and total_paid 0, the paid split, gross_paid,
-      net_paid and the payment dates missing; 16 of them have only payments dated after
-      the as-of date), and the 25 payments (EUR 26,120.77) on 25 claim ids missing from the
-      register are dropped. An inner join loses the 1,197 rows; a plain merge (full outer
+      net_paid and the payment dates missing; 4 of them have only payments dated after
+      the as-of date), and the 25 payments (EUR 18,740.14) on 25 claim ids missing from the
+      register are dropped. An inner join loses the 445 rows; a plain merge (full outer
       join) or a join from the payments side adds 25 rows. Exact translation: claims
       left-join the per-claim payment summary on claim_id, has_payment = whether a summary
       row matched.
@@ -114,13 +114,13 @@ traps:
       The DATA step reads each claim's payments in extract order (_row_seq), which is not
       date order, so first_payment_date and last_payment_date are the dates of the first
       and last payments keyed, not the earliest and latest: they differ from
-      min/max(payment_date) on 154 claims (first on 57, last on 107, both on 10). A groupBy
+      min/max(payment_date) on 73 claims (first on 31, last on 46, both on 4). A groupBy
       with min/max, or first()/last() without an ordering, gets them wrong; reproduce them
       ordered by _row_seq (a window, or min_by/max_by on _row_seq). The sum statement
-      starts at 0 and skips missing values, so total_paid is 0 on the 6 claims whose
+      starts at 0 and skips missing values, so total_paid is 0 on the 5 claims whose
       payments all have no amount, where Spark's sum(amount) is NULL. The totals are
-      doubles added in _row_seq order: on 1,705 claims total_paid differs in the last bits
-      (at most 1.5e-11) from the correctly rounded decimal sum, and on 45 from a sum in
+      doubles added in _row_seq order: on 671 claims total_paid differs in the last bits
+      (at most 1.5e-11) from the correctly rounded decimal sum, and on 19 from a sum in
       payment-date order (a float_rel comparison absorbs this).
     check: S01_SAS06_first_last_by_extract_order
   - trap_id: SAS-07
@@ -135,16 +135,16 @@ traps:
       per claim is written at last.claim_id, which becomes a groupBy(claim_id) aggregation
       or a window. Which row is first and last, and the running sums, depend on the
       _row_seq order and are labelled SAS-06; the construct itself does not change results
-      on our data. Not armed.
+      on our data. Armed in the construct sense only: present and run.
 bugs:
   - bug_id: BUG-08
     lines: [73, 76]
     where: "if amount < 0 then do; recovery_flag = 1; n_recoveries + 1; end;"
     does: >-
       Treats every payment whose amount is missing (not yet keyed) as a recovery, because
-      a missing value is smaller than any number in SAS: the 224 unkeyed payments up to
-      the as-of date are counted in n_recoveries, which is over-stated on 219 claims (549
-      in total against 325 genuine recoveries), and 204 claims carry recovery_flag = 1
+      a missing value is smaller than any number in SAS: the 86 unkeyed payments up to
+      the as-of date are counted in n_recoveries, which is over-stated on 86 claims (218
+      in total against 132 genuine recoveries), and 81 claims carry recovery_flag = 1
       although nothing was recovered on them.
     intended: >-
       Count and flag recoveries only, which come through as negative amounts, as the

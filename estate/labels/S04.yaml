@@ -11,9 +11,9 @@ summary: >-
   half-point grid, applies 2-decimal loadings, rounds with SAS ROUND and assigns the tier.
   Planted: BUG-10 (tier first assigned 'HIGH', so 'MEDIUM' is stored as 'MEDI'), SAS-11,
   SAS-10, SAS-13 and SAS-15. Upstream bugs flow in: S01's BUG-08 inflates n_recoveries and
-  T01's BUG-01 supplies stale counties. On our data the job writes 4,933 rows: tier HIGH
-  440, MEDI 1,384, LOW 3,109. Not planted, and not a defect to penalise: age is
-  int((as_of - date_of_birth) / 365.25), which differs from true age for 9 of 9,952
+  T01's BUG-01 supplies stale counties. On our data the job writes 2,645 rows: tier HIGH
+  160, MEDI 654, LOW 1,831. Not planted, and not a defect to penalise: age is
+  int((as_of - date_of_birth) / 365.25), which differs from true age for 17 of 19,914
   customers, none of whom crosses a loading band. paid, severity and loss_ratio are sums of
   doubles whose last bits depend on the order SAS read its inputs (a relative difference of
   at most 4e-16 when the inputs are shuffled), so they need a float_rel policy; every other
@@ -26,7 +26,7 @@ traps:
     where: "if score >= 35 then tier = 'HIGH'; else if score >= 22 then tier = 'MEDIUM'; else tier = 'LOW';"
     effect: >-
       A character variable's length is fixed by its first assignment in the DATA step, here
-      'HIGH' (4), so 'MEDIUM' is silently cut to 'MEDI' on 1,384 of 4,933 rows. Spark strings
+      'HIGH' (4), so 'MEDIUM' is silently cut to 'MEDI' on 654 of 2,645 rows. Spark strings
       have no fixed length; reproduce with substring(tier, 1, 4) (and flag it).
     check: S04_SAS11_tier_length_from_first_assignment
   - trap_id: SAS-10
@@ -36,10 +36,10 @@ traps:
     where: "select x.customer_id, ..., x.paid / mean(x.paid) as severity from work.experience x where x.lob_code = \"&lob\";"
     effect: >-
       PROC SQL remerges the line's mean paid onto every detail row because the query has no
-      GROUP BY (the log notes the remerge): severity equals paid / line mean on all 4,933
+      GROUP BY (the log notes the remerge): severity equals paid / line mean on all 2,645
       rows. Spark SQL refuses a non-grouped column alongside an aggregate; reproduce with
       avg(paid) over (partition by lob_code). A per-customer mean instead would change
-      sev_points on 3,582 rows.
+      sev_points on 1,849 rows.
     check: S04_SAS10_remerged_line_mean
   - trap_id: SAS-13
     kind: construct
@@ -58,9 +58,9 @@ traps:
     effect: >-
       SAS ROUND fuzzes a value within about 1e-12 of a rounding tie to the tie, then rounds
       half up. Spark's round() rounds half up on the shortest decimal form of the double, so a
-      product that lands just below a tie rounds down: 87.5 * 1.00 * 1.15 =
-      100.62499999999999 gives 100.63 in SAS and 100.62 in Spark; 51.5 * 1.15 =
-      59.224999999999994 gives 59.23 and 59.22. The score differs on 267 of 4,933 rows.
+      product that lands just below a tie rounds down: 14.5 * 1.00 * 1.15 =
+      16.674999999999997 gives 16.68 in SAS and 16.67 in Spark; 51.5 * 1.15 =
+      59.224999999999994 gives 59.23 and 59.22. The score differs on 129 of 2,645 rows.
       Exact translation: multiply in DECIMAL and round half up. Note also that SAS's second
       argument is a rounding unit (0.01), not a number of decimal places.
     check: S04_SAS15_round_fuzz
@@ -72,8 +72,8 @@ traps:
     effect: >-
       round(v, 0.5) rounds to the nearest half point (SAS's second argument is a unit). Spark
       SQL's round(v, 0.5) silently uses scale 0 and PySpark's F.round(col, 0.5) raises an
-      error; rounding to whole points changes lob_points, and so points and score, on 2,861 of
-      4,933 rows. Exact translation: round(v * 2) / 2.
+      error; rounding to whole points changes lob_points, and so points and score, on 2,412 of
+      2,645 rows. Exact translation: round(v * 2) / 2.
     check: S04_SAS15_round_unit
   - trap_id: SAS-01
     kind: semantic
@@ -82,7 +82,7 @@ traps:
     where: "if missing(age) then age_load = 1.00; else if age < 25 then age_load = 1.40;"
     effect: >-
       A missing age (no date of birth) would satisfy age < 25 in SAS, but the explicit
-      missing() test comes first, so both engines give 1.00 (24 output rows have no age). The
+      missing() test comes first, so both engines give 1.00 (16 output rows have no age). The
       severity tests (lines 94-95) only use >=, which a missing value fails in both engines.
 bugs:
   - bug_id: BUG-10
@@ -90,7 +90,7 @@ bugs:
     where: "if score >= 35 then tier = 'HIGH'; else if score >= 22 then tier = 'MEDIUM'; else tier = 'LOW';"
     does: >-
       tier gets its length (4) from its first assignment, 'HIGH', so customers in the middle
-      band are stored with tier 'MEDI': 1,384 of 4,933 rows. The underwriting referral queue
+      band are stored with tier 'MEDI': 654 of 2,645 rows. The underwriting referral queue
       filters on 'MEDIUM' and never sees them.
     intended: "Declare length tier $6 before the first assignment, so the middle tier is 'MEDIUM'."
     via_trap: SAS-11
