@@ -1,0 +1,16 @@
+# Defect register
+
+Suspected legacy bugs across the estate. LANSH reproduces each one exactly (the migrated job matches the legacy output, bug included) and asks a person to decide what happens next. Impacts are measured on the legacy output by the reviewer's impact query.
+
+| Defect | Job | What the legacy code does | Rows affected | Amount | Decision |
+|---|---|---|---|---|---|
+| X1-D1 Claims paid limited to claims notified in the same year | X1 | #paid joins claim_payments to #clm, and #clm only holds claims whose reported_date falls between @YearStart and @AsOfDate. Payments made in 2025 on claims reported in earlier years | 87 | 1388119.21 (claims_paid_eur) | reproduce |
+| X2-D1 Latest reserve picked across all reserve types, so only one type counts | X2 | #res numbers the reserve rows with ROW_NUMBER() OVER (PARTITION BY period, claim_id ORDER BY reserve_date DESC, reserve_id DESC) and keeps rn = 1. That leaves one reserve row per c | 43 | 683219.73 (incurred_amount) | reproduce |
+| X1-D7 Policies expiring on the as-of date counted as in force | X1 | The in-force test uses expiry_date >= @AsOfDate. A policy whose expiry_date equals the as-of date counts as in force. If expiry_date is the exclusive end of cover (inception plus 1 | 30 | 69.00 (policies_in_force) | reproduce |
+| X1-D2 Broker dimension joined without deduplication | X1 | The final insert LEFT JOINs stg.brokers on broker_code alone. Nothing picks one row per broker the way the policy snapshots and FX rates are deduplicated with _row_seq. A broker wi | 0 | 0.00 (gwp_eur) | reproduce |
+| X1-D3 Blank broker codes not mapped to DIRECT | X1 | ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT') only catches NULL. A broker_code that is empty or all spaces trims to '' and is reported under an empty broker code, separately fr | 0 | 0.00 (gwp_eur) | reproduce |
+| X1-D4 Non-EUR premium silently dropped when no FX rate is found | X1 | The OUTER APPLY returns NULL when the currency has no rate dated on or before the transaction (or when currency is NULL). amount * NULL is NULL and SUM skips it, so the premium van | 0 | 0.00 (gwp_eur) | reproduce |
+| X1-D5 Recoveries added rather than netted off | X1 | The comment says recoveries are netted off, but the code sums every payment amount whatever its payment_type. If recoveries are stored as positive amounts with a recovery payment_t | 0 | 0.00 (claims_paid_eur) | reproduce |
+| X1-D6 Duplicate claim rows multiply claims notified and claims paid | X1 | stg.claims is used as-is in #clm. stg.policy_snapshots and stg.fx_rates are deduplicated with _row_seq, but claims are not. If a claim_id has several staging rows, it is counted mo | 0 | 0.00 (claims_paid_eur) | reproduce |
+| X2-D2 Claims closed exactly 90 days ago are dropped | X2 | The claim filter keeps closed claims only when closed_date > @PriorDate, where @PriorDate is AsOfDate - 90 days (2025-10-02). A claim closed on 2025-10-02, exactly 90 days before t | 0 | 0.00 (incurred_amount) | reproduce |
+| X2-D3 CLOSED check uses the raw status, not the trimmed one | X2 | Line 59 compares the untrimmed c.status with 'CLOSED'. SQL Server ignores trailing spaces and, under the usual collation, case, but it does not ignore leading spaces. A status such | 0 | 0.00 (incurred_amount) | reproduce |
