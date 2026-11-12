@@ -1,0 +1,868 @@
+# LANSH trap cards: known differences between the legacy engines and Spark (plan Appendix A).
+#
+# Each card is a lansh.contracts.TrapCard. Semantic traps change results; construct traps
+# change only the shape of the code. The `detection` rules are deterministic first passes
+# (Python regexes, case-insensitive, run on code with comments blanked out); the trap-scan
+# agent confirms or rejects their candidates and adds subtle cases. `diff_signatures` link a
+# failed reconciliation back to the card; `allowed_literals` are constants a correct fix may
+# introduce that the legacy code itself doesn't contain.
+#
+# This is generic engine knowledge, written from the engines' documentation and the spikes,
+# never from any job's answer key.
+cards:
+  # ------------------------------------------------------------------ T-SQL
+  - trap_id: TSQL-01
+    title: Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares
+      equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE'
+      also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put
+      case variants together. The stored value is returned unchanged.
+    spark_behaviour: >-
+      Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case
+      variants, a GROUP BY splits them into separate groups and a join misses them.
+    fix_guidance: >-
+      Compare, group, partition and join on upper(rtrim(x)) (or collate(x, 'UTF8_LCASE_RTRIM'))
+      while selecting the original column for output. Never change the stored value unless the
+      legacy code does (e.g. UPPER in the SELECT). Use rtrim, not trim: leading spaces count.
+    detection:
+      - kind: regex
+        pattern: "(=|<>|!=)\\s*N?'[^']*'|\\bIN\\s*\\(\\s*N?'"
+        description: A comparison of a column with a string literal, or an IN list of strings.
+      - kind: regex
+        pattern: "\\bGROUP\\s+BY\\b|\\bDISTINCT\\b|\\bPARTITION\\s+BY\\b"
+        description: Grouping, de-duplicating or partitioning, which may involve text columns.
+      - kind: llm
+        description: Joins and comparisons between two text columns.
+    diff_signatures: [case_split]
+    allowed_literals: [UTF8_LCASE_RTRIM, UTF8_LCASE]
+    example_legacy: "WHERE o.order_state IN ('SHIPPED', 'BILLED')"
+    example_spark: "F.upper(F.rtrim('order_state')).isin('SHIPPED', 'BILLED')"
+    test_hint: Rows keyed in mixed case ('Shipped', 'shipped') beside the canonical value.
+
+  - trap_id: TSQL-02
+    title: Comparisons ignore trailing spaces; CHAR(n) pads with spaces
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST'
+      (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned
+      padded to n characters: 'AB' in a CHAR(4) column is 'AB  '. LEN() ignores trailing
+      spaces (TSQL-15). Leading spaces always count.
+    spark_behaviour: >-
+      Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads.
+      A value read from a CHAR source column keeps whatever spaces it was stored with.
+    fix_guidance: >-
+      rtrim both sides of every text comparison, grouping and join key. Where the legacy
+      output column is CHAR(n)/NCHAR(n), pad the value with rpad(x, n, ' ') (NULL stays NULL)
+      so the output matches the stored legacy value. A CHAR(n) source column read into an
+      expression keeps its padding (e.g. in + concatenation).
+    detection:
+      - kind: regex
+        pattern: "\\bN?CHAR\\s*\\(\\s*[0-9]+\\s*\\)"
+        description: A CHAR(n) or NCHAR(n) column, cast or conversion.
+      - kind: regex
+        pattern: "(=|<>|!=)\\s*N?'[^']*'|\\bIN\\s*\\(\\s*N?'"
+        description: A text comparison, which ignores trailing spaces.
+      - kind: llm
+        description: Text joins and groupings on columns that may hold trailing spaces.
+    diff_signatures: [trailing_space_split]
+    allowed_literals: [" ", UTF8_LCASE_RTRIM, UTF8_BINARY_RTRIM]
+    example_legacy: "account_type CHAR(4) ... WHERE region = 'WEST'"
+    example_spark: "F.rpad('account_type', 4, ' ') ... F.rtrim('region') == 'WEST'"
+    test_hint: Values with one or more trailing spaces, and short values for CHAR(n) outputs.
+
+  - trap_id: TSQL-03
+    title: Integer division truncates
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3.
+      The result type follows the operands, so the fraction is lost before any later cast,
+      e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b.
+    spark_behaviour: >-
+      Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.
+    fix_guidance: >-
+      Where both operands are integer typed (INT, BIGINT, SMALLINT, TINYINT columns or integer
+      literals), divide with (a / b) cast to the integer type truncated toward zero:
+      F.expr('a div b') or (a / b).cast('int') after checking signs; keep the operation order
+      of the legacy expression exactly. A DECIMAL or float operand makes it a real division.
+    detection:
+      - kind: regex
+        pattern: "[\\w\\)]\\s*/\\s*[\\w\\(@]"
+        description: A division; integer operands make it truncate.
+      - kind: type_check
+        description: Both operands of / are integer typed.
+    diff_signatures: [integer_truncation]
+    example_legacy: "CAST(o.qty / o.pack_size AS DECIMAL(9,2))"
+    example_spark: "F.expr('qty div pack_size').cast('decimal(9,2)')"
+    test_hint: Integer operands whose quotient has a fractional part, including negatives.
+
+  - trap_id: TSQL-04
+    title: DATEDIFF counts boundaries crossed, not elapsed periods
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b:
+      DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31',
+      '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST
+      says. DATEDIFF(day, ...) on DATE values equals the day difference.
+    spark_behaviour: >-
+      datediff(end, start) counts days (arguments reversed); months_between returns a
+      fraction with its own month-end rule; floor(months/12) counts elapsed years, not
+      boundaries.
+    fix_guidance: >-
+      year: year(b) - year(a). quarter: (year(b)*4 + quarter(b)) - (year(a)*4 + quarter(a)).
+      month: (year(b)*12 + month(b)) - (year(a)*12 + month(a)). week: the difference of
+      Sunday-anchored week numbers, floor(datediff(x, DATE'1899-12-31') / 7) for b minus a.
+      day: datediff(b, a). Mind the argument order: T-SQL is (part, start, end), Spark's
+      datediff is (end, start).
+    detection:
+      - kind: regex
+        pattern: "\\bDATEDIFF(_BIG)?\\s*\\("
+        description: Any DATEDIFF; anything but DAY on DATE values counts boundaries.
+    diff_signatures: [off_by_one_period]
+    allowed_literals: ["1899-12-31", "1900-01-01", "7", "12", "4"]
+    example_legacy: "DATEDIFF(YEAR, e.hire_date, @AsOfDate)"
+    example_spark: "F.year(as_of) - F.year('hire_date')"
+    test_hint: Dates just either side of a year, month or week boundary (31 Dec / 1 Jan).
+
+  - trap_id: TSQL-05
+    title: "+ concatenation with NULL yields NULL"
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole
+      concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty.
+    spark_behaviour: >-
+      Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while
+      concat_ws() skips NULLs and format_string writes 'null'.
+    fix_guidance: >-
+      Translate T-SQL + on strings to F.concat(...) (NULL if any part is NULL). Translate
+      T-SQL CONCAT() to concat of coalesce(x, '') parts, and CONCAT_WS to concat_ws. CHAR(n)
+      parts keep their padding inside the concatenation (TSQL-02).
+    detection:
+      - kind: regex
+        pattern: "N?'[^']*'\\s*\\+|\\+\\s*N?'[^']*'"
+        description: A string literal concatenated with +.
+      - kind: llm
+        description: + between two text columns.
+    diff_signatures: [null_vs_value]
+    example_legacy: "a.first_name + ' ' + a.middle_name + ' ' + a.last_name"
+    example_spark: "F.concat('first_name', F.lit(' '), 'middle_name', F.lit(' '), 'last_name')"
+    test_hint: A row where one concatenated part is NULL.
+
+  - trap_id: TSQL-06
+    title: ISNULL takes the type of its first argument; NULL treated as equal in change checks
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a
+      VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and
+      ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead.
+      Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and ''
+      as the same value.
+    spark_behaviour: >-
+      coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it
+      never truncates.
+    fix_guidance: >-
+      Translate ISNULL(a, b) to coalesce(a, b) cast to a's type: for character types,
+      truncate b to a's declared length with substring(b, 1, n) (look the length up in the
+      input DDL); for integer a, cast b to the integer type. In change detection, reproduce
+      the NULL-equals-'' semantics with coalesce(x, '') on both sides.
+    detection:
+      - kind: regex
+        pattern: "\\bISNULL\\s*\\("
+        description: Any ISNULL; check the first argument's declared type and length.
+    diff_signatures: [truncated_string, null_vs_value]
+    example_legacy: "ISNULL(o.channel_code, 'UNASSIGNED')   -- channel_code VARCHAR(8)"
+    example_spark: "F.coalesce('channel_code', F.lit('UNASSIGNED').substr(1, 8))"
+    test_hint: A NULL first argument whose replacement is longer than the column's length.
+
+  - trap_id: TSQL-07
+    title: DECIMAL precision and scale, and ROUND on computed values
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at
+      least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit);
+      intermediate results are rounded at each step to their result type. ROUND(x, n) rounds
+      half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds.
+    spark_behaviour: >-
+      Spark's decimal rules are similar but not identical (scale reduction, and doubles if an
+      operand is a double literal); F.round on a double rounds the binary value, so a
+      computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.
+    fix_guidance: >-
+      Keep computations in decimal: cast operands to the legacy DECIMAL types first, cast
+      each intermediate result to the type T-SQL would give it, and round with F.round on
+      decimals (half up). For ROUND(x, n, 1) use truncation: floor/ceil toward zero at n
+      places. Never introduce doubles where the legacy used DECIMAL. Division is the
+      exception to rounding: T-SQL truncates a DECIMAL quotient toward zero at its result
+      scale (multiplication rounds). SUM of DECIMAL(p,s) is DECIMAL(38,s), and DECIMAL(38,2) /
+      DECIMAL(38,2) gives DECIMAL(38,6), so 15000.99 / 20000 is 0.750049, where Spark's
+      DECIMAL(38,6) quotient is rounded to 0.750050. Divide at a higher scale (cast both
+      operands to decimal(20,2), which keeps 18 places), truncate toward zero at the T-SQL
+      scale (F.floor(q * 1000000) / 1000000 when q >= 0, F.ceil when q < 0), and only then
+      cast to the target type, which rounds half up.
+    detection:
+      - kind: regex
+        pattern: "\\bROUND\\s*\\("
+        description: A ROUND; a third argument of 1 truncates.
+      - kind: regex
+        pattern: "\\b(DECIMAL|NUMERIC)\\s*\\(\\s*[0-9]+\\s*,\\s*[0-9]+\\s*\\)"
+        description: A DECIMAL type in a cast, conversion or column.
+    diff_signatures: [rounding]
+    allowed_literals: ["decimal(20,2)", "1000000"]
+    example_legacy: "ROUND(o.net_amount * o.tax_rate, 2)"
+    example_spark: "F.round((F.col('net_amount') * F.col('tax_rate')).cast('decimal(38,6)'), 2)"
+    test_hint: Values whose exact result lies on or near a rounding half-step.
+
+  - trap_id: TSQL-08
+    title: TOP and TOP WITH TIES
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is
+      unique); TOP n WITH TIES also returns every row tied with the last one.
+    spark_behaviour: >-
+      limit(n) after orderBy returns exactly n rows; ties need a rank window.
+    fix_guidance: >-
+      TOP n with a unique ORDER BY: row_number() over the same order, keep rn <= n. WITH TIES:
+      rank() over the order, keep rank <= n. Per group (TOP inside APPLY), partition the window.
+    detection:
+      - kind: regex
+        pattern: "\\bTOP\\s*\\(?\\s*[0-9@]"
+        description: A TOP clause.
+    diff_signatures: [row_multiplicity, order_dependence]
+    example_legacy: "SELECT TOP 10 WITH TIES ... ORDER BY sales DESC"
+    example_spark: "F.rank().over(Window.orderBy(F.desc('sales'))) <= 10"
+    test_hint: Ties at the cut-off position.
+
+  - trap_id: TSQL-09
+    title: CROSS APPLY / OUTER APPLY with TOP 1
+    language: tsql
+    kind: construct
+    legacy_behaviour: >-
+      CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row
+      per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs.
+    spark_behaviour: Spark has no APPLY; a lateral subquery or a window replaces it.
+    fix_guidance: >-
+      Join on the correlation condition, rank the matches with row_number() over
+      (partition by the outer row's key, order by the APPLY's ORDER BY plus a unique
+      tiebreaker) and keep rank 1; inner join for CROSS APPLY, left join for OUTER APPLY.
+    detection:
+      - kind: regex
+        pattern: "\\b(CROSS|OUTER)\\s+APPLY\\b"
+        description: An APPLY.
+    diff_signatures: [row_multiplicity, order_dependence]
+    example_legacy: "CROSS APPLY (SELECT TOP 1 p.price FROM price_history p WHERE p.item_id = o.item_id AND p.valid_from <= o.order_date ORDER BY p.valid_from DESC) px"
+    example_spark: "row_number() over (partition by order_id order by valid_from desc) = 1 after a join on item_id and valid_from <= order_date"
+    test_hint: Several candidate inner rows per outer row, and an outer row with none.
+
+  - trap_id: TSQL-10
+    title: UPDATE ... FROM
+    language: tsql
+    kind: construct
+    legacy_behaviour: >-
+      UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source
+      row; with several matches, which one wins is undefined.
+    spark_behaviour: DataFrames are immutable; an update becomes a join plus a select.
+    fix_guidance: >-
+      Left join the target to the (de-duplicated) source on the join condition and pick the
+      new value with when(matched, new).otherwise(old) for each SET column.
+    detection:
+      - kind: regex
+        pattern: "\\bUPDATE\\s+[\\w.#\\[\\]]+\\s+SET\\b"
+        description: An UPDATE; check whether it has a FROM.
+    diff_signatures: [row_multiplicity, order_dependence]
+    example_legacy: "UPDATE o SET o.discount = t.rate FROM #orders o JOIN customer_tiers t ON t.tier = o.tier"
+    example_spark: "orders.join(tiers, 'tier', 'left').withColumn('discount', ...)"
+    test_hint: Target rows with no source match, and with one.
+
+  - trap_id: TSQL-11
+    title: MERGE and type-2 history
+    language: tsql
+    kind: construct
+    legacy_behaviour: >-
+      MERGE matches target and source rows and updates, inserts or deletes in one statement.
+      Type-2 history closes the current version (valid_to, is_current) of changed rows and
+      inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY
+      order, continuing from the table's highest value.
+    spark_behaviour: >-
+      Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute
+      the new state as a whole table from the previous state and the batch.
+    fix_guidance: >-
+      Compute the new table: previous rows, with matched current rows closed when they
+      changed; plus new current rows for new or changed keys. Reproduce IDENTITY values as
+      max(previous key) + row_number() over the INSERT's ORDER BY. Reproduce the MATCHED
+      condition exactly (including ISNULL semantics, TSQL-06).
+    detection:
+      - kind: regex
+        pattern: "\\bMERGE\\b"
+        description: A MERGE statement.
+      - kind: regex
+        pattern: "\\bIDENTITY\\s*\\("
+        description: An IDENTITY column.
+    diff_signatures: [row_multiplicity]
+    example_legacy: "MERGE dbo.dim_account AS tgt USING #src AS src ON tgt.account_id = src.account_id AND tgt.is_current = 'Y' WHEN MATCHED AND (...) THEN UPDATE ..."
+    example_spark: "previous.join(batch, 'account_id', 'left') ... union new versions"
+    test_hint: A key that changes between batches, one that doesn't, and a new key.
+
+  - trap_id: TSQL-12
+    title: Cursors and WHILE loops
+    language: tsql
+    kind: construct
+    legacy_behaviour: >-
+      A cursor processes rows one at a time in its ORDER BY order; variables carry state
+      between rows (running totals, last values). NULL arithmetic inside the loop propagates:
+      SET @total = @total + NULL makes @total NULL for the rest of the loop.
+    spark_behaviour: Spark is set-based; loops become aggregations or ordered windows.
+    fix_guidance: >-
+      Rewrite as an aggregation per group, or an ordered window (rowsBetween(unboundedPreceding,
+      currentRow)) when the order matters. Keep the loop's exact semantics: initial values,
+      NULL propagation (a NULL anywhere makes a + running total NULL; SUM() would skip it),
+      the order (with its tiebreaker), and what is written for groups with no rows.
+    detection:
+      - kind: regex
+        pattern: "\\bCURSOR\\b|\\bFETCH\\s+NEXT\\b|\\bWHILE\\b"
+        description: A cursor or a WHILE loop.
+    diff_signatures: [order_dependence, null_vs_value]
+    example_legacy: "FETCH NEXT FROM line_cur INTO @qty ... SET @running = @running + @qty"
+    example_spark: "when(count_if(qty is null) > 0, NULL).otherwise(sum(qty))"
+    test_hint: A group whose rows include a NULL, and a group with no rows.
+
+  - trap_id: TSQL-13
+    title: Temp tables
+    language: tsql
+    kind: construct
+    legacy_behaviour: "#temp tables hold intermediate results for the session."
+    spark_behaviour: Intermediate results are DataFrames or temporary views.
+    fix_guidance: >-
+      Make each #temp table a DataFrame (or temp view). Keep its column types: SELECT INTO
+      creates columns with the source expressions' types, which can matter downstream.
+    detection:
+      - kind: regex
+        pattern: "#\\w+"
+        description: A temp table.
+    diff_signatures: []
+    example_legacy: "SELECT ... INTO #active_orders FROM dbo.orders"
+    example_spark: "active_orders = orders.where(...)"
+    test_hint: None needed; running and reconciling the job covers it.
+
+  - trap_id: TSQL-14
+    title: LIKE character classes
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter
+      (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual.
+    spark_behaviour: >-
+      Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.
+    fix_guidance: >-
+      Translate to rlike with an anchored regex: '[0-9]%' becomes '^[0-9]'; '%[^0-9]%'
+      becomes '[^0-9]'; '_' becomes '.'; escape regex metacharacters. Under a CI collation
+      make letter classes case-insensitive ((?i) or both cases).
+    detection:
+      - kind: regex
+        pattern: "\\bLIKE\\s+N?'[^']*\\[[^']*'"
+        description: A LIKE pattern with a [ ] character class.
+    diff_signatures: []
+    allowed_literals: ["^", "$", "(?i)", "(?s)", "(?is)", "(?si)", ".*", ".+", "."]
+    example_legacy: "WHERE postcode LIKE '[A-Z][0-9]%'"
+    example_spark: "F.col('postcode').rlike('^(?i)[A-Z][0-9]')"
+    test_hint: Values that match the class, and the literal text of the pattern.
+
+  - trap_id: TSQL-15
+    title: LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns
+      n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters.
+    spark_behaviour: >-
+      length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and
+      returns n characters.
+    fix_guidance: >-
+      LEN(x) is length(rtrim(x)). SUBSTRING(x, s, n) with s < 1 returns
+      substring(x, 1, n + s - 1) (empty if that is <= 0). Keep LEFT/RIGHT as substring with
+      explicit positions.
+    detection:
+      - kind: regex
+        pattern: "\\bLEN\\s*\\("
+        description: LEN, which ignores trailing spaces.
+      - kind: regex
+        pattern: "\\bSUBSTRING\\s*\\("
+        description: SUBSTRING; a start of 0 or less returns fewer characters.
+      - kind: regex
+        pattern: "\\b(LEFT|RIGHT)\\s*\\("
+        description: LEFT or RIGHT.
+    diff_signatures: [trailing_space_split, truncated_string, off_by_one_period]
+    example_legacy: "SUBSTRING(p.product_code, 0, 3)"
+    example_spark: "F.substring('product_code', 1, 2)"
+    test_hint: Values with trailing spaces, and strings shorter than the cut.
+
+  - trap_id: TSQL-16
+    title: CONVERT style codes
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy,
+      104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd,
+      120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a
+      shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d,
+      112) is yyyymm.
+    spark_behaviour: >-
+      A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.
+    fix_guidance: >-
+      Use date_format with the style's pattern ('MM/dd/yyyy' for 101, 'dd/MM/yyyy' for 103,
+      'dd.MM.yyyy' for 104, 'dd-MM-yyyy' for 105, 'yyyy/MM/dd' for 111, 'yyyyMMdd' for 112,
+      'yyyy-MM-dd HH:mm:ss' for 120, 'yyyy-MM-dd' for 23), then cut to the target length
+      with substring(x, 1, n) where the target type is shorter.
+    detection:
+      - kind: regex
+        pattern: "\\bCONVERT\\s*\\([^()]*(\\([^()]*\\))?[^()]*,\\s*[0-9]+\\s*\\)"
+        description: CONVERT with a style code.
+    diff_signatures: [truncated_string]
+    allowed_literals: [MM/dd/yyyy, dd/MM/yyyy, dd.MM.yyyy, dd-MM-yyyy, dd MMM yyyy, yyyy/MM/dd, yyyyMMdd, yyyyMM, yyyy-MM-dd, "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS", HH:mm:ss]
+    example_legacy: "CONVERT(VARCHAR(10), o.order_date, 101), CONVERT(CHAR(8), o.ship_date, 120)"
+    example_spark: "F.date_format('order_date', 'MM/dd/yyyy'), F.substring(F.date_format('ship_date', 'yyyy-MM-dd HH:mm:ss'), 1, 8)"
+    test_hint: Days 13 or later (they tell dd/mm from mm/dd), and target types shorter than the style.
+
+  - trap_id: TSQL-17
+    title: PIVOT
+    language: tsql
+    kind: construct
+    legacy_behaviour: >-
+      PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the
+      source and turns listed values into columns; values not listed are dropped; missing
+      combinations give NULL.
+    spark_behaviour: >-
+      groupBy(...).pivot(col, values).agg(...) does the same when the values are listed;
+      the grouping columns must be stated explicitly.
+    fix_guidance: >-
+      List the pivot values explicitly in pivot(col, [values]), group by exactly the source's
+      other columns, and keep NULL for missing cells unless the legacy code applies ISNULL.
+    detection:
+      - kind: regex
+        pattern: "\\bPIVOT\\b|\\bUNPIVOT\\b"
+        description: A PIVOT or UNPIVOT.
+    diff_signatures: [null_vs_value]
+    example_legacy: "PIVOT (SUM(sales) FOR quarter_no IN ([1], [2], [3], [4])) p"
+    example_spark: "df.groupBy('year', 'region').pivot('quarter_no', [1, 2, 3, 4]).agg(F.sum('sales'))"
+    test_hint: A combination with no source rows.
+
+  - trap_id: TSQL-18
+    title: EOMONTH and DATEADD at month-end
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1,
+      '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a
+      month-end. EOMONTH(d, n) returns the last day of the month n months away.
+    spark_behaviour: >-
+      add_months clamps the same way but also moves a last-day-of-month input to the target
+      month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.
+    fix_guidance: >-
+      DATEADD(month, n, d): add_months(d, n), except when d is the last day of its month and
+      the target month is longer: then use make_date(year, month, day(d)) of the target.
+      EOMONTH(d, n): last_day(add_months(d, n)). DATEADD(day, n, d): date_add(d, n).
+    detection:
+      - kind: regex
+        pattern: "\\bEOMONTH\\s*\\(|\\bDATEADD\\s*\\(\\s*(MONTH|MM|M|YEAR|YY|YYYY|QUARTER|QQ|Q)\\s*,"
+        description: EOMONTH, or DATEADD by months, quarters or years.
+    diff_signatures: [off_by_one_period]
+    example_legacy: "DATEADD(MONTH, 1, s.start_date)"
+    example_spark: "F.add_months('start_date', 1), adjusted when start_date is a month-end"
+    test_hint: Month-end dates (31 Jan, 29 Feb 2024, 30 Apr) and day 31 into a shorter month.
+
+  - trap_id: TSQL-19
+    title: Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings
+    language: tsql
+    kind: semantic
+    legacy_behaviour: >-
+      Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules
+      (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order.
+    spark_behaviour: >-
+      Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.
+    fix_guidance: >-
+      Order by collate(x, 'UNICODE_CI_RTRIM') where the text order changes the result
+      (MIN/MAX of text, a ranking ordered by text without a unique tiebreaker); compare any
+      remaining difference with the legacy output and flag it.
+    detection:
+      - kind: regex
+        pattern: "\\b(MIN|MAX)\\s*\\("
+        description: MIN or MAX, which on text follows the collation's order.
+      - kind: llm
+        description: ORDER BY on a text column inside a ranking or TOP without a unique tiebreaker.
+    diff_signatures: [order_dependence, case_split]
+    allowed_literals: [UNICODE_CI_RTRIM, UNICODE_CI]
+    example_legacy: "MIN(c.last_name)"
+    example_spark: "F.min(F.collate('last_name', 'UNICODE_CI_RTRIM'))"
+    test_hint: Names that differ in case or accents only, and names that sort differently in binary.
+
+  # ------------------------------------------------------------------ SAS
+  - trap_id: SAS-01
+    title: A missing value is smaller than any number
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      In SAS comparisons a missing numeric value is smaller than every number: if x < 0 is
+      true when x is missing, and so is x <= 5; x > 0 is false. Missing sorts first.
+    spark_behaviour: >-
+      A comparison with NULL is NULL, which a filter or when() treats as false.
+    fix_guidance: >-
+      Reproduce exactly: x < c (and <=, and 'lt'/'le') becomes (x IS NULL) OR (x < c); x > c
+      and x >= c stay as they are with a NULL x false; x = . (missing) is isNull. Keep the
+      legacy behaviour even where it looks like a bug, and mark it.
+    detection:
+      - kind: regex
+        pattern: "(<=?|\\blt\\b|\\ble\\b)\\s*-?[0-9.]"
+        description: A less-than comparison with a number.
+      - kind: llm
+        description: Comparisons whose left operand may be missing.
+    diff_signatures: [null_vs_value]
+    example_legacy: "if balance < 0 then overdrawn = 1;"
+    example_spark: "F.when(F.col('balance').isNull() | (F.col('balance') < 0), 1)"
+    test_hint: A row whose compared value is missing.
+
+  - trap_id: SAS-02
+    title: SUM() ignores missing values; + propagates them
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      sum(a, b) skips missing arguments (sum(., 2) = 2; all missing gives missing); a + b is
+      missing if either is. The sum statement x + y; treats a missing y as 0 and x is retained.
+    spark_behaviour: >-
+      a + b is NULL if either is NULL; F.sum over rows skips NULLs; there is no row-wise sum().
+    fix_guidance: >-
+      sum(a, b, c) becomes: NULL when every argument is NULL, else the sum of coalesce(arg, 0).
+      a + b stays a + b (NULL propagates). The sum statement x + y accumulates
+      coalesce(y, 0).
+    detection:
+      - kind: regex
+        pattern: "\\bsum\\s*\\("
+        description: The SUM function.
+      - kind: regex
+        pattern: "\\w\\s*\\+\\s*\\w"
+        description: Addition, which propagates missing values.
+    diff_signatures: [null_vs_value]
+    example_legacy: "total = a + b; total_any = sum(a, b, c);"
+    example_spark: "a + b; F.when(all null, None).otherwise(coalesce(a,0) + coalesce(b,0) + coalesce(c,0))"
+    test_hint: Rows with one argument missing, and with all missing.
+
+  - trap_id: SAS-03
+    title: Dates are numbers of days since 1 January 1960
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      A SAS date is a number: days since 1960-01-01. Date arithmetic is plain arithmetic
+      (d + 30, d2 - d1, int((d2 - d1) / 365.25)); a date compared with a number compares
+      day counts. Datetimes are seconds since 1960-01-01T00:00.
+    spark_behaviour: Spark dates are a separate type; arithmetic needs date functions.
+    fix_guidance: >-
+      Day differences are datediff(d2, d1); d + n is date_add(d, n); keep any division of a
+      day count as double arithmetic (int() truncates toward zero). Where a date is used as a
+      number, use datediff(d, DATE'1960-01-01').
+    detection:
+      - kind: regex
+        pattern: "'[0-9]{1,2}[A-Za-z]{3}[0-9]{2,4}'d|&as_of\\b|\\b\\w*(date|_dt)\\w*\\s*[-+]"
+        description: A date literal, the as-of date, or arithmetic on a date variable.
+    diff_signatures: [off_by_one_period]
+    allowed_literals: ["1960-01-01", "365.25"]
+    example_legacy: "tenure = int((&as_of - start_date) / 365.25);"
+    example_spark: "F.floor(F.datediff(as_of, 'start_date') / 365.25) for non-negative values"
+    test_hint: Dates around birthdays and leap days.
+
+  - trap_id: SAS-04
+    title: INTCK and INTNX count interval boundaries
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      intck('month', d1, d2) counts month boundaries crossed (like DATEDIFF), unless the
+      'continuous' method is given; intnx('month', d, n) moves to the start of the interval
+      by default ('beginning'), or 'end'/'same' with the alignment argument.
+    spark_behaviour: >-
+      months_between gives fractions; add_months keeps the day; neither counts boundaries.
+    fix_guidance: >-
+      intck('year'|'month'|'qtr'|'week'|'day') as boundary differences (see TSQL-04);
+      intnx(interval, d, n) as the start of the interval n away (trunc(add_months(d, n),
+      'MM') for months), honouring the alignment argument.
+    detection:
+      - kind: regex
+        pattern: "\\bintck\\s*\\(|\\bintnx\\s*\\("
+        description: INTCK or INTNX.
+    diff_signatures: [off_by_one_period]
+    allowed_literals: [MM, month, year, MONTH, YEAR, quarter, week]
+    example_legacy: "months = intck('month', open_dt, &as_of);"
+    example_spark: "(year(as_of)*12 + month(as_of)) - (year(open_dt)*12 + month(open_dt))"
+    test_hint: Dates on either side of a month boundary.
+
+  - trap_id: SAS-05
+    title: MERGE BY with IN= flags
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      merge a(in=x) b(in=y); by k; matches rows by key one-to-one in order within each key;
+      in= flags say which data sets contributed; variables from b overwrite a's for the same
+      name; a key in only one data set keeps the other's variables missing. Many-to-many
+      merges pair rows in order rather than forming a product.
+    spark_behaviour: A join forms the product of matching rows; columns don't overwrite.
+    fix_guidance: >-
+      Full outer join on the BY key with indicator columns for in=; apply the subsetting IF
+      (if x; is a left join from a). For same-named variables, take b's value where b
+      contributed, else a's (coalesce does NOT reproduce this when b's value is missing).
+      Recode variables that the step resets when a data set did not contribute.
+    detection:
+      - kind: regex
+        pattern: "\\bmerge\\b"
+        description: A DATA step MERGE.
+    diff_signatures: [row_multiplicity, null_vs_value]
+    example_legacy: "merge work.accounts(in=a) work.txn_summary(in=t); by account_id; if a;"
+    example_spark: "accounts.join(txn_summary, 'account_id', 'left').withColumn('t', matched)"
+    test_hint: A key in only the first data set, and one in both.
+
+  - trap_id: SAS-06
+    title: RETAIN and the sum statement, in input order
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      retain keeps a variable's value across iterations of the DATA step; the sum statement
+      x + y; is retained automatically, starts at 0 and ignores missing y. With BY groups,
+      the code resets at first.key. The result depends on the order the rows are read.
+    spark_behaviour: Spark has no row order and no carried state.
+    fix_guidance: >-
+      Aggregate per BY group in the input order (_row_seq), or use an ordered window with
+      rowsBetween(unboundedPreceding, currentRow) when per-row values are output. Sum
+      statements accumulate coalesce(y, 0); assignments like x = x + y propagate missing.
+      Double additions in a different order can differ in the last bit; keep the input order.
+    detection:
+      - kind: regex
+        pattern: "\\bretain\\b|^\\s*\\w+\\s*\\+\\s*[\\w.]+\\s*;"
+        description: A RETAIN statement or a sum statement.
+    diff_signatures: [order_dependence]
+    example_legacy: "retain balance; balance + txn_amount;"
+    example_spark: "F.sum(F.coalesce('txn_amount', F.lit(0.0))) per account, in _row_seq order"
+    test_hint: Several rows per group in a known order, with a missing value among them.
+
+  - trap_id: SAS-07
+    title: FIRST. and LAST. variables
+    language: sas
+    kind: construct
+    legacy_behaviour: >-
+      With a BY statement, first.k is 1 on the first row of each k group and last.k on the
+      last, in the data set's order.
+    spark_behaviour: Spark has no implicit order; groups need a window over a stated order.
+    fix_guidance: >-
+      row_number() over (partition by k order by _row_seq) = 1 for first., and the same
+      ordered descending for last.; output-at-last. steps become aggregations per group.
+    detection:
+      - kind: regex
+        pattern: "\\b(first|last)\\.\\w+"
+        description: FIRST. or LAST. variables.
+    diff_signatures: [order_dependence]
+    example_legacy: "if last.account_id then output;"
+    example_spark: "aggregate per account_id (the row kept is the group's last in _row_seq order)"
+    test_hint: Groups of one and of several rows.
+
+  - trap_id: SAS-08
+    title: LAG inside a conditional
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      lag(x) returns the value x had the last time that lag call executed, not the previous
+      row; inside an IF it skips rows where the condition was false.
+    spark_behaviour: F.lag over a window always returns the previous row's value.
+    fix_guidance: >-
+      Reproduce the queue: filter the rows where the condition held, lag within that subset in
+      _row_seq order, and join back; rows where it didn't execute keep the retained value
+      semantics of the code.
+    detection:
+      - kind: regex
+        pattern: "\\blag[0-9]*\\s*\\("
+        description: A LAG call.
+    diff_signatures: [order_dependence]
+    example_legacy: "if event = 'MOVE' then prev_addr = lag(address);"
+    example_spark: "lag over the subset where event = 'MOVE', ordered by _row_seq"
+    test_hint: Rows where the condition alternates.
+
+  - trap_id: SAS-09
+    title: NODUPKEY keeps the first row in input order
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      proc sort nodupkey; by k; keeps the first row of each k in the input order (the sort is
+      stable) and drops the rest; nodup compares whole rows with the previous one.
+    spark_behaviour: dropDuplicates keeps an arbitrary row.
+    fix_guidance: >-
+      row_number() over (partition by the BY keys order by _row_seq) = 1.
+    detection:
+      - kind: regex
+        pattern: "\\bnodupkey\\b|\\bnodup\\b|\\bnodupreqs\\b"
+        description: NODUPKEY or NODUP.
+    diff_signatures: [order_dependence]
+    example_legacy: "proc sort data=x nodupkey; by account_id; run;"
+    example_spark: "row_number() over (partition by account_id order by _row_seq) = 1"
+    test_hint: Duplicate keys whose other values differ.
+
+  - trap_id: SAS-10
+    title: PROC SQL remerges summary statistics
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      In PROC SQL, a SELECT that mixes summary functions (mean, sum, count, ...) with columns
+      not in a GROUP BY computes the statistic over the whole table (or the group) and joins
+      it back to every row ("The query requires remerging summary statistics"); with WHERE,
+      over the filtered rows.
+    spark_behaviour: Spark refuses such a query; the statistic must be a window or a join.
+    fix_guidance: >-
+      Compute the statistic with a window over the same rows (Window.partitionBy() for the
+      whole filtered table, or by the GROUP BY columns) and keep every row.
+    detection:
+      - kind: regex
+        pattern: "\\b(mean|avg|sum|count|min|max|std|var)\\s*\\("
+        description: A summary function; check for non-grouped columns beside it.
+    diff_signatures: [row_multiplicity, rounding]
+    example_legacy: "select store_id, sales / mean(sales) as sales_index from work.stores where region = 'N'"
+    example_spark: "F.col('sales') / F.avg('sales').over(Window.partitionBy())"
+    test_hint: Several rows, so the statistic differs from each row's value.
+
+  - trap_id: SAS-11
+    title: A character variable's length is fixed by its first assignment
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      Without a LENGTH statement, a character variable gets the length of the first value
+      assigned to it in the step (at compile time): if the first assignment is 'BIG', a
+      later 'SMALL' is silently truncated to 'SMA'. Values are blank-padded to that length.
+    spark_behaviour: Spark strings have no fixed length and never truncate.
+    fix_guidance: >-
+      Find the variable's length: a LENGTH statement, else the first assignment in the step's
+      source order (or the source variable's length). Truncate every assigned value with
+      substring(x, 1, n). Reproduce it exactly and mark it if it looks like a bug.
+    detection:
+      - kind: regex
+        pattern: "\\b\\w+\\s*=\\s*'[^']*'\\s*;"
+        description: A character literal assignment in a DATA step.
+      - kind: llm
+        description: Character variables assigned values of different lengths without LENGTH.
+    diff_signatures: [truncated_string]
+    example_legacy: "if qty > 100 then size = 'BIG'; else size = 'SMALL';"
+    example_spark: "F.substring(F.when(F.col('qty') > 100, 'BIG').otherwise('SMALL'), 1, 3)"
+    test_hint: Values longer than the first assigned value.
+
+  - trap_id: SAS-12
+    title: PROC FORMAT range boundaries
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      In a PROC FORMAT value statement, 'a - b' includes both ends, 'a <- b' excludes a,
+      'a -< b' excludes b; low and high are open ends; overlapping ranges resolve to the
+      first match; values matching no range print as themselves (or the OTHER label).
+      Missing values match no numeric range except '.'.
+    spark_behaviour: A CASE WHEN must spell each boundary out.
+    fix_guidance: >-
+      Build a when() chain in the format's order with exactly the inclusive or exclusive
+      ends; route missing values as SAS would (they match no range unless listed, so they
+      fall to OTHER or print as '.').
+    detection:
+      - kind: regex
+        pattern: "\\bproc\\s+format\\b|\\bvalue\\s+\\$?\\w+"
+        description: A PROC FORMAT or a VALUE statement.
+    diff_signatures: [off_by_one_period]
+    example_legacy: "value ageband low -< 18 = 'MINOR' 18 -< 65 = 'ADULT' 65 - high = 'SENIOR';"
+    example_spark: "F.when(x < 18, 'MINOR').when(x < 65, 'ADULT').when(x >= 65, 'SENIOR')"
+    test_hint: Values exactly on each boundary, and a missing value.
+
+  - trap_id: SAS-13
+    title: Macro loops
+    language: sas
+    kind: construct
+    legacy_behaviour: >-
+      %macro / %do loops generate repeated code at compile time, one copy per iteration,
+      with macro variables substituted (&lob becomes MOT, HOM, ...).
+    spark_behaviour: The generated copies become a Python loop or a single grouped query.
+    fix_guidance: >-
+      Expand the macro by hand: one DataFrame per generated step, unioned, or one grouped
+      computation when the copies differ only by a filter value. Keep the iteration values
+      exactly as listed in the macro call.
+    detection:
+      - kind: regex
+        pattern: "%macro\\b|%do\\b"
+        description: A macro definition or %DO loop.
+    diff_signatures: []
+    example_legacy: "%do i = 1 %to %sysfunc(countw(&regions)); %let region = %scan(&regions, &i); ..."
+    example_spark: "for region in ['N', 'S', 'E', 'W']: ..."
+    test_hint: None needed; running and reconciling the job covers it.
+
+  - trap_id: SAS-14
+    title: PROC MEANS / SUMMARY with CLASS and NWAY
+    language: sas
+    kind: construct
+    legacy_behaviour: >-
+      proc means with class variables computes statistics for every combination of class
+      levels; NWAY keeps only the full combination (_TYPE_ highest); missing class values are
+      excluded unless MISSING is given; output variables are named by the OUTPUT statement.
+    spark_behaviour: A groupBy over the class variables, which keeps NULL groups.
+    fix_guidance: >-
+      groupBy(class variables) with the requested statistics; drop rows whose class values
+      are missing unless MISSING is set; name outputs as the OUTPUT statement does; add
+      _FREQ_ (count) if it is kept.
+    detection:
+      - kind: regex
+        pattern: "\\bproc\\s+(means|summary)\\b|\\bnway\\b"
+        description: PROC MEANS or SUMMARY.
+    diff_signatures: []
+    example_legacy: "proc means data=x nway noprint; class region product; var sales; output out=y sum=;"
+    example_spark: "x.where(class vars not null).groupBy('region', 'product').agg(F.sum('sales'))"
+    test_hint: A row with a missing class value.
+
+  - trap_id: SAS-15
+    title: ROUND to a unit, with fuzz, on computed values; everything is an 8-byte double
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      SAS numbers are 8-byte doubles. round(x, unit) rounds to the nearest multiple of the
+      unit (round(2.85, 1) is 3, round(x, 0.5) to halves), half away from zero, and applies a
+      fuzz factor so a computed value a tiny bit below a half (e.g. 2.675 computed as
+      2.67499999...) still rounds up as if it were exactly half.
+    spark_behaviour: >-
+      F.round(x, n) takes a number of decimal places, not a unit, and on a double rounds the
+      binary value, so a computed 2.675 rounds to 2.67.
+    fix_guidance: >-
+      Compute round(x, unit) as round(x / unit) * unit in DECIMAL arithmetic: cast x to
+      decimal(38,10) (which rounds away the binary error, like the fuzz), divide by the unit
+      as a decimal, round half up to 0 places, multiply by the unit, then cast to double.
+      Keep the operation order of the legacy expression.
+    detection:
+      - kind: regex
+        pattern: "\\bround\\s*\\("
+        description: A ROUND call; check its unit and whether its argument is computed.
+    diff_signatures: [rounding]
+    allowed_literals: ["decimal(38,10)", "decimal(38,12)", "decimal(38,9)"]
+    example_legacy: "price = round(cost * markup * tax_factor, 0.01);"
+    example_spark: "F.round((cost * markup * tax_factor).cast('decimal(38,10)') / 0.01, 0) * 0.01"
+    test_hint: Computed values that land on a half unit in decimal but just below it in binary.
+
+  - trap_id: SAS-16
+    title: SAS's calendar has no 29 February in years divisible by 4000
+    language: sas
+    kind: semantic
+    legacy_behaviour: >-
+      SAS treats years divisible by 4000 as non-leap, so day counts after 4000-02-28 are one
+      day short per such year: '31DEC9999'd is day 2936547, where Python and Spark count
+      2936549 days from 1960-01-01.
+    spark_behaviour: Spark follows the proleptic Gregorian calendar.
+    fix_guidance: >-
+      Compare and output dates as dates, never as day numbers, around far-future sentinels
+      such as 9999-12-31; where day arithmetic crosses 4000-02-28, subtract one day per
+      skipped leap day explicitly.
+    detection:
+      - kind: regex
+        pattern: "9999|'31DEC9999'd"
+        description: A far-future date sentinel.
+    diff_signatures: [off_by_one_period]
+    example_legacy: "days_left = '31DEC9999'd - &as_of;"
+    example_spark: "F.datediff(F.lit('9999-12-31'), as_of) - 2"
+    test_hint: An open-ended record with the 9999-12-31 sentinel.
