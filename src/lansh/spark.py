@@ -139,6 +139,7 @@ def get_spark(app_name: str = "lansh", shuffle_partitions: int = 4) -> SparkSess
         .config(map=_sql_settings(shuffle_partitions))
         .config("spark.default.parallelism", str(shuffle_partitions))
         .config("spark.ui.enabled", "false")
+        .config("spark.ui.showConsoleProgress", "false")
         .config("spark.driver.memory", "2g")
     )
     spark = configure_spark_with_delta_pip(builder).getOrCreate()
