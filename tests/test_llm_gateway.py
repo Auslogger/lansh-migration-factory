@@ -27,6 +27,8 @@ import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from lansh.config import REPO_ROOT
+from lansh.contracts import LLMUsage, Stage
+from lansh.llm.answers import ANSWER_MODELS
 from lansh.llm.backend import (
     ClaudeCodeBackend,
     build_flags,
@@ -783,11 +785,31 @@ def test_prose_instead_of_structured_output(fake_claude: FakeClaude, tmp_path: P
     assert usage.cost_usd_equivalent == pytest.approx(0.0421)
 
 
+def test_usage_limit_inside_a_successful_result(fake_claude: FakeClaude, tmp_path: Path) -> None:
+    """
+    A limit worded in the result text of a call the CLI calls a success still stops the run.
+    """
+    said = "You've hit your session limit · resets 4am"
+    fake_claude.script({"envelope": envelope(None, num_turns=1, result=said)})
+    gateway = ClaudeGateway(
+        mode="live", backend=fake_claude.backend(), store=CassetteStore(tmp_path)
+    )
+
+    with pytest.raises(UsageLimitError) as caught:
+        gateway.call(make_request())
+
+    assert caught.value.resets == "4am"
+    (usage,) = gateway.usage_log
+    assert usage.outcome == "usage_limit"
+
+
 def test_usage_limit_patterns() -> None:
     assert is_usage_limit("You've hit your weekly Opus limit · resets Mon 9am")
     assert is_usage_limit("You're out of usage credits. /model to switch models.")
     assert is_usage_limit("API Error: 429 rate_limit_error")
     assert not is_usage_limit("Reached max turns (3)")
+    assert not is_usage_limit("Context limit reached · /compact or /clear to continue")
+    assert is_usage_limit("Error: 5-hour limit reached ∙ resets 3am")
     assert not is_usage_limit("Failed to provide valid structured output after 5 attempts")
 
 
@@ -1096,3 +1118,42 @@ def test_negative_counts_from_the_cli_are_clamped_to_zero() -> None:
     assert _opt_int(-1) == 0
     assert _int(True) == 0
     assert _opt_int(None) is None
+
+
+### Stages, the run's usage file and the agents' answer models
+
+
+def test_ask_stamps_the_stage_and_run_and_writes_the_usage_file(
+    fake_claude: FakeClaude, tmp_path: Path
+) -> None:
+    fake_claude.script({"envelope": envelope(VALID)})
+    usage_file = tmp_path / "run" / "llm_usage.jsonl"
+    gateway = ClaudeGateway(
+        mode="auto",
+        backend=fake_claude.backend(),
+        store=CassetteStore(tmp_path / "cassettes"),
+        run_id="r1",
+        usage_file=usage_file,
+    )
+    gateway.ask(make_request(), Stage.DISCOVER)
+    gateway.call(make_request())  # replayed, outside any stage
+    first, second = gateway.usage_log
+    assert (first.run_id, first.stage, first.replayed) == ("r1", Stage.DISCOVER, False)
+    assert (second.stage, second.replayed) == (None, True)
+    lines = usage_file.read_text().splitlines()
+    assert [LLMUsage.model_validate_json(line) for line in lines] == [first, second]
+
+
+@pytest.mark.parametrize("model", ANSWER_MODELS, ids=lambda m: m.__name__)
+def test_answer_models_are_requestable(model: type[BaseModel]) -> None:
+    """
+    Every agent answer model can be a response model, and its schema refuses extra fields.
+    """
+    request = make_request(response_model=model)
+    schema = request.json_schema
+    assert schema["additionalProperties"] is False
+    for definition in schema.get("$defs", {}).values():
+        if definition.get("type") == "object" and "properties" in definition:
+            assert definition["additionalProperties"] is False
+    text = canonical_json(schema)
+    assert "\\d" not in text  # ASCII classes only, so Pydantic and the CLI agree

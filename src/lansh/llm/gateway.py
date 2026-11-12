@@ -30,7 +30,7 @@ from typing import Any
 from pydantic import BaseModel, ValidationError
 
 from lansh.config import env
-from lansh.contracts import LLMUsage
+from lansh.contracts import LLMUsage, Stage
 from lansh.llm.backend import CallMetrics, ClaudeCodeBackend, ClaudeReply, build_flags
 from lansh.llm.cassette import (
     Cassette,
@@ -264,6 +264,8 @@ class ClaudeGateway:
         backend: ClaudeCodeBackend | None = None,
         store: CassetteStore | None = None,
         max_live_calls: int | None = None,
+        run_id: str | None = None,
+        usage_file: Path | None = None,
     ) -> None:
         """
         Set up a gateway; Claude Code isn't needed until the first live call.
@@ -273,6 +275,8 @@ class ClaudeGateway:
             backend: What makes the live calls; a ``ClaudeCodeBackend`` when not given.
             store: Where answers are recorded; ``runs/cassettes/`` when not given.
             max_live_calls: The cap on live calls; ``default_cap()`` when not given or None.
+            run_id: The run every usage record is stamped with.
+            usage_file: A JSON Lines file each usage record is appended to as it is made.
 
         Raises:
             ValueError: If the mode (given or from ``LANSH_LLM_MODE``) is unknown, or
@@ -286,6 +290,38 @@ class ClaudeGateway:
         )
         self.live_calls = 0
         self.usage_log: list[LLMUsage] = []
+        self.run_id = run_id
+        self.usage_file = usage_file
+        self._stage: Stage | None = None
+
+    def _log_usage(self, usage: LLMUsage) -> None:
+        """
+        Stamp a usage record with the run and the current stage, keep it, and append it to file.
+        """
+        usage.run_id = self.run_id
+        usage.stage = self._stage
+        self.usage_log.append(usage)
+        if self.usage_file is not None:
+            self.usage_file.parent.mkdir(parents=True, exist_ok=True)
+            with self.usage_file.open("a", encoding="utf-8") as handle:
+                handle.write(usage.model_dump_json() + "\n")
+
+    def ask[T: BaseModel](self, request: ClaudeRequest[T], stage: Stage) -> ClaudeResult[T]:
+        """
+        Answer a request as :meth:`call` does, recording which stage asked it.
+
+        Args:
+            request: What to ask Claude, and the model its answer must fit.
+            stage: The product stage making the call, for the usage log.
+
+        Returns:
+            The validated answer and how it was obtained.
+        """
+        self._stage = stage
+        try:
+            return self.call(request)
+        finally:
+            self._stage = None
 
     def call[T: BaseModel](self, request: ClaudeRequest[T]) -> ClaudeResult[T]:
         """
@@ -355,7 +391,7 @@ class ClaudeGateway:
             cli_version=cassette.cli_version,
             attempt=cassette.attempts,
         )
-        self.usage_log.append(usage)
+        self._log_usage(usage)
         log.info("claude replay: agent=%s request=%s", request.agent, sha[:12])
         return ClaudeResult(
             output=output,
@@ -419,7 +455,7 @@ class ClaudeGateway:
                     outcome=_outcome(exc),
                 )
                 usages.append(usage)
-                self.usage_log.append(usage)
+                self._log_usage(usage)
             raise
         usage = _usage(
             request,
@@ -430,7 +466,7 @@ class ClaudeGateway:
             attempt=attempt,
         )
         usages.append(usage)
-        self.usage_log.append(usage)
+        self._log_usage(usage)
         log.info(
             "claude answered in %.1f s: %d input + %d cache-read tokens, %d output tokens, "
             "$%.4f API-equivalent (not billed)",

@@ -70,10 +70,11 @@ STRIPPED_NAMES: frozenset[str] = frozenset(
 # subscription (claude setup-token)
 KEPT_NAMES: frozenset[str] = frozenset({"CLAUDE_CODE_OAUTH_TOKEN"})
 
-# how the CLI words a usage or rate limit (Claude Code 2.1.x and earlier formats)
+# how the CLI words a usage or rate limit (Claude Code 2.1.x and earlier formats); "limit
+# reached" alone also ends "Context limit reached", which is a full context window, not quota
 _USAGE_LIMIT = re.compile(
-    r"usage limit|limit reached|(?:hit|reached) your\b[^.\n]{0,40}?\blimit|out of usage|"
-    r"spend limit|shared budget|rate[ _-]?limit",
+    r"usage limit|(?<!context )limit reached|(?:hit|reached) your\b[^.\n]{0,40}?\blimit|"
+    r"out of usage|spend limit|shared budget|rate[ _-]?limit",
     re.IGNORECASE,
 )
 _RESETS = re.compile(r"\bresets?\s+(?:at\s+)?([^\n|·.]+)", re.IGNORECASE)
@@ -408,6 +409,14 @@ def parse_result(
             metrics=metrics,
         )
     structured = envelope.get("structured_output")
+    if not isinstance(structured, dict) and is_usage_limit(metrics.result_text):
+        # a limit can also arrive as the text of a result the CLI didn't mark as an error
+        raise UsageLimitError(
+            _tail(metrics.result_text),
+            resets=_resets_hint(metrics.result_text),
+            subtype=metrics.subtype,
+            metrics=metrics,
+        )
     if not isinstance(structured, dict):
         # seen live (spike 0.4): when no answer can satisfy the schema, Claude may stop calling
         # the structured-output tool and end its turn in prose; the CLI then reports subtype
