@@ -155,3 +155,82 @@ def estate_checks(
     # no checks at all is a failure, not a vacuous pass
     if not results or not all(r.passed for r in results):
         raise typer.Exit(1)
+
+
+@estate_app.command("score")
+def estate_score(
+    run: str = typer.Option(..., "--run", help="The factory run to score."),
+    prove: bool = typer.Option(
+        False, help="Also run the bug checks on the migrated outputs (needs SQL Server)."
+    ),
+    holdout: bool = typer.Option(
+        False, help="A held-out run: size its planted bugs with their author's checks (SQL Server)."
+    ),
+) -> None:
+    """
+    Score a run's detection against the answer key, and prove bug reproduction (evaluation only).
+    """
+    import json
+
+    from lansh.estate.scoring import write_holdout, write_scores
+
+    if holdout:
+        path = write_holdout(run)
+        for check_id, rows in json.loads(path.read_text())["bug_impact"].items():
+            typer.echo(f"{check_id}: the planted bug affects {rows} rows")
+        typer.echo(f"wrote {path}")
+        return
+    path = write_scores(run, prove=prove)
+
+    data = json.loads(path.read_text())
+    for job_id, s in data["jobs"].items():
+        typer.echo(
+            f"{job_id}: traps {s['detected_traps']}/{s['labelled_traps']}, bugs "
+            f"{s['bugs_detected']}/{s['bugs']}, findings {s['true_findings']}/{s['findings']} true"
+        )
+    t = data["totals"]
+    typer.echo(
+        f"all: traps {t['detected_traps']}/{t['labelled_traps']}, bugs {t['bugs_detected']}/"
+        f"{t['bugs']}; wrote {path}"
+    )
+
+
+@estate_app.command("unseal")
+def estate_unseal(
+    confirm: bool = typer.Option(
+        False,
+        "--i-have-frozen-the-factory",
+        help="Required: only at the factory freeze (step 3.11).",
+    ),
+) -> None:
+    """
+    Verify the held-out seal, unseal X1 and X2, and add them to the inventory (step 3.11 only).
+    """
+    from lansh.config import HOLDOUT_DIR, INVENTORY_PATH
+    from lansh.estate.holdout import unseal
+    from lansh.estate.inventory import load_inventory, parse_yaml
+
+    if not confirm:
+        raise typer.BadParameter("unseal only once the factory is frozen (plan step 3.11)")
+    names = unseal(HOLDOUT_DIR)
+    typer.echo(f"unsealed {len(names)} files into {HOLDOUT_DIR}: {', '.join(sorted(names))}")
+    entries = parse_yaml((HOLDOUT_DIR / "jobs.yaml").read_text(encoding="utf-8"))["jobs"]
+    inventory = load_inventory()
+    have = {j.job_id for j in inventory.jobs}
+    new = [e for e in entries if e["job_id"] not in have]
+    if not new:
+        typer.echo("the inventory already lists the held-out jobs")
+        return
+    text = INVENTORY_PATH.read_text(encoding="utf-8").rstrip("\n")
+    import yaml
+
+    block = yaml.safe_dump(new, sort_keys=False, allow_unicode=True, width=100)
+    indented = "\n".join(("  " + line) if line else line for line in block.splitlines())
+    text += (
+        "\n\n  # Sealed held-out jobs, unsealed at the factory freeze (plan step 3.11)\n"
+        + indented
+        + "\n"
+    )
+    INVENTORY_PATH.write_text(text, encoding="utf-8")
+    load_inventory()  # the merged inventory must still validate
+    typer.echo(f"added {[e['job_id'] for e in new]} to {INVENTORY_PATH.name}")

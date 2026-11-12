@@ -12,10 +12,12 @@ export JAVA_HOME := $(LANSH_JAVA_HOME)
 
 UV ?= uv
 RUN := $(UV) run
+# the settings template; make setup copies it to .env
+ENV_EXAMPLE := tests/fixtures/.env.example
 COMPOSE := docker compose -f compose.yaml --env-file .env
-PYTEST_MARKERS_ALL := "mssql or sas or live_llm or not (mssql or sas or live_llm)"
+PYTEST_MARKERS_ALL := "mssql or sas or live_llm or e2e or not (mssql or sas or live_llm or e2e)"
 
-.PHONY: help setup check lint fmt test test-mssql test-sas test-live test-all smoke \
+.PHONY: help setup check lint fmt test test-mssql test-sas test-live test-e2e test-all smoke \
         legacy-up legacy-down legacy-logs data load golden legacy-verify legacy-verify-all \
         third-party ui demo
 
@@ -25,7 +27,7 @@ help: ## Show this help
 
 setup: ## Install Python 3.14 and every dependency with uv
 	$(UV) sync
-	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example: set MSSQL_SA_PASSWORD")
+	@test -f .env || (cp $(ENV_EXAMPLE) .env && echo "Created .env from $(ENV_EXAMPLE): set MSSQL_SA_PASSWORD")
 
 check: lint test ## Lint and run the offline tests (must pass before merging)
 
@@ -49,6 +51,9 @@ test-sas: ## Integration tests that need SAS OnDemand
 test-live: ## Tests that make live Claude Code calls (uses subscription quota)
 	$(RUN) pytest -m live_llm
 
+test-e2e: ## End-to-end factory runs in replay mode (offline, a few minutes)
+	$(RUN) pytest -m e2e
+
 test-all: ## Every test, including integration tests
 	$(RUN) pytest -m $(PYTEST_MARKERS_ALL)
 
@@ -56,7 +61,7 @@ smoke: ## Environment smoke test: Spark+Delta, sqlglot, SQL Server, Claude Code,
 	$(RUN) python scripts/smoke_test.py
 
 legacy-up: ## Start SQL Server 2022 (password from .env) and wait until it is healthy
-	@test -f .env || (echo "Missing .env: copy .env.example and set MSSQL_SA_PASSWORD" && exit 1)
+	@test -f .env || (echo "Missing .env: copy $(ENV_EXAMPLE) to .env and set MSSQL_SA_PASSWORD" && exit 1)
 	$(COMPOSE) up -d --wait
 
 legacy-down: ## Stop SQL Server (the data volume is kept)
@@ -83,8 +88,9 @@ legacy-verify-all: ## Same, plus the SAS jobs on SAS OnDemand
 third-party: ## Refresh the package table in THIRD_PARTY.md from installed metadata
 	$(RUN) python scripts/third_party.py
 
-ui: ## Control Tower (Phase 4)
-	@echo "Not built yet: plan step 4.1" && exit 1
+ui: ## Open the Control Tower (Streamlit) on the runs in runs/
+	$(RUN) lansh ui
 
-demo: ## Offline replay demo (Phase 4)
-	@echo "Not built yet: plan step 4.2" && exit 1
+demo: ## Offline demo: replay T04 through all five stages, then open the Control Tower (no Docker, SAS or Claude)
+	LANSH_LLM_MODE=replay $(RUN) lansh run-job T04 --run demo --mode replay
+	$(RUN) lansh ui

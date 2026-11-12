@@ -77,7 +77,7 @@ def env(name: str, default: str | None = None) -> str | None:
 
 def require_env(name: str) -> str:
     """
-    Read a required setting, failing with a pointer to ``.env.example``.
+    Read a required setting, failing with a pointer to ``tests/fixtures/.env.example``.
 
     Args:
         name: Variable name, such as ``MSSQL_SA_PASSWORD``.
@@ -90,5 +90,7 @@ def require_env(name: str) -> str:
     """
     value = env(name)
     if value is None:
-        raise RuntimeError(f"{name} is not set. Copy .env.example to .env and fill it in.")
+        raise RuntimeError(
+            f"{name} is not set. Copy tests/fixtures/.env.example to .env and fill it in."
+        )
     return value

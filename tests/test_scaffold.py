@@ -105,7 +105,7 @@ def test_get_spark_returns_the_shared_session_unchanged(
 
 
 def test_env_example_lists_required_settings() -> None:
-    text = (config.REPO_ROOT / ".env.example").read_text()
+    text = (config.REPO_ROOT / "tests" / "fixtures" / ".env.example").read_text()
     assert "MSSQL_SA_PASSWORD=" in text
 
 
