@@ -14,7 +14,7 @@ wheels/
 .authinfo
 
 # EXL material is never committed (plan decision D2). The rest of docs/ is tracked.
-docs/
+docs/week.py
 
 
 
