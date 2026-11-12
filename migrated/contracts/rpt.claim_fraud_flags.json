@@ -1,0 +1,294 @@
+{
+  "job_id": "T08",
+  "table": "gold.claim_fraud_flags",
+  "legacy_table": "rpt.claim_fraud_flags",
+  "layer": "gold",
+  "grain": "One row per claim reported in the 12 months up to the reporting date (@AsOfDate), with its SIU fraud flags, score and referral band.",
+  "keys": [
+    "claim_id"
+  ],
+  "columns": [
+    {
+      "name": "claim_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": false,
+      "max_length": 20,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": true,
+      "max_length": 20,
+      "tags": [],
+      "description": "Taken from the latest policy snapshot on or before @AsOfDate. It can be NULL if the policy is not in that snapshot (none are NULL in this output).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "customer_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": "The claim's lob_code, upper-cased and with trailing spaces removed.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "early_notification_flag",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "1 when the claim was reported 0-30 days after the policy's EXPIRY date. The comment says the start of cover is meant, but the legacy code uses expiry_date, so the migration must do the same. 0 when that date is NULL.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "invalid_reg_flag",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "1 for MOT claims whose vehicle_reg doesn't match the T-SQL pattern [0-9][0-9]%-[A-Z]%-[0-9]%. 0 when vehicle_reg is NULL (because comparing to NULL gives UNKNOWN).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "new_customer_flag",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "1 when loss_date minus customer_since is under 180 days. 0 when customer_since is NULL.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_mismatch_flag",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "1 when SUBSTRING(policy_number,0,4) (which gives the first 3 characters) differs from the raw claim lob_code. 0 when policy_number is NULL.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "fraud_score",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The sum of the four flags, from 0 to 4.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "fraud_band",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(6)",
+      "nullable": false,
+      "max_length": 6,
+      "tags": [],
+      "description": "HIGH if the score is 2 or more, MEDIUM if it is 1, LOW if it is 0.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_day_key",
+      "data_type": "string",
+      "legacy_type": "CHAR(8)",
+      "nullable": false,
+      "max_length": 8,
+      "tags": [],
+      "description": "loss_date as yyyymmdd text.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reason_text",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(100)",
+      "nullable": false,
+      "max_length": 100,
+      "tags": [],
+      "description": "'Notified dd/mm/yyyy' (style 103), then ' - no indicators' or ' -' followed by the tokens EARLY/REG/NEWCUST/LOB for each flag set.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The @AsOfDate run parameter. It is the same for every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "lob_code",
+    "fraud_band"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 1042,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

@@ -1,0 +1,1753 @@
+{
+  "job_id": "S01",
+  "schemas": {
+    "stg.claims": [
+      {
+        "name": "claim_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Claim identifier."
+      },
+      {
+        "name": "claim_number",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Printed claim reference."
+      },
+      {
+        "name": "policy_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policy term the claim is made under."
+      },
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policyholder (CRM customer number)."
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Line of business as keyed by the handler (case and padding vary)."
+      },
+      {
+        "name": "loss_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date of the loss."
+      },
+      {
+        "name": "reported_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date the claim was notified."
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "OPEN, CLOSED or REOPENED (case and padding vary)."
+      },
+      {
+        "name": "closed_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Date the claim was last closed."
+      },
+      {
+        "name": "cause_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Cause of loss."
+      },
+      {
+        "name": "handler_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(8)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Claims handler; NULL when unassigned."
+      },
+      {
+        "name": "description",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(200)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Free-text loss description."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ],
+    "stg.claim_payments": [
+      {
+        "name": "payment_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Payment identifier."
+      },
+      {
+        "name": "claim_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Claim paid (a few refer to claims missing from the register)."
+      },
+      {
+        "name": "payment_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date paid (or scheduled)."
+      },
+      {
+        "name": "amount",
+        "data_type": "decimal(12,2)",
+        "legacy_type": "DECIMAL(12,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Amount in EUR; negative for recoveries; NULL when not yet keyed."
+      },
+      {
+        "name": "payment_type",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "INDEMNITY, EXPENSE or RECOVERY (case varies)."
+      },
+      {
+        "name": "payee_type",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Who was paid."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ]
+  },
+  "outputs": {
+    "dw.claims_enriched": [
+      {
+        "name": "claim_id",
+        "data_type": "double",
+        "legacy_type": "num 8 format=BEST",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "claim_number",
+        "data_type": "string",
+        "legacy_type": "char 20 format=$CHAR",
+        "nullable": true,
+        "max_length": 20,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "policy_id",
+        "data_type": "double",
+        "legacy_type": "num 8 format=BEST",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_id",
+        "data_type": "double",
+        "legacy_type": "num 8 format=BEST",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "char 5 format=$CHAR",
+        "nullable": true,
+        "max_length": 5,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "loss_date",
+        "data_type": "date",
+        "legacy_type": "num 8 format=YYMMDD",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "reported_date",
+        "data_type": "date",
+        "legacy_type": "num 8 format=YYMMDD",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "char 12 format=$CHAR",
+        "nullable": true,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "n_payments",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "n_recoveries",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "total_paid",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "indemnity_amt",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "expense_amt",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "recovery_amt",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "first_payment_date",
+        "data_type": "date",
+        "legacy_type": "num 8 format=DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "last_payment_date",
+        "data_type": "date",
+        "legacy_type": "num 8 format=DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "recovery_flag",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "has_payment",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "gross_paid",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "net_paid",
+        "data_type": "double",
+        "legacy_type": "num 8",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      }
+    ]
+  },
+  "contracts": [
+    {
+      "job_id": "S01",
+      "table": "silver.claims_enriched",
+      "legacy_table": "dw.claims_enriched",
+      "layer": "silver",
+      "grain": "One row per claim on the claims register (stg.claims), with its payment history rolled up to the reporting date (as_of); claims with no payments yet are kept too.",
+      "keys": [
+        "claim_id"
+      ],
+      "columns": [
+        {
+          "name": "claim_id",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claim_number",
+          "data_type": "string",
+          "legacy_type": "char 20 format=$CHAR",
+          "nullable": true,
+          "max_length": 20,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "blank_is_null",
+            "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_id",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_id",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "char 5 format=$CHAR",
+          "nullable": true,
+          "max_length": 5,
+          "tags": [],
+          "description": "Line of business, upper-cased and stripped.",
+          "policy": {
+            "kind": "blank_is_null",
+            "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "loss_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=YYMMDD",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "reported_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=YYMMDD",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "status",
+          "data_type": "string",
+          "legacy_type": "char 12 format=$CHAR",
+          "nullable": true,
+          "max_length": 12,
+          "tags": [],
+          "description": "Claim status, upper-cased and stripped.",
+          "policy": {
+            "kind": "blank_is_null",
+            "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "n_payments",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Number of payment rows dated on or before as_of; 0 if the claim has no payments.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "n_recoveries",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Number of payment rows with a negative amount (recoveries); 0 if no payments.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "total_paid",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Sum of all payment amounts to as_of, recoveries included; 0 if no payments.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "indemnity_amt",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Sum of INDEMNITY-type amounts (type matched ignoring case). NULL if the claim has no payments, or if any payment amount was missing, because '+' carries missing values through.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "expense_amt",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Sum of EXPENSE-type amounts; NULL in the same cases as indemnity_amt.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "recovery_amt",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Sum of RECOVERY-type amounts; NULL if the claim has no payments.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "first_payment_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "payment_date of the claim's first payment in keyed order (_row_seq), not necessarily the earliest date.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "last_payment_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "payment_date of the claim's last payment in keyed order (_row_seq), not necessarily the latest date.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "recovery_flag",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "1 if any payment amount is negative, otherwise 0.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "has_payment",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "1 if the claim has at least one payment on or before as_of, otherwise 0.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "gross_paid",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "indemnity_amt + expense_amt; NULL if either one is NULL.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "net_paid",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "SAS sum() of indemnity, expense and recovery, which skips missing values; NULL only when all three are NULL.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-09,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "lob_code",
+        "status"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 2911,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "state_tables": [],
+  "cases": [
+    {
+      "test_id": "S01-SAS-01-1",
+      "job_id": "S01",
+      "trap_id": "SAS-01",
+      "description": "Several payments have no amount (payment_date is NOT NULL, so the testable missing-value case is line 73). In SAS, amount < 0 is true when amount is missing, so those payments set recovery_flag=1 and add to n_recoveries. A naive F.when(amount < 0) treats NULL as false, so it gives recovery_flag 0 and undercounts n_recoveries. Claim 2 has a real negative recovery and claim 4 has only positive amounts, as the canonical cases. Claim 5 has no payments.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "101",
+              "1001",
+              "motor",
+              "2025-01-10",
+              "2025-01-12",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "102",
+              "1002",
+              "HOME",
+              "2025-02-10",
+              "2025-02-11",
+              "Closed",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "103",
+              "1003",
+              "Motor",
+              "2025-03-10",
+              "2025-03-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "104",
+              "1004",
+              "LIAB",
+              "2025-04-10",
+              "2025-04-11",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "105",
+              "1005",
+              "home",
+              "2025-05-10",
+              "2025-05-20",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "11",
+              "1",
+              "2025-02-01",
+              "1000.00",
+              "INDEMNITY",
+              "INSURED",
+              "1"
+            ],
+            [
+              "12",
+              "1",
+              "2025-03-01",
+              null,
+              "Expense",
+              "VENDOR",
+              "2"
+            ],
+            [
+              "21",
+              "2",
+              "2025-03-01",
+              "500.00",
+              "INDEMNITY",
+              "INSURED",
+              "3"
+            ],
+            [
+              "22",
+              "2",
+              "2025-04-01",
+              "-200.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "4"
+            ],
+            [
+              "31",
+              "3",
+              "2025-04-01",
+              null,
+              "Recovery",
+              "THIRDPARTY",
+              "5"
+            ],
+            [
+              "32",
+              "3",
+              "2025-05-01",
+              "250.00",
+              "indemnity",
+              "INSURED",
+              "6"
+            ],
+            [
+              "41",
+              "4",
+              "2025-05-01",
+              "300.00",
+              "INDEMNITY",
+              "INSURED",
+              "7"
+            ],
+            [
+              "42",
+              "4",
+              "2025-06-01",
+              "75.00",
+              "EXPENSE",
+              "VENDOR",
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "S01-SAS-03-2",
+      "job_id": "S01",
+      "trap_id": "SAS-03",
+      "description": "Payment dates sit on both sides of AsOfDate=2025-12-31: exactly on the date (kept), the day after (dropped), well after (dropped), and one before 1960-01-01, which is a negative SAS day count. If &as_of is left as a raw day count, or compared as a string or integer against a Spark date column, the wrong rows are kept or dropped. Claim 3 has only post-cutoff payments, so its has_payment should be 0.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-1001",
+              "201",
+              "2001",
+              "MOTOR",
+              "2025-11-01",
+              "2025-11-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-1002",
+              "202",
+              "2002",
+              "HOME",
+              "2025-05-01",
+              "2025-05-03",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-1003",
+              "203",
+              "2003",
+              "LIAB",
+              "2025-12-20",
+              "2025-12-28",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-1004",
+              "204",
+              "2004",
+              "LIAB",
+              "1959-12-01",
+              "1959-12-15",
+              "CLOSED",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-1005",
+              "205",
+              "2005",
+              "MOTOR",
+              "2024-12-01",
+              "2024-12-02",
+              "CLOSED",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "101",
+              "1",
+              "2025-12-31",
+              "400.00",
+              "INDEMNITY",
+              "INSURED",
+              "1"
+            ],
+            [
+              "102",
+              "1",
+              "2026-01-01",
+              "900.00",
+              "INDEMNITY",
+              "INSURED",
+              "2"
+            ],
+            [
+              "201",
+              "2",
+              "2025-06-15",
+              "150.00",
+              "EXPENSE",
+              "VENDOR",
+              "3"
+            ],
+            [
+              "202",
+              "2",
+              "2026-03-01",
+              "-50.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "4"
+            ],
+            [
+              "301",
+              "3",
+              "2026-01-05",
+              "700.00",
+              "INDEMNITY",
+              "INSURED",
+              "5"
+            ],
+            [
+              "401",
+              "4",
+              "1959-12-31",
+              "20.00",
+              "INDEMNITY",
+              "INSURED",
+              "6"
+            ],
+            [
+              "501",
+              "5",
+              "2024-12-31",
+              "60.00",
+              "EXPENSE",
+              "VENDOR",
+              "7"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "S01-SAS-06-3",
+      "job_id": "S01",
+      "trap_id": "SAS-06",
+      "description": "Payments were keyed out of date order, and the rows of different claims are interleaved in _row_seq. The retained first_payment_date and last_payment_date take the dates of the first and last rows by (claim_id, _row_seq). They are not the min and max dates, which a naive aggregate would give. Claim 1 also has a post-cutoff row in the middle, which has to be filtered out before the ordering. The claims register is not sorted by claim_id. Claim 4 is the canonical case: its payments are in date order.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "3",
+              "CLM-2003",
+              "303",
+              "3003",
+              "HOME",
+              "2024-12-01",
+              "2024-12-05",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "1",
+              "CLM-2001",
+              "301",
+              "3001",
+              "MOTOR",
+              "2025-01-01",
+              "2025-01-02",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "2",
+              "CLM-2002",
+              "302",
+              "3002",
+              "HOME",
+              "2025-01-05",
+              "2025-01-06",
+              "closed",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-2004",
+              "304",
+              "3004",
+              "LIAB",
+              "2025-02-01",
+              "2025-02-03",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-2005",
+              "305",
+              "3005",
+              "LIAB",
+              "2025-03-01",
+              "2025-03-03",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "1",
+              "2025-05-10",
+              "100.00",
+              "INDEMNITY",
+              "INSURED",
+              "1"
+            ],
+            [
+              "2",
+              "2",
+              "2025-09-01",
+              "300.00",
+              "EXPENSE",
+              "VENDOR",
+              "2"
+            ],
+            [
+              "3",
+              "1",
+              "2025-02-01",
+              "200.00",
+              "INDEMNITY",
+              "INSURED",
+              "3"
+            ],
+            [
+              "4",
+              "3",
+              "2025-07-07",
+              "-40.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "4"
+            ],
+            [
+              "5",
+              "1",
+              "2026-02-01",
+              "999.00",
+              "INDEMNITY",
+              "INSURED",
+              "5"
+            ],
+            [
+              "6",
+              "1",
+              "2025-08-20",
+              "50.00",
+              "EXPENSE",
+              "VENDOR",
+              "6"
+            ],
+            [
+              "7",
+              "2",
+              "2025-01-15",
+              "-25.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "7"
+            ],
+            [
+              "8",
+              "3",
+              "2025-01-03",
+              "500.00",
+              "INDEMNITY",
+              "INSURED",
+              "8"
+            ],
+            [
+              "9",
+              "1",
+              "2025-03-03",
+              "75.00",
+              "INDEMNITY",
+              "INSURED",
+              "9"
+            ],
+            [
+              "10",
+              "4",
+              "2025-03-01",
+              "80.00",
+              "INDEMNITY",
+              "INSURED",
+              "10"
+            ],
+            [
+              "11",
+              "4",
+              "2025-04-01",
+              "20.00",
+              "EXPENSE",
+              "VENDOR",
+              "11"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "S01-SAS-02-4",
+      "job_id": "S01",
+      "trap_id": "SAS-02",
+      "description": "Some typed payments have a missing amount. The sum statement treats it as 0 in total_paid. But the plain + in indemnity_amt, expense_amt and recovery_amt makes that bucket missing for the rest of the claim, even after later non-missing payments. gross_paid (+) is then missing, while net_paid (sum()) skips the missing bucket. A naive F.sum skips the NULLs and gives non-null buckets and a non-null gross_paid. Claim 4 is the canonical case with no missing amounts. Claim 5 has no payments, so gross_paid and net_paid are missing and should not be coalesced.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-3001",
+              "401",
+              "4001",
+              "MOTOR",
+              "2025-01-01",
+              "2025-01-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-3002",
+              "402",
+              "4002",
+              "HOME",
+              "2025-02-01",
+              "2025-02-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-3003",
+              "403",
+              "4003",
+              "LIAB",
+              "2025-03-01",
+              "2025-03-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-3004",
+              "404",
+              "4004",
+              "MOTOR",
+              "2025-04-01",
+              "2025-04-02",
+              "CLOSED",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-3005",
+              "405",
+              "4005",
+              "HOME",
+              "2025-05-01",
+              "2025-05-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "1",
+              "2025-02-01",
+              "1000.00",
+              "INDEMNITY",
+              "INSURED",
+              "1"
+            ],
+            [
+              "2",
+              "1",
+              "2025-03-01",
+              null,
+              " Indemnity ",
+              "INSURED",
+              "2"
+            ],
+            [
+              "3",
+              "1",
+              "2025-04-01",
+              "500.00",
+              "indemnity",
+              "INSURED",
+              "3"
+            ],
+            [
+              "4",
+              "1",
+              "2025-05-01",
+              "200.00",
+              "EXPENSE",
+              "VENDOR",
+              "4"
+            ],
+            [
+              "5",
+              "2",
+              "2025-03-01",
+              null,
+              "Expense",
+              "VENDOR",
+              "5"
+            ],
+            [
+              "6",
+              "2",
+              "2025-04-01",
+              "300.00",
+              "EXPENSE",
+              "VENDOR",
+              "6"
+            ],
+            [
+              "7",
+              "2",
+              "2025-05-01",
+              "-100.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "7"
+            ],
+            [
+              "8",
+              "3",
+              "2025-04-01",
+              null,
+              "RECOVERY",
+              "THIRDPARTY",
+              "8"
+            ],
+            [
+              "9",
+              "3",
+              "2025-05-01",
+              "400.00",
+              "INDEMNITY",
+              "INSURED",
+              "9"
+            ],
+            [
+              "10",
+              "3",
+              "2025-06-01",
+              "-60.00",
+              "recovery",
+              "THIRDPARTY",
+              "10"
+            ],
+            [
+              "11",
+              "4",
+              "2025-05-01",
+              "100.00",
+              "INDEMNITY",
+              "INSURED",
+              "11"
+            ],
+            [
+              "12",
+              "4",
+              "2025-06-01",
+              "50.00",
+              "EXPENSE",
+              "VENDOR",
+              "12"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "S01-SAS-05-5",
+      "job_id": "S01",
+      "trap_id": "SAS-05",
+      "description": "The MERGE with in= flags and 'if c' is a left join from the register. Claims 3 and 5 have no payments, and claim 6 has only payments after the cutoff. All three must be kept with has_payment=0, the four counters set to 0, and indemnity/expense/recovery/gross/net left missing. Claim 99 has payments but is not on the register, so it must be dropped. A naive inner join, a full join, coalescing every column to 0, or deriving has_payment from n_payments>0 would differ. Claims 1, 2 and 4 are matched as the canonical case.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-4001",
+              "501",
+              "5001",
+              " motor",
+              "2025-01-01",
+              "2025-01-02",
+              "open ",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-4002",
+              "502",
+              "5002",
+              "Home",
+              "2025-02-01",
+              "2025-02-02",
+              "Closed",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-4003",
+              "503",
+              "5003",
+              "liab",
+              "2025-03-01",
+              "2025-03-02",
+              "open",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-4004",
+              "504",
+              "5004",
+              "MOTOR",
+              "2025-04-01",
+              "2025-04-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-4005",
+              "505",
+              "5005",
+              "HOME",
+              "2025-05-01",
+              "2025-05-02",
+              "Reopened",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-4006",
+              "506",
+              "5006",
+              "LIAB",
+              "2025-12-15",
+              "2025-12-20",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "1",
+              "2025-02-01",
+              "250.00",
+              "INDEMNITY",
+              "INSURED",
+              "1"
+            ],
+            [
+              "2",
+              "1",
+              "2025-03-01",
+              "40.00",
+              "EXPENSE",
+              "VENDOR",
+              "2"
+            ],
+            [
+              "3",
+              "2",
+              "2025-03-01",
+              "600.00",
+              "INDEMNITY",
+              "INSURED",
+              "3"
+            ],
+            [
+              "4",
+              "2",
+              "2025-04-01",
+              "-100.00",
+              "RECOVERY",
+              "THIRDPARTY",
+              "4"
+            ],
+            [
+              "5",
+              "4",
+              "2025-05-01",
+              "90.00",
+              "EXPENSE",
+              "VENDOR",
+              "5"
+            ],
+            [
+              "6",
+              "99",
+              "2025-06-01",
+              "5000.00",
+              "INDEMNITY",
+              "INSURED",
+              "6"
+            ],
+            [
+              "7",
+              "6",
+              "2026-01-10",
+              "800.00",
+              "INDEMNITY",
+              "INSURED",
+              "7"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": null,
+      "status": "pending"
+    }
+  ]
+}

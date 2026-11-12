@@ -1,0 +1,1003 @@
+{
+  "job_id": "T06",
+  "schemas": {
+    "stg.claims": [
+      {
+        "name": "claim_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Claim identifier."
+      },
+      {
+        "name": "claim_number",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Printed claim reference."
+      },
+      {
+        "name": "policy_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policy term the claim is made under."
+      },
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policyholder (CRM customer number)."
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Line of business as keyed by the handler (case and padding vary)."
+      },
+      {
+        "name": "loss_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date of the loss."
+      },
+      {
+        "name": "reported_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date the claim was notified."
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "OPEN, CLOSED or REOPENED (case and padding vary)."
+      },
+      {
+        "name": "closed_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Date the claim was last closed."
+      },
+      {
+        "name": "cause_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Cause of loss."
+      },
+      {
+        "name": "handler_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(8)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Claims handler; NULL when unassigned."
+      },
+      {
+        "name": "description",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(200)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Free-text loss description."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ],
+    "stg.claim_payments": [
+      {
+        "name": "payment_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Payment identifier."
+      },
+      {
+        "name": "claim_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Claim paid (a few refer to claims missing from the register)."
+      },
+      {
+        "name": "payment_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date paid (or scheduled)."
+      },
+      {
+        "name": "amount",
+        "data_type": "decimal(12,2)",
+        "legacy_type": "DECIMAL(12,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Amount in EUR; negative for recoveries; NULL when not yet keyed."
+      },
+      {
+        "name": "payment_type",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "INDEMNITY, EXPENSE or RECOVERY (case varies)."
+      },
+      {
+        "name": "payee_type",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Who was paid."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ]
+  },
+  "outputs": {
+    "rpt.loss_triangle_paid": [
+      {
+        "name": "accident_year",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": 5,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_0",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_1",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_2",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_3",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_4",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_5",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "dev_6",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_0",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_1",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_2",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_3",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_4",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_5",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cumulative_6",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "as_of_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      }
+    ]
+  },
+  "contracts": [
+    {
+      "job_id": "T06",
+      "table": "gold.loss_triangle_paid",
+      "legacy_table": "rpt.loss_triangle_paid",
+      "layer": "gold",
+      "grain": "One row per accident year and line of business: the paid loss development triangle as at the run's as-of date.",
+      "keys": [
+        "accident_year",
+        "lob_code"
+      ],
+      "columns": [
+        {
+          "name": "accident_year",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": "Line of business, trimmed and upper-cased before grouping.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Amount paid in the accident year itself (development year 0). Uses DATEDIFF(YEAR), so it counts calendar-year boundaries crossed, not elapsed years. 0 if nothing was paid.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Amount paid in development year n. NULL when accident_year + n is after the as-at year, otherwise 0 if nothing was paid. dev_2 to dev_6 follow the same rule.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Total of dev_0 through dev_n. NULL when any of those cells is NULL, so it goes NULL at the same point as dev_n. The other cumulative_n columns follow the same rule.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The @AsOfDate run parameter. It is the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 21,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "invocations": [
+    {
+      "label": null,
+      "params": {
+        "AsOfDate": "2025-12-31"
+      }
+    }
+  ],
+  "state_tables": [],
+  "cases": [
+    {
+      "test_id": "T06-TSQL-04-1",
+      "job_id": "T06",
+      "trap_id": "TSQL-04",
+      "description": "Payments that cross a calendar-year boundary after less than a full year has passed since the loss. For example, a loss on 2023-12-31 paid on 2024-01-01, a loss on 2022-12-15 paid on 2023-06-10, a loss on 2021-11-30 paid on 2023-02-01, a loss on 2024-12-20 paid on 2025-01-05, and a loss on 2019-06-30 paid on 2025-06-01. DATEDIFF(YEAR) counts calendar-year boundaries crossed, so it puts these payments one development year later than a translation based on full years elapsed (months_between or day counts). Those payments would land in the wrong dev_n and cumulative_n cells, or in the wrong row. Control payments where both methods give the same development year are included too (same-year payments, and payments past the loss anniversary).",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "101",
+              "1001",
+              "MOTOR",
+              "2023-12-31",
+              "2024-01-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "102",
+              "1002",
+              "MOTOR",
+              "2022-12-15",
+              "2022-12-20",
+              "CLOSED",
+              "2023-07-01",
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "103",
+              "1003",
+              "MOTOR",
+              "2023-03-01",
+              "2023-03-05",
+              "CLOSED",
+              "2023-10-01",
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "104",
+              "1004",
+              "HOME",
+              "2021-11-30",
+              "2021-12-03",
+              "CLOSED",
+              "2023-03-01",
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "105",
+              "1005",
+              "HOME",
+              "2021-02-01",
+              "2021-02-04",
+              "CLOSED",
+              "2022-04-01",
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0006",
+              "106",
+              "1006",
+              "TRAV",
+              "2024-12-20",
+              "2024-12-22",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ],
+            [
+              "7",
+              "CLM-0007",
+              "107",
+              "1007",
+              "HOME",
+              "2019-06-30",
+              "2019-07-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "7"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "501",
+              "1",
+              "2024-01-01",
+              "100.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "1"
+            ],
+            [
+              "502",
+              "2",
+              "2023-06-10",
+              "250.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "2"
+            ],
+            [
+              "503",
+              "3",
+              "2023-09-01",
+              "75.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "3"
+            ],
+            [
+              "504",
+              "4",
+              "2023-02-01",
+              "500.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "4"
+            ],
+            [
+              "505",
+              "5",
+              "2022-03-01",
+              "300.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "5"
+            ],
+            [
+              "506",
+              "6",
+              "2025-01-05",
+              "40.00",
+              "EXPENSE",
+              "VENDOR",
+              "6"
+            ],
+            [
+              "507",
+              "6",
+              "2024-12-28",
+              "10.00",
+              "EXPENSE",
+              "VENDOR",
+              "7"
+            ],
+            [
+              "508",
+              "7",
+              "2025-06-01",
+              "80.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "8"
+            ],
+            [
+              "509",
+              "7",
+              "2025-12-30",
+              "60.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "9"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.loss_triangle_paid",
+          "columns": [
+            "accident_year",
+            "lob_code",
+            "dev_0",
+            "dev_1",
+            "dev_2",
+            "dev_3",
+            "dev_4",
+            "dev_5",
+            "dev_6",
+            "cumulative_0",
+            "cumulative_1",
+            "cumulative_2",
+            "cumulative_3",
+            "cumulative_4",
+            "cumulative_5",
+            "cumulative_6",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "2019",
+              "HOME",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "140.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "140.00",
+              "2025-12-31"
+            ],
+            [
+              "2021",
+              "HOME",
+              "0.00",
+              "300.00",
+              "500.00",
+              "0.00",
+              "0.00",
+              null,
+              null,
+              "0.00",
+              "300.00",
+              "800.00",
+              "800.00",
+              "800.00",
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2022",
+              "MOTOR",
+              "0.00",
+              "250.00",
+              "0.00",
+              "0.00",
+              null,
+              null,
+              null,
+              "0.00",
+              "250.00",
+              "250.00",
+              "250.00",
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2023",
+              "MOTOR",
+              "75.00",
+              "100.00",
+              "0.00",
+              null,
+              null,
+              null,
+              null,
+              "75.00",
+              "175.00",
+              "175.00",
+              null,
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2024",
+              "TRAV",
+              "10.00",
+              "40.00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "10.00",
+              "50.00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": null,
+      "status": "pending"
+    }
+  ]
+}

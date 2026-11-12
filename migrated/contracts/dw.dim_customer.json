@@ -1,0 +1,420 @@
+{
+  "job_id": "T01",
+  "table": "silver.dim_customer",
+  "legacy_table": "dw.dim_customer",
+  "layer": "silver",
+  "grain": "One row per CRM customer (customer_id), taken from one version of the customer's CDC records saved on or before @AsOfDate.",
+  "keys": [
+    "customer_id"
+  ],
+  "columns": [
+    {
+      "name": "customer_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "first_name",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(40)",
+      "nullable": false,
+      "max_length": 40,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "last_name",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(60)",
+      "nullable": false,
+      "max_length": 60,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "full_name",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(101)",
+      "nullable": false,
+      "max_length": 101,
+      "tags": [
+        "pii"
+      ],
+      "description": "RTRIM(first_name) + ' ' + RTRIM(last_name).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "initials",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(2)",
+      "nullable": false,
+      "max_length": 2,
+      "tags": [
+        "pii"
+      ],
+      "description": "SUBSTRING(x,0,2) in T-SQL returns only the first character, so this is the first letter of first_name plus the first letter of last_name, in upper case.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "email",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(120)",
+      "nullable": true,
+      "max_length": 120,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "email_shared_count",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [
+        "pii"
+      ],
+      "description": "Number of kept customer rows with the same email. 0 when email is NULL.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "date_of_birth",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "age_at_join",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": "DATEDIFF(YEAR) from date_of_birth to customer_since. This counts calendar-year boundaries crossed, not completed years of age.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "address_line1",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(100)",
+      "nullable": true,
+      "max_length": 100,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "town",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(50)",
+      "nullable": true,
+      "max_length": 50,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "county",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(30)",
+      "nullable": true,
+      "max_length": 30,
+      "tags": [
+        "protected"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "region",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(12)",
+      "nullable": false,
+      "max_length": 12,
+      "tags": [
+        "protected"
+      ],
+      "description": "Sales region looked up from county. Counties not in the list, and NULL counties, get UNKNOWN.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "eircode",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": true,
+      "max_length": 10,
+      "tags": [
+        "pii"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "eircode_valid",
+      "data_type": "string",
+      "legacy_type": "CHAR(1)",
+      "nullable": false,
+      "max_length": 1,
+      "tags": [
+        "pii"
+      ],
+      "description": "Checks length only: Y when the length is 7, or 8 with a space in position 4. T-SQL LEN ignores trailing spaces.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "segment_code",
+      "data_type": "string",
+      "legacy_type": "CHAR(4)",
+      "nullable": true,
+      "max_length": 4,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "is_standard_segment",
+      "data_type": "string",
+      "legacy_type": "CHAR(1)",
+      "nullable": false,
+      "max_length": 1,
+      "tags": [],
+      "description": "Y only when segment_code = 'STD'. segment_code is CHAR(4), so it is padded to 'STD '; T-SQL ignores trailing spaces when comparing, Spark does not.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "marketing_opt_in",
+      "data_type": "string",
+      "legacy_type": "CHAR(1)",
+      "nullable": false,
+      "max_length": 1,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "customer_since",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "source_system",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": false,
+      "max_length": 10,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "version_count",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of CDC versions of the customer saved on or before @AsOfDate.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "record_updated_at",
+      "data_type": "timestamp_ntz",
+      "legacy_type": "DATETIME2(0)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "updated_at of the version that was kept. ROW_NUMBER orders by updated_at and _row_seq ascending and keeps version_no = 1, so this is the EARLIEST version, not the current one the header describes. The migration must copy this behaviour.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The @AsOfDate parameter. It is the same on every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "region",
+    "source_system"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 20000,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}
