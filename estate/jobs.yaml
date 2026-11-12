@@ -142,3 +142,45 @@ jobs:
     inputs: [dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer]
     outputs:
       - table: rpt.risk_scores
+
+  # Sealed held-out jobs, unsealed at the factory freeze (plan step 3.11)
+  - job_id: X1
+    name: usp_broker_production
+    language: tsql
+    path: estate/holdout/X1_usp_broker_production.sql
+    entrypoint: rpt.usp_broker_production
+    description: Broker and line-of-business production as at the as-of date (policies in force, EUR written
+      premium, claims notified and paid in the year, paid-to-written review flag)
+    invocations:
+    - params:
+        AsOfDate: '2025-12-31'
+    inputs:
+    - stg.policy_snapshots
+    - stg.products
+    - stg.premium_transactions
+    - stg.fx_rates
+    - stg.claims
+    - stg.claim_payments
+    - stg.brokers
+    outputs:
+    - table: rpt.broker_production
+    tier: 1
+    holdout: true
+  - job_id: X2
+    name: usp_large_loss_watchlist
+    language: tsql
+    path: estate/holdout/X2_usp_large_loss_watchlist.sql
+    entrypoint: rpt.usp_large_loss_watchlist
+    description: Claims with incurred of at least EUR 25,000 as at the as-of date, with 90-day movement,
+      reserve activity and a watch category for the claims committee
+    invocations:
+    - params:
+        AsOfDate: '2025-12-31'
+    inputs:
+    - stg.claims
+    - stg.claim_payments
+    - stg.claim_reserves
+    outputs:
+    - table: rpt.large_loss_watchlist
+    tier: 1
+    holdout: true

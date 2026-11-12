@@ -26,7 +26,9 @@ from lansh.estate.inventory import load_inventory
 
 
 def test_job_order_runs_tsql_in_dependency_order_then_sas() -> None:
-    order = job_order(load_inventory())
+    inventory = load_inventory()
+    held_out = {j.job_id for j in inventory.jobs if j.holdout}  # once unsealed (step 3.11)
+    order = [j for j in job_order(inventory) if j not in held_out]
     assert order[:7] == ["T01", "T02", "T03", "T04", "T05", "T06", "T08"]
     assert order[7:] == ["S01", "S03", "S04"]
 
