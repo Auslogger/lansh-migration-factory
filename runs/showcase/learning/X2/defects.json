@@ -1,0 +1,73 @@
+[
+  {
+    "confidence": 0.7,
+    "defect_id": "X2-D1",
+    "description": "#res numbers the reserve rows with ROW_NUMBER() OVER (PARTITION BY period, claim_id ORDER BY reserve_date DESC, reserve_id DESC) and keeps rn = 1. That leaves one reserve row per claim and period. A claim usually holds an indemnity reserve and an expense reserve (CR-0577). Only the most recently changed of the two goes into outstanding_reserve, and the other type's open reserve is dropped. This understates outstanding_reserve, incurred_amount, incurred_90d_ago and movement_90d. It can also keep claims off the list entirely or give them the wrong watch_category.",
+    "evidence_lines": [
+      10,
+      75,
+      76,
+      77,
+      84,
+      85,
+      86,
+      89
+    ],
+    "impact": {
+      "amount_affected": "683219.73",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)",
+      "rows_affected": 43
+    },
+    "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)",
+    "intended_behaviour": "Take the latest reserve for each claim, period and reserve_type (add reserve_type to the PARTITION BY), then add up those latest amounts across types to get the outstanding reserve. This is how expense reserves become part of incurred, as CR-0577 asks.",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "Latest reserve picked across all reserve types, so only one type counts"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "X2-D2",
+    "description": "The claim filter keeps closed claims only when closed_date > @PriorDate, where @PriorDate is AsOfDate - 90 days (2025-10-02). A claim closed on 2025-10-02, exactly 90 days before the as-of date, is therefore left out.",
+    "evidence_lines": [
+      11,
+      45,
+      59
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000",
+    "intended_behaviour": "CR-0912 drops claims closed more than 90 days ago. A claim closed exactly 90 days ago should stay on the list (closed_date >= @PriorDate).",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "Claims closed exactly 90 days ago are dropped"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "X2-D3",
+    "description": "Line 59 compares the untrimmed c.status with 'CLOSED'. SQL Server ignores trailing spaces and, under the usual collation, case, but it does not ignore leading spaces. A status such as ' CLOSED' passes the <> 'CLOSED' test, so claims closed long ago (or with no closed_date) still make the list. They then appear as 'CLOSED' because the output column is trimmed (INC-3204).",
+    "evidence_lines": [
+      14,
+      54,
+      59
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')",
+    "intended_behaviour": "Use the same cleaned status in the filter as in the output: UPPER(LTRIM(RTRIM(c.status))) <> 'CLOSED'. Closed claims would then stay only if closed_date > @PriorDate.",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "CLOSED check uses the raw status, not the trimmed one"
+  }
+]

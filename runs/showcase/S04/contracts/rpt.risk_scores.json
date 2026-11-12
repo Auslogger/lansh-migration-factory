@@ -1,0 +1,260 @@
+{
+  "job_id": "S04",
+  "table": "gold.risk_scores",
+  "legacy_table": "rpt.risk_scores",
+  "layer": "gold",
+  "grain": "One row per customer and line of business (MOT, HOM, TRV) that has claims in dw.claims_enriched, scored as of the reporting date.",
+  "keys": [
+    "customer_id",
+    "lob_code"
+  ],
+  "columns": [
+    {
+      "name": "customer_id",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "char 5 format=$CHAR",
+      "nullable": true,
+      "max_length": 5,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_claims",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "paid",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_recoveries",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "severity",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Customer's paid amount divided by the mean paid across all customers in the same line (SAS remerges the summary statistic).",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "age",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": "Whole years from date_of_birth to as_of. NULL when the birth date is missing or the customer is not in dim_customer (left join).",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "age_load",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": "1.40 if age < 25, 1.25 if age >= 70, otherwise 1.00 (also 1.00 when age is missing in dim_customer). It can be NULL if the customer is not in dim_customer.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "county_load",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "protected"
+      ],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_ratio",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Line-level total paid on the claims book divided by the line's earned premium from rpt.premium_band_summary. It is the same for every row in a line.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "points",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "12.5*min(n_claims,4) + 7.5*n_recoveries + severity points (0/5/10) + round(2.5*loss_ratio, 0.5).",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "score",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": "points * age_load * county_load, rounded to 0.01.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "tier",
+      "data_type": "string",
+      "legacy_type": "char 4",
+      "nullable": true,
+      "max_length": 4,
+      "tags": [
+        "pii",
+        "protected"
+      ],
+      "description": "HIGH if score >= 35, MEDIUM if score >= 22, otherwise LOW.",
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=YYMMDD",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Reporting date parameter, the same on every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "tier"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 2645,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

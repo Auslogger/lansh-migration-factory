@@ -1,0 +1,200 @@
+{
+  "approach": "lansh",
+  "candidate_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+  "code_sha256": "ba9048a1fa89b01c4926078d7af32becfcb344c9bf786436c4623e3f8136bc9c",
+  "column_diffs": [],
+  "contract_sha256": "2928d4e808d4201784d0f6796ed22c8f85002e06ef544d1d2f2fa4763937285b",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 23247,
+        "legacy": 23247,
+        "partition": "lob_code='HOM', currency='EUR'"
+      },
+      {
+        "candidate": 830,
+        "legacy": 830,
+        "partition": "lob_code='HOM', currency='GBP'"
+      },
+      {
+        "candidate": 30826,
+        "legacy": 30826,
+        "partition": "lob_code='MOT', currency='EUR'"
+      },
+      {
+        "candidate": 1125,
+        "legacy": 1125,
+        "partition": "lob_code='MOT', currency='GBP'"
+      },
+      {
+        "candidate": 10717,
+        "legacy": 10717,
+        "partition": "lob_code='TRV', currency='EUR'"
+      },
+      {
+        "candidate": 398,
+        "legacy": 398,
+        "partition": "lob_code='TRV', currency='GBP'"
+      },
+      {
+        "candidate": 736,
+        "legacy": 736,
+        "partition": "lob_code='TRV', currency='USD'"
+      }
+    ],
+    "candidate": 67879,
+    "legacy": 67879
+  },
+  "duration_seconds": 2.499,
+  "error": null,
+  "explanation": "MATCH: all 67,879 rows agree record for record, compared on the keys ['txn_id']; counts, totals and every compared column agree under their policies.",
+  "extra_samples": [],
+  "golden_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+  "job_id": "T03",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "txn_id"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 67879,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T04:09:00.522471Z",
+  "status": "MATCH",
+  "table": "dw.fact_premium_earned",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "477457288333",
+      "column": "txn_id",
+      "legacy": "477457288333",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "36027338916",
+      "column": "policy_id",
+      "legacy": "36027338916",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2451710359",
+      "column": "policy_sk",
+      "legacy": "2451710359",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "23878512.88",
+      "column": "amount",
+      "legacy": "23878512.88",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "68243.18983386",
+      "column": "fx_rate",
+      "legacy": "68243.18983386",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "24033402.72",
+      "column": "written_eur",
+      "legacy": "24033402.72",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "22352049",
+      "column": "term_days",
+      "legacy": "22352049",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "17376000",
+      "column": "earned_days",
+      "legacy": "17376000",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "5370266",
+      "column": "earned_pct",
+      "legacy": "5370266",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "18768844.41",
+      "column": "earned_eur",
+      "legacy": "18768844.41",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "5264558.31",
+      "column": "unearned_eur",
+      "legacy": "5264558.31",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "79181.1928",
+      "column": "daily_rate_eur",
+      "legacy": "79181.1928",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2121880.48",
+      "column": "monthly_instalment_eur",
+      "legacy": "2121880.48",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    }
+  ]
+}

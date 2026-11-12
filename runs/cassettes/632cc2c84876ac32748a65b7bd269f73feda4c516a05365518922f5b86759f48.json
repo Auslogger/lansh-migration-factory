@@ -1,0 +1,216 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:12:08.681823Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T02",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T02: usp_load_dim_policy (tsql), legacy file estate/tsql/T02_usp_load_dim_policy.sql (SHA-256 a9565f4f944b98bb52293b124a852c693d5fad0c7accb5793a9499945f0e2b0f).\nPolicy dimension with type-2 history, loaded once per policy snapshot.\nInvocations, in order: batch 1: SnapshotDate=2025-06-30; batch 2: SnapshotDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job      : dw.usp_load_dim_policy\n  Purpose  : Policy dimension for finance, actuarial and broker reporting. One\n             row per version of a policy term, with its product, broker and\n             customer segment. A new version starts whenever the status,\n             broker, annual premium or vehicle registration changes from one\n             policy snapshot to the next (type 2 history).\n  Run by   : POL_SNAPSHOT_LOAD, once per policy snapshot, oldest first:\n             EXEC dw.usp_load_dim_policy @SnapshotDate = '<snapshot date>'\n  Output   : dw.dim_policy. Keeps history, so the procedure never truncates\n             it. Deploying this script recreates the table empty: reload every\n             snapshot in date order afterwards.\n  Author   : MOB\n\n  Change log\n    2014-02-10  MOB   Initial version, one row per policy (CR-0655)\n    2015-06-22  MOB   Broker name from the broker register (CR-0790)\n    2016-09-05  TF    Direct business reported as broker DIRECT-SALES (CR-0961)\n    2017-03-13  TF    Type 2 history with MERGE, surrogate key policy_sk\n                      (CR-1077)\n    2018-10-01  PH    Vehicle registration tracked for motor (CR-1388)\n    2019-07-15  PH    Customer segment from dw.dim_customer (CR-1610)\n    2020-02-03  TF    Refuse a snapshot older than the last one loaded\n                      (INC-2105)\n    2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'dw.dim_policy', N'U') IS NOT NULL\n    DROP TABLE dw.dim_policy;\n\nCREATE TABLE dw.dim_policy (\n    policy_sk             INT IDENTITY(1,1) NOT NULL,\n    policy_id             INT            NOT NULL,\n    policy_number         VARCHAR(20)    NOT NULL,\n    customer_id           INT            NOT NULL,\n    customer_segment      CHAR(4)        NULL,\n    product_code          VARCHAR(10)    NOT NULL,\n    product_name          NVARCHAR(60)   NOT NULL,\n    lob_code              VARCHAR(5)     NOT NULL,\n    broker_code           VARCHAR(12)    NOT NULL,\n    broker_name           NVARCHAR(80)   NULL,\n    status                VARCHAR(12)    NOT NULL,\n    inception_date        DATE           NOT NULL,\n    expiry_date           DATE           NOT NULL,\n    cancellation_date     DATE           NULL,\n    annual_premium        DECIMAL(12,2)  NOT NULL,\n    currency              CHAR(3)        NOT NULL,\n    vehicle_reg           VARCHAR(12)    NULL,\n    ncd_years             INT            NULL,\n    valid_from            DATE           NOT NULL,\n    valid_to              DATE           NOT NULL,   -- 9999-12-31 while current\n    is_current            CHAR(1)        NOT NULL,   -- Y / N\n    source_snapshot_date  DATE           NOT NULL,\n    load_ts               DATETIME2(3)   NOT NULL,\n    CONSTRAINT pk_dim_policy PRIMARY KEY CLUSTERED (policy_sk)\n);\n\nCREATE NONCLUSTERED INDEX ix_dim_policy_policy_id ON dw.dim_policy (policy_id, is_current);\nGO\nCREATE OR ALTER PROCEDURE dw.usp_load_dim_policy\n    @SnapshotDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name     VARCHAR(128) = 'dw.usp_load_dim_policy',\n            @rows         INT,\n            @closed       INT,\n            @last_loaded  DATE,\n            @err_msg      NVARCHAR(4000),\n            @err_no       INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Oldest snapshot first: loading an older snapshot after a newer one\n           would reopen versions that are already closed (INC-2105) */\n        SELECT  @last_loaded = MAX(d.source_snapshot_date)\n        FROM    dw.dim_policy d;\n\n        IF @SnapshotDate < @last_loaded\n            THROW 50001, 'dw.dim_policy already holds a later policy snapshot', 1;\n\n        IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n\n        /* 1. This snapshot's policies with product, broker and customer segment */\n        SELECT  p.policy_id,\n                p.policy_number,\n                p.customer_id,\n                c.segment_code                          AS customer_segment,\n                pr.product_code,\n                pr.product_name,\n                pr.lob_code,\n                ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,\n                b.broker_name,\n                p.status,\n                p.inception_date,\n                p.expiry_date,\n                p.cancellation_date,\n                p.annual_premium,\n                p.currency,\n                p.vehicle_reg,\n                p.ncd_years\n        INTO    #src\n        FROM    stg.policy_snapshots p WITH (NOLOCK)\n        JOIN    stg.products pr WITH (NOLOCK)\n                ON pr.product_code = p.product_code\n        LEFT JOIN stg.brokers b WITH (NOLOCK)\n               ON b.broker_code = p.broker_code\n        LEFT JOIN dw.dim_customer c WITH (NOLOCK)\n               ON c.customer_id = p.customer_id\n        WHERE   p.snapshot_date = @SnapshotDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'policy snapshot', @status = 'INFO', @rows_affected = @rows;\n\n        IF @rows = 0\n            THROW 50002, 'No policies found for this snapshot date', 1;\n\n        CREATE CLUSTERED INDEX ix_src_policy_id ON #src (policy_id);\n\n        BEGIN TRANSACTION;\n\n        /* 2. Close the current version of policies whose status, broker, premium\n              or vehicle registration has changed since the last snapshot */\n        MERGE dw.dim_policy AS tgt\n        USING #src AS src\n           ON tgt.policy_id = src.policy_id\n          AND tgt.is_current = 'Y'\n        WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n                          OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')\n                          OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)\n                          OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))\n        THEN UPDATE\n             SET    tgt.valid_to   = DATEADD(DAY, -1, @SnapshotDate),\n                    tgt.is_current = 'N';\n\n        SET @closed = @@ROWCOUNT;\n\n        /* 3. Open a current version for new policies and for those closed above */\n        INSERT INTO dw.dim_policy\n               (policy_id, policy_number, customer_id, customer_segment, product_code,\n                product_name, lob_code, broker_code, broker_name, status, inception_date,\n                expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n                ncd_years, valid_from, valid_to, is_current, source_snapshot_date, load_ts)\n        SELECT  s.policy_id, s.policy_number, s.customer_id, s.customer_segment, s.product_code,\n                s.product_name, s.lob_code, s.broker_code, s.broker_name, s.status,\n                s.inception_date, s.expiry_date, s.cancellation_date, s.annual_premium,\n                s.currency, s.vehicle_reg, s.ncd_years,\n                @SnapshotDate,\n                '9999-12-31',\n                'Y',\n                @SnapshotDate,\n                SYSDATETIME()\n        FROM    #src s\n        WHERE   NOT EXISTS (SELECT 1\n                            FROM   dw.dim_policy d\n                            WHERE  d.policy_id = s.policy_id\n                              AND  d.is_current = 'Y')\n        ORDER BY s.policy_id;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions closed', @status = 'INFO', @rows_affected = @closed;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions opened', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.policy_snapshots: snapshot_date date (DATE), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), product_code string (VARCHAR(10)), broker_code string (VARCHAR(10)), inception_date date (DATE), expiry_date date (DATE), status string (VARCHAR(12)), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), sum_insured decimal(14,2) (DECIMAL(14,2)), payment_frequency string (VARCHAR(10)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), _row_seq int (INT)\n- stg.brokers: broker_code string (CHAR(6)), broker_name string (NVARCHAR(80)), region string (VARCHAR(20)), commission_rate decimal(5,4) (DECIMAL(5,4)), status string (VARCHAR(10)), appointed_date date (DATE), _row_seq int (INT)\n- stg.products: product_code string (VARCHAR(10)), product_name string (NVARCHAR(60)), lob_code string (VARCHAR(5)), term_months int (INT), levy_rate decimal(5,4) (DECIMAL(5,4)), launched_on date (DATE), withdrawn_on date (DATE), _row_seq int (INT)\n- dw.dim_customer: customer_id int (INT), first_name string (NVARCHAR(40)), last_name string (NVARCHAR(60)), full_name string (NVARCHAR(101)), initials string (NVARCHAR(2)), email string (VARCHAR(120)), email_shared_count int (INT), date_of_birth date (DATE), age_at_join int (INT), address_line1 string (NVARCHAR(100)), town string (NVARCHAR(50)), county string (VARCHAR(30)), region string (VARCHAR(12)), eircode string (VARCHAR(10)), eircode_valid string (CHAR(1)), segment_code string (CHAR(4)), is_standard_segment string (CHAR(1)), marketing_opt_in string (CHAR(1)), customer_since date (DATE), source_system string (VARCHAR(10)), version_count int (INT), record_updated_at timestamp_ntz (DATETIME2(0)), as_of_date date (DATE)\n- dw.dim_policy: policy_sk int (INT), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), customer_segment string (CHAR(4)), product_code string (VARCHAR(10)), product_name string (NVARCHAR(60)), lob_code string (VARCHAR(5)), broker_code string (VARCHAR(12)), broker_name string (NVARCHAR(80)), status string (VARCHAR(12)), inception_date date (DATE), expiry_date date (DATE), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), valid_from date (DATE), valid_to date (DATE), is_current string (CHAR(1)), source_snapshot_date date (DATE), load_ts timestamp_ntz (DATETIME2(3))\n\nOutput tables:\n- dw.dim_policy: policy_sk int (INT), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), customer_segment string (CHAR(4)), product_code string (VARCHAR(10)), product_name string (NVARCHAR(60)), lob_code string (VARCHAR(5)), broker_code string (VARCHAR(12)), broker_name string (NVARCHAR(80)), status string (VARCHAR(12)), inception_date date (DATE), expiry_date date (DATE), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), valid_from date (DATE), valid_to date (DATE), is_current string (CHAR(1)), source_snapshot_date date (DATE), load_ts timestamp_ntz (DATETIME2(3))\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- This job keeps history between batches: inputs also hold its own previous output, dw.dim_policy (empty, with the output's columns, before the first batch). Return the whole new table after this batch.\n"
+  },
+  "request_sha256": "632cc2c84876ac32748a65b7bd269f73feda4c516a05365518922f5b86759f48",
+  "response": {
+    "duration_api_ms": 122944,
+    "duration_ms": 123224,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 6518,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 6518,
+        "cacheReadInputTokens": 1079,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.3232678,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 13545,
+        "provider": "firstParty",
+        "thinkingTokens": 8560,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"Job T02: dw.usp_load_dim_policy (T-SQL) migrated to PySpark.\n\nPolicy dimension with type-2 history, loaded once per policy snapshot.\nInput dw.dim_policy is the previous state of the output; the whole new table\nis returned.\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nfrom pyspark.sql import functions as F\nfrom pyspark.sql import types as T  # noqa: F401\n\n\n_OUT_COLS = [\n    \"policy_sk\", \"policy_id\", \"policy_number\", \"customer_id\", \"customer_segment\",\n    \"product_code\", \"product_name\", \"lob_code\", \"broker_code\", \"broker_name\",\n    \"status\", \"inception_date\", \"expiry_date\", \"cancellation_date\",\n    \"annual_premium\", \"currency\", \"vehicle_reg\", \"ncd_years\", \"valid_from\",\n    \"valid_to\", \"is_current\", \"source_snapshot_date\", \"load_ts\",\n]\n\n_NOT_NULL_COLS = [\n    \"policy_id\", \"policy_number\", \"customer_id\", \"product_code\", \"product_name\",\n    \"lob_code\", \"broker_code\", \"status\", \"inception_date\", \"expiry_date\",\n    \"annual_premium\", \"currency\",\n]\n\n\ndef _key(c):\n    # SQL Server default collation (case-insensitive) with trailing-space-insensitive '='\n    return F.upper(F.rtrim(c))\n\n\ndef _ci_isnull(c):\n    # ISNULL(x, '') compared under case-insensitive / trailing-space-insensitive rules\n    return F.upper(F.rtrim(F.coalesce(c, F.lit(\"\"))))\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    snap = datetime.date.fromisoformat(params[\"SnapshotDate\"])\n    snap_lit = F.lit(snap)\n\n    dim = inputs[\"dw.dim_policy\"]\n    ps = inputs[\"stg.policy_snapshots\"]\n    pr = inputs[\"stg.products\"]\n    br = inputs[\"stg.brokers\"]\n    cu = inputs[\"dw.dim_customer\"]\n\n    # INC-2105: refuse a snapshot older than the last one loaded (THROW 50001)\n    last_loaded = dim.agg(F.max(\"source_snapshot_date\").alias(\"m\")).first()[\"m\"]\n    if last_loaded is not None and snap < last_loaded:\n        raise ValueError(\"dw.dim_policy already holds a later policy snapshot\")\n\n    # 1. #src\n    p = ps.filter(F.col(\"snapshot_date\") == snap_lit).select(\n        F.col(\"policy_id\"), F.col(\"policy_number\"), F.col(\"customer_id\"),\n        F.col(\"product_code\").alias(\"p_product_code\"),\n        F.col(\"broker_code\").alias(\"p_broker_code\"),\n        F.col(\"status\"), F.col(\"inception_date\"), F.col(\"expiry_date\"),\n        F.col(\"cancellation_date\"), F.col(\"annual_premium\"), F.col(\"currency\"),\n        F.col(\"vehicle_reg\"), F.col(\"ncd_years\"),\n        F.col(\"_row_seq\").alias(\"p_row_seq\"),\n    )\n    prd = pr.select(\n        F.col(\"product_code\").alias(\"pr_product_code\"),\n        F.col(\"product_name\"), F.col(\"lob_code\"),\n        F.col(\"_row_seq\").alias(\"pr_row_seq\"),\n    )\n    brk = br.select(\n        F.col(\"broker_code\").alias(\"b_broker_code\"),\n        F.col(\"broker_name\"),\n        F.col(\"_row_seq\").alias(\"b_row_seq\"),\n    )\n    cus = cu.select(\n        F.col(\"customer_id\").alias(\"c_customer_id\"),\n        F.col(\"segment_code\").alias(\"customer_segment\"),\n    )\n\n    j = (\n        p.join(prd, _key(F.col(\"pr_product_code\")) == _key(F.col(\"p_product_code\")), \"inner\")\n        .join(brk, _key(F.col(\"b_broker_code\")) == _key(F.col(\"p_broker_code\")), \"left\")\n        .join(cus, F.col(\"c_customer_id\") == F.col(\"customer_id\"), \"left\")\n    )\n\n    src = j.select(\n        F.col(\"policy_id\"), F.col(\"policy_number\"), F.col(\"customer_id\"),\n        F.col(\"customer_segment\"),\n        F.col(\"pr_product_code\").alias(\"product_code\"),\n        F.col(\"product_name\"), F.col(\"lob_code\"),\n        # ISNULL returns the type of its first argument (VARCHAR(10)), so the\n        # replacement 'DIRECT-SALES' is truncated to 10 characters.\n        F.coalesce(F.col(\"p_broker_code\"), F.substring(F.lit(\"DIRECT-SALES\"), 1, 10)).alias(\"broker_code\"),  # LANSH-DEFECT: ISNULL truncates 'DIRECT-SALES' to VARCHAR(10) 'DIRECT-SAL'\n        F.col(\"broker_name\"), F.col(\"status\"), F.col(\"inception_date\"),\n        F.col(\"expiry_date\"), F.col(\"cancellation_date\"), F.col(\"annual_premium\"),\n        F.col(\"currency\"), F.col(\"vehicle_reg\"), F.col(\"ncd_years\"),\n        F.col(\"p_row_seq\"), F.col(\"pr_row_seq\"), F.col(\"b_row_seq\"),\n    )\n\n    if src.limit(1).count() == 0:\n        raise ValueError(\"No policies found for this snapshot date\")\n\n    # 2. MERGE: close current versions whose tracked attributes changed\n    s_cmp = src.select(\n        F.col(\"policy_id\").alias(\"s_policy_id\"),\n        F.col(\"status\").alias(\"s_status\"),\n        F.col(\"broker_code\").alias(\"s_broker_code\"),\n        F.col(\"annual_premium\").alias(\"s_annual_premium\"),\n        F.col(\"vehicle_reg\").alias(\"s_vehicle_reg\"),\n    )\n    t_cur = dim.filter(F.col(\"is_current\") == F.lit(\"Y\")).select(\n        F.col(\"policy_sk\"), F.col(\"policy_id\").alias(\"t_policy_id\"),\n        F.col(\"status\").alias(\"t_status\"),\n        F.col(\"broker_code\").alias(\"t_broker_code\"),\n        F.col(\"annual_premium\").alias(\"t_annual_premium\"),\n        F.col(\"vehicle_reg\").alias(\"t_vehicle_reg\"),\n    )\n    pairs = t_cur.join(s_cmp, F.col(\"t_policy_id\") == F.col(\"s_policy_id\"), \"inner\")\n    changed = (\n        (_ci_isnull(F.col(\"s_status\")) != _ci_isnull(F.col(\"t_status\")))\n        | (_ci_isnull(F.col(\"s_broker_code\")) != _ci_isnull(F.col(\"t_broker_code\")))\n        | (F.coalesce(F.col(\"s_annual_premium\"), F.lit(0)) != F.coalesce(F.col(\"t_annual_premium\"), F.lit(0)))\n        | (_ci_isnull(F.col(\"s_vehicle_reg\")) != _ci_isnull(F.col(\"t_vehicle_reg\")))\n    )\n    closed = pairs.filter(changed)\n\n    # MERGE raises error 8672 when one target row would be updated more than once\n    multi = closed.groupBy(\"policy_sk\").count().filter(F.col(\"count\") > 1)\n    if multi.limit(1).count() > 0:\n        raise ValueError(\"The MERGE statement attempted to UPDATE or DELETE the same row more than once.\")\n\n    closed_sk = closed.select(\"policy_sk\").distinct().withColumn(\"_closed\", F.lit(True))\n\n    upd = (\n        dim.join(closed_sk, \"policy_sk\", \"left\")\n        .withColumn(\"valid_to\", F.when(F.col(\"_closed\"), F.date_sub(snap_lit, 1)).otherwise(F.col(\"valid_to\")))\n        .withColumn(\"is_current\", F.when(F.col(\"_closed\"), F.lit(\"N\")).otherwise(F.col(\"is_current\")))\n        .drop(\"_closed\")\n    )\n\n    # 3. Open a current version for new policies and for those closed above\n    cur_after = upd.filter(F.col(\"is_current\") == F.lit(\"Y\")).select(\n        F.col(\"policy_id\").alias(\"cur_policy_id\")\n    ).distinct()\n    new_rows = src.join(cur_after, F.col(\"policy_id\") == F.col(\"cur_policy_id\"), \"left_anti\")\n\n    # INSERT into NOT NULL columns fails the whole batch (rolled back)\n    null_cond = None\n    for c in _NOT_NULL_COLS:\n        cond = F.col(c).isNull()\n        null_cond = cond if null_cond is None else (null_cond | cond)\n    if new_rows.filter(null_cond).limit(1).count() > 0:\n        raise ValueError(\"Cannot insert the value NULL into a NOT NULL column of dw.dim_policy\")\n\n    max_sk = dim.agg(F.max(\"policy_sk\").alias(\"m\")).first()[\"m\"]\n    base = 0 if max_sk is None else int(max_sk)\n\n    w = Window.orderBy(\n        F.col(\"policy_id\").asc(), F.col(\"p_row_seq\").asc(),\n        F.col(\"pr_row_seq\").asc(), F.col(\"b_row_seq\").asc(),\n    )\n    ins = (\n        new_rows.withColumn(\"policy_sk\", F.row_number().over(w) + F.lit(base))\n        .withColumn(\"valid_from\", snap_lit)\n        .withColumn(\"valid_to\", F.lit(datetime.date(9999, 12, 31)))\n        .withColumn(\"is_current\", F.lit(\"Y\"))\n        .withColumn(\"source_snapshot_date\", snap_lit)\n        .withColumn(\"load_ts\", F.localtimestamp())\n    )\n\n    schema = {f.name: f.dataType for f in dim.schema.fields}\n    ins_out = ins.select([F.col(c).cast(schema[c]).alias(c) for c in _OUT_COLS])\n    upd_out = upd.select([F.col(c).cast(schema[c]).alias(c) for c in _OUT_COLS])\n\n    result = upd_out.unionByName(ins_out)\n    return {\"dw.dim_policy\": result}\n",
+      "defects": [
+        {
+          "intended": "Store direct business as broker_code 'DIRECT-SALES' (CR-0961). The output column is VARCHAR(12) so the full value fits.",
+          "legacy_lines": [
+            101
+          ],
+          "title": "DIRECT-SALES truncated by ISNULL",
+          "what_it_does": "ISNULL(p.broker_code, 'DIRECT-SALES') takes the type of p.broker_code, which is VARCHAR(10), so direct business is stored as broker_code 'DIRECT-SAL'."
+        }
+      ],
+      "notes": "- I didn't have the trap cards, so traps_handled is empty. The text joins (product, broker) and the MERGE change test assume SQL Server's default case-insensitive collation and its rule that '=' ignores trailing spaces. The code compares with upper(rtrim(...)). If the database uses a case-sensitive collation, remove the upper().\n- NULL and empty are treated as equal, as in ISNULL(...,'') and ISNULL(premium,0).\n- New policy_sk values follow on from the existing max(policy_sk), or start at 1 when the table is empty. They are numbered in policy_id order, with ties broken by policy_snapshots._row_seq, then products._row_seq, then brokers._row_seq.\n- If dim_customer or products has more than one row per key, the joins repeat source rows just as the legacy does. For a new policy that means several current versions.\n- The code raises an error, as the legacy THROWs or fails and rolls back, when: the snapshot is older than the last one loaded; the snapshot has no rows; one current version matches more than one changed source row (MERGE error 8672); or a new version would have a NULL in a NOT NULL column.\n- load_ts uses localtimestamp(), like SYSDATETIME(). It isn't deterministic and should be excluded from reconciliation.\n- Policies missing from a snapshot stay current, because there is no WHEN NOT MATCHED BY SOURCE. Unchanged policies keep their old customer_segment, broker_name and product details. Both are reproduced as is and not marked as defects.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.3232678,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 6518,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 6518,
+      "cache_read_input_tokens": 1079,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 6518,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 6518,
+          "cache_read_input_tokens": 1079,
+          "input_tokens": 2,
+          "output_tokens": 13545,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 13545,
+      "output_tokens_details": {
+        "thinking_tokens": 8560
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

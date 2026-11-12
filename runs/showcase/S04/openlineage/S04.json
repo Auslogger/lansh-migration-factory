@@ -1,0 +1,727 @@
+{
+  "eventTime": "2026-11-12T02:47:55.091374+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "double"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "policy_id",
+              "type": "double"
+            },
+            {
+              "name": "customer_id",
+              "type": "double"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "loss_date",
+              "type": "date"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "n_payments",
+              "type": "double"
+            },
+            {
+              "name": "n_recoveries",
+              "type": "double"
+            },
+            {
+              "name": "total_paid",
+              "type": "double"
+            },
+            {
+              "name": "indemnity_amt",
+              "type": "double"
+            },
+            {
+              "name": "expense_amt",
+              "type": "double"
+            },
+            {
+              "name": "recovery_amt",
+              "type": "double"
+            },
+            {
+              "name": "first_payment_date",
+              "type": "date"
+            },
+            {
+              "name": "last_payment_date",
+              "type": "date"
+            },
+            {
+              "name": "recovery_flag",
+              "type": "double"
+            },
+            {
+              "name": "has_payment",
+              "type": "double"
+            },
+            {
+              "name": "gross_paid",
+              "type": "double"
+            },
+            {
+              "name": "net_paid",
+              "type": "double"
+            }
+          ]
+        }
+      },
+      "name": "silver.claims_enriched",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "prem_band",
+              "type": "string"
+            },
+            {
+              "name": "n_policies",
+              "type": "double"
+            },
+            {
+              "name": "n_transactions",
+              "type": "double"
+            },
+            {
+              "name": "written_eur",
+              "type": "double"
+            },
+            {
+              "name": "earned_eur",
+              "type": "double"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.premium_band_summary",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "string"
+            },
+            {
+              "name": "last_name",
+              "type": "string"
+            },
+            {
+              "name": "full_name",
+              "type": "string"
+            },
+            {
+              "name": "initials",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "email_shared_count",
+              "type": "int"
+            },
+            {
+              "name": "date_of_birth",
+              "type": "date"
+            },
+            {
+              "name": "age_at_join",
+              "type": "int"
+            },
+            {
+              "name": "address_line1",
+              "type": "string"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "county",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "eircode",
+              "type": "string"
+            },
+            {
+              "name": "eircode_valid",
+              "type": "string"
+            },
+            {
+              "name": "segment_code",
+              "type": "string"
+            },
+            {
+              "name": "is_standard_segment",
+              "type": "string"
+            },
+            {
+              "name": "marketing_opt_in",
+              "type": "string"
+            },
+            {
+              "name": "customer_since",
+              "type": "date"
+            },
+            {
+              "name": "source_system",
+              "type": "string"
+            },
+            {
+              "name": "version_count",
+              "type": "int"
+            },
+            {
+              "name": "record_updated_at",
+              "type": "timestamp_ntz"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_customer",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "S04.risk_scoring.sas",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "age": {
+              "inputFields": [
+                {
+                  "field": "date_of_birth",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "int((&as_of - date_of_birth)/365.25)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "age_load": {
+              "inputFields": [
+                {
+                  "field": "date_of_birth",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "age banding: <25 gives 1.40, >=70 gives 1.25, else 1.00",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "county_load": {
+              "inputFields": [
+                {
+                  "field": "county",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "SELECT on UPCASE(STRIP(county)): DUBLIN 1.15; CORK/LIMERICK/GALWAY 1.05; else 1.00",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_id": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "group key, passed through the per-line score tables and the union",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "group key, passed through",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "loss_ratio": {
+              "inputFields": [
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "SUM(paid) per line / earned",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "earned_eur",
+                  "name": "gold.premium_band_summary",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "denominator SUM(earned_eur) per lob_code",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "n_claims": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "COUNT(*) of claim rows per customer_id, lob_code",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "n_recoveries": {
+              "inputFields": [
+                {
+                  "field": "n_recoveries",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "SUM(n_recoveries) per customer and line",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "paid": {
+              "inputFields": [
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "SUM(total_paid) per customer and line",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "points": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "12.5*min(n_claims,4), where n_claims = COUNT(*)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "n_recoveries",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "7.5*n_recoveries",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sev_points from severity bands, plus lob_points from loss_ratio",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "earned_eur",
+                  "name": "gold.premium_band_summary",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "lob_points=round(2.5*loss_ratio,0.5)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "score": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through points (n_claims count)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "n_recoveries",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through points",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through points (severity, loss_ratio)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "earned_eur",
+                  "name": "gold.premium_band_summary",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through points (loss_ratio)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "date_of_birth",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "round(points*age_load*county_load,0.01)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "county",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through county_load",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "severity": {
+              "inputFields": [
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "paid / MEAN(paid) remerged over the line's rows",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "lob_code",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "which line's rows the mean is taken over (one table per line)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "tier": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "score bands, through n_claims count",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "n_recoveries",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "score>=35 HIGH, >=22 MEDIUM, else LOW",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "total_paid",
+                  "name": "silver.claims_enriched",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "earned_eur",
+                  "name": "gold.premium_band_summary",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "date_of_birth",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "county",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "through score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "double"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "n_claims",
+              "type": "double"
+            },
+            {
+              "name": "paid",
+              "type": "double"
+            },
+            {
+              "name": "n_recoveries",
+              "type": "double"
+            },
+            {
+              "name": "severity",
+              "type": "double"
+            },
+            {
+              "name": "age",
+              "type": "double"
+            },
+            {
+              "name": "age_load",
+              "type": "double"
+            },
+            {
+              "name": "county_load",
+              "type": "double"
+            },
+            {
+              "name": "loss_ratio",
+              "type": "double"
+            },
+            {
+              "name": "points",
+              "type": "double"
+            },
+            {
+              "name": "score",
+              "type": "double"
+            },
+            {
+              "name": "tier",
+              "type": "string"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.risk_scores",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:47:55.091374+00:00",
+        "nominalStartTime": "2026-11-12T02:47:30.168822+00:00"
+      }
+    },
+    "runId": "7c094a57-d521-5df4-9624-b9e78c3461e0"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

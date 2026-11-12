@@ -1,0 +1,238 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:15:21.788175Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary (tsql), legacy file estate/tsql/T04_usp_build_claims_summary.sql (SHA-256 632841c99f0c5919975c6fd2266ab04b33e1ba87424c55bbfbe7b0223f3bc975).\nOpen claims with paid, reserve and incurred to date.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job       rpt.usp_build_claims_summary\n  Purpose   Open claims summary for the claims MI pack: one row per claim that\n            is open or reopened at the reporting date, with paid, case reserve\n            and incurred to date.\n  Author    JMcK\n  Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  Output    rpt.claims_summary (full refresh)\n\n  Change log\n    2014-09-03  JMcK  Initial version (CR-0871)\n    2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n    2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n    2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n    2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n    2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\nCREATE TABLE rpt.claims_summary (\n    claim_id           INT            NOT NULL,\n    claim_number       VARCHAR(20)    NOT NULL,\n    claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n    policy_id          INT            NOT NULL,\n    policy_number      VARCHAR(20)    NULL,\n    lob_code           VARCHAR(5)     NOT NULL,\n    status             VARCHAR(12)    NOT NULL,\n    handler_code       VARCHAR(8)     NULL,\n    loss_date          DATE           NOT NULL,\n    loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n    reported_date      DATE           NOT NULL,\n    reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n    days_open          INT            NOT NULL,\n    n_payments         INT            NOT NULL,\n    total_paid         DECIMAL(14,2)  NOT NULL,\n    indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n    expense_reserve    DECIMAL(14,2)  NOT NULL,\n    current_reserve    DECIMAL(14,2)  NOT NULL,\n    incurred           DECIMAL(14,2)  NOT NULL,\n    as_of_date         DATE           NOT NULL,\n    CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n            @rows           INT,\n            @snapshot_date  DATE,\n            @err_msg        NVARCHAR(4000),\n            @err_no         INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Open book: claims open or reopened and notified by the reporting date */\n        IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                UPPER(RTRIM(c.lob_code))    AS lob_code,\n                c.status,\n                c.handler_code,\n                c.loss_date,\n                c.reported_date\n        INTO    #open_claims\n        FROM    stg.claims c WITH (NOLOCK)\n        WHERE   c.status IN ('OPEN', 'REOPENED')\n          AND   c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n\n        /* Case reserve per claim and reserve type: the latest entry on or before\n           the reporting date (a second entry on the same day is a correction) */\n        IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n\n        SELECT  x.claim_id,\n                x.reserve_type,\n                x.reserve_amount\n        INTO    #reserve\n        FROM   (SELECT  r.claim_id,\n                        r.reserve_type,\n                        r.reserve_amount,\n                        ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n                                           ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n                FROM    stg.claim_reserves r WITH (NOLOCK)\n                JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n                WHERE   r.reserve_date <= @AsOfDate) x\n        WHERE   x.rn = 1;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n\n        /* Paid to date and case reserves per claim */\n        IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n\n        SELECT  oc.claim_id,\n                COUNT(DISTINCT p.payment_id)    AS n_payments,\n                ISNULL(SUM(p.amount), 0)        AS total_paid,\n                ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n                ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n        INTO    #money\n        FROM    #open_claims oc\n        LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n               ON p.claim_id = oc.claim_id\n              AND p.payment_date <= @AsOfDate\n        LEFT JOIN #reserve r\n               ON r.claim_id = oc.claim_id\n        GROUP BY oc.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n\n        /* Policy number from the latest policy extract on or before the reporting date */\n        SELECT  @snapshot_date = MAX(ps.snapshot_date)\n        FROM    stg.policy_snapshots ps WITH (NOLOCK)\n        WHERE   ps.snapshot_date <= @AsOfDate;\n\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE rpt.claims_summary;\n\n        INSERT INTO rpt.claims_summary\n               (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n                status, handler_code, loss_date, loss_date_text, reported_date,\n                reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n                expense_reserve, current_reserve, incurred, as_of_date)\n        SELECT  oc.claim_id,\n                oc.claim_number,\n                oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n                oc.policy_id,\n                ps.policy_number,\n                oc.lob_code,\n                oc.status,\n                oc.handler_code,\n                oc.loss_date,\n                CONVERT(VARCHAR(10), oc.loss_date, 103),\n                oc.reported_date,\n                CONVERT(CHAR(6), oc.reported_date, 112),\n                DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n                m.n_payments,\n                m.total_paid,\n                m.indemnity_reserve,\n                m.expense_reserve,\n                m.indemnity_reserve + m.expense_reserve,\n                m.total_paid + m.indemnity_reserve + m.expense_reserve,\n                @AsOfDate\n        FROM    #open_claims oc\n        JOIN    #money m\n                ON m.claim_id = oc.claim_id\n        LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n               ON ps.policy_id = oc.policy_id\n              AND ps.snapshot_date = @snapshot_date;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n- stg.claim_reserves: reserve_id int (INT), claim_id int (INT), reserve_date date (DATE), reserve_type string (VARCHAR(12)), reserve_amount decimal(12,2) (DECIMAL(12,2)), _row_seq int (INT)\n- stg.policy_snapshots: snapshot_date date (DATE), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), product_code string (VARCHAR(10)), broker_code string (VARCHAR(10)), inception_date date (DATE), expiry_date date (DATE), status string (VARCHAR(12)), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), sum_insured decimal(14,2) (DECIMAL(14,2)), payment_frequency string (VARCHAR(10)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), _row_seq int (INT)\n\nOutput tables:\n- rpt.claims_summary: claim_id int (INT), claim_number string (VARCHAR(20)), claim_ref string (VARCHAR(40)), policy_id int (INT), policy_number string (VARCHAR(20)), lob_code string (VARCHAR(5)), status string (VARCHAR(12)), handler_code string (VARCHAR(8)), loss_date date (DATE), loss_date_text string (VARCHAR(10)), reported_date date (DATE), reported_period string (CHAR(6)), days_open int (INT), n_payments int (INT), total_paid decimal(14,2) (DECIMAL(14,2)), indemnity_reserve decimal(14,2) (DECIMAL(14,2)), expense_reserve decimal(14,2) (DECIMAL(14,2)), current_reserve decimal(14,2) (DECIMAL(14,2)), incurred decimal(14,2) (DECIMAL(14,2)), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "f19944d837fa8eee67cf38a0b0a7f087047986b154e953f3114fefd32ab17c5e",
+  "response": {
+    "duration_api_ms": 59270,
+    "duration_ms": 59468,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5096,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5096,
+        "cacheReadInputTokens": 1842,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1781044,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 6848,
+        "provider": "firstParty",
+        "thinkingTokens": 3202,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"T04 rpt.usp_build_claims_summary -> rpt.claims_summary (full refresh).\n\nPySpark translation of estate/tsql/T04_usp_build_claims_summary.sql\n(SHA-256 632841c99f0c5919975c6fd2266ab04b33e1ba87424c55bbfbe7b0223f3bc975).\n\nThe output is the open book: one row per claim that is open or reopened and was\nreported on or before @AsOfDate. Each row carries paid to date, the case\nreserves and incurred to date. Legacy behaviour is kept as it is, bugs included.\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import SparkSession, DataFrame, Window\nimport pyspark.sql.functions as F\nimport pyspark.sql.types as T\n\n\ndef _ci(col):\n    # SQL Server default collation (CI, trailing spaces ignored) for '=' / IN / PARTITION BY\n    return F.upper(F.rtrim(col))\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = F.lit(datetime.date.fromisoformat(params[\"AsOfDate\"])).cast(T.DateType())\n\n    claims = inputs[\"stg.claims\"]\n    payments = inputs[\"stg.claim_payments\"]\n    reserves = inputs[\"stg.claim_reserves\"]\n    snaps = inputs[\"stg.policy_snapshots\"]\n\n    # ---- #open_claims ------------------------------------------------------\n    oc = claims.where(\n        _ci(F.col(\"status\")).isin(\"OPEN\", \"REOPENED\")\n        & (F.col(\"reported_date\") <= as_of)\n    ).select(\n        F.col(\"claim_id\"),\n        F.col(\"claim_number\"),\n        F.col(\"policy_id\"),\n        F.upper(F.rtrim(F.col(\"lob_code\"))).alias(\"lob_code\"),\n        F.col(\"status\"),\n        F.col(\"handler_code\"),\n        F.col(\"loss_date\"),\n        F.col(\"reported_date\"),\n    )\n\n    # ---- #reserve: latest entry per claim and reserve type ---------------------\n    oc_ids = oc.select(F.col(\"claim_id\").alias(\"oc_claim_id\"))\n    r = reserves.where(F.col(\"reserve_date\") <= as_of).join(\n        oc_ids, F.col(\"claim_id\") == F.col(\"oc_claim_id\"), \"inner\"\n    )\n    w = Window.partitionBy(F.col(\"claim_id\"), _ci(F.col(\"reserve_type\"))).orderBy(\n        F.col(\"reserve_date\").desc_nulls_last(),\n        F.col(\"reserve_id\").desc_nulls_last(),\n        F.col(\"_row_seq\").asc(),\n    )\n    reserve = (\n        r.withColumn(\"rn\", F.row_number().over(w))\n        .where(F.col(\"rn\") == 1)\n        .select(\n            F.col(\"claim_id\").alias(\"r_claim_id\"),\n            F.col(\"reserve_type\").alias(\"r_reserve_type\"),\n            F.col(\"reserve_amount\").alias(\"r_reserve_amount\"),\n        )\n    )\n\n    # ---- #money --------------------------------------------------------------\n    pay = payments.select(\n        F.col(\"payment_id\").alias(\"p_payment_id\"),\n        F.col(\"claim_id\").alias(\"p_claim_id\"),\n        F.col(\"payment_date\").alias(\"p_payment_date\"),\n        F.col(\"amount\").alias(\"p_amount\"),\n    )\n    m_base = oc.select(F.col(\"claim_id\").alias(\"m_claim_id\"))\n    joined = m_base.join(\n        pay,\n        (F.col(\"p_claim_id\") == F.col(\"m_claim_id\")) & (F.col(\"p_payment_date\") <= as_of),\n        \"left\",\n    ).join(  # LANSH-DEFECT: payments x reserve rows fan-out, so SUM(amount) is multiplied by the claim's reserve row count\n        reserve, F.col(\"r_claim_id\") == F.col(\"m_claim_id\"), \"left\"\n    )\n    zero = F.lit(0)\n    money = joined.groupBy(F.col(\"m_claim_id\")).agg(\n        F.countDistinct(F.col(\"p_payment_id\")).alias(\"n_payments\"),\n        F.coalesce(F.sum(F.col(\"p_amount\")), zero.cast(T.DecimalType(38, 2))).alias(\"total_paid\"),  # LANSH-DEFECT: inflated by reserve fan-out\n        F.coalesce(\n            F.max(F.when(_ci(F.col(\"r_reserve_type\")) == \"INDEMNITY\", F.col(\"r_reserve_amount\"))),\n            zero.cast(T.DecimalType(12, 2)),\n        ).alias(\"indemnity_reserve\"),\n        F.coalesce(\n            F.max(F.when(_ci(F.col(\"r_reserve_type\")) == \"EXPENSE\", F.col(\"r_reserve_amount\"))),\n            zero.cast(T.DecimalType(12, 2)),\n        ).alias(\"expense_reserve\"),\n    )\n\n    # ---- @snapshot_date and the latest policy extract -------------------------------\n    snap_max = snaps.where(F.col(\"snapshot_date\") <= as_of).agg(\n        F.max(F.col(\"snapshot_date\")).alias(\"max_snap\")\n    )\n    ps_latest = snaps.join(\n        snap_max, F.col(\"snapshot_date\") == F.col(\"max_snap\"), \"inner\"\n    ).select(\n        F.col(\"policy_id\").alias(\"ps_policy_id\"),\n        F.col(\"policy_number\").alias(\"ps_policy_number\"),\n    )\n\n    # ---- final insert ----------------------------------------------------------\n    final = oc.join(money, F.col(\"m_claim_id\") == F.col(\"claim_id\"), \"inner\").join(\n        ps_latest, F.col(\"ps_policy_id\") == F.col(\"policy_id\"), \"left\"\n    )\n\n    out = final.select(\n        F.col(\"claim_id\"),\n        F.col(\"claim_number\"),\n        F.concat(  # LANSH-DEFECT: '+' concatenation gives NULL claim_ref when handler_code is NULL\n            F.col(\"lob_code\"), F.lit(\"/\"), F.col(\"claim_number\"), F.lit(\"/\"), F.col(\"handler_code\")\n        ).alias(\"claim_ref\"),\n        F.col(\"policy_id\"),\n        F.col(\"ps_policy_number\").alias(\"policy_number\"),\n        F.col(\"lob_code\"),\n        F.col(\"status\"),\n        F.col(\"handler_code\"),\n        F.col(\"loss_date\"),\n        F.date_format(F.col(\"loss_date\"), \"dd/MM/yyyy\").alias(\"loss_date_text\"),\n        F.col(\"reported_date\"),\n        F.date_format(F.col(\"reported_date\"), \"yyyyMM\").alias(\"reported_period\"),\n        F.datediff(as_of, F.col(\"reported_date\")).alias(\"days_open\"),\n        F.col(\"n_payments\"),\n        F.col(\"total_paid\"),\n        F.col(\"indemnity_reserve\"),\n        F.col(\"expense_reserve\"),\n        (F.col(\"indemnity_reserve\") + F.col(\"expense_reserve\")).alias(\"current_reserve\"),\n        (F.col(\"total_paid\") + F.col(\"indemnity_reserve\") + F.col(\"expense_reserve\")).alias(\"incurred\"),  # LANSH-DEFECT: incurred carries the inflated total_paid\n        as_of.alias(\"as_of_date\"),\n    )\n\n    return {\"rpt.claims_summary\": out}\n",
+      "defects": [
+        {
+          "intended": "Total paid to date should be summed once per payment, for example by adding up payments in a separate subquery before joining the reserves.",
+          "legacy_lines": [
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            158,
+            162
+          ],
+          "title": "Paid amount multiplied by the reserve join",
+          "what_it_does": "#money LEFT JOINs both claim_payments and #reserve onto the claim before grouping. Each payment row is therefore repeated once for every latest-reserve row the claim has (one per reserve type, so usually 2). ISNULL(SUM(p.amount),0) and so total_paid and incurred come out multiplied by that count. COUNT(DISTINCT payment_id) and the MAX reserve values are not affected."
+        },
+        {
+          "intended": "Probably the reference should still be produced for unassigned claims, for example with CONCAT or ISNULL(handler_code,'').",
+          "legacy_lines": [
+            150
+          ],
+          "title": "claim_ref is NULL when handler_code is NULL",
+          "what_it_does": "claim_ref is built with lob_code + '/' + claim_number + '/' + handler_code. With CONCAT_NULL_YIELDS_NULL on, an unassigned claim (handler_code NULL) gets a NULL claim_ref."
+        }
+      ],
+      "notes": "Points for the reviewer:\n\n- **Collation:** I assumed the database uses the default case-insensitive collation that ignores trailing spaces. On that basis, comparisons on status and reserve_type (the IN list, the CASE tests and the ROW_NUMBER partition by reserve_type) use upper(rtrim(...)). The output keeps the original status value; lob_code is upper(rtrim(...)) as in the legacy code.\n- **Paid fan-out:** To reproduce the inflated paid amount, I copied the legacy join literally (payments LEFT JOIN reserves, then group by claim). A claim's payments are counted once for each latest-reserve row it has, including reserve types other than INDEMNITY/EXPENSE and rows with a NULL type. A claim with no reserves gets a factor of 1.\n- **Policy number:** It comes from the single latest snapshot_date on or before AsOfDate across the whole table, not the latest snapshot per policy. A policy missing from that snapshot gets a NULL policy_number. This matches what the legacy comment describes, so I have not marked it as a defect.\n- **Tie-breaks:** ROW_NUMBER ties are broken by reserve_date DESC, reserve_id DESC, then _row_seq.\n- **days_open:** Measured from reported_date to AsOfDate, as in the legacy code.\n- **Insert errors not reproduced:** If the input has a duplicate claim_id, or a policy_id repeated within one snapshot, the legacy insert would fail on its primary key. This translation does not raise those errors.\n- **Trap ids:** None were supplied, so traps_handled is empty.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.1781044,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5096,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5096,
+      "cache_read_input_tokens": 1842,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5096,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5096,
+          "cache_read_input_tokens": 1842,
+          "input_tokens": 2,
+          "output_tokens": 6848,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 6848,
+      "output_tokens_details": {
+        "thinking_tokens": 3202
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,91 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "S03",
+        "kind": "proc",
+        "line_end": 29,
+        "line_start": 21,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 1,
+        "job_id": "S03",
+        "kind": "proc",
+        "line_end": 35,
+        "line_start": 32,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 2,
+        "job_id": "S03",
+        "kind": "data_step",
+        "line_end": 41,
+        "line_start": 37,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "S03",
+        "kind": "proc",
+        "line_end": 47,
+        "line_start": 44,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 4,
+        "job_id": "S03",
+        "kind": "data_step",
+        "line_end": 53,
+        "line_start": 49,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 5,
+        "job_id": "S03",
+        "kind": "proc",
+        "line_end": 61,
+        "line_start": 55,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 6,
+        "job_id": "S03",
+        "kind": "proc",
+        "line_end": 67,
+        "line_start": 63,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 7,
+        "job_id": "S03",
+        "kind": "data_step",
+        "line_end": 75,
+        "line_start": 69,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "S03",
+    "reads": [
+      "dw.fact_premium_earned"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.premium_band_summary"
+    ]
+  },
+  "stats": {
+    "blocks": 8,
+    "lineage_edges": 12,
+    "rule_candidates": 17,
+    "sqlglot_agreeing_columns": 0,
+    "sqlglot_traced_columns": 0,
+    "statements_unparsed": 0,
+    "trap_findings": 7
+  },
+  "warnings": [
+    "lineage agent notes: The only input is dw.fact_premium_earned. lob_code and prem_band come from each policy's first row. PROC SORT NODUPKEY keeps the first row it meets for each policy_id, so which row that is depends on the order the rows were loaded. I have taken that load order to be _row_seq, but the code never names that column, so this edge is an inference (confidence 0.55). For the PySpark port, rebuild the first row as ROW_NUMBER over policy_id ordered by _row_seq.\n\nThe match on policy_id with `if t` almost never drops a row, because both sides come from the same table. PROC MEANS has no MISSING option, so it drops any row where lob_code or prem_band is missing. prem_band is never missing: the format sends missing written_eur to 'UNKNOWN' (via OTHER).\n\nn_transactions counts only non-missing written_eur values. It is not a row count.\n\nThe final merge on lob_code and prem_band is a full match and drops nothing."
+  ]
+}

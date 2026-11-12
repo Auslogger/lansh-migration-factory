@@ -1,0 +1,1046 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:27:48.969384Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T03",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T03: usp_build_fact_premium_earned (tsql), file estate/tsql/T03_usp_build_fact_premium_earned.sql.\nWritten and earned premium in EUR per premium transaction.\nParameters: AsOfDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       dw.usp_build_fact_premium_earned\n  3 |   Purpose   Premium fact for finance: one row per premium transaction, converted\n  4 |             to EUR at the rate published on or before the booking date, with\n  5 |             the premium earned as at the reporting date.\n  6 |   Author    MOD\n  7 |   Run by    FIN_MONTH_END, after dw.usp_load_dim_policy\n  8 |   Output    dw.fact_premium_earned (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2016-01-11  MOD  Initial version (CR-0904)\n 12 |     2016-07-04  MOD  Sterling and dollar business converted to EUR (CR-0977)\n 13 |     2018-03-19  PK   Policy surrogate key and line of business from dim_policy (CR-1290)\n 14 |     2019-09-30  PK   Daily rate and monthly instalment for the cash-flow model (CR-1510)\n 15 |     2021-02-15  MOD  First instalment due date for the direct debit file (CR-1618)\n 16 |     2023-05-08  JMcK Earned percentage for the finance dashboard (INC-2301)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'dw.fact_premium_earned', N'U') IS NULL\n 21 | CREATE TABLE dw.fact_premium_earned (\n 22 |     txn_id                  INT            NOT NULL,\n 23 |     policy_id               INT            NOT NULL,\n 24 |     policy_sk               INT            NOT NULL,\n 25 |     lob_code                VARCHAR(5)     NOT NULL,\n 26 |     txn_type                VARCHAR(4)     NOT NULL,\n 27 |     txn_date                DATE           NOT NULL,\n 28 |     effective_from          DATE           NOT NULL,\n 29 |     effective_to            DATE           NOT NULL,\n 30 |     currency                CHAR(3)        NOT NULL,\n 31 |     amount                  DECIMAL(12,2)  NOT NULL,\n 32 |     fx_rate                 DECIMAL(18,8)  NOT NULL,\n 33 |     written_eur             DECIMAL(14,2)  NOT NULL,\n 34 |     term_days               INT            NOT NULL,\n 35 |     earned_days             INT            NOT NULL,\n 36 |     earned_pct              DECIMAL(5,2)   NOT NULL,\n 37 |     earned_eur              DECIMAL(14,2)  NOT NULL,\n 38 |     unearned_eur            DECIMAL(14,2)  NOT NULL,\n 39 |     daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n 40 |     monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n 41 |     first_due_date          DATE           NOT NULL,\n 42 |     as_of_date              DATE           NOT NULL,\n 43 |     CONSTRAINT pk_dw_fact_premium_earned PRIMARY KEY (txn_id)\n 44 | );\n 45 | GO\n 46 | CREATE OR ALTER PROCEDURE dw.usp_build_fact_premium_earned\n 47 |     @AsOfDate DATE\n 48 | AS\n 49 | BEGIN\n 50 |     SET NOCOUNT ON;\n 51 | \n 52 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_build_fact_premium_earned',\n 53 |             @rows      INT,\n 54 |             @err_msg   NVARCHAR(4000),\n 55 |             @err_no    INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Transactions with their EUR rate: EUR as is, other currencies at the\n 61 |            latest rate on or before the booking date (later row wins on revisions) */\n 62 |         IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n 63 | \n 64 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n 65 |                 t.effective_from, t.effective_to, t.currency, t.amount,\n 66 |                 CAST(1 AS DECIMAL(18,8)) AS fx_rate\n 67 |         INTO    #txn\n 68 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 69 |         WHERE   t.currency = 'EUR'\n 70 |           AND   t.txn_date <= @AsOfDate;\n 71 | \n 72 |         INSERT INTO #txn (txn_id, policy_id, txn_type, txn_date, effective_from, effective_to,\n 73 |                           currency, amount, fx_rate)\n 74 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)), t.txn_date,\n 75 |                 t.effective_from, t.effective_to, t.currency, t.amount, fx.rate_to_eur\n 76 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 77 |         CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n 78 |                      FROM   stg.fx_rates r WITH (NOLOCK)\n 79 |                      WHERE  r.currency = t.currency\n 80 |                        AND  r.rate_date <= t.txn_date\n 81 |                      ORDER BY r.rate_date DESC, r._row_seq DESC) fx\n 82 |         WHERE   t.currency <> 'EUR'\n 83 |           AND   t.txn_date <= @AsOfDate;\n 84 | \n 85 |         SELECT @rows = COUNT(*) FROM #txn;\n 86 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'transactions', @status = 'INFO', @rows_affected = @rows;\n 87 | \n 88 |         /* Days of cover and days earned by the reporting date */\n 89 |         IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n 90 | \n 91 |         SELECT  x.*,\n 92 |                 CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n 93 |                 DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n 94 |                 CASE WHEN @AsOfDate < x.effective_from THEN 0\n 95 |                      WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n 96 |                      ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n 97 |                 END AS earned_days\n 98 |         INTO    #earn\n 99 |         FROM    #txn x;\n100 | \n101 |         BEGIN TRANSACTION;\n102 | \n103 |         TRUNCATE TABLE dw.fact_premium_earned;\n104 | \n105 |         INSERT INTO dw.fact_premium_earned\n106 |                (txn_id, policy_id, policy_sk, lob_code, txn_type, txn_date, effective_from,\n107 |                 effective_to, currency, amount, fx_rate, written_eur, term_days, earned_days,\n108 |                 earned_pct, earned_eur, unearned_eur, daily_rate_eur, monthly_instalment_eur,\n109 |                 first_due_date, as_of_date)\n110 |         SELECT  e.txn_id,\n111 |                 e.policy_id,\n112 |                 p.policy_sk,\n113 |                 p.lob_code,\n114 |                 e.txn_type,\n115 |                 e.txn_date,\n116 |                 e.effective_from,\n117 |                 e.effective_to,\n118 |                 e.currency,\n119 |                 e.amount,\n120 |                 e.fx_rate,\n121 |                 e.written_eur,\n122 |                 e.term_days,\n123 |                 e.earned_days,\n124 |                 e.earned_days * 100 / e.term_days,\n125 |                 ROUND(e.written_eur * e.earned_days / 365, 2),\n126 |                 e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n127 |                 ROUND(e.written_eur / e.term_days, 4, 1),\n128 |                 ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n129 |                 DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n130 |                 @AsOfDate\n131 |         FROM    #earn e\n132 |         JOIN    dw.dim_policy p WITH (NOLOCK)\n133 |                 ON p.policy_id = e.policy_id\n134 |                AND p.is_current = 'Y';\n135 | \n136 |         SET @rows = @@ROWCOUNT;\n137 | \n138 |         COMMIT TRANSACTION;\n139 | \n140 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.fact_premium_earned', @status = 'INFO', @rows_affected = @rows;\n141 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n142 |     END TRY\n143 |     BEGIN CATCH\n144 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n145 | \n146 |         SELECT  @err_msg = ERROR_MESSAGE(),\n147 |                 @err_no  = ERROR_NUMBER();\n148 | \n149 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n150 |              @message = @err_msg, @error_number = @err_no;\n151 |         THROW;\n152 |     END CATCH\n153 | END;\n154 | GO\n\nInput tables:\n- stg.premium_transactions: txn_id INT, policy_id INT, txn_type VARCHAR(4), txn_date DATE, effective_from DATE, effective_to DATE, amount DECIMAL(12,2), currency CHAR(3), _row_seq INT\n- stg.fx_rates: rate_date DATE, currency CHAR(3), rate_to_eur DECIMAL(18,8), source VARCHAR(10), _row_seq INT\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n\nOutput tables:\n- dw.fact_premium_earned: txn_id INT, policy_id INT, policy_sk INT, lob_code VARCHAR(5), txn_type VARCHAR(4), txn_date DATE, effective_from DATE, effective_to DATE, currency CHAR(3), amount DECIMAL(12,2), fx_rate DECIMAL(18,8), written_eur DECIMAL(14,2), term_days INT, earned_days INT, earned_pct DECIMAL(5,2), earned_eur DECIMAL(14,2), unearned_eur DECIMAL(14,2), daily_rate_eur DECIMAL(12,4), monthly_instalment_eur DECIMAL(14,2), first_due_date DATE, as_of_date DATE\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "b6aa497081d20f132a2774ad50fe115963e4bfbb4bd0470af88f6acec906db01",
+  "response": {
+    "duration_api_ms": 53338,
+    "duration_ms": 53584,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5035,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5035,
+        "cacheReadInputTokens": 1869,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.19148180000000004,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7541,
+        "provider": "firstParty",
+        "thinkingTokens": 927,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.98,
+          "input_column": "txn_id",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            64,
+            74,
+            110
+          ],
+          "output_column": "txn_id",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            64,
+            74,
+            111
+          ],
+          "output_column": "policy_id",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "policy_sk",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "derives",
+          "lines": [
+            112,
+            132
+          ],
+          "output_column": "policy_sk",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct from current dim_policy row"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "derives",
+          "lines": [
+            113,
+            132
+          ],
+          "output_column": "lob_code",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct from current dim_policy row"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "txn_type",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            64,
+            74,
+            114
+          ],
+          "output_column": "txn_type",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "UPPER(RTRIM(txn_type))"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "txn_date",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            64,
+            74,
+            115
+          ],
+          "output_column": "txn_date",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            65,
+            75,
+            116
+          ],
+          "output_column": "effective_from",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            65,
+            75,
+            117
+          ],
+          "output_column": "effective_to",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "currency",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            65,
+            75,
+            118
+          ],
+          "output_column": "currency",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            65,
+            75,
+            119
+          ],
+          "output_column": "amount",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            75,
+            77,
+            78,
+            81,
+            120
+          ],
+          "output_column": "fx_rate",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "latest rate_to_eur on or before txn_date for non-EUR transactions (CROSS APPLY TOP 1)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            66,
+            120
+          ],
+          "output_column": "fx_rate",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CAST(1 AS DECIMAL(18,8)) for EUR transactions"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            92,
+            121
+          ],
+          "output_column": "written_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            75,
+            92,
+            121
+          ],
+          "output_column": "written_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            122
+          ],
+          "output_column": "term_days",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            122
+          ],
+          "output_column": "term_days",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            123
+          ],
+          "output_column": "earned_days",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            95,
+            123
+          ],
+          "output_column": "earned_days",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            123
+          ],
+          "output_column": "earned_days",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "CASE on @AsOfDate against the cover period"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            94,
+            95,
+            96,
+            124
+          ],
+          "output_column": "earned_pct",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "earned_days * 100 / term_days (integer division)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            95,
+            124
+          ],
+          "output_column": "earned_pct",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "earned_days * 100 / term_days (integer division)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            124
+          ],
+          "output_column": "earned_pct",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "earned_days * 100 / term_days"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            124
+          ],
+          "output_column": "earned_pct",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "multiplier 100"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            92,
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur * earned_days / 365, 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            92,
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur * earned_days / 365, 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            95,
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            125
+          ],
+          "output_column": "earned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "divisor 365 (fixed year, not term_days)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            92,
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            92,
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            95,
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            94,
+            95,
+            96,
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via earned_days"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            126
+          ],
+          "output_column": "unearned_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "divisor 365"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            92,
+            127
+          ],
+          "output_column": "daily_rate_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            92,
+            127
+          ],
+          "output_column": "daily_rate_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            127
+          ],
+          "output_column": "daily_rate_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via term_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            127
+          ],
+          "output_column": "daily_rate_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via term_days"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            92,
+            128
+          ],
+          "output_column": "monthly_instalment_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_to_eur",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "derives",
+          "lines": [
+            92,
+            128
+          ],
+          "output_column": "monthly_instalment_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            128
+          ],
+          "output_column": "monthly_instalment_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via term_days / 30 (integer division)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "effective_to",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            93,
+            128
+          ],
+          "output_column": "monthly_instalment_eur",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "via term_days / 30 (integer division)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "effective_from",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "derives",
+          "lines": [
+            129
+          ],
+          "output_column": "first_due_date",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "DATEADD(MONTH, 1, EOMONTH(effective_from))"
+        },
+        {
+          "confidence": 0.99,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            130
+          ],
+          "output_column": "as_of_date",
+          "output_table": "dw.fact_premium_earned",
+          "transform": "@AsOfDate"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "currency",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "filters",
+          "lines": [
+            69,
+            82
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "currency = 'EUR' branch / currency <> 'EUR' branch"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "txn_date",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "filters",
+          "lines": [
+            70,
+            83
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "txn_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            70,
+            83
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "txn_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "currency",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "filters",
+          "lines": [
+            79
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "r.currency = t.currency in CROSS APPLY (non-EUR rows with no rate are dropped)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "rate_date",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "filters",
+          "lines": [
+            80
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "r.rate_date <= t.txn_date in CROSS APPLY"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "rate_date",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "ranks",
+          "lines": [
+            77,
+            81
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "TOP 1 ORDER BY rate_date DESC"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "_row_seq",
+          "input_kind": "column",
+          "input_table": "stg.fx_rates",
+          "kind": "ranks",
+          "lines": [
+            77,
+            81
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "TOP 1 tie-break ORDER BY _row_seq DESC"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.premium_transactions",
+          "kind": "filters",
+          "lines": [
+            132,
+            133
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "JOIN dim_policy ON p.policy_id = e.policy_id"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            132,
+            133
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "JOIN ON p.policy_id = e.policy_id"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "is_current",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            134
+          ],
+          "output_column": null,
+          "output_table": "dw.fact_premium_earned",
+          "transform": "p.is_current = 'Y'"
+        }
+      ],
+      "notes": "Things to check when matching the PySpark output against the legacy output:\n1) earned_pct = earned_days*100/term_days uses integer division in T-SQL. The value is cut down to a whole number, then stored as DECIMAL(5,2), so values like 33.00 appear, not 33.33.\n2) earned_eur and unearned_eur divide by a fixed 365, not by term_days. For terms longer than 365 days, or when the cover period is fully earned, earned_eur can be more than written_eur, which makes unearned_eur negative. The decimal multiply happens before the divide, so precision follows SQL Server's decimal rules.\n3) daily_rate_eur uses ROUND(..., 4, 1), which cuts the value off at 4 places instead of rounding it.\n4) monthly_instalment_eur divides by term_days/30, which is integer division. If that gives 0 (terms under 30 days), the divisor falls back to 1.\n5) fx_rate takes one of two paths. EUR rows get the constant 1. Non-EUR rows get the latest stg.fx_rates.rate_to_eur on or before txn_date, with ties broken by the higher _row_seq. A non-EUR transaction with no rate on or before its txn_date is dropped by the CROSS APPLY. Currency matching depends on how CHAR(3) values are compared, including trailing spaces.\n6) A transaction whose policy has no current dim_policy row (is_current='Y') is dropped by the inner join. If a policy has more than one current row, the transaction is duplicated and breaks the primary key on txn_id.\n7) The NOLOCK reads can return results that change from run to run.\n8) The code doesn't read stg.premium_transactions._row_seq or stg.fx_rates.source. There is no dedup on txn_id."
+    },
+    "total_cost_usd": 0.19148180000000004,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5035,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5035,
+      "cache_read_input_tokens": 1869,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5035,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5035,
+          "cache_read_input_tokens": 1869,
+          "input_tokens": 2,
+          "output_tokens": 7541,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7541,
+      "output_tokens_details": {
+        "thinking_tokens": 927
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

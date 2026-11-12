@@ -1,0 +1,190 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-holdout-learn/X2/openlineage/X2.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "edbd6f63d7799ba571c151448662a462602e77f38118242e0a0c286f1c404a5b",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 4,
+            "legacy": 4,
+            "partition": "watch_category='DETERIORATING', lob_code='HOM'"
+          },
+          {
+            "candidate": 9,
+            "legacy": 9,
+            "partition": "watch_category='DETERIORATING', lob_code='MOT'"
+          },
+          {
+            "candidate": 2,
+            "legacy": 2,
+            "partition": "watch_category='IMPROVING', lob_code='HOM'"
+          },
+          {
+            "candidate": 5,
+            "legacy": 5,
+            "partition": "watch_category='IMPROVING', lob_code='MOT'"
+          },
+          {
+            "candidate": 10,
+            "legacy": 10,
+            "partition": "watch_category='NEW', lob_code='HOM'"
+          },
+          {
+            "candidate": 27,
+            "legacy": 27,
+            "partition": "watch_category='NEW', lob_code='MOT'"
+          },
+          {
+            "candidate": 9,
+            "legacy": 9,
+            "partition": "watch_category='STABLE', lob_code='HOM'"
+          },
+          {
+            "candidate": 13,
+            "legacy": 13,
+            "partition": "watch_category='STABLE', lob_code='MOT'"
+          }
+        ],
+        "candidate": 79,
+        "legacy": 79
+      },
+      "duration_seconds": 4.449,
+      "error": null,
+      "explanation": "MATCH: all 79 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "job_id": "X2",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "claim_id"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 79,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-holdout-learn",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T04:08:01.778825Z",
+      "status": "MATCH",
+      "table": "rpt.large_loss_watchlist",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "23860095",
+          "column": "claim_id",
+          "legacy": "23860095",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "41899362",
+          "column": "policy_id",
+          "legacy": "41899362",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1417688.94",
+          "column": "paid_to_date",
+          "legacy": "1417688.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1650193.08",
+          "column": "outstanding_reserve",
+          "legacy": "1650193.08",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "3067882.02",
+          "column": "incurred_amount",
+          "legacy": "3067882.02",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "2449365.06",
+          "column": "incurred_90d_ago",
+          "legacy": "2449365.06",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "618516.96",
+          "column": "movement_90d",
+          "legacy": "618516.96",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "128",
+          "column": "reserve_changes_90d",
+          "legacy": "128",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "4974",
+          "column": "days_since_last_activity",
+          "legacy": "4974",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 12.788,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 79,
+      "job_id": "X2",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 79,
+      "runtime_seconds": 7.794,
+      "table": "rpt.large_loss_watchlist"
+    }
+  ],
+  "status": "MATCH"
+}

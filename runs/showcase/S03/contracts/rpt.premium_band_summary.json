@@ -1,0 +1,132 @@
+{
+  "job_id": "S03",
+  "table": "gold.premium_band_summary",
+  "legacy_table": "rpt.premium_band_summary",
+  "layer": "gold",
+  "grain": "One row per line of business and premium band. Each policy is put in one band, based on the written premium of its first transaction in load order, and all of that policy's transactions are summed in that band.",
+  "keys": [
+    "lob_code",
+    "prem_band"
+  ],
+  "columns": [
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "char 5 format=$CHAR",
+      "nullable": true,
+      "max_length": 5,
+      "tags": [],
+      "description": "Line of business taken from the policy's opening transaction (the first one in load order, kept by PROC SORT NODUPKEY with EQUALS). It is not taken from each transaction.",
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "prem_band",
+      "data_type": "string",
+      "legacy_type": "char 8",
+      "nullable": true,
+      "max_length": 8,
+      "tags": [],
+      "description": "Band set by the premband format on the opening transaction's written_eur. Values are NEGATIVE, 0-249, 250-499, 500-999, 1000+ or UNKNOWN (missing premium). The PySpark version must keep the original load order to pick the opening transaction.",
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_policies",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of distinct policies whose opening transaction falls in this lob_code and band.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_transactions",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of transactions with a non-missing written_eur, across all transactions of the policies in this band.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "written_eur",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of written premium over all transactions of the policies in this band.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "earned_eur",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of earned premium over all transactions of the policies in this band.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=YYMMDD",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Reporting date from the scheduler parameter &as_of. It is the same on every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 13,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

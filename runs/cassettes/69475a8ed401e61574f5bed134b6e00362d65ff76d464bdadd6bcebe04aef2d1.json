@@ -1,0 +1,272 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:34:40.331055Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary. Open claims with paid, reserve and incurred to date.\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_build_claims_summary\n  3 |   Purpose   Open claims summary for the claims MI pack: one row per claim that\n  4 |             is open or reopened at the reporting date, with paid, case reserve\n  5 |             and incurred to date.\n  6 |   Author    JMcK\n  7 |   Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  8 |   Output    rpt.claims_summary (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2014-09-03  JMcK  Initial version (CR-0871)\n 12 |     2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n 13 |     2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n 14 |     2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n 15 |     2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n 16 |     2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\n 21 | CREATE TABLE rpt.claims_summary (\n 22 |     claim_id           INT            NOT NULL,\n 23 |     claim_number       VARCHAR(20)    NOT NULL,\n 24 |     claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n 25 |     policy_id          INT            NOT NULL,\n 26 |     policy_number      VARCHAR(20)    NULL,\n 27 |     lob_code           VARCHAR(5)     NOT NULL,\n 28 |     status             VARCHAR(12)    NOT NULL,\n 29 |     handler_code       VARCHAR(8)     NULL,\n 30 |     loss_date          DATE           NOT NULL,\n 31 |     loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n 32 |     reported_date      DATE           NOT NULL,\n 33 |     reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n 34 |     days_open          INT            NOT NULL,\n 35 |     n_payments         INT            NOT NULL,\n 36 |     total_paid         DECIMAL(14,2)  NOT NULL,\n 37 |     indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n 38 |     expense_reserve    DECIMAL(14,2)  NOT NULL,\n 39 |     current_reserve    DECIMAL(14,2)  NOT NULL,\n 40 |     incurred           DECIMAL(14,2)  NOT NULL,\n 41 |     as_of_date         DATE           NOT NULL,\n 42 |     CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n 52 |             @rows           INT,\n 53 |             @snapshot_date  DATE,\n 54 |             @err_msg        NVARCHAR(4000),\n 55 |             @err_no         INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Open book: claims open or reopened and notified by the reporting date */\n 61 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 62 | \n 63 |         SELECT  c.claim_id,\n 64 |                 c.claim_number,\n 65 |                 c.policy_id,\n 66 |                 UPPER(RTRIM(c.lob_code))    AS lob_code,\n 67 |                 c.status,\n 68 |                 c.handler_code,\n 69 |                 c.loss_date,\n 70 |                 c.reported_date\n 71 |         INTO    #open_claims\n 72 |         FROM    stg.claims c WITH (NOLOCK)\n 73 |         WHERE   c.status IN ('OPEN', 'REOPENED')\n 74 |           AND   c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n 78 | \n 79 |         /* Case reserve per claim and reserve type: the latest entry on or before\n 80 |            the reporting date (a second entry on the same day is a correction) */\n 81 |         IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n 82 | \n 83 |         SELECT  x.claim_id,\n 84 |                 x.reserve_type,\n 85 |                 x.reserve_amount\n 86 |         INTO    #reserve\n 87 |         FROM   (SELECT  r.claim_id,\n 88 |                         r.reserve_type,\n 89 |                         r.reserve_amount,\n 90 |                         ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n 91 |                                            ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 92 |                 FROM    stg.claim_reserves r WITH (NOLOCK)\n 93 |                 JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n 94 |                 WHERE   r.reserve_date <= @AsOfDate) x\n 95 |         WHERE   x.rn = 1;\n 96 | \n 97 |         SET @rows = @@ROWCOUNT;\n 98 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         /* Paid to date and case reserves per claim */\n101 |         IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n102 | \n103 |         SELECT  oc.claim_id,\n104 |                 COUNT(DISTINCT p.payment_id)    AS n_payments,\n105 |                 ISNULL(SUM(p.amount), 0)        AS total_paid,\n106 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n107 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n108 |         INTO    #money\n109 |         FROM    #open_claims oc\n110 |         LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n111 |                ON p.claim_id = oc.claim_id\n112 |               AND p.payment_date <= @AsOfDate\n113 |         LEFT JOIN #reserve r\n114 |                ON r.claim_id = oc.claim_id\n115 |         GROUP BY oc.claim_id;\n116 | \n117 |         SET @rows = @@ROWCOUNT;\n118 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n119 | \n120 |         /* Policy number from the latest policy extract on or before the reporting date */\n121 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n122 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n123 |         WHERE   ps.snapshot_date <= @AsOfDate;\n124 | \n125 |         BEGIN TRANSACTION;\n126 | \n127 |         TRUNCATE TABLE rpt.claims_summary;\n128 | \n129 |         INSERT INTO rpt.claims_summary\n130 |                (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n131 |                 status, handler_code, loss_date, loss_date_text, reported_date,\n132 |                 reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n133 |                 expense_reserve, current_reserve, incurred, as_of_date)\n134 |         SELECT  oc.claim_id,\n135 |                 oc.claim_number,\n136 |                 oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n137 |                 oc.policy_id,\n138 |                 ps.policy_number,\n139 |                 oc.lob_code,\n140 |                 oc.status,\n141 |                 oc.handler_code,\n142 |                 oc.loss_date,\n143 |                 CONVERT(VARCHAR(10), oc.loss_date, 103),\n144 |                 oc.reported_date,\n145 |                 CONVERT(CHAR(6), oc.reported_date, 112),\n146 |                 DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n147 |                 m.n_payments,\n148 |                 m.total_paid,\n149 |                 m.indemnity_reserve,\n150 |                 m.expense_reserve,\n151 |                 m.indemnity_reserve + m.expense_reserve,\n152 |                 m.total_paid + m.indemnity_reserve + m.expense_reserve,\n153 |                 @AsOfDate\n154 |         FROM    #open_claims oc\n155 |         JOIN    #money m\n156 |                 ON m.claim_id = oc.claim_id\n157 |         LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n158 |                ON ps.policy_id = oc.policy_id\n159 |               AND ps.snapshot_date = @snapshot_date;\n160 | \n161 |         SET @rows = @@ROWCOUNT;\n162 | \n163 |         COMMIT TRANSACTION;\n164 | \n165 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n166 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n167 |     END TRY\n168 |     BEGIN CATCH\n169 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n170 | \n171 |         SELECT  @err_msg = ERROR_MESSAGE(),\n172 |                 @err_no  = ERROR_NUMBER();\n173 | \n174 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n175 |              @message = @err_msg, @error_number = @err_no;\n176 |         THROW;\n177 |     END CATCH\n178 | END;\n179 | GO\n\nViews for impact queries:\n- stg_claims (stg.claims): claim_id int, claim_number string, policy_id int, customer_id int, lob_code string, loss_date date, reported_date date, status string, closed_date date, cause_code string, handler_code string, description string, _row_seq int\n- stg_claim_payments (stg.claim_payments): payment_id int, claim_id int, payment_date date, amount decimal(12,2), payment_type string, payee_type string, _row_seq int\n- stg_claim_reserves (stg.claim_reserves): reserve_id int, claim_id int, reserve_date date, reserve_type string, reserve_amount decimal(12,2), _row_seq int\n- stg_policy_snapshots (stg.policy_snapshots): snapshot_date date, policy_id int, policy_number string, customer_id int, product_code string, broker_code string, inception_date date, expiry_date date, status string, cancellation_date date, annual_premium decimal(12,2), currency string, sum_insured decimal(14,2), payment_frequency string, vehicle_reg string, ncd_years int, _row_seq int\n- golden_rpt_claims_summary (the legacy output rpt.claims_summary): claim_id int, claim_number string, claim_ref string, policy_id int, policy_number string, lob_code string, status string, handler_code string, loss_date date, loss_date_text string, reported_date date, reported_period string, days_open int, n_payments int, total_paid decimal(14,2), indemnity_reserve decimal(14,2), expense_reserve decimal(14,2), current_reserve decimal(14,2), incurred decimal(14,2), as_of_date date\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "69475a8ed401e61574f5bed134b6e00362d65ff76d464bdadd6bcebe04aef2d1",
+  "response": {
+    "duration_api_ms": 40644,
+    "duration_ms": 41054,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5336,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5336,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1404702,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4875,
+        "provider": "firstParty",
+        "thinkingTokens": 2313,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": "total_paid",
+          "confidence": 0.85,
+          "description": "#money LEFT JOINs stg.claim_payments and #reserve to #open_claims in one statement before GROUP BY. #reserve has up to one row per reserve type (INDEMNITY, EXPENSE), so every payment row is repeated once per reserve row and SUM(p.amount) is multiplied (typically doubled). COUNT(DISTINCT payment_id) and MAX(reserve) hide the fan-out, but total_paid, and therefore incurred (total_paid + reserves), are overstated.",
+          "evidence_lines": [
+            103,
+            105,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            152
+          ],
+          "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.total_paid - COALESCE(p.paid, 0))), 0) AS amount_affected FROM golden_rpt_claims_summary g LEFT JOIN p ON p.claim_id = g.claim_id WHERE g.total_paid <> COALESCE(p.paid, 0)",
+          "intended_behaviour": "total_paid should be the plain sum of payments on or before @AsOfDate per claim, aggregated separately from the reserves (or pre-aggregated before joining).",
+          "title": "Payment/reserve join fan-out inflates total_paid and incurred"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.55,
+          "description": "claim_ref is built as lob_code + '/' + claim_number + '/' + handler_code. With SQL Server's default CONCAT_NULL_YIELDS_NULL, a NULL handler_code (an allowed value) makes the whole reference NULL, so the claim drops off the handler worklist reference.",
+          "evidence_lines": [
+            136,
+            29,
+            24
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.claim_ref IS NULL AND g.handler_code IS NULL",
+          "intended_behaviour": "Build the reference with the handler part blank or defaulted (e.g. CONCAT or ISNULL(handler_code,'')), so LOB and claim number still appear.",
+          "title": "claim_ref becomes NULL when handler_code is NULL"
+        },
+        {
+          "amount_column": "incurred",
+          "confidence": 0.4,
+          "description": "Claims are selected on today's status IN ('OPEN','REOPENED'), not on whether they were open at @AsOfDate. A claim notified by the reporting date but closed after it (closed_date > @AsOfDate) is left out of the as-of open book, along with its paid and reserves.",
+          "evidence_lines": [
+            60,
+            73,
+            74
+          ],
+          "impact_query": "WITH miss AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (status IS NULL OR UPPER(TRIM(status)) NOT IN ('OPEN','REOPENED')) AND closed_date > DATE'2025-12-31'), pay AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id), res AS (SELECT claim_id, reserve_type, reserve_amount, ROW_NUMBER() OVER (PARTITION BY claim_id, reserve_type ORDER BY reserve_date DESC, reserve_id DESC) AS rn FROM stg_claim_reserves WHERE reserve_date <= DATE'2025-12-31'), r AS (SELECT claim_id, SUM(CASE WHEN UPPER(TRIM(reserve_type)) IN ('INDEMNITY','EXPENSE') THEN reserve_amount ELSE 0 END) AS resv FROM res WHERE rn = 1 GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(pay.paid, 0) + COALESCE(r.resv, 0))), 0) AS amount_affected FROM miss LEFT JOIN pay ON pay.claim_id = miss.claim_id LEFT JOIN r ON r.claim_id = miss.claim_id",
+          "intended_behaviour": "Include claims open at @AsOfDate, i.e. reported on or before @AsOfDate and not closed by then (closed_date IS NULL OR closed_date > @AsOfDate).",
+          "title": "Open book uses current status instead of status at the reporting date"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.35,
+          "description": "@snapshot_date is the latest snapshot date across all policies, and the policy join matches that exact date. A policy missing from that one snapshot (e.g. lapsed or not extracted that day) gets a NULL policy_number, even though an earlier snapshot on or before @AsOfDate holds it.",
+          "evidence_lines": [
+            120,
+            121,
+            122,
+            123,
+            157,
+            158,
+            159
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.policy_number IS NULL AND EXISTS (SELECT 1 FROM stg_policy_snapshots ps WHERE ps.policy_id = g.policy_id AND ps.snapshot_date <= DATE'2025-12-31' AND ps.policy_number IS NOT NULL)",
+          "intended_behaviour": "Use each policy's own latest snapshot on or before @AsOfDate to get the policy number.",
+          "title": "Policy number taken from a single global snapshot date"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1404702,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5336,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5336,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5336,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5336,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 4875,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4875,
+      "output_tokens_details": {
+        "thinking_tokens": 2313
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,195 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-estate/T01/openlineage/T01.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "5231c70dc1e449184da2a3f9cd9e992a84359ba2ae4557486c8677680eb5d0a8",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 1607,
+            "legacy": 1607,
+            "partition": "region='EAST', source_system='BROKER'"
+          },
+          {
+            "candidate": 4513,
+            "legacy": 4513,
+            "partition": "region='EAST', source_system='CRM'"
+          },
+          {
+            "candidate": 2902,
+            "legacy": 2902,
+            "partition": "region='EAST', source_system='WEB'"
+          },
+          {
+            "candidate": 220,
+            "legacy": 220,
+            "partition": "region='MIDLANDS', source_system='BROKER'"
+          },
+          {
+            "candidate": 641,
+            "legacy": 641,
+            "partition": "region='MIDLANDS', source_system='CRM'"
+          },
+          {
+            "candidate": 465,
+            "legacy": 465,
+            "partition": "region='MIDLANDS', source_system='WEB'"
+          },
+          {
+            "candidate": 305,
+            "legacy": 305,
+            "partition": "region='NORTH-WEST', source_system='BROKER'"
+          },
+          {
+            "candidate": 863,
+            "legacy": 863,
+            "partition": "region='NORTH-WEST', source_system='CRM'"
+          },
+          {
+            "candidate": 550,
+            "legacy": 550,
+            "partition": "region='NORTH-WEST', source_system='WEB'"
+          },
+          {
+            "candidate": 1007,
+            "legacy": 1007,
+            "partition": "region='SOUTH', source_system='BROKER'"
+          },
+          {
+            "candidate": 2707,
+            "legacy": 2707,
+            "partition": "region='SOUTH', source_system='CRM'"
+          },
+          {
+            "candidate": 1695,
+            "legacy": 1695,
+            "partition": "region='SOUTH', source_system='WEB'"
+          },
+          {
+            "candidate": 18,
+            "legacy": 18,
+            "partition": "region='UNKNOWN', source_system='BROKER'"
+          },
+          {
+            "candidate": 35,
+            "legacy": 35,
+            "partition": "region='UNKNOWN', source_system='CRM'"
+          },
+          {
+            "candidate": 25,
+            "legacy": 25,
+            "partition": "region='UNKNOWN', source_system='WEB'"
+          },
+          {
+            "candidate": 454,
+            "legacy": 454,
+            "partition": "region='WEST', source_system='BROKER'"
+          },
+          {
+            "candidate": 1200,
+            "legacy": 1200,
+            "partition": "region='WEST', source_system='CRM'"
+          },
+          {
+            "candidate": 793,
+            "legacy": 793,
+            "partition": "region='WEST', source_system='WEB'"
+          }
+        ],
+        "candidate": 20000,
+        "legacy": 20000
+      },
+      "duration_seconds": 4.547,
+      "error": null,
+      "explanation": "MATCH: all 20,000 rows agree record for record, compared on the keys ['customer_id']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "job_id": "T01",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "customer_id"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 20000,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-estate",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T02:18:08.615801Z",
+      "status": "MATCH",
+      "table": "dw.dim_customer",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "2200010000",
+          "column": "customer_id",
+          "legacy": "2200010000",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "19336",
+          "column": "email_shared_count",
+          "legacy": "19336",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "961043",
+          "column": "age_at_join",
+          "legacy": "961043",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "23799",
+          "column": "version_count",
+          "legacy": "23799",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 14.373,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 20000,
+      "job_id": "T01",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 20000,
+      "runtime_seconds": 9.526,
+      "table": "dw.dim_customer"
+    }
+  ],
+  "status": "MATCH"
+}

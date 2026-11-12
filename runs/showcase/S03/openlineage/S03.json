@@ -1,0 +1,267 @@
+{
+  "eventTime": "2026-11-12T02:47:07.753163+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "txn_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_sk",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "txn_type",
+              "type": "string"
+            },
+            {
+              "name": "txn_date",
+              "type": "date"
+            },
+            {
+              "name": "effective_from",
+              "type": "date"
+            },
+            {
+              "name": "effective_to",
+              "type": "date"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "amount",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "fx_rate",
+              "type": "decimal(18,8)"
+            },
+            {
+              "name": "written_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "term_days",
+              "type": "int"
+            },
+            {
+              "name": "earned_days",
+              "type": "int"
+            },
+            {
+              "name": "earned_pct",
+              "type": "decimal(5,2)"
+            },
+            {
+              "name": "earned_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "unearned_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "daily_rate_eur",
+              "type": "decimal(12,4)"
+            },
+            {
+              "name": "monthly_instalment_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "first_due_date",
+              "type": "date"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "silver.fact_premium_earned",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "S03.premium_bands.sas",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "earned_eur": {
+              "inputFields": [
+                {
+                  "field": "earned_eur",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum(earned_eur) per lob_code and prem_band",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "lob_code of the policy's first row as loaded (NODUPKEY), merged onto every transaction; used as a CLASS grouping key",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "n_policies": {
+              "inputFields": [
+                {
+                  "field": "policy_id",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "n(policy_id) over one row per policy (NODUPKEY), grouped by lob_code and prem_band",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "n_transactions": {
+              "inputFields": [
+                {
+                  "field": "written_eur",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "n(written_eur): count of non-missing written_eur per lob_code and prem_band",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "prem_band": {
+              "inputFields": [
+                {
+                  "field": "written_eur",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "put(written_eur, premband.) on the policy's first row as loaded; used as a CLASS grouping key",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "written_eur": {
+              "inputFields": [
+                {
+                  "field": "written_eur",
+                  "name": "silver.fact_premium_earned",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum(written_eur) per lob_code and prem_band",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "prem_band",
+              "type": "string"
+            },
+            {
+              "name": "n_policies",
+              "type": "double"
+            },
+            {
+              "name": "n_transactions",
+              "type": "double"
+            },
+            {
+              "name": "written_eur",
+              "type": "double"
+            },
+            {
+              "name": "earned_eur",
+              "type": "double"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.premium_band_summary",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:47:07.753163+00:00",
+        "nominalStartTime": "2026-11-12T02:46:48.563688+00:00"
+      }
+    },
+    "runId": "ddd530e4-81e5-59e2-beae-c5a2e329b615"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

@@ -1,0 +1,40 @@
+{
+  "approach": "sqlglot_only",
+  "candidate_sha256": null,
+  "code_sha256": "66720510fa95fd66add91164235855837981aaf3a9359c819c7b353a57f97113",
+  "column_diffs": [],
+  "contract_sha256": null,
+  "counts": null,
+  "duration_seconds": 0.0,
+  "error": "pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(Notified  + CAST(date_format(reported_date, dd/MM/yyyy) AS STRING))\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTERVAL YEAR TO MONTH\" or \"INTERVAL\"), not \"STRING\". SQLSTATE: 42K09; line 1 pos 647;\n'Project [claim_id#59 AS claim_id#82, claim_number#60 AS claim_number#83, policy_id#61 AS policy_id#84, policy_number#66 AS policy_number#85, customer_id#62 AS customer_id#86, upper(rtrim(lob_code#63, None)) AS lob_code#87, loss_date#64 AS loss_date#88, reported_date#65 AS reported_date#89, early_notification_flag#77 AS early_notification_flag#90, invalid_reg_flag#78 AS invalid_reg_flag#91, new_customer_flag#79 AS new_customer_flag#92, lob_mismatch_flag#80 AS lob_mismatch_flag#93, fraud_score#81 AS fraud_score#94, CASE WHEN (fraud_score#81 >= 2) THEN HIGH WHEN (fraud_score#81 = 1) THEN MEDIUM ELSE LOW END AS fraud_band#95, cast(date_format(cast(loss_date#64 as timestamp), yyyyMMdd, Some(UTC)) as string) AS loss_day_key#96, ((((((Notified  + cast(date_format(cast(reported_date#65 as timestamp), dd/MM/yyyy, Some(UTC)) as string)) + CASE WHEN (fraud_score#81 = 0) THEN  - no indicators ELSE  - END) + CASE WHEN (early_notification_flag#77 = 1) THEN  EARLY ELSE  END) + CASE WHEN (invalid_reg_flag#78 = 1) THEN  REG ELSE  END) + CASE WHEN (new_customer_flag#79 = 1) THEN  NEWCUST ELSE  END) + CASE WHEN (lob_mismatch_flag#80 = 1) THEN  LOB ELSE  END) AS reason_text#97, 2025-12-31 AS as_of_date#98]\n+- Join Inner, (claim_id#76 = claim_id#59)\n   :- SubqueryAlias cl\n   :  +- SubqueryAlias claims\n   :     +- View (`claims`, [claim_id#59, claim_number#60, policy_id#61, customer_id#62, lob_code#63, loss_date#64, reported_date#65, policy_number#66, inception_date#67, expiry_date#68, vehicle_reg#69, customer_since#70])\n   :        +- Project [claim_id#0 AS claim_id#59, claim_number#1 AS claim_number#60, policy",
+  "explanation": "The job did not produce its outputs: pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(Notified  + CAST(date_format(reported_date, dd/MM/yyyy) AS STRING))\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTERVAL YEAR TO MONTH\" or \"INTERVAL\"), not \"STRING\". SQLSTATE: 42K09; line 1 pos 647;\n'Project [claim_id#59 AS claim_id#82, claim_number#60 AS claim_number#83, policy_id#61 AS policy_id#84, policy_number#66 AS policy_number#85, customer_id#62 AS customer_id#86, upper(rtrim(lob_code#63, None)) AS lob_code#87, loss_date#64 AS loss_date#88, reported_date#65 AS reported_date#89, early_notification_flag#77 AS early_notification_flag#90, invalid_reg_flag#78 AS invalid_reg_flag#91, new_customer_flag#79 AS new_customer_flag#92, lob_mismatch_flag#80 AS lob_mismatch_flag#93, fraud_score#81 AS fraud_score#94, CASE WHEN (fraud_score#81 >= 2) THEN HIGH WHEN (fraud_score#81 = 1) THEN MEDIUM ELSE LOW END AS fraud_band#95, cast(date_format(cast(loss_date#64 as timestamp), yyyyMMdd, Some(UTC)) as string) AS loss_day_key#96, ((((((Notified  + cast(date_format(cast(reported_date#65 as timestamp), dd/MM/yyyy, Some(UTC)) as string)) + CASE WHEN (fraud_score#81 = 0) THEN  - no indicators ELSE  - END) + CASE WHEN (early_notification_flag#77 = 1) THEN  EARLY ELSE  END) + CASE WHEN (invalid_reg_flag#78 = 1) THEN  REG ELSE  END) + CASE WHEN (new_customer_flag#79 = 1) THEN  NEWCUST ELSE  END) + CASE WHEN (lob_mismatch_flag#80 = 1) THEN  LOB ELSE  END) AS reason_text#97, 2025-12-31 AS as_of_date#98]\n+- Join Inner, (claim_id#76 = claim_id#59)\n   :- SubqueryAlias cl\n   :  +- SubqueryAlias claims\n   :     +- View (`claims`, [claim_id#59, claim_number#60, policy_id#61, customer_id#62, lob_code#63, loss_date#64, reported_date#65, policy_number#66, inception_date#67, expiry_date#68, vehicle_reg#69, customer_since#70])\n   :        +- Project [claim_id#0 AS claim_id#59, claim_number#1 AS claim_number#60, policy",
+  "extra_samples": [],
+  "golden_sha256": null,
+  "job_id": "T08",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 0,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T03:19:28.619727Z",
+  "status": "ERROR",
+  "table": "rpt.claim_fraud_flags",
+  "totals": []
+}

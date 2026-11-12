@@ -1,0 +1,112 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 86,
+    "line_start": 72,
+    "note": "The #claims temp table holds the claims enriched with policy and customer data; in Spark it becomes a DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                c.customer_id,\n                c.lob_code,\n                c.loss_date,\n                c.reported_date,\n                p.policy\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 93,
+    "line_start": 93,
+    "note": "DATEADD(MONTH,-12,@AsOfDate) only clamps to a month-end when it has to. Spark add_months also moves a month-end input to a month-end, so @AsOfDate = 2025-02-28 gives 2024-02-29 instead of 2024-02-28 and the 12-month window changes. Latent: only month-end reporting dates trigger it.",
+    "snippet": "WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)",
+    "trap_id": "TSQL-18"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 105,
+    "line_start": 100,
+    "note": "The #flags temp table holds the indicator flags and score; in Spark it becomes a DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n\n        SELECT  f.*,\n                f.early_notification_flag + f.invalid_reg_flag\n                  + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n        INTO    #flags",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 111,
+    "line_start": 111,
+    "note": "lob_code is VARCHAR(5). Under the CI collation, 'mot' and 'Mot' match 'MOT', so those claims get the motor registration check; a plain Spark equality would skip them. The later UPPER() suggests mixed-case values really exist.",
+    "snippet": "CASE WHEN cl.lob_code = 'MOT'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 111,
+    "line_start": 111,
+    "note": "lob_code is VARCHAR(5), and the RTRIM at line 140 shows it can carry trailing spaces. 'MOT ' = 'MOT' in SQL Server but not in Spark.",
+    "snippet": "CASE WHEN cl.lob_code = 'MOT'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 112,
+    "line_start": 112,
+    "note": "The LIKE pattern uses the [0-9] and [A-Z] character classes, and [A-Z] is case-insensitive under the CI collation. Spark LIKE would read them as literal text, so it must become an rlike with case-insensitive letters.",
+    "snippet": "AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'",
+    "trap_id": "TSQL-14"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 118,
+    "line_start": 118,
+    "note": "The <> compares text with text: a substring of policy_number (VARCHAR) against lob_code (VARCHAR). Under the CI collation, a case difference such as 'mot' vs 'MOT' is not a mismatch; in Spark it is.",
+    "snippet": "CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 118,
+    "line_start": 118,
+    "note": "SQL Server ignores trailing spaces when comparing, so a lob_code of 'MOT ' equals the 3-character prefix 'MOT'. Spark would raise the mismatch flag.",
+    "snippet": "CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 118,
+    "line_start": 118,
+    "note": "SUBSTRING(policy_number, 0, 4) returns only 3 characters in T-SQL. Spark substring(x, 0, 4) returns 4, which would change every lob_mismatch_flag.",
+    "snippet": "CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code",
+    "trap_id": "TSQL-15"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 152,
+    "line_start": 152,
+    "note": "CONVERT style 112 gives yyyymmdd and needs date_format 'yyyyMMdd'. A plain cast would give yyyy-MM-dd, which also breaks the CHAR(8) key.",
+    "snippet": "CONVERT(CHAR(8), cl.loss_date, 112),",
+    "trap_id": "TSQL-16"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T08",
+    "line_end": 153,
+    "line_start": 153,
+    "note": "CONVERT style 103 gives dd/mm/yyyy in the reason text and needs date_format 'dd/MM/yyyy'. A string cast would give yyyy-MM-dd.",
+    "snippet": "'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)",
+    "trap_id": "TSQL-16"
+  }
+]

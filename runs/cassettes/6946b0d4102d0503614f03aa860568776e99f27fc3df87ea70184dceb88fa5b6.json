@@ -1,0 +1,561 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:02:56.247181Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T05",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T05: usp_claim_aging. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_claim_aging\n  3 |   Purpose  : Ageing of the open claims book for claims operations: each open or\n  4 |              re-opened claim is aged on the days since its last activity (its\n  5 |              last payment up to the reporting date, or the date it was notified\n  6 |              when nothing has been paid yet). Feeds the weekly diary review.\n  7 |   Output   : rpt.claim_aging (truncated and reloaded on every run)\n  8 |   Author   : BMcG\n  9 | \n 10 |   Change log\n 11 |     2013-10-07  BMcG  Initial version\n 12 |     2014-05-19  BMcG  weeks_open added for the handler workload report (CR-0317)\n 13 |     2016-02-08  RF    Re-opened claims aged as well (CR-0852)\n 14 |     2017-09-25  RF    Payments staged in #pay first; nightly run down from\n 15 |                       40 min to 2 min (INC-1904)\n 16 |     2019-04-01  NK    Payments dated after the reporting date ignored (CR-1488)\n 17 |     2020-11-16  NK    Ageing bands added for the claims MI pack (CR-1951)\n 18 | ==============================================================================*/\n 19 | SET NOCOUNT ON;\n 20 | GO\n 21 | IF OBJECT_ID(N'rpt.claim_aging', N'U') IS NULL\n 22 | CREATE TABLE rpt.claim_aging (\n 23 |     claim_id             INT            NOT NULL,\n 24 |     claim_number         VARCHAR(20)    NOT NULL,\n 25 |     lob_code             VARCHAR(5)     NOT NULL,\n 26 |     reported_date        DATE           NOT NULL,\n 27 |     n_payments           INT            NOT NULL,\n 28 |     total_paid           DECIMAL(14,2)  NULL,\n 29 |     last_payment_date    DATE           NULL,\n 30 |     last_activity_date   DATE           NOT NULL,\n 31 |     days_since_activity  INT            NOT NULL,\n 32 |     weeks_open           INT            NOT NULL,\n 33 |     aging_band           VARCHAR(10)    NOT NULL,\n 34 |     as_of_date           DATE           NOT NULL,\n 35 |     CONSTRAINT pk_claim_aging PRIMARY KEY CLUSTERED (claim_id)\n 36 | );\n 37 | GO\n 38 | CREATE OR ALTER PROCEDURE rpt.usp_claim_aging\n 39 |     @AsOfDate DATE\n 40 | AS\n 41 | BEGIN\n 42 |     SET NOCOUNT ON;\n 43 | \n 44 |     DECLARE @job_name  VARCHAR(128) = 'rpt.usp_claim_aging',\n 45 |             @rows      INT,\n 46 |             @claim_id  INT,\n 47 |             @reported  DATE,\n 48 |             @pay_date  DATE,\n 49 |             @amount    DECIMAL(12,2),\n 50 |             @n_pay     INT,\n 51 |             @total     DECIMAL(14,2),\n 52 |             @last_pay  DATE,\n 53 |             @last_act  DATE,\n 54 |             @days      INT,\n 55 |             @weeks     INT,\n 56 |             @band      VARCHAR(10),\n 57 |             @err_msg   NVARCHAR(4000),\n 58 |             @err_no    INT;\n 59 | \n 60 |     BEGIN TRY\n 61 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 62 | \n 63 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 64 |         IF OBJECT_ID('tempdb..#pay') IS NOT NULL DROP TABLE #pay;\n 65 | \n 66 |         -- 1. open book: open and re-opened claims notified by the reporting date\n 67 |         SELECT c.claim_id,\n 68 |                c.claim_number,\n 69 |                UPPER(RTRIM(c.lob_code)) AS lob_code,\n 70 |                c.reported_date\n 71 |         INTO   #open_claims\n 72 |         FROM   stg.claims AS c WITH (NOLOCK)\n 73 |         WHERE  c.status IN ('OPEN', 'REOPENED')\n 74 |           AND  c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims',\n 78 |              @status = 'INFO', @rows_affected = @rows;\n 79 | \n 80 |         -- 2. payments on those claims up to the reporting date\n 81 |         SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n 82 |         INTO   #pay\n 83 |         FROM   stg.claim_payments AS p WITH (NOLOCK)\n 84 |         INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n 85 |         WHERE  p.payment_date <= @AsOfDate;\n 86 | \n 87 |         SET @rows = @@ROWCOUNT;\n 88 |         CREATE CLUSTERED INDEX ix_pay ON #pay (claim_id, payment_date, payment_id);\n 89 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'payments',\n 90 |              @status = 'INFO', @rows_affected = @rows;\n 91 | \n 92 |         CREATE TABLE #aging (\n 93 |             claim_id             INT            NOT NULL PRIMARY KEY,\n 94 |             n_payments           INT            NOT NULL,\n 95 |             total_paid           DECIMAL(14,2)  NULL,\n 96 |             last_payment_date    DATE           NULL,\n 97 |             last_activity_date   DATE           NOT NULL,\n 98 |             days_since_activity  INT            NOT NULL,\n 99 |             weeks_open           INT            NOT NULL,\n100 |             aging_band           VARCHAR(10)    NOT NULL\n101 |         );\n102 | \n103 |         -- 3. age each claim on its payment history\n104 |         DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n105 |             SELECT claim_id, reported_date\n106 |             FROM   #open_claims\n107 |             ORDER  BY claim_id;\n108 | \n109 |         OPEN claim_cur;\n110 |         FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n111 | \n112 |         WHILE @@FETCH_STATUS = 0\n113 |         BEGIN\n114 |             SET @n_pay    = 0;\n115 |             SET @total    = 0;\n116 |             SET @last_pay = NULL;\n117 | \n118 |             DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n119 |                 SELECT payment_date, amount\n120 |                 FROM   #pay\n121 |                 WHERE  claim_id = @claim_id\n122 |                 ORDER  BY payment_date, payment_id;\n123 | \n124 |             OPEN pay_cur;\n125 |             FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n126 | \n127 |             WHILE @@FETCH_STATUS = 0\n128 |             BEGIN\n129 |                 SET @n_pay    = @n_pay + 1;\n130 |                 SET @total    = @total + @amount;\n131 |                 SET @last_pay = @pay_date;\n132 | \n133 |                 FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n134 |             END\n135 | \n136 |             CLOSE pay_cur;\n137 |             DEALLOCATE pay_cur;\n138 | \n139 |             -- last activity: the last payment, or notification if nothing paid yet\n140 |             SET @last_act = ISNULL(@last_pay, @reported);\n141 |             SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);\n142 |             SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);\n143 | \n144 |             -- ageing band for the MI pack\n145 |             SET @band = CASE WHEN @days < 30 THEN '0-29'\n146 |                              WHEN @days BETWEEN 31 AND 60 THEN '31-60'\n147 |                              WHEN @days > 60 THEN '61+'\n148 |                              ELSE 'UNKNOWN'\n149 |                         END;\n150 | \n151 |             INSERT INTO #aging (claim_id, n_payments, total_paid, last_payment_date,\n152 |                                 last_activity_date, days_since_activity, weeks_open, aging_band)\n153 |             VALUES (@claim_id, @n_pay, @total, @last_pay, @last_act, @days, @weeks, @band);\n154 | \n155 |             FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n156 |         END\n157 | \n158 |         CLOSE claim_cur;\n159 |         DEALLOCATE claim_cur;\n160 | \n161 |         SELECT @rows = COUNT(*) FROM #aging;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim loop',\n163 |              @status = 'INFO', @rows_affected = @rows;\n164 | \n165 |         -- 4. reload the report table\n166 |         TRUNCATE TABLE rpt.claim_aging;\n167 | \n168 |         INSERT INTO rpt.claim_aging (claim_id, claim_number, lob_code, reported_date,\n169 |                n_payments, total_paid, last_payment_date, last_activity_date,\n170 |                days_since_activity, weeks_open, aging_band, as_of_date)\n171 |         SELECT o.claim_id, o.claim_number, o.lob_code, o.reported_date,\n172 |                a.n_payments, a.total_paid, a.last_payment_date, a.last_activity_date,\n173 |                a.days_since_activity, a.weeks_open, a.aging_band, @AsOfDate\n174 |         FROM   #aging AS a\n175 |         INNER JOIN #open_claims AS o ON o.claim_id = a.claim_id;\n176 | \n177 |         SET @rows = @@ROWCOUNT;\n178 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'load rpt.claim_aging',\n179 |              @status = 'INFO', @rows_affected = @rows;\n180 | \n181 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n182 |     END TRY\n183 |     BEGIN CATCH\n184 |         SELECT @err_msg = ERROR_MESSAGE(), @err_no = ERROR_NUMBER();\n185 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim aging',\n186 |              @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n187 |         THROW;\n188 |     END CATCH\n189 | END;\n190 | GO\n\nInput tables:\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.claim_payments: payment_id INT NOT NULL, claim_id INT NOT NULL, payment_date DATE NOT NULL, amount DECIMAL(12,2), payment_type VARCHAR(12) NOT NULL, payee_type VARCHAR(12)\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 73-73: status is VARCHAR(12). Under the CI collation, IN ('OPEN','REOPENED') also matches 'Open' and 'reopened'. Spark's isin is case-sensitive and would drop those claims.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 73-73: status is VARCHAR. Values stored with trailing spaces, such as 'OPEN ', still match in SQL Server but not with an exact match in Spark.\n- TSQL-04 (DATEDIFF counts boundaries crossed, not elapsed periods) at lines 141-141: DATEDIFF(DAY) on DATE values is the plain day difference, so the value is safe. But Spark's datediff(end, start) takes its arguments in reverse order.\n- TSQL-04 (DATEDIFF counts boundaries crossed, not elapsed periods) at lines 142-142: DATEDIFF(WEEK) counts the Sundays crossed between reported_date and @AsOfDate, not elapsed weeks. floor(datediff/7) would be wrong.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "6946b0d4102d0503614f03aa860568776e99f27fc3df87ea70184dceb88fa5b6",
+  "response": {
+    "duration_api_ms": 32367,
+    "duration_ms": 32662,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5418,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5418,
+        "cacheReadInputTokens": 1423,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1254166,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4089,
+        "provider": "firstParty",
+        "thinkingTokens": 689,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Open-book filter with mixed-case status values. Claims 1 and 2 use the canonical 'OPEN' and 'REOPENED'. Claims 3, 4 and 5 hold 'Open', 'reopened' and 'ReOpened'; the case-insensitive collation keeps them in the open book. Claim 6 is 'CLOSED' and is excluded either way. A naive Spark isin(['OPEN','REOPENED']) is case-sensitive, so it would drop claims 3-5 and their payments.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-0001",
+                  "customer_id": "201",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-10-01",
+                  "policy_id": "101",
+                  "reported_date": "2025-10-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-0002",
+                  "customer_id": "202",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-09-10",
+                  "policy_id": "102",
+                  "reported_date": "2025-09-12",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-0003",
+                  "customer_id": "203",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-11-01",
+                  "policy_id": "103",
+                  "reported_date": "2025-11-03",
+                  "status": "Open"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-0004",
+                  "customer_id": "204",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-08-01",
+                  "policy_id": "104",
+                  "reported_date": "2025-08-04",
+                  "status": "reopened"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-0005",
+                  "customer_id": "205",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-12-01",
+                  "policy_id": "105",
+                  "reported_date": "2025-12-02",
+                  "status": "ReOpened"
+                },
+                {
+                  "claim_id": "6",
+                  "claim_number": "CLM-0006",
+                  "closed_date": "2025-09-01",
+                  "customer_id": "206",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "106",
+                  "reported_date": "2025-07-03",
+                  "status": "CLOSED"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "500.00",
+                  "claim_id": "1",
+                  "payment_date": "2025-11-15",
+                  "payment_id": "1001",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "1200.00",
+                  "claim_id": "2",
+                  "payment_date": "2025-10-20",
+                  "payment_id": "1002",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "3",
+                  "payment_date": "2025-12-10",
+                  "payment_id": "1003",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "750.50",
+                  "claim_id": "4",
+                  "payment_date": "2025-09-30",
+                  "payment_id": "1004",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "90.00",
+                  "claim_id": "5",
+                  "payment_date": "2025-12-20",
+                  "payment_id": "1005",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "400.00",
+                  "claim_id": "6",
+                  "payment_date": "2025-08-15",
+                  "payment_id": "1006",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Status values stored with trailing spaces. Claims 1 and 2 are the canonical 'OPEN' and 'REOPENED'. Claims 3, 4 and 5 are 'OPEN ', 'REOPENED  ' and 'OPEN   '. SQL Server ignores trailing spaces when comparing, so it keeps them in the open book. Claim 6 is 'CLOSED ' and is excluded either way. An exact-match filter in Spark would drop claims 3-5.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-0101",
+                  "customer_id": "211",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-10-01",
+                  "policy_id": "111",
+                  "reported_date": "2025-10-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-0102",
+                  "customer_id": "212",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-09-01",
+                  "policy_id": "112",
+                  "reported_date": "2025-09-03",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-0103",
+                  "customer_id": "213",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-11-10",
+                  "policy_id": "113",
+                  "reported_date": "2025-11-12",
+                  "status": "OPEN "
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-0104",
+                  "customer_id": "214",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "114",
+                  "reported_date": "2025-06-05",
+                  "status": "REOPENED  "
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-0105",
+                  "customer_id": "215",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-12-05",
+                  "policy_id": "115",
+                  "reported_date": "2025-12-08",
+                  "status": "OPEN   "
+                },
+                {
+                  "claim_id": "6",
+                  "claim_number": "CLM-0106",
+                  "closed_date": "2025-07-01",
+                  "customer_id": "216",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "116",
+                  "reported_date": "2025-05-02",
+                  "status": "CLOSED "
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "250.00",
+                  "claim_id": "1",
+                  "payment_date": "2025-11-20",
+                  "payment_id": "2001",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "600.00",
+                  "claim_id": "2",
+                  "payment_date": "2025-10-01",
+                  "payment_id": "2002",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "180.25",
+                  "claim_id": "3",
+                  "payment_date": "2025-12-01",
+                  "payment_id": "2003",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "1000.00",
+                  "claim_id": "4",
+                  "payment_date": "2025-08-15",
+                  "payment_id": "2004",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "75.00",
+                  "claim_id": "5",
+                  "payment_date": "2025-12-15",
+                  "payment_id": "2005",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "6",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "2006",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "DATEDIFF semantics on lines 141 and 142, with AsOfDate 2025-12-31 (a Wednesday). Every claim has a non-zero day gap, so a Spark datediff(start, end) with the arguments reversed would give negative days_since_activity and push claims into the wrong band. DATEDIFF(WEEK) counts the Sundays crossed, which differs from floor(days/7) in these claims: claim 1 reported 2025-12-26 (Friday, 5 days, crosses 12-28); claim 2 reported 2025-12-20 (Saturday, 11 days, crosses 12-21 and 12-28); claim 3 reported 2025-12-27 (Saturday, 4 days). Claim 4 is reported on a Sunday, 2025-12-21, and is a control case where both methods agree. Claim 5 (reported 2025-09-06, a Saturday, with payments) and claim 6 (reported 2025-11-29, a Saturday, unpaid) cover longer gaps. Some payments fall after the reporting date and must be ignored.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-0201",
+                  "customer_id": "221",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-24",
+                  "policy_id": "121",
+                  "reported_date": "2025-12-26",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-0202",
+                  "customer_id": "222",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-12-18",
+                  "policy_id": "122",
+                  "reported_date": "2025-12-20",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-0203",
+                  "customer_id": "223",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-25",
+                  "policy_id": "123",
+                  "reported_date": "2025-12-27",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-0204",
+                  "customer_id": "224",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-12-19",
+                  "policy_id": "124",
+                  "reported_date": "2025-12-21",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-0205",
+                  "customer_id": "225",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-09-01",
+                  "policy_id": "125",
+                  "reported_date": "2025-09-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "6",
+                  "claim_number": "CLM-0206",
+                  "customer_id": "226",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-11-25",
+                  "policy_id": "126",
+                  "reported_date": "2025-11-29",
+                  "status": "REOPENED"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "150.00",
+                  "claim_id": "2",
+                  "payment_date": "2025-12-22",
+                  "payment_id": "3001",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "400.00",
+                  "claim_id": "5",
+                  "payment_date": "2025-09-20",
+                  "payment_id": "3002",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "275.50",
+                  "claim_id": "5",
+                  "payment_date": "2025-10-15",
+                  "payment_id": "3003",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "999.00",
+                  "claim_id": "5",
+                  "payment_date": "2026-01-10",
+                  "payment_id": "3004",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "50.00",
+                  "claim_id": "1",
+                  "payment_date": "2026-01-05",
+                  "payment_id": "3005",
+                  "payment_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-04"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1254166,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5418,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5418,
+      "cache_read_input_tokens": 1423,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5418,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5418,
+          "cache_read_input_tokens": 1423,
+          "input_tokens": 2,
+          "output_tokens": 4089,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4089,
+      "output_tokens_details": {
+        "thinking_tokens": 689
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

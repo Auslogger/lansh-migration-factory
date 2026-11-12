@@ -1,0 +1,277 @@
+[
+  {
+    "flow_id": "F-fccb8ff930-pii",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "age",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-fccb8ff930-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "age",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-8a8d7d7d83-pii",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "age_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-8a8d7d7d83-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "age_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-2b0452072a-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "county_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "county_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-63be2b82be-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-77a9b3473b-pii",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-77a9b3473b-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-8357198716-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-df22d7df1e-pii",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-df22d7df1e-protected",
+    "job_ids": [
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "tag": "protected"
+  }
+]

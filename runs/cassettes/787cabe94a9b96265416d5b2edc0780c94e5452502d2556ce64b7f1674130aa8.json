@@ -1,0 +1,186 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:39:57.793509Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S04",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S04: risk_scoring.sas. Customer risk score and tier from claims experience.\nOutput table rpt.risk_scores, 2645 rows in the legacy output.\n\nColumns:\n- customer_id num 8 format=BEST: 2543 distinct, 0 NULL\n- lob_code char 5 format=$CHAR: 3 distinct, 0 NULL\n- n_claims num 8: 3 distinct, 0 NULL\n- paid num 8: 2274 distinct, 0 NULL\n- n_recoveries num 8: 3 distinct, 0 NULL\n- severity num 8: 2275 distinct, 0 NULL\n- age num 8: 72 distinct, 16 NULL\n- age_load num 8: 3 distinct, 0 NULL\n- county_load num 8: 3 distinct, 0 NULL\n- loss_ratio num 8: 3 distinct, 0 NULL\n- points num 8: 23 distinct, 0 NULL\n- score num 8: 123 distinct, 0 NULL\n- tier char 4: 3 distinct, 0 NULL\n- as_of_date num 8 format=YYMMDD: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['customer_id', 'lob_code']\n\nLegacy code:\n/******************************************************************************\n  Program  : risk_scoring.sas\n  Purpose  : Customer risk score and referral tier by line of business for\n             underwriting. Claims experience (claim count, recoveries and\n             severity against the line's average) plus the line's loss ratio,\n             loaded for the policyholder's age and county.\n  Inputs   : dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer\n  Output   : rpt.risk_scores (rebuilt on every run)\n  Params   : as_of - reporting date (SAS date), set by the scheduler\n  Author   : TF\n\n  Change log\n    2015-06-02  TF    Initial version (motor only)\n    2016-11-21  TF    Home and travel added; scoring per line in a macro\n                      (CR-0998)\n    2018-04-09  GH    Age and county loadings from the pricing review (CR-1302)\n    2020-01-27  GH    Line loss ratio from premium_bands.sas (CR-1544)\n    2022-09-12  TF    Referral tiers for the underwriting queue (CR-2011)\n******************************************************************************/\n\n/* policyholder loadings: age at the reporting date and county */\ndata work.cust(keep=customer_id age age_load county_load);\n  set dw.dim_customer(keep=customer_id date_of_birth county);\n  age = int((&as_of - date_of_birth) / 365.25);\n  if missing(age) then age_load = 1.00;\n  else if age < 25 then age_load = 1.40;\n  else if age >= 70 then age_load = 1.25;\n  else age_load = 1.00;\n  select (upcase(strip(county)));\n    when ('DUBLIN') county_load = 1.15;\n    when ('CORK', 'LIMERICK', 'GALWAY') county_load = 1.05;\n    otherwise county_load = 1.00;\n  end;\nrun;\n\n/* claims experience per customer and line of business */\nproc sql;\n  create table work.experience as\n  select customer_id, lob_code,\n         count(*)          as n_claims,\n         sum(total_paid)   as paid,\n         sum(n_recoveries) as n_recoveries\n  from   dw.claims_enriched\n  group  by customer_id, lob_code;\nquit;\n\n/* loss ratio per line: paid on the claims book over earned premium */\nproc sql;\n  create table work.lob_ratio as\n  select e.lob_code, sum(e.paid) / p.earned as loss_ratio\n  from   work.experience e,\n         (select lob_code, sum(earned_eur) as earned\n          from   rpt.premium_band_summary\n          group  by lob_code) p\n  where  e.lob_code = p.lob_code\n  group  by e.lob_code, p.earned;\nquit;\n\n/* each customer against the average for the line */\n%macro score_lines(lobs);\n  %local i lob;\n  %do i = 1 %to %sysfunc(countw(&lobs));\n    %let lob = %scan(&lobs, &i);\n    proc sql;\n      create table work.score_&lob as\n      select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n             x.paid / mean(x.paid) as severity\n      from   work.experience x\n      where  x.lob_code = \"&lob\";\n    quit;\n  %end;\n%mend score_lines;\n\n%score_lines(MOT HOM TRV);\n\nproc sql;\n  create table work.scoring as\n  select s.*, c.age, c.age_load, c.county_load, r.loss_ratio\n  from   (select * from work.score_mot\n          union all\n          select * from work.score_hom\n          union all\n          select * from work.score_trv) s\n         left join work.cust c on c.customer_id = s.customer_id\n         left join work.lob_ratio r on r.lob_code = s.lob_code\n  order  by s.customer_id, s.lob_code;\nquit;\n\n/* points, loadings and the referral tier */\ndata rpt.risk_scores(keep=customer_id lob_code n_claims paid n_recoveries severity age\n                          age_load county_load loss_ratio points score tier as_of_date);\n  set work.scoring;\n  sev_points = 0;\n  if severity >= 2 then sev_points = 10;\n  else if severity >= 1 then sev_points = 5;\n  lob_points = round(2.5 * loss_ratio, 0.5);\n  points = 12.5 * min(n_claims, 4) + 7.5 * n_recoveries + sev_points + lob_points;\n  score  = round(points * age_load * county_load, 0.01);\n  if score >= 35 then tier = 'HIGH';\n  else if score >= 22 then tier = 'MEDIUM';\n  else tier = 'LOW';\n  format as_of_date yymmdd10.;\n  as_of_date = &as_of;\nrun;\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "787cabe94a9b96265416d5b2edc0780c94e5452502d2556ce64b7f1674130aa8",
+  "response": {
+    "duration_api_ms": 6274,
+    "duration_ms": 6563,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 2641,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 2641,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.032535800000000004,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 561,
+        "provider": "firstParty",
+        "thinkingTokens": 0,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "age": "Whole years from date_of_birth to as_of. NULL when the birth date is missing or the customer is not in dim_customer (left join).",
+        "age_load": "1.40 if age < 25, 1.25 if age >= 70, otherwise 1.00 (also 1.00 when age is missing in dim_customer). It can be NULL if the customer is not in dim_customer.",
+        "as_of_date": "Reporting date parameter, the same on every row.",
+        "loss_ratio": "Line-level total paid on the claims book divided by the line's earned premium from rpt.premium_band_summary. It is the same for every row in a line.",
+        "points": "12.5*min(n_claims,4) + 7.5*n_recoveries + severity points (0/5/10) + round(2.5*loss_ratio, 0.5).",
+        "score": "points * age_load * county_load, rounded to 0.01.",
+        "severity": "Customer's paid amount divided by the mean paid across all customers in the same line (SAS remerges the summary statistic).",
+        "tier": "HIGH if score >= 35, MEDIUM if score >= 22, otherwise LOW."
+      },
+      "grain": "One row per customer and line of business (MOT, HOM, TRV) that has claims in dw.claims_enriched, scored as of the reporting date.",
+      "keys": [
+        "customer_id",
+        "lob_code"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "tier"
+      ]
+    },
+    "total_cost_usd": 0.032535800000000004,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 2641,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 2641,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2641,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 2641,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 561,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 561,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

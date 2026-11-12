@@ -1,0 +1,85 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "S04",
+        "kind": "data_step",
+        "line_end": 34,
+        "line_start": 22,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 1,
+        "job_id": "S04",
+        "kind": "proc",
+        "line_end": 45,
+        "line_start": 37,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 2,
+        "job_id": "S04",
+        "kind": "proc",
+        "line_end": 57,
+        "line_start": 48,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "S04",
+        "kind": "macro",
+        "line_end": 72,
+        "line_start": 60,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 4,
+        "job_id": "S04",
+        "kind": "other",
+        "line_end": 74,
+        "line_start": 74,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 5,
+        "job_id": "S04",
+        "kind": "proc",
+        "line_end": 87,
+        "line_start": 76,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 6,
+        "job_id": "S04",
+        "kind": "data_step",
+        "line_end": 104,
+        "line_start": 90,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "S04",
+    "reads": [
+      "dw.claims_enriched",
+      "dw.dim_customer",
+      "rpt.premium_band_summary"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.risk_scores"
+    ]
+  },
+  "stats": {
+    "blocks": 7,
+    "lineage_edges": 42,
+    "rule_candidates": 22,
+    "sqlglot_agreeing_columns": 0,
+    "sqlglot_traced_columns": 0,
+    "statements_unparsed": 0,
+    "trap_findings": 7
+  },
+  "warnings": [
+    "lineage agent notes: - n_claims is COUNT(*). No input column feeds its value, so I recorded it as coming from dw.claims_enriched.customer_id (a grouping key) at low confidence. The same applies to points, score and tier through n_claims.\n- severity divides paid by MEAN(paid) without a GROUP BY. SAS fills that mean in across every row of each per-line table, so it is the average over that line's customers. PySpark needs a window over lob_code to match.\n- Only lines MOT, HOM and TRV survive (lines 69 and 74). Rows match lob_code exactly; trailing blanks in char 5 are ignored when SAS compares strings.\n- Both joins on lines 84\u201385 are LEFT joins, so they keep every row. They could still duplicate rows if dw.dim_customer has more than one row per customer_id. dim_customer has version_count and _row_seq, which suggests it may keep history. The scoring step does not dedup.\n- loss_ratio comes from an inner join with rpt.premium_band_summary (line 55). A line with no premium rows gets a missing loss_ratio. That makes lob_points, points, score and tier missing too, and a missing score falls to tier 'LOW'.\n- If date_of_birth is missing, age is missing and age_load is 1.00.\n- The ORDER BY on line 86 only sorts the rows. It decides no row survival, so I recorded no ranks edges."
+  ]
+}

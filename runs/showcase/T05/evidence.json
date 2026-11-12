@@ -1,0 +1,3275 @@
+{
+  "job_id": "T05",
+  "generated_at": "2026-11-12T02:16:43.531280Z",
+  "legacy_path": "estate/tsql/T05_usp_claim_aging.sql",
+  "legacy_sha256": "f443e5070182d5b723af38f23dc653d53fc43f8eb322f5cdd5e1f6bd1893b12f",
+  "discovery": {
+    "job_id": "T05",
+    "status": "flagged",
+    "flags": [
+      "6 statements sqlglot can't parse (lines 104-107, 110-110, 118-122, 125-125, 133-133, 155-155); the translator works from the code itself"
+    ],
+    "blocks": [
+      {
+        "job_id": "T05",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 19,
+        "line_end": 19,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 21,
+        "line_end": 36,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 2,
+        "kind": "other",
+        "line_start": 38,
+        "line_end": 41,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 42,
+        "line_end": 42,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 44,
+        "line_end": 58,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 5,
+        "kind": "other",
+        "line_start": 60,
+        "line_end": 60,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 61,
+        "line_end": 61,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 7,
+        "kind": "statement",
+        "line_start": 63,
+        "line_end": 63,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 64,
+        "line_end": 64,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 67,
+        "line_end": 74,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 76,
+        "line_end": 76,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 77,
+        "line_end": 78,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 81,
+        "line_end": 85,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 87,
+        "line_end": 87,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 88,
+        "line_end": 88,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 89,
+        "line_end": 90,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 92,
+        "line_end": 101,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 104,
+        "line_end": 107,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 109,
+        "line_end": 109,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 110,
+        "line_end": 110,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 20,
+        "kind": "other",
+        "line_start": 112,
+        "line_end": 113,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 114,
+        "line_end": 114,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 22,
+        "kind": "statement",
+        "line_start": 115,
+        "line_end": 115,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 23,
+        "kind": "statement",
+        "line_start": 116,
+        "line_end": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 118,
+        "line_end": 122,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 124,
+        "line_end": 124,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 125,
+        "line_end": 125,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 27,
+        "kind": "other",
+        "line_start": 127,
+        "line_end": 128,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 28,
+        "kind": "statement",
+        "line_start": 129,
+        "line_end": 129,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 29,
+        "kind": "statement",
+        "line_start": 130,
+        "line_end": 130,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 30,
+        "kind": "statement",
+        "line_start": 131,
+        "line_end": 131,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 31,
+        "kind": "statement",
+        "line_start": 133,
+        "line_end": 133,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 32,
+        "kind": "other",
+        "line_start": 134,
+        "line_end": 134,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 33,
+        "kind": "statement",
+        "line_start": 136,
+        "line_end": 136,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 34,
+        "kind": "statement",
+        "line_start": 137,
+        "line_end": 137,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 35,
+        "kind": "statement",
+        "line_start": 140,
+        "line_end": 140,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 36,
+        "kind": "statement",
+        "line_start": 141,
+        "line_end": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 37,
+        "kind": "statement",
+        "line_start": 142,
+        "line_end": 142,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 38,
+        "kind": "statement",
+        "line_start": 145,
+        "line_end": 149,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 39,
+        "kind": "statement",
+        "line_start": 151,
+        "line_end": 153,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 40,
+        "kind": "statement",
+        "line_start": 155,
+        "line_end": 155,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T05",
+        "index": 41,
+        "kind": "other",
+        "line_start": 156,
+        "line_end": 156,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 42,
+        "kind": "statement",
+        "line_start": 158,
+        "line_end": 158,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 43,
+        "kind": "statement",
+        "line_start": 159,
+        "line_end": 159,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 44,
+        "kind": "statement",
+        "line_start": 161,
+        "line_end": 161,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 45,
+        "kind": "statement",
+        "line_start": 162,
+        "line_end": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 46,
+        "kind": "statement",
+        "line_start": 166,
+        "line_end": 166,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 47,
+        "kind": "statement",
+        "line_start": 168,
+        "line_end": 175,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 48,
+        "kind": "statement",
+        "line_start": 177,
+        "line_end": 177,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 49,
+        "kind": "statement",
+        "line_start": 178,
+        "line_end": 179,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 50,
+        "kind": "statement",
+        "line_start": 181,
+        "line_end": 181,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 51,
+        "kind": "other",
+        "line_start": 182,
+        "line_end": 182,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 52,
+        "kind": "other",
+        "line_start": 183,
+        "line_end": 183,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 53,
+        "kind": "statement",
+        "line_start": 184,
+        "line_end": 184,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 54,
+        "kind": "statement",
+        "line_start": 185,
+        "line_end": 186,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 55,
+        "kind": "statement",
+        "line_start": 187,
+        "line_end": 187,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T05",
+        "index": 56,
+        "kind": "other",
+        "line_start": 188,
+        "line_end": 188,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T05",
+        "index": 57,
+        "kind": "other",
+        "line_start": 189,
+        "line_end": 189,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "stg.claim_payments",
+      "stg.claims"
+    ],
+    "writes": [
+      "rpt.claim_aging"
+    ]
+  },
+  "code": {
+    "job_id": "T05",
+    "module_path": "runs/showcase/T05/jobs/t05.py",
+    "code_sha256": "5cb945e3b84952dfde95c307b613b593a664c99a9ee5df85780d5d025267c2ab",
+    "legacy_path": "estate/tsql/T05_usp_claim_aging.sql",
+    "legacy_sha256": "f443e5070182d5b723af38f23dc653d53fc43f8eb322f5cdd5e1f6bd1893b12f",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-04",
+      "TSQL-12",
+      "TSQL-13"
+    ],
+    "defects_reproduced": [
+      "T05-M1",
+      "T05-M2",
+      "T05-M3",
+      "T05-M4",
+      "T05-M5",
+      "T05-M6",
+      "T05-M7"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "OPEN",
+        "line": 26,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "REOPENED",
+        "line": 26,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 58,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 59,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 59,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 81,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 83,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "14",
+        "line": 83,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 83,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 84,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "14",
+        "line": 84,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 84,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "14",
+        "line": 85,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 85,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1899-12-31",
+        "line": 96,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 98,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 99,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0-29",
+        "line": 104,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "30",
+        "line": 104,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "31",
+        "line": 105,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "31-60",
+        "line": 105,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "60",
+        "line": 105,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "60",
+        "line": 106,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "61+",
+        "line": 106,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "UNKNOWN",
+        "line": 107,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T02:16:44.211190Z"
+  },
+  "lineage": [
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "claim_id",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "derives",
+      "transform": "direct copy via #open_claims",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        67,
+        105,
+        110,
+        153,
+        171
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "claim_number",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_number",
+      "kind": "derives",
+      "transform": "direct copy via #open_claims",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        68,
+        171
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(lob_code))",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        69,
+        171
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "reported_date",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "direct copy via #open_claims",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        70,
+        171
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "n_payments",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_id",
+      "kind": "derives",
+      "transform": "count of payment rows per claim in cursor loop",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        81,
+        118,
+        129,
+        153,
+        172
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "n_payments",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "starts at 0, +1 per payment",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        114,
+        129
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "total_paid",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "running sum of amount per claim (cursor)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        81,
+        119,
+        125,
+        130,
+        153,
+        172
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "total_paid",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "initialised to 0; 0 when no payments",
+      "source": "llm",
+      "confidence": 0.75,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        115
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "last_payment_date",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "payment_date of last payment in order (payment_date, payment_id); NULL if none",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        81,
+        119,
+        131,
+        153,
+        172
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "last_activity_date",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "ISNULL(last payment_date, reported_date)",
+      "source": "llm",
+      "confidence": 0.96,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        131,
+        140,
+        153,
+        172
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "last_activity_date",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "ISNULL(last payment_date, reported_date)",
+      "source": "llm",
+      "confidence": 0.96,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        105,
+        110,
+        140,
+        153,
+        172
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "days_since_activity",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        140,
+        141,
+        153
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "days_since_activity",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        140,
+        141,
+        153
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "days_since_activity",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY, last_act, @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        141
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "weeks_open",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        142,
+        153
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "weeks_open",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        142
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "aging_band",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "CASE on days_since_activity",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        140,
+        141,
+        145,
+        146,
+        147,
+        148
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "aging_band",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "CASE on days_since_activity",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        140,
+        141,
+        145,
+        146,
+        147,
+        148
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "aging_band",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE on DATEDIFF(DAY, last_act, @AsOfDate)",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        141,
+        145
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "aging_band",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "band literals '0-29','31-60','61+','UNKNOWN'",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        145,
+        146,
+        147,
+        148
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate stamped",
+      "source": "llm",
+      "confidence": 0.99,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        173
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "status",
+      "kind": "filters",
+      "transform": "status IN ('OPEN','REOPENED')",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        73
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "filters",
+      "transform": "reported_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        74
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "reported_date <= @AsOfDate; payment_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        74,
+        85
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "filters",
+      "transform": "payments limited to payment_date <= @AsOfDate (limits payments aggregated, not output rows)",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        85
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "payments joined to open claims on claim_id / cursor WHERE claim_id = @claim_id (limits payments aggregated)",
+      "source": "llm",
+      "confidence": 0.65,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84,
+        121
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "#aging INNER JOIN #open_claims ON claim_id; payment join key",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84,
+        175
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "ranks",
+      "transform": "pay_cur ORDER BY payment_date, payment_id; last fetched row sets last_payment_date",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        122,
+        131
+      ]
+    },
+    {
+      "job_id": "T05",
+      "output_table": "rpt.claim_aging",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_id",
+      "kind": "ranks",
+      "transform": "tie-break in ORDER BY payment_date, payment_id (tie-break only; it doesn't change the value)",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        122
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-13",
+      "line_start": 67,
+      "line_end": 74,
+      "snippet": "SELECT c.claim_id,\n               c.claim_number,\n               UPPER(RTRIM(c.lob_code)) AS lob_code,\n               c.reported_date\n        INTO   #open_claims\n        FROM   stg.claims AS c WITH (NOLOCK)\n        WHERE  c.status IN ('OPEN', 'REOPENED')\n          AND  c.reported_date <= @AsOfDate;",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #open_claims temp table becomes a DataFrame."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-01",
+      "line_start": 73,
+      "line_end": 73,
+      "snippet": "WHERE  c.status IN ('OPEN', 'REOPENED')",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "status is VARCHAR(12). Under the CI collation, IN ('OPEN','REOPENED') also matches 'Open' and 'reopened'. Spark's isin is case-sensitive and would drop those claims."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-02",
+      "line_start": 73,
+      "line_end": 73,
+      "snippet": "WHERE  c.status IN ('OPEN', 'REOPENED')",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "status is VARCHAR. Values stored with trailing spaces, such as 'OPEN ', still match in SQL Server but not with an exact match in Spark."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-13",
+      "line_start": 81,
+      "line_end": 88,
+      "snippet": "SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n        INTO   #pay\n        FROM   stg.claim_payments AS p WITH (NOLOCK)\n        INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n        WHERE  p.payment_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        CREATE CLUSTERED IN…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #pay temp table and its clustered index become a DataFrame. The index has no Spark equivalent."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-13",
+      "line_start": 92,
+      "line_end": 101,
+      "snippet": "CREATE TABLE #aging (\n            claim_id             INT            NOT NULL PRIMARY KEY,\n            n_payments           INT            NOT NULL,\n            total_paid           DECIMAL(14,2)  NULL,\n            last_payment_date    DATE           NULL,\n            last_activity_date   DATE    …",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The #aging temp table is filled row by row and becomes a DataFrame."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-12",
+      "line_start": 104,
+      "line_end": 156,
+      "snippet": "DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n            SELECT claim_id, reported_date\n            FROM   #open_claims\n            ORDER  BY claim_id;\n\n        OPEN claim_cur;\n        FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n\n        WHILE @@FETCH_STATUS = 0\n        BEGIN\n          …",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "The claim_cur cursor loop handles one claim at a time and inserts into #aging. It becomes a set-based left join and aggregation per claim."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-12",
+      "line_start": 118,
+      "line_end": 137,
+      "snippet": "DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n                SELECT payment_date, amount\n                FROM   #pay\n                WHERE  claim_id = @claim_id\n                ORDER  BY payment_date, payment_id;\n\n            OPEN pay_cur;\n            FETCH NEXT FROM pay_cur INTO @pay_date, @amoun…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The nested pay_cur loop carries n_pay, total and last_pay from row to row in payment_date, payment_id order. It becomes count, sum and max per claim. Claims with no payments must get n_payments=0, total_paid=0 (not NULL) and last_payment_date NULL."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-12",
+      "line_start": 129,
+      "line_end": 131,
+      "snippet": "SET @n_pay    = @n_pay + 1;\n                SET @total    = @total + @amount;\n                SET @last_pay = @pay_date;",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "Latent: amount is nullable. One NULL amount makes @total NULL for the rest of that claim's loop and in the output, while Spark's sum skips NULLs. n_pay still counts that row. last_pay is the date of the last payment in order, which equals the max payment_date."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-04",
+      "line_start": 141,
+      "line_end": 141,
+      "snippet": "SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "DATEDIFF(DAY) on DATE values is the plain day difference, so the value is safe. But Spark's datediff(end, start) takes its arguments in reverse order."
+    },
+    {
+      "job_id": "T05",
+      "trap_id": "TSQL-04",
+      "line_start": 142,
+      "line_end": 142,
+      "snippet": "SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "DATEDIFF(WEEK) counts the Sundays crossed between reported_date and @AsOfDate, not elapsed weeks. floor(datediff/7) would be wrong."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "T05",
+      "table": "gold.claim_aging",
+      "legacy_table": "rpt.claim_aging",
+      "layer": "gold",
+      "grain": "One row per open or re-opened claim notified on or before the reporting date (@AsOfDate), aged on the days since its last payment up to that date, or since its reported date if nothing has been paid.",
+      "keys": [
+        "claim_id"
+      ],
+      "columns": [
+        {
+          "name": "claim_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claim_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": "UPPER(RTRIM(stg.claims.lob_code)).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "reported_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "n_payments",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Count of payments dated on or before @AsOfDate; 0 when there are none.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "total_paid",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Running sum that starts at 0, so it is 0 (not NULL) when there are no payments. If any payment amount is NULL the sum becomes NULL, which explains the 23 NULLs.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "last_payment_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Date of the last payment on or before @AsOfDate, taken from the last row when payments are ordered by payment_date then payment_id. NULL when there are no payments.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "last_activity_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "ISNULL(last_payment_date, reported_date).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "days_since_activity",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "DATEDIFF(DAY, last_activity_date, as_of_date).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "weeks_open",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "T-SQL DATEDIFF(WEEK, reported_date, as_of_date): counts how many week boundaries (Sundays) fall between the two dates, not days divided by 7.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "aging_band",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": "'0-29' when days < 30, '31-60' for 31-60, '61+' when days > 60. Because of a legacy gap, days = 30 falls through to 'UNKNOWN'.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The @AsOfDate parameter of the run. It is the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "lob_code",
+        "aging_band"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 823,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "T05-D1",
+      "job_id": "T05",
+      "title": "Ageing band gap: 30 days falls into UNKNOWN",
+      "description": "The band CASE uses @days < 30 for '0-29' and BETWEEN 31 AND 60 for '31-60'. A claim with exactly 30 days since last activity matches neither and gets 'UNKNOWN'. days_since_activity is never negative (reported_date <= AsOfDate and payment_date <= AsOfDate), so 30 is the only value that reaches UNKNOWN.",
+      "intended_behaviour": "The bands should cover every value with no gaps: 0-29, 30-60, 61+ (or 0-30, 31-60, 61+). Day 30 should get a real band, not UNKNOWN.",
+      "evidence_lines": [
+        145,
+        146,
+        147,
+        148
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_aging WHERE days_since_activity = 30 OR aging_band = 'UNKNOWN'",
+      "impact": {
+        "rows_affected": 31,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T05",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_aging WHERE days_since_activity = 30 OR aging_band = 'UNKNOWN'"
+      },
+      "source": "llm",
+      "confidence": 0.85
+    },
+    {
+      "defect_id": "T05-D2",
+      "job_id": "T05",
+      "title": "weeks_open counts week boundaries, not elapsed weeks",
+      "description": "weeks_open = DATEDIFF(WEEK, @reported, @AsOfDate). This counts the Sunday week boundaries crossed, not completed 7-day weeks, so a claim reported on a Saturday shows 1 week open the next day and the result can be one week off from the real elapsed weeks.",
+      "intended_behaviour": "Whole weeks the claim has been open, i.e. FLOOR(DATEDIFF(DAY, reported_date, AsOfDate) / 7).",
+      "evidence_lines": [
+        142
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(weeks_open - CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT))), 0) AS amount_affected FROM golden_rpt_claim_aging WHERE weeks_open <> CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT)",
+      "impact": {
+        "rows_affected": 361,
+        "amount_affected": "361.00",
+        "amount_column": "weeks_open",
+        "measured_on": "golden:T05",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(weeks_open - CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT))), 0) AS amount_affected FROM golden_rpt_claim_aging WHERE weeks_open <> CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT)"
+      },
+      "source": "llm",
+      "confidence": 0.5
+    },
+    {
+      "defect_id": "T05-D3",
+      "job_id": "T05",
+      "title": "A NULL payment amount makes total_paid NULL",
+      "description": "The cursor builds the total with SET @total = @total + @amount. If any payment up to the reporting date has a NULL amount, the running total becomes NULL and stays NULL, so total_paid is NULL for the whole claim even though its other payments have amounts. The NULL-amount payment is still counted in n_payments.",
+      "intended_behaviour": "NULL amounts should be ignored (as SUM does), so total_paid is the sum of the known payment amounts.",
+      "evidence_lines": [
+        28,
+        95,
+        115,
+        130
+      ],
+      "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS amt, SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(p.amt, 0))), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN p ON p.claim_id = g.claim_id WHERE p.n_null > 0",
+      "impact": {
+        "rows_affected": 23,
+        "amount_affected": "74884.99",
+        "amount_column": "total_paid",
+        "measured_on": "golden:T05",
+        "query": "WITH p AS (SELECT claim_id, SUM(amount) AS amt, SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(p.amt, 0))), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN p ON p.claim_id = g.claim_id WHERE p.n_null > 0"
+      },
+      "source": "llm",
+      "confidence": 0.45
+    },
+    {
+      "defect_id": "T05-D4",
+      "job_id": "T05",
+      "title": "Duplicate staged payment rows are double-counted",
+      "description": "Payments are copied from stg.claim_payments without removing duplicates (staging has a _row_seq column, which suggests a payment can be loaded more than once). If a payment_id appears more than once for a claim, every copy is added to n_payments and total_paid.",
+      "intended_behaviour": "Each payment (claim_id, payment_id) should be counted once.",
+      "evidence_lines": [
+        81,
+        82,
+        83,
+        84,
+        85,
+        129,
+        130
+      ],
+      "impact_query": "WITH d AS (SELECT claim_id, payment_id, COUNT(*) AS c, MAX(amount) AS amt FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id, payment_id HAVING COUNT(*) > 1), per AS (SELECT claim_id, SUM((c - 1) * COALESCE(amt, 0)) AS extra FROM d GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(per.extra)), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN per ON per.claim_id = g.claim_id",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "total_paid",
+        "measured_on": "golden:T05",
+        "query": "WITH d AS (SELECT claim_id, payment_id, COUNT(*) AS c, MAX(amount) AS amt FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id, payment_id HAVING COUNT(*) > 1), per AS (SELECT claim_id, SUM((c - 1) * COALESCE(amt, 0)) AS extra FROM d GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(per.extra)), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN per ON per.claim_id = g.claim_id"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "T05-D1",
+      "job_id": "T05",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:01:35.240693Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T05-D2",
+      "job_id": "T05",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:01:35.241227Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T05-D3",
+      "job_id": "T05",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:01:35.241729Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T05-D4",
+      "job_id": "T05",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:01:35.242217Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [
+    {
+      "job_id": "T05",
+      "table": "rpt.claim_aging",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "5cb945e3b84952dfde95c307b613b593a664c99a9ee5df85780d5d025267c2ab",
+      "keys": [
+        "claim_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 823,
+        "candidate": 823,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', aging_band='0-29'",
+            "legacy": 93,
+            "candidate": 93
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='31-60'",
+            "legacy": 36,
+            "candidate": 36
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='61+'",
+            "legacy": 131,
+            "candidate": 131
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='UNKNOWN'",
+            "legacy": 10,
+            "candidate": 10
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='0-29'",
+            "legacy": 150,
+            "candidate": 150
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='31-60'",
+            "legacy": 88,
+            "candidate": 88
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='61+'",
+            "legacy": 229,
+            "candidate": 229
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='UNKNOWN'",
+            "legacy": 19,
+            "candidate": 19
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='0-29'",
+            "legacy": 22,
+            "candidate": 22
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='31-60'",
+            "legacy": 11,
+            "candidate": 11
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='61+'",
+            "legacy": 32,
+            "candidate": 32
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='UNKNOWN'",
+            "legacy": 2,
+            "candidate": 2
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "claim_id",
+          "legacy": "248594498",
+          "candidate": "248594498",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_payments",
+          "legacy": "1979",
+          "candidate": "1979",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "total_paid",
+          "legacy": "2904669.63",
+          "candidate": "2904669.63",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "days_since_activity",
+          "legacy": "118343",
+          "candidate": "118343",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "weeks_open",
+          "legacy": "40753",
+          "candidate": "40753",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 823,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 823 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "37d71b0f678842552b6f25561e451a329537686803c990a5ac5da280050b3d5d",
+      "golden_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+      "candidate_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+      "started_at": "2026-11-12T02:17:06.833884Z",
+      "duration_seconds": 0.86,
+      "error": null
+    },
+    {
+      "job_id": "T05",
+      "table": "rpt.claim_aging",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "claim_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 823,
+        "candidate": 823,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', aging_band='0-29'",
+            "legacy": 93,
+            "candidate": 93
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='31-60'",
+            "legacy": 36,
+            "candidate": 36
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='61+'",
+            "legacy": 131,
+            "candidate": 131
+          },
+          {
+            "partition": "lob_code='HOM', aging_band='UNKNOWN'",
+            "legacy": 10,
+            "candidate": 10
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='0-29'",
+            "legacy": 150,
+            "candidate": 150
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='31-60'",
+            "legacy": 88,
+            "candidate": 88
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='61+'",
+            "legacy": 229,
+            "candidate": 229
+          },
+          {
+            "partition": "lob_code='MOT', aging_band='UNKNOWN'",
+            "legacy": 19,
+            "candidate": 19
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='0-29'",
+            "legacy": 22,
+            "candidate": 22
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='31-60'",
+            "legacy": 11,
+            "candidate": 11
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='61+'",
+            "legacy": 32,
+            "candidate": 32
+          },
+          {
+            "partition": "lob_code='TRV', aging_band='UNKNOWN'",
+            "legacy": 2,
+            "candidate": 2
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "claim_id",
+          "legacy": "248594498",
+          "candidate": "248594498",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_payments",
+          "legacy": "1979",
+          "candidate": "1979",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "total_paid",
+          "legacy": "2904669.63",
+          "candidate": "2904669.63",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "days_since_activity",
+          "legacy": "118343",
+          "candidate": "118343",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "weeks_open",
+          "legacy": "40753",
+          "candidate": "40753",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 823,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 823 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "37d71b0f678842552b6f25561e451a329537686803c990a5ac5da280050b3d5d",
+      "golden_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+      "candidate_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+      "started_at": "2026-11-12T02:18:48.449428Z",
+      "duration_seconds": 3.442,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "T05-TSQL-01-1",
+      "job_id": "T05",
+      "trap_id": "TSQL-01",
+      "description": "Open-book filter with mixed-case status values. Claims 1 and 2 use the canonical 'OPEN' and 'REOPENED'. Claims 3, 4 and 5 hold 'Open', 'reopened' and 'ReOpened'; the case-insensitive collation keeps them in the open book. Claim 6 is 'CLOSED' and is excluded either way. A naive Spark isin(['OPEN','REOPENED']) is case-sensitive, so it would drop claims 3-5 and their payments.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "101",
+              "201",
+              "MOT",
+              "2025-10-01",
+              "2025-10-05",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "102",
+              "202",
+              "HOME",
+              "2025-09-10",
+              "2025-09-12",
+              "REOPENED",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "103",
+              "203",
+              "MOT",
+              "2025-11-01",
+              "2025-11-03",
+              "Open",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "104",
+              "204",
+              "HOME",
+              "2025-08-01",
+              "2025-08-04",
+              "reopened",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "105",
+              "205",
+              "LIAB",
+              "2025-12-01",
+              "2025-12-02",
+              "ReOpened",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0006",
+              "106",
+              "206",
+              "MOT",
+              "2025-07-01",
+              "2025-07-03",
+              "CLOSED",
+              "2025-09-01",
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1001",
+              "1",
+              "2025-11-15",
+              "500.00",
+              "INDEMNITY",
+              null,
+              "1"
+            ],
+            [
+              "1002",
+              "2",
+              "2025-10-20",
+              "1200.00",
+              "INDEMNITY",
+              null,
+              "2"
+            ],
+            [
+              "1003",
+              "3",
+              "2025-12-10",
+              "300.00",
+              "FEE",
+              null,
+              "3"
+            ],
+            [
+              "1004",
+              "4",
+              "2025-09-30",
+              "750.50",
+              "INDEMNITY",
+              null,
+              "4"
+            ],
+            [
+              "1005",
+              "5",
+              "2025-12-20",
+              "90.00",
+              "EXPENSE",
+              null,
+              "5"
+            ],
+            [
+              "1006",
+              "6",
+              "2025-08-15",
+              "400.00",
+              "INDEMNITY",
+              null,
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.claim_aging",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "lob_code",
+            "reported_date",
+            "n_payments",
+            "total_paid",
+            "last_payment_date",
+            "last_activity_date",
+            "days_since_activity",
+            "weeks_open",
+            "aging_band",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "MOT",
+              "2025-10-05",
+              "1",
+              "500.00",
+              "2025-11-15",
+              "2025-11-15",
+              "46",
+              "12",
+              "31-60",
+              "2025-12-31"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "HOME",
+              "2025-09-12",
+              "1",
+              "1200.00",
+              "2025-10-20",
+              "2025-10-20",
+              "72",
+              "16",
+              "61+",
+              "2025-12-31"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "MOT",
+              "2025-11-03",
+              "1",
+              "300.00",
+              "2025-12-10",
+              "2025-12-10",
+              "21",
+              "8",
+              "0-29",
+              "2025-12-31"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "HOME",
+              "2025-08-04",
+              "1",
+              "750.50",
+              "2025-09-30",
+              "2025-09-30",
+              "92",
+              "21",
+              "61+",
+              "2025-12-31"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "LIAB",
+              "2025-12-02",
+              "1",
+              "90.00",
+              "2025-12-20",
+              "2025-12-20",
+              "11",
+              "4",
+              "0-29",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t05.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T05-TSQL-02-2",
+      "job_id": "T05",
+      "trap_id": "TSQL-02",
+      "description": "Status values stored with trailing spaces. Claims 1 and 2 are the canonical 'OPEN' and 'REOPENED'. Claims 3, 4 and 5 are 'OPEN ', 'REOPENED  ' and 'OPEN   '. SQL Server ignores trailing spaces when comparing, so it keeps them in the open book. Claim 6 is 'CLOSED ' and is excluded either way. An exact-match filter in Spark would drop claims 3-5.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0101",
+              "111",
+              "211",
+              "MOT",
+              "2025-10-01",
+              "2025-10-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0102",
+              "112",
+              "212",
+              "HOME",
+              "2025-09-01",
+              "2025-09-03",
+              "REOPENED",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0103",
+              "113",
+              "213",
+              "MOT",
+              "2025-11-10",
+              "2025-11-12",
+              "OPEN ",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0104",
+              "114",
+              "214",
+              "LIAB",
+              "2025-06-01",
+              "2025-06-05",
+              "REOPENED  ",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0105",
+              "115",
+              "215",
+              "HOME",
+              "2025-12-05",
+              "2025-12-08",
+              "OPEN   ",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0106",
+              "116",
+              "216",
+              "MOT",
+              "2025-05-01",
+              "2025-05-02",
+              "CLOSED ",
+              "2025-07-01",
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2001",
+              "1",
+              "2025-11-20",
+              "250.00",
+              "INDEMNITY",
+              null,
+              "1"
+            ],
+            [
+              "2002",
+              "2",
+              "2025-10-01",
+              "600.00",
+              "INDEMNITY",
+              null,
+              "2"
+            ],
+            [
+              "2003",
+              "3",
+              "2025-12-01",
+              "180.25",
+              "FEE",
+              null,
+              "3"
+            ],
+            [
+              "2004",
+              "4",
+              "2025-08-15",
+              "1000.00",
+              "INDEMNITY",
+              null,
+              "4"
+            ],
+            [
+              "2005",
+              "5",
+              "2025-12-15",
+              "75.00",
+              "EXPENSE",
+              null,
+              "5"
+            ],
+            [
+              "2006",
+              "6",
+              "2025-06-01",
+              "300.00",
+              "INDEMNITY",
+              null,
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.claim_aging",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "lob_code",
+            "reported_date",
+            "n_payments",
+            "total_paid",
+            "last_payment_date",
+            "last_activity_date",
+            "days_since_activity",
+            "weeks_open",
+            "aging_band",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0101",
+              "MOT",
+              "2025-10-02",
+              "1",
+              "250.00",
+              "2025-11-20",
+              "2025-11-20",
+              "41",
+              "13",
+              "31-60",
+              "2025-12-31"
+            ],
+            [
+              "2",
+              "CLM-0102",
+              "HOME",
+              "2025-09-03",
+              "1",
+              "600.00",
+              "2025-10-01",
+              "2025-10-01",
+              "91",
+              "17",
+              "61+",
+              "2025-12-31"
+            ],
+            [
+              "3",
+              "CLM-0103",
+              "MOT",
+              "2025-11-12",
+              "1",
+              "180.25",
+              "2025-12-01",
+              "2025-12-01",
+              "30",
+              "7",
+              "UNKNOWN",
+              "2025-12-31"
+            ],
+            [
+              "4",
+              "CLM-0104",
+              "LIAB",
+              "2025-06-05",
+              "1",
+              "1000.00",
+              "2025-08-15",
+              "2025-08-15",
+              "138",
+              "30",
+              "61+",
+              "2025-12-31"
+            ],
+            [
+              "5",
+              "CLM-0105",
+              "HOME",
+              "2025-12-08",
+              "1",
+              "75.00",
+              "2025-12-15",
+              "2025-12-15",
+              "16",
+              "3",
+              "0-29",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t05.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T05-TSQL-04-3",
+      "job_id": "T05",
+      "trap_id": "TSQL-04",
+      "description": "DATEDIFF semantics on lines 141 and 142, with AsOfDate 2025-12-31 (a Wednesday). Every claim has a non-zero day gap, so a Spark datediff(start, end) with the arguments reversed would give negative days_since_activity and push claims into the wrong band. DATEDIFF(WEEK) counts the Sundays crossed, which differs from floor(days/7) in these claims: claim 1 reported 2025-12-26 (Friday, 5 days, crosses 12-28); claim 2 reported 2025-12-20 (Saturday, 11 days, crosses 12-21 and 12-28); claim 3 reported 2025-12-27 (Saturday, 4 days). Claim 4 is reported on a Sunday, 2025-12-21, and is a control case where both methods agree. Claim 5 (reported 2025-09-06, a Saturday, with payments) and claim 6 (reported 2025-11-29, a Saturday, unpaid) cover longer gaps. Some payments fall after the reporting date and must be ignored.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0201",
+              "121",
+              "221",
+              "MOT",
+              "2025-12-24",
+              "2025-12-26",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0202",
+              "122",
+              "222",
+              "HOME",
+              "2025-12-18",
+              "2025-12-20",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0203",
+              "123",
+              "223",
+              "MOT",
+              "2025-12-25",
+              "2025-12-27",
+              "REOPENED",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0204",
+              "124",
+              "224",
+              "LIAB",
+              "2025-12-19",
+              "2025-12-21",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0205",
+              "125",
+              "225",
+              "HOME",
+              "2025-09-01",
+              "2025-09-06",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0206",
+              "126",
+              "226",
+              "MOT",
+              "2025-11-25",
+              "2025-11-29",
+              "REOPENED",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "3001",
+              "2",
+              "2025-12-22",
+              "150.00",
+              "INDEMNITY",
+              null,
+              "1"
+            ],
+            [
+              "3002",
+              "5",
+              "2025-09-20",
+              "400.00",
+              "INDEMNITY",
+              null,
+              "2"
+            ],
+            [
+              "3003",
+              "5",
+              "2025-10-15",
+              "275.50",
+              "FEE",
+              null,
+              "3"
+            ],
+            [
+              "3004",
+              "5",
+              "2026-01-10",
+              "999.00",
+              "INDEMNITY",
+              null,
+              "4"
+            ],
+            [
+              "3005",
+              "1",
+              "2026-01-05",
+              "50.00",
+              "EXPENSE",
+              null,
+              "5"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.claim_aging",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "lob_code",
+            "reported_date",
+            "n_payments",
+            "total_paid",
+            "last_payment_date",
+            "last_activity_date",
+            "days_since_activity",
+            "weeks_open",
+            "aging_band",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0201",
+              "MOT",
+              "2025-12-26",
+              "0",
+              "0.00",
+              null,
+              "2025-12-26",
+              "5",
+              "1",
+              "0-29",
+              "2025-12-31"
+            ],
+            [
+              "2",
+              "CLM-0202",
+              "HOME",
+              "2025-12-20",
+              "1",
+              "150.00",
+              "2025-12-22",
+              "2025-12-22",
+              "9",
+              "2",
+              "0-29",
+              "2025-12-31"
+            ],
+            [
+              "3",
+              "CLM-0203",
+              "MOT",
+              "2025-12-27",
+              "0",
+              "0.00",
+              null,
+              "2025-12-27",
+              "4",
+              "1",
+              "0-29",
+              "2025-12-31"
+            ],
+            [
+              "4",
+              "CLM-0204",
+              "LIAB",
+              "2025-12-21",
+              "0",
+              "0.00",
+              null,
+              "2025-12-21",
+              "10",
+              "1",
+              "0-29",
+              "2025-12-31"
+            ],
+            [
+              "5",
+              "CLM-0205",
+              "HOME",
+              "2025-09-06",
+              "2",
+              "675.50",
+              "2025-10-15",
+              "2025-10-15",
+              "77",
+              "17",
+              "61+",
+              "2025-12-31"
+            ],
+            [
+              "6",
+              "CLM-0206",
+              "MOT",
+              "2025-11-29",
+              "0",
+              "0.00",
+              null,
+              "2025-11-29",
+              "32",
+              "5",
+              "31-60",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t05.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "0c02fb326f804c00a7830ee1389ab5f6",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "T05",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "fe574fe328f29e0a4fbaef1b455f9fa7b7a165a285c311d74d745f970a26e4e5",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 1710,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 8841,
+      "duration_ms": 16567,
+      "cost_usd_equivalent": 0.10519780000000001,
+      "replayed": true
+    },
+    {
+      "call_id": "c7fbbf5f4fb54e56ae7bbcc7ef269553",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "T05",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "28940efaf7d1370fd7ff70455a03b01c0f64b7efca39b4addc8c937ec0b5b6a6",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 4484,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5075,
+      "duration_ms": 35816,
+      "cost_usd_equivalent": 0.1306618,
+      "replayed": true
+    },
+    {
+      "call_id": "9b6d4ef5570745eba5b01f82ca0283b3",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "T05",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "e7e2b98d460600461d437b2ddf2d79b03930d002cd95455a7f1c735091f083ad",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 728,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4315,
+      "duration_ms": 7541,
+      "cost_usd_equivalent": 0.0492678,
+      "replayed": true
+    },
+    {
+      "call_id": "1a4a66b016d54971b9989607ae4ae736",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "T05",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "40a71f88f5ac8fa18245ecb4552440d27ea841a18705e14c93fa6fbd9d8b9b8c",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 3994,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 4998,
+      "duration_ms": 38584,
+      "cost_usd_equivalent": 0.12014620000000001,
+      "replayed": true
+    },
+    {
+      "call_id": "f4191ca233034550a7678bb16273294e",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "T05",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "253a26fd8fc3160ada9febcf8c93ba31a6288e746d4b8bb5cc9a791d428ab74b",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5360,
+      "cache_read_tokens": 2221,
+      "cache_creation_tokens": 11172,
+      "duration_ms": 47110,
+      "cost_usd_equivalent": 0.1970282,
+      "replayed": true
+    },
+    {
+      "call_id": "46f91f6c03ad4c2980825ad2318a7f7e",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "T05",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "6946b0d4102d0503614f03aa860568776e99f27fc3df87ea70184dceb88fa5b6",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 4089,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 5418,
+      "duration_ms": 32662,
+      "cost_usd_equivalent": 0.1254166,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "3b6b2f7a7d5c",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "T05"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: flagged: 6 statements sqlglot can't parse (lines 104-107, 110-110, 118-122, 125-125, 133-133, 155-155); the translator works from the code itself; lineage of rpt.claim_aging.aging_band disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only: ['aging; lineage of rpt.claim_aging.days_since_activity disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only; lineage of rpt.claim_aging.last_activity_date disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only:; lineage of rpt.claim_aging.last_payment_date disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date']; sqlglot only: ['aging.last_payment_date']); lineage of rpt.claim_aging.n_payments disagrees with sqlglot (agent only: ['stg.claim_payments.payment_id']; sqlglot only: ['aging.n_payments']); lineage of rpt.claim_aging.total_paid disagrees with sqlglot (agent only: ['stg.claim_payments.amount']; sqlglot only: ['aging.total_paid']); lineage of rpt.claim_aging.weeks_open disagrees with sqlglot (agent only: ['stg.claims.reported_date']; sqlglot only: ['aging.weeks_open']); lineage agent notes: 1) Bug in aging_band (lines 145-148): when days_since_activity = 30 the row falls into 'UNKNOWN', because the bands are <30, 31-60 and >60.",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T05/discovery.json",
+          "sha256": "b33d26f93a4e7cd6d9aaa5ca730798faa8fbe531a11c9eb4f831c3a76052c50b"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/T05/lineage.json",
+          "sha256": "7a5ff5320843a672247a3a55859c1d7428c7a1c20f779625e512f3ef566f672d"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/T05/traps.json",
+          "sha256": "e8d7f1e9e322aca72824fb475f80e135a422026dab69b4292ee331c95354dfd4"
+        }
+      ],
+      "warnings": [
+        "flagged: 6 statements sqlglot can't parse (lines 104-107, 110-110, 118-122, 125-125, 133-133, 155-155); the translator works from the code itself",
+        "lineage of rpt.claim_aging.aging_band disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only: ['aging.aging_band'])",
+        "lineage of rpt.claim_aging.days_since_activity disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only: ['aging.days_since_activity'])",
+        "lineage of rpt.claim_aging.last_activity_date disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date', 'stg.claims.reported_date']; sqlglot only: ['aging.last_activity_date'])",
+        "lineage of rpt.claim_aging.last_payment_date disagrees with sqlglot (agent only: ['stg.claim_payments.payment_date']; sqlglot only: ['aging.last_payment_date'])",
+        "lineage of rpt.claim_aging.n_payments disagrees with sqlglot (agent only: ['stg.claim_payments.payment_id']; sqlglot only: ['aging.n_payments'])",
+        "lineage of rpt.claim_aging.total_paid disagrees with sqlglot (agent only: ['stg.claim_payments.amount']; sqlglot only: ['aging.total_paid'])",
+        "lineage of rpt.claim_aging.weeks_open disagrees with sqlglot (agent only: ['stg.claims.reported_date']; sqlglot only: ['aging.weeks_open'])",
+        "lineage agent notes: 1) Bug in aging_band (lines 145-148): when days_since_activity = 30 the row falls into 'UNKNOWN', because the bands are <30, 31-60 and >60. The PySpark port must keep this. 2) total_paid is 0, not NULL, when a claim has no payments (@total starts at 0 on line 115), even though the column allows NULL. last_payment_date is NULL in that case. 3) n_payments is a count of payment rows. It is mapped to stg.claim_payments.payment_id plus a constant, with lower confidence. 4) The filters on payment_date, the payment claim_id join and @AsOfDate on line 85 only limit which payments are added up. They don't decide which output rows appear; one row is written per open claim. 5) The final join of #aging to #open_claims (line 175) is a 1:1 match on stg.claims.claim_id. 6) The ORDER BY on payment_date, payment_id decides which payment's date becomes last_payment_date (the last one fetched). The payment_id tie-break doesn't change the value. 7) DATEDIFF(WEEK) counts week boundaries crossed (Sunday-based by default), not elapsed days divided by 7. The port must match this."
+      ],
+      "shown_at": "2026-11-12T02:00:47.240221Z",
+      "decided_at": "2026-11-12T02:00:47.240243Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "3a05e7a4cafdde1706b37ad31772fad50b48d9911de833758ccdbc6a6165d936"
+    },
+    {
+      "decision_id": "bae48f705fb1",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "T05"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: T05-D1 suspected defect: Ageing band gap: 30 days falls into UNKNOWN (31 rows); T05-D2 suspected defect: weeks_open counts week boundaries, not elapsed weeks (361 rows); T05-D3 suspected defect: A NULL payment amount makes total_paid NULL (23 rows); T05-D4 suspected defect: Duplicate staged payment rows are double-counted (0 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/T05/contracts/rpt.claim_aging.json",
+          "sha256": "d27196088642a993c6e9af5605536fe8b22e0678075672780fd39f0a83d51e8d"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/T05/defects.json",
+          "sha256": "64a7b902d7b445b1f8f87b0f4f9c4310fc276a1f1c2365ebffb3cbfd65a32882"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/T05/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "T05-D1 suspected defect: Ageing band gap: 30 days falls into UNKNOWN (31 rows)",
+        "T05-D2 suspected defect: weeks_open counts week boundaries, not elapsed weeks (361 rows)",
+        "T05-D3 suspected defect: A NULL payment amount makes total_paid NULL (23 rows)",
+        "T05-D4 suspected defect: Duplicate staged payment rows are double-counted (0 rows)"
+      ],
+      "shown_at": "2026-11-12T02:01:35.243932Z",
+      "decided_at": "2026-11-12T02:01:35.244376Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "216150a94742da80517d2500c2638e5747cde497957a93ac6ff80e189f0ce5ef"
+    },
+    {
+      "decision_id": "6915f42843d8",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T05"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: The two cursor loops are replaced by one aggregation per claim on #pay, which is then left-joined to #open_claims:\n- n_payments = count(*), or",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T05/jobs/t05.py",
+          "sha256": "5cb945e3b84952dfde95c307b613b593a664c99a9ee5df85780d5d025267c2ab"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T05/guardrails.json",
+          "sha256": "c1f1f718f48d9725c4ff89d70926ba9a1b239c3d3179552140b22c927ffe2ca5"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T05/tests.json",
+          "sha256": "050a2871d1705223648095cdd7c23a37f8fc4bb9d4f5404b089690daf2efb896"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T05/tests/cases/t05.json",
+          "sha256": "53a73e39846e3975cb31c040ee283d4943a97a762d3a090924eaa1f6a82481d4"
+        }
+      ],
+      "warnings": [
+        "translator notes: The two cursor loops are replaced by one aggregation per claim on #pay, which is then left-joined to #open_claims:\n- n_payments = count(*), or 0 when a claim has no payments.\n- total_paid = 0 when a claim has no payments, NULL when any amount is NULL, otherwise sum(amount).\n- last_payment_date = max(payment_date). This equals the last row in (payment_date, payment_id) order because the <= AsOfDate filter removes NULL dates.\n\nBecause one output row is built per open claim, this left join stands in for the final #aging-to-#open_claims inner join. It assumes claim_id is unique and not NULL in stg.claims. If it isn't, the legacy job would fail on the #aging primary key, and this port would instead write duplicate rows.\n\nweeks_open is the difference of Sunday-anchored week numbers, using DATE 1899-12-31 (a Sunday) from the TSQL-04 card.\n\nThe status filter matches on upper(rtrim(status)), following TSQL-01 and TSQL-02. lob_code is output as UPPER(RTRIM(lob_code)), as in the legacy SELECT.\n\ntotal_paid is cast to decimal(14,2) inside the job. Under ANSI mode, a total too large for that type raises an error, as the legacy assignment to @total would."
+      ],
+      "shown_at": "2026-11-12T02:03:09.153761Z",
+      "decided_at": "2026-11-12T02:03:09.154255Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "ab8a64e733835dd148254a6348be65302b15bc4f9e063c08c167c12479e50eab"
+    },
+    {
+      "decision_id": "e815751f17a8",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T05"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T05/recon/rpt.claim_aging.json",
+          "sha256": "b90da8a21e462de0b6260eb261525c858d340020cad26d59189a6bfb20581856"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T05/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:03:18.610456Z",
+      "decided_at": "2026-11-12T02:03:18.610939Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "671f7baeb48d0f9cb4cc54a4c057b1ea3a5f0ebabe7a80de06b9631dba5e4e41"
+    },
+    {
+      "decision_id": "da748a422e66",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:08:04.297467Z",
+      "decided_at": "2026-11-12T02:08:04.299567Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "e2f497c3b45892eecb21db867ec6d24232282de2c3f69533e0ccd18e370a3bd1"
+    },
+    {
+      "decision_id": "b06c86a4f3d7",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05",
+        "T06"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T06/operate.json",
+          "sha256": "8771ef7a397abaf9befdd17711f1a37f6d7772efe98858f3bf4a32018a5aa56a"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:19:08.155201Z",
+      "decided_at": "2026-11-12T02:19:08.158224Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "fe81151351c2cfdf0d6100152f548aadc564833b508ba5f18f0ba331a61acc8d"
+    }
+  ]
+}

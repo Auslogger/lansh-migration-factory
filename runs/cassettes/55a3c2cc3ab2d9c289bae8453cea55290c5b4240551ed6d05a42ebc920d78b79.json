@@ -1,0 +1,912 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T00:59:53.495398Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary (tsql), file estate/tsql/T04_usp_build_claims_summary.sql.\nOpen claims with paid, reserve and incurred to date.\nParameters: AsOfDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_build_claims_summary\n  3 |   Purpose   Open claims summary for the claims MI pack: one row per claim that\n  4 |             is open or reopened at the reporting date, with paid, case reserve\n  5 |             and incurred to date.\n  6 |   Author    JMcK\n  7 |   Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  8 |   Output    rpt.claims_summary (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2014-09-03  JMcK  Initial version (CR-0871)\n 12 |     2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n 13 |     2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n 14 |     2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n 15 |     2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n 16 |     2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\n 21 | CREATE TABLE rpt.claims_summary (\n 22 |     claim_id           INT            NOT NULL,\n 23 |     claim_number       VARCHAR(20)    NOT NULL,\n 24 |     claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n 25 |     policy_id          INT            NOT NULL,\n 26 |     policy_number      VARCHAR(20)    NULL,\n 27 |     lob_code           VARCHAR(5)     NOT NULL,\n 28 |     status             VARCHAR(12)    NOT NULL,\n 29 |     handler_code       VARCHAR(8)     NULL,\n 30 |     loss_date          DATE           NOT NULL,\n 31 |     loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n 32 |     reported_date      DATE           NOT NULL,\n 33 |     reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n 34 |     days_open          INT            NOT NULL,\n 35 |     n_payments         INT            NOT NULL,\n 36 |     total_paid         DECIMAL(14,2)  NOT NULL,\n 37 |     indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n 38 |     expense_reserve    DECIMAL(14,2)  NOT NULL,\n 39 |     current_reserve    DECIMAL(14,2)  NOT NULL,\n 40 |     incurred           DECIMAL(14,2)  NOT NULL,\n 41 |     as_of_date         DATE           NOT NULL,\n 42 |     CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n 52 |             @rows           INT,\n 53 |             @snapshot_date  DATE,\n 54 |             @err_msg        NVARCHAR(4000),\n 55 |             @err_no         INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Open book: claims open or reopened and notified by the reporting date */\n 61 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 62 | \n 63 |         SELECT  c.claim_id,\n 64 |                 c.claim_number,\n 65 |                 c.policy_id,\n 66 |                 UPPER(RTRIM(c.lob_code))    AS lob_code,\n 67 |                 c.status,\n 68 |                 c.handler_code,\n 69 |                 c.loss_date,\n 70 |                 c.reported_date\n 71 |         INTO    #open_claims\n 72 |         FROM    stg.claims c WITH (NOLOCK)\n 73 |         WHERE   c.status IN ('OPEN', 'REOPENED')\n 74 |           AND   c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n 78 | \n 79 |         /* Case reserve per claim and reserve type: the latest entry on or before\n 80 |            the reporting date (a second entry on the same day is a correction) */\n 81 |         IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n 82 | \n 83 |         SELECT  x.claim_id,\n 84 |                 x.reserve_type,\n 85 |                 x.reserve_amount\n 86 |         INTO    #reserve\n 87 |         FROM   (SELECT  r.claim_id,\n 88 |                         r.reserve_type,\n 89 |                         r.reserve_amount,\n 90 |                         ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n 91 |                                            ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 92 |                 FROM    stg.claim_reserves r WITH (NOLOCK)\n 93 |                 JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n 94 |                 WHERE   r.reserve_date <= @AsOfDate) x\n 95 |         WHERE   x.rn = 1;\n 96 | \n 97 |         SET @rows = @@ROWCOUNT;\n 98 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         /* Paid to date and case reserves per claim */\n101 |         IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n102 | \n103 |         SELECT  oc.claim_id,\n104 |                 COUNT(DISTINCT p.payment_id)    AS n_payments,\n105 |                 ISNULL(SUM(p.amount), 0)        AS total_paid,\n106 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n107 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n108 |         INTO    #money\n109 |         FROM    #open_claims oc\n110 |         LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n111 |                ON p.claim_id = oc.claim_id\n112 |               AND p.payment_date <= @AsOfDate\n113 |         LEFT JOIN #reserve r\n114 |                ON r.claim_id = oc.claim_id\n115 |         GROUP BY oc.claim_id;\n116 | \n117 |         SET @rows = @@ROWCOUNT;\n118 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n119 | \n120 |         /* Policy number from the latest policy extract on or before the reporting date */\n121 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n122 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n123 |         WHERE   ps.snapshot_date <= @AsOfDate;\n124 | \n125 |         BEGIN TRANSACTION;\n126 | \n127 |         TRUNCATE TABLE rpt.claims_summary;\n128 | \n129 |         INSERT INTO rpt.claims_summary\n130 |                (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n131 |                 status, handler_code, loss_date, loss_date_text, reported_date,\n132 |                 reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n133 |                 expense_reserve, current_reserve, incurred, as_of_date)\n134 |         SELECT  oc.claim_id,\n135 |                 oc.claim_number,\n136 |                 oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n137 |                 oc.policy_id,\n138 |                 ps.policy_number,\n139 |                 oc.lob_code,\n140 |                 oc.status,\n141 |                 oc.handler_code,\n142 |                 oc.loss_date,\n143 |                 CONVERT(VARCHAR(10), oc.loss_date, 103),\n144 |                 oc.reported_date,\n145 |                 CONVERT(CHAR(6), oc.reported_date, 112),\n146 |                 DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n147 |                 m.n_payments,\n148 |                 m.total_paid,\n149 |                 m.indemnity_reserve,\n150 |                 m.expense_reserve,\n151 |                 m.indemnity_reserve + m.expense_reserve,\n152 |                 m.total_paid + m.indemnity_reserve + m.expense_reserve,\n153 |                 @AsOfDate\n154 |         FROM    #open_claims oc\n155 |         JOIN    #money m\n156 |                 ON m.claim_id = oc.claim_id\n157 |         LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n158 |                ON ps.policy_id = oc.policy_id\n159 |               AND ps.snapshot_date = @snapshot_date;\n160 | \n161 |         SET @rows = @@ROWCOUNT;\n162 | \n163 |         COMMIT TRANSACTION;\n164 | \n165 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n166 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n167 |     END TRY\n168 |     BEGIN CATCH\n169 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n170 | \n171 |         SELECT  @err_msg = ERROR_MESSAGE(),\n172 |                 @err_no  = ERROR_NUMBER();\n173 | \n174 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n175 |              @message = @err_msg, @error_number = @err_no;\n176 |         THROW;\n177 |     END CATCH\n178 | END;\n179 | GO\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.claim_payments: payment_id INT, claim_id INT, payment_date DATE, amount DECIMAL(12,2), payment_type VARCHAR(12), payee_type VARCHAR(12), _row_seq INT\n- stg.claim_reserves: reserve_id INT, claim_id INT, reserve_date DATE, reserve_type VARCHAR(12), reserve_amount DECIMAL(12,2), _row_seq INT\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n\nOutput tables:\n- rpt.claims_summary: claim_id INT, claim_number VARCHAR(20), claim_ref VARCHAR(40), policy_id INT, policy_number VARCHAR(20), lob_code VARCHAR(5), status VARCHAR(12), handler_code VARCHAR(8), loss_date DATE, loss_date_text VARCHAR(10), reported_date DATE, reported_period CHAR(6), days_open INT, n_payments INT, total_paid DECIMAL(14,2), indemnity_reserve DECIMAL(14,2), expense_reserve DECIMAL(14,2), current_reserve DECIMAL(14,2), incurred DECIMAL(14,2), as_of_date DATE\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "55a3c2cc3ab2d9c289bae8453cea55290c5b4240551ed6d05a42ebc920d78b79",
+  "response": {
+    "duration_api_ms": 46813,
+    "duration_ms": 47055,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 7389,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 7389,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.18718,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 6403,
+        "provider": "firstParty",
+        "thinkingTokens": 840,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.98,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            63,
+            134
+          ],
+          "output_column": "claim_id",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy via #open_claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "claim_number",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            64,
+            135
+          ],
+          "output_column": "claim_number",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy via #open_claims"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            66,
+            136
+          ],
+          "output_column": "claim_ref",
+          "output_table": "rpt.claims_summary",
+          "transform": "UPPER(RTRIM(lob_code)) + '/' + claim_number + '/' + handler_code"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "claim_number",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            64,
+            136
+          ],
+          "output_column": "claim_ref",
+          "output_table": "rpt.claims_summary",
+          "transform": "lob_code + '/' + claim_number + '/' + handler_code"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "handler_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            68,
+            136
+          ],
+          "output_column": "claim_ref",
+          "output_table": "rpt.claims_summary",
+          "transform": "lob_code + '/' + claim_number + '/' + handler_code (NULL handler gives NULL ref)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            136
+          ],
+          "output_column": "claim_ref",
+          "output_table": "rpt.claims_summary",
+          "transform": "'/' separator literal"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            65,
+            137
+          ],
+          "output_column": "policy_id",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            138,
+            157,
+            158,
+            159
+          ],
+          "output_column": "policy_number",
+          "output_table": "rpt.claims_summary",
+          "transform": "LEFT JOIN on policy_id at latest snapshot <= @AsOfDate"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            66,
+            139
+          ],
+          "output_column": "lob_code",
+          "output_table": "rpt.claims_summary",
+          "transform": "UPPER(RTRIM(lob_code))"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            67,
+            140
+          ],
+          "output_column": "status",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "handler_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            68,
+            141
+          ],
+          "output_column": "handler_code",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            69,
+            142
+          ],
+          "output_column": "loss_date",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            69,
+            143
+          ],
+          "output_column": "loss_date_text",
+          "output_table": "rpt.claims_summary",
+          "transform": "CONVERT(VARCHAR(10), loss_date, 103) dd/mm/yyyy"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            70,
+            144
+          ],
+          "output_column": "reported_date",
+          "output_table": "rpt.claims_summary",
+          "transform": "direct copy"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            70,
+            145
+          ],
+          "output_column": "reported_period",
+          "output_table": "rpt.claims_summary",
+          "transform": "CONVERT(CHAR(6), reported_date, 112) yyyymm"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            70,
+            146
+          ],
+          "output_column": "days_open",
+          "output_table": "rpt.claims_summary",
+          "transform": "DATEDIFF(DAY, reported_date, @AsOfDate)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            146
+          ],
+          "output_column": "days_open",
+          "output_table": "rpt.claims_summary",
+          "transform": "DATEDIFF(DAY, reported_date, @AsOfDate)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "payment_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            104,
+            147
+          ],
+          "output_column": "n_payments",
+          "output_table": "rpt.claims_summary",
+          "transform": "COUNT(DISTINCT payment_id) per claim"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            105,
+            148
+          ],
+          "output_column": "total_paid",
+          "output_table": "rpt.claims_summary",
+          "transform": "ISNULL(SUM(amount),0) per claim (fanned out by reserve join)"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            105
+          ],
+          "output_column": "total_paid",
+          "output_table": "rpt.claims_summary",
+          "transform": "ISNULL default 0"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "reserve_amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            85,
+            106,
+            149
+          ],
+          "output_column": "indemnity_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "ISNULL(MAX(CASE WHEN reserve_type='INDEMNITY' THEN reserve_amount END),0)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "reserve_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            84,
+            106
+          ],
+          "output_column": "indemnity_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "CASE WHEN reserve_type='INDEMNITY'"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            106
+          ],
+          "output_column": "indemnity_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "'INDEMNITY' literal / ISNULL default 0"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "reserve_amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            85,
+            107,
+            150
+          ],
+          "output_column": "expense_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "ISNULL(MAX(CASE WHEN reserve_type='EXPENSE' THEN reserve_amount END),0)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "reserve_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            84,
+            107
+          ],
+          "output_column": "expense_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "CASE WHEN reserve_type='EXPENSE'"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            107
+          ],
+          "output_column": "expense_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "'EXPENSE' literal / ISNULL default 0"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "reserve_amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            106,
+            107,
+            151
+          ],
+          "output_column": "current_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "indemnity_reserve + expense_reserve"
+        },
+        {
+          "confidence": 0.88,
+          "input_column": "reserve_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            106,
+            107,
+            151
+          ],
+          "output_column": "current_reserve",
+          "output_table": "rpt.claims_summary",
+          "transform": "CASE pivot by reserve_type feeding the sum"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            105,
+            152
+          ],
+          "output_column": "incurred",
+          "output_table": "rpt.claims_summary",
+          "transform": "total_paid + indemnity_reserve + expense_reserve"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "reserve_amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            106,
+            107,
+            152
+          ],
+          "output_column": "incurred",
+          "output_table": "rpt.claims_summary",
+          "transform": "total_paid + indemnity_reserve + expense_reserve"
+        },
+        {
+          "confidence": 0.88,
+          "input_column": "reserve_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "derives",
+          "lines": [
+            106,
+            107,
+            152
+          ],
+          "output_column": "incurred",
+          "output_table": "rpt.claims_summary",
+          "transform": "CASE pivot by reserve_type feeding the sum"
+        },
+        {
+          "confidence": 0.99,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            153
+          ],
+          "output_column": "as_of_date",
+          "output_table": "rpt.claims_summary",
+          "transform": "@AsOfDate"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            73
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "status IN ('OPEN','REOPENED')"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            73
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "literals 'OPEN','REOPENED'"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            74
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "reported_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            74,
+            94,
+            112,
+            123
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "reported_date/reserve_date/payment_date/snapshot_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "filters",
+          "lines": [
+            93,
+            114
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "JOIN to open claims on claim_id"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "reserve_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "filters",
+          "lines": [
+            94
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "reserve_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            111
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "LEFT JOIN ON p.claim_id = oc.claim_id"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            112
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "payment_date <= @AsOfDate in join"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            158
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "LEFT JOIN ON ps.policy_id = oc.policy_id"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            158
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "LEFT JOIN key to policy_snapshots"
+        },
+        {
+          "confidence": 0.92,
+          "input_column": "snapshot_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            121,
+            122,
+            123,
+            159
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "snapshot_date = MAX(snapshot_date) WHERE snapshot_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.8,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            93,
+            111,
+            114,
+            156
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "join key across #money/#reserve/payments"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "reserve_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "ranks",
+          "lines": [
+            90,
+            91,
+            95
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "ROW_NUMBER ORDER BY reserve_date DESC, keep rn=1"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "reserve_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "ranks",
+          "lines": [
+            91,
+            95
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "ROW_NUMBER tie-break reserve_id DESC"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "reserve_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_reserves",
+          "kind": "ranks",
+          "lines": [
+            90
+          ],
+          "output_column": null,
+          "output_table": "rpt.claims_summary",
+          "transform": "PARTITION BY claim_id, reserve_type"
+        }
+      ],
+      "notes": "1) Possible legacy bug (row fan-out): #money LEFT JOINs both claim_payments and #reserve on claim_id before GROUP BY (lines 109-115). A claim can have up to two reserve rows (INDEMNITY and EXPENSE), so SUM(p.amount) counts each payment once per reserve row, and total_paid and incurred can come out doubled. The migration must reproduce this behaviour to match the legacy output; n_payments is not affected because it uses COUNT(DISTINCT). 2) claim_ref is NULL whenever handler_code is NULL, because string concatenation with + returns NULL by default (CONCAT_NULL_YIELDS_NULL). 3) policy_number comes from the single latest snapshot_date on or before @AsOfDate across the whole table, picked into the variable @snapshot_date (lines 121-123). If a policy is missing from that snapshot, policy_number is NULL; the job does not fall back to an earlier snapshot. 4) Reserve types other than INDEMNITY or EXPENSE are dropped, and the reserve_date filter only changes the reserve values, not which claim rows appear. 5) The PARTITION BY claim_id, reserve_type in the reserve ROW_NUMBER is listed as a ranks edge with lower confidence (0.6). 6) The joins to #money and #reserve keep every open claim, so the output has one row per claim from stg.claims that passes the filters on lines 73-74."
+    },
+    "total_cost_usd": 0.18718,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 7389,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 7389,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 7389,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 7389,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 6403,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 6403,
+      "output_tokens_details": {
+        "thinking_tokens": 840
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

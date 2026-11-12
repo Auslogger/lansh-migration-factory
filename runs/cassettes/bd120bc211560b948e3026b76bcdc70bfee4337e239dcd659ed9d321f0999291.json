@@ -1,0 +1,299 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:36:47.054594Z",
+  "request": {
+    "agent": "translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "X1",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job X1: usp_broker_production (tsql), legacy file estate/holdout/X1_usp_broker_production.sql (SHA-256 b683ce412ff6786c3d8aa2e3802be8b05f2943d1fb10d7b6093cab40f2ba01d0).\nBroker and line-of-business production as at the as-of date (policies in force, EUR written premium, claims notified and paid in the year, paid-to-written review flag)\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_broker_production\n  3 |   Purpose  : Broker production report for distribution MI. One row per broker\n  4 |              and line of business as at @AsOfDate: policies in force, gross\n  5 |              written premium in EUR booked in the calendar year, claims notified\n  6 |              and claims paid in the year, and a review flag for brokers whose\n  7 |              paid-to-written ratio for the year is above 0.75.\n  8 |   Author   : PdeB\n  9 |   Change log\n 10 |     2014-02-10  PdeB  Initial version (CR-0412)\n 11 |     2015-09-03  PdeB  GBP/USD premium converted to EUR at the ECB rate (CR-0688)\n 12 |     2017-11-20  SOK   Direct business reported under broker code DIRECT (CR-1047)\n 13 |     2019-05-14  AMcG  Inactive brokers kept when they still have business (INC-2231)\n 14 |     2021-03-08  SOK   Paid-to-written review flag for distribution (CR-1590)\n 15 |     2022-06-27  AMcG  Broker codes trimmed and upper-cased (INC-3118)\n 16 | ==============================================================================*/\n 17 | SET NOCOUNT ON;\n 18 | GO\n 19 | IF OBJECT_ID(N'rpt.broker_production', N'U') IS NULL\n 20 | CREATE TABLE rpt.broker_production (\n 21 |     as_of_date         DATE           NOT NULL,\n 22 |     broker_code        VARCHAR(10)    NOT NULL,\n 23 |     broker_name        NVARCHAR(80)   NULL,\n 24 |     broker_status      VARCHAR(10)    NULL,\n 25 |     lob_code           VARCHAR(5)     NOT NULL,\n 26 |     policies_in_force  INT            NOT NULL,\n 27 |     gwp_eur            DECIMAL(14,2)  NOT NULL,\n 28 |     claims_notified    INT            NOT NULL,\n 29 |     claims_paid_eur    DECIMAL(14,2)  NOT NULL,\n 30 |     paid_to_written    DECIMAL(12,4)  NULL,\n 31 |     review_flag        CHAR(1)        NOT NULL\n 32 | );\n 33 | GO\n 34 | CREATE OR ALTER PROCEDURE rpt.usp_broker_production\n 35 |     @AsOfDate DATE\n 36 | AS\n 37 | BEGIN\n 38 |     SET NOCOUNT ON;\n 39 | \n 40 |     DECLARE @job       VARCHAR(128) = 'rpt.usp_broker_production';\n 41 |     DECLARE @YearStart DATE         = DATEFROMPARTS(YEAR(@AsOfDate), 1, 1);\n 42 |     DECLARE @rows      INT;\n 43 | \n 44 |     BEGIN TRY\n 45 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'start', @status = 'STARTED';\n 46 | \n 47 |         -- policy attributes from the latest snapshot on or before the as-of date\n 48 |         SELECT x.policy_id, x.broker_code, x.lob_code, x.inception_date, x.expiry_date, x.cancellation_date\n 49 |         INTO #pol\n 50 |         FROM (\n 51 |             SELECT s.policy_id,\n 52 |                    ISNULL(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n 53 |                    UPPER(RTRIM(p.lob_code)) AS lob_code,\n 54 |                    s.inception_date, s.expiry_date, s.cancellation_date,\n 55 |                    ROW_NUMBER() OVER (PARTITION BY s.policy_id\n 56 |                                       ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn\n 57 |             FROM stg.policy_snapshots s WITH (NOLOCK)\n 58 |             INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code\n 59 |             WHERE s.snapshot_date <= @AsOfDate\n 60 |         ) x\n 61 |         WHERE x.rn = 1;\n 62 |         SET @rows = @@ROWCOUNT;\n 63 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'policies', @status = 'INFO', @rows_affected = @rows;\n 64 | \n 65 |         -- policies in force on the as-of date\n 66 |         SELECT p.broker_code, p.lob_code, COUNT(*) AS policies_in_force\n 67 |         INTO #inforce\n 68 |         FROM #pol p\n 69 |         WHERE p.inception_date <= @AsOfDate\n 70 |           AND p.expiry_date >= @AsOfDate\n 71 |           AND (p.cancellation_date IS NULL OR p.cancellation_date > @AsOfDate)\n 72 |         GROUP BY p.broker_code, p.lob_code;\n 73 | \n 74 |         -- premium booked in the year, at the latest rate published on or before the booking date\n 75 |         SELECT p.broker_code, p.lob_code,\n 76 |                SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\n 77 |         INTO #gwp\n 78 |         FROM stg.premium_transactions t WITH (NOLOCK)\n 79 |         INNER JOIN #pol p ON p.policy_id = t.policy_id\n 80 |         OUTER APPLY (\n 81 |             SELECT TOP 1 f.rate_to_eur\n 82 |             FROM stg.fx_rates f WITH (NOLOCK)\n 83 |             WHERE f.currency = t.currency\n 84 |               AND f.rate_date <= t.txn_date\n 85 |             ORDER BY f.rate_date DESC, f._row_seq DESC\n 86 |         ) fx\n 87 |         WHERE t.txn_date >= @YearStart\n 88 |           AND t.txn_date <= @AsOfDate\n 89 |         GROUP BY p.broker_code, p.lob_code;\n 90 |         SET @rows = @@ROWCOUNT;\n 91 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'premium', @status = 'INFO', @rows_affected = @rows;\n 92 | \n 93 |         -- claims notified in the year\n 94 |         SELECT c.claim_id, p.broker_code, p.lob_code\n 95 |         INTO #clm\n 96 |         FROM stg.claims c WITH (NOLOCK)\n 97 |         INNER JOIN #pol p ON p.policy_id = c.policy_id\n 98 |         WHERE c.reported_date >= @YearStart\n 99 |           AND c.reported_date <= @AsOfDate;\n100 | \n101 |         SELECT c.broker_code, c.lob_code, COUNT(*) AS claims_notified\n102 |         INTO #notified\n103 |         FROM #clm c\n104 |         GROUP BY c.broker_code, c.lob_code;\n105 | \n106 |         -- claims paid in the year, recoveries netted off, unkeyed amounts ignored\n107 |         SELECT c.broker_code, c.lob_code, SUM(ISNULL(cp.amount, 0)) AS claims_paid_eur\n108 |         INTO #paid\n109 |         FROM stg.claim_payments cp WITH (NOLOCK)\n110 |         INNER JOIN #clm c ON c.claim_id = cp.claim_id\n111 |         WHERE cp.payment_date >= @YearStart\n112 |           AND cp.payment_date <= @AsOfDate\n113 |         GROUP BY c.broker_code, c.lob_code;\n114 |         SET @rows = @@ROWCOUNT;\n115 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'claims', @status = 'INFO', @rows_affected = @rows;\n116 | \n117 |         SELECT broker_code, lob_code INTO #keys FROM #inforce\n118 |         UNION SELECT broker_code, lob_code FROM #gwp\n119 |         UNION SELECT broker_code, lob_code FROM #notified\n120 |         UNION SELECT broker_code, lob_code FROM #paid;\n121 | \n122 |         -- paid-to-written ratio over all lines of the broker\n123 |         SELECT k.broker_code,\n124 |                CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written\n125 |         INTO #ratio\n126 |         FROM #keys k\n127 |         LEFT JOIN #gwp g   ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n128 |         LEFT JOIN #paid pd ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n129 |         GROUP BY k.broker_code;\n130 | \n131 |         TRUNCATE TABLE rpt.broker_production;\n132 | \n133 |         INSERT INTO rpt.broker_production\n134 |             (as_of_date, broker_code, broker_name, broker_status, lob_code, policies_in_force,\n135 |              gwp_eur, claims_notified, claims_paid_eur, paid_to_written, review_flag)\n136 |         SELECT @AsOfDate,\n137 |                k.broker_code,\n138 |                b.broker_name,\n139 |                UPPER(RTRIM(b.status)),\n140 |                k.lob_code,\n141 |                ISNULL(i.policies_in_force, 0),\n142 |                CAST(ISNULL(g.gwp_eur, 0) AS DECIMAL(14,2)),\n143 |                ISNULL(n.claims_notified, 0),\n144 |                CAST(ISNULL(pd.claims_paid_eur, 0) AS DECIMAL(14,2)),\n145 |                r.paid_to_written,\n146 |                CASE WHEN r.paid_to_written > 0.75 THEN 'Y' ELSE 'N' END\n147 |         FROM #keys k\n148 |         LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code\n149 |         LEFT JOIN #inforce i  ON i.broker_code = k.broker_code AND i.lob_code = k.lob_code\n150 |         LEFT JOIN #gwp g      ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n151 |         LEFT JOIN #notified n ON n.broker_code = k.broker_code AND n.lob_code = k.lob_code\n152 |         LEFT JOIN #paid pd    ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n153 |         LEFT JOIN #ratio r    ON r.broker_code = k.broker_code;\n154 |         SET @rows = @@ROWCOUNT;\n155 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'load rpt.broker_production', @status = 'INFO', @rows_affected = @rows;\n156 | \n157 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'SUCCESS';\n158 |     END TRY\n159 |     BEGIN CATCH\n160 |         DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE(), @err INT = ERROR_NUMBER();\n161 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'FAILED',\n162 |              @message = @msg, @error_number = @err;\n163 |         THROW;\n164 |     END CATCH\n165 | END;\n166 | GO\n\nInput tables:\n- stg.policy_snapshots: snapshot_date date (DATE), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), product_code string (VARCHAR(10)), broker_code string (VARCHAR(10)), inception_date date (DATE), expiry_date date (DATE), status string (VARCHAR(12)), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), sum_insured decimal(14,2) (DECIMAL(14,2)), payment_frequency string (VARCHAR(10)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), _row_seq int (INT)\n- stg.products: product_code string (VARCHAR(10)), product_name string (NVARCHAR(60)), lob_code string (VARCHAR(5)), term_months int (INT), levy_rate decimal(5,4) (DECIMAL(5,4)), launched_on date (DATE), withdrawn_on date (DATE), _row_seq int (INT)\n- stg.premium_transactions: txn_id int (INT), policy_id int (INT), txn_type string (VARCHAR(4)), txn_date date (DATE), effective_from date (DATE), effective_to date (DATE), amount decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), _row_seq int (INT)\n- stg.fx_rates: rate_date date (DATE), currency string (CHAR(3)), rate_to_eur decimal(18,8) (DECIMAL(18,8)), source string (VARCHAR(10)), _row_seq int (INT)\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n- stg.brokers: broker_code string (CHAR(6)), broker_name string (NVARCHAR(80)), region string (VARCHAR(20)), commission_rate decimal(5,4) (DECIMAL(5,4)), status string (VARCHAR(10)), appointed_date date (DATE), _row_seq int (INT)\n\nOutput tables (contract types, legacy types):\n- rpt.broker_production (key ['broker_code', 'lob_code']): as_of_date date (DATE), broker_code string (VARCHAR(10)), broker_name string (NVARCHAR(80)), broker_status string (VARCHAR(10)), lob_code string (VARCHAR(5)), policies_in_force int (INT), gwp_eur decimal(14,2) (DECIMAL(14,2)), claims_notified int (INT), claims_paid_eur decimal(14,2) (DECIMAL(14,2)), paid_to_written decimal(12,4) (DECIMAL(12,4)), review_flag string (CHAR(1))\n\nTrap findings in this job:\n- TSQL-13 lines 48-61: #pol temp table holding the latest policy snapshot; becomes a DataFrame.\n- TSQL-01 lines 58-58: The products join compares the raw VARCHAR product_code values without any normalisation. Under the CI collation, case variants match; in Spark they would not, so policies would drop out of the inner join.\n- TSQL-02 lines 58-58: The product_code join ignores trailing spaces in SQL Server. Spark needs an rtrim on both sides or padded codes miss the inner join.\n- TSQL-13 lines 66-72: #inforce temp table.\n- TSQL-13 lines 75-89: #gwp temp table.\n- TSQL-01 lines 76-76: t.currency is CHAR(3) text, so currency = 'EUR' also matches 'eur'/'Eur' under the CI collation. A binary comparison in Spark would route those rows to the fx rate instead.\n- TSQL-02 lines 76-76: currency is CHAR(3) and the comparison ignores trailing spaces (e.g. 'EUR ' or a padded short code). Spark compares exactly.\n- TSQL-07 lines 76-76: amount DECIMAL(12,2) * rate DECIMAL(18,8), summed. The result's precision and scale must match legacy before the final rounding to 2dp.\n- TSQL-09 lines 80-86: OUTER APPLY TOP 1 picks the latest fx rate on or before txn_date and keeps transactions that have no rate. In Spark this must become a left join plus a row_number window.\n- TSQL-08 lines 81-85: TOP 1 ordered by rate_date DESC, _row_seq DESC. The order is deterministic as long as _row_seq is unique per date, and the Spark window must use the same tie-break.\n- TSQL-01 lines 83-83: The fx lookup matches f.currency = t.currency, two text columns from different sources, case-insensitively. In Spark, case variants would find no rate and the premium would come out NULL.\n- TSQL-02 lines 83-83: The CHAR(3) currency match ignores trailing spaces in SQL Server. Spark matches exactly unless both sides are trimmed.\n- TSQL-13 lines 94-99: #clm temp table.\n- TSQL-13 lines 101-104: #notified temp table.\n- TSQL-13 lines 107-113: #paid temp table.\n- TSQL-13 lines 117-120: #keys temp table built by UNION, which removes duplicates; needs union plus distinct in Spark.\n- TSQL-13 lines 123-129: #ratio temp table.\n- TSQL-07 lines 124-124: DECIMAL(38,2)/DECIMAL(38,2) division is cut down to scale 6 in SQL Server and then rounded to DECIMAL(12,4), so the value is rounded twice. Spark's decimal division and cast must give the same ratio, which feeds the 0.75 flag.\n- TSQL-07 lines 142-142: The high-scale gwp sum is cast to DECIMAL(14,2), rounding half away from zero. Spark must cast the decimal and must not round a double.\n- TSQL-07 lines 144-144: Claims paid is cast to DECIMAL(14,2). Spark must keep decimal types (not double) so the result matches.\n- TSQL-01 lines 148-148: stg.brokers.broker_code is not normalised, but k.broker_code is upper-cased. The CI join still matches lower- or mixed-case broker codes; a binary Spark join would lose broker_name and status.\n- TSQL-02 lines 148-148: stg.brokers.broker_code is CHAR(6), so it is padded with spaces and may also carry stored trailing spaces. SQL Server's join ignores them, while Spark needs rtrim on b.broker_code to match the trimmed key.\n\nTrap cards:\n### TSQL-01 (semantic): Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins\nLegacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged.\nSpark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\nFix: Compare, group, partition and join on upper(rtrim(x)) (or collate(x, 'UTF8_LCASE_RTRIM')) while selecting the original column for output. Never change the stored value unless the legacy code does (e.g. UPPER in the SELECT). Use rtrim, not trim: leading spaces count.\nExample: WHERE o.order_state IN ('SHIPPED', 'BILLED') -> F.upper(F.rtrim('order_state')).isin('SHIPPED', 'BILLED')\n\n### TSQL-02 (semantic): Comparisons ignore trailing spaces; CHAR(n) pads with spaces\nLegacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count.\nSpark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\nFix: rtrim both sides of every text comparison, grouping and join key. Where the legacy output column is CHAR(n)/NCHAR(n), pad the value with rpad(x, n, ' ') (NULL stays NULL) so the output matches the stored legacy value. A CHAR(n) source column read into an expression keeps its padding (e.g. in + concatenation).\nExample: account_type CHAR(4) ... WHERE region = 'WEST' -> F.rpad('account_type', 4, ' ') ... F.rtrim('region') == 'WEST'\n\n### TSQL-07 (semantic): DECIMAL precision and scale, and ROUND on computed values\nLegacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds.\nSpark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\nFix: Keep computations in decimal: cast operands to the legacy DECIMAL types first, cast each intermediate result to the type T-SQL would give it, and round with F.round on decimals (half up). For ROUND(x, n, 1) use truncation: floor/ceil toward zero at n places. Never introduce doubles where the legacy used DECIMAL.\nExample: ROUND(o.net_amount * o.tax_rate, 2) -> F.round((F.col('net_amount') * F.col('tax_rate')).cast('decimal(38,6)'), 2)\n\n### TSQL-08 (semantic): TOP and TOP WITH TIES\nLegacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one.\nSpark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\nFix: TOP n with a unique ORDER BY: row_number() over the same order, keep rn <= n. WITH TIES: rank() over the order, keep rank <= n. Per group (TOP inside APPLY), partition the window.\nExample: SELECT TOP 10 WITH TIES ... ORDER BY sales DESC -> F.rank().over(Window.orderBy(F.desc('sales'))) <= 10\n\n### TSQL-09 (construct): CROSS APPLY / OUTER APPLY with TOP 1\nLegacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs.\nSpark: Spark has no APPLY; a lateral subquery or a window replaces it.\nFix: Join on the correlation condition, rank the matches with row_number() over (partition by the outer row's key, order by the APPLY's ORDER BY plus a unique tiebreaker) and keep rank 1; inner join for CROSS APPLY, left join for OUTER APPLY.\nExample: CROSS APPLY (SELECT TOP 1 p.price FROM price_history p WHERE p.item_id = o.item_id AND p.valid_from <= o.order_date ORDER BY p.valid_from DESC) px -> row_number() over (partition by order_id order by valid_from desc) = 1 after a join on item_id and valid_from <= order_date\n\n### TSQL-13 (construct): Temp tables\nLegacy: #temp tables hold intermediate results for the session.\nSpark: Intermediate results are DataFrames or temporary views.\nFix: Make each #temp table a DataFrame (or temp view). Keep its column types: SELECT INTO creates columns with the source expressions' types, which can matter downstream.\nExample: SELECT ... INTO #active_orders FROM dbo.orders -> active_orders = orders.where(...)\n\nsqlglot draft (a starting point, not trusted):\n-- lines 40-40\nDECLARE   ${job} VARCHAR(128) = 'rpt.usp_broker_production'\n\n-- lines 41-41\nDECLARE   ${YearStart} DATE = MAKE_DATE(YEAR(${AsOfDate}), 1, 1)\n\n-- lines 42-42\nDECLARE   ${rows} INT\n\n-- lines 48-61; traps: TSQL-01 (line 58), TSQL-02 (line 58), TSQL-13 (line 48)\nCREATE TEMPORARY TABLE pol AS SELECT\n  x.policy_id,\n  x.broker_code,\n  x.lob_code,\n  x.inception_date,\n  x.expiry_date,\n  x.cancellation_date\nFROM (\n  SELECT\n    s.policy_id,\n    COALESCE(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n    UPPER(RTRIM(p.lob_code)) AS lob_code,\n    s.inception_date,\n    s.expiry_date,\n    s.cancellation_date,\n    ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn\n  FROM stg.policy_snapshots AS s\n  INNER JOIN stg.products AS p\n    ON p.product_code = s.product_code\n  WHERE\n    s.snapshot_date <= ${AsOfDate}\n) AS x\nWHERE\n  x.rn = 1\n\n-- lines 66-72; traps: TSQL-13 (line 66)\nCREATE TEMPORARY TABLE inforce AS SELECT\n  p.broker_code,\n  p.lob_code,\n  COUNT(*) AS policies_in_force\nFROM pol AS p\nWHERE\n  p.inception_date <= ${AsOfDate}\n  AND p.expiry_date >= ${AsOfDate}\n  AND (\n    p.cancellation_date IS NULL OR p.cancellation_date > ${AsOfDate}\n  )\nGROUP BY\n  p.broker_code,\n  p.lob_code\n\n-- lines 75-89; traps: TSQL-01 (line 76), TSQL-01 (line 83), TSQL-02 (line 76), TSQL-02 (line 83), TSQL-07 (line 76), TSQL-08 (line 81), TSQL-09 (line 80), TSQL-13 (line 75)\nCREATE TEMPORARY TABLE gwp AS SELECT\n  p.broker_code,\n  p.lob_code,\n  SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\nFROM stg.premium_transactions AS t\nINNER JOIN pol AS p\n  ON p.policy_id = t.policy_id LEFT JOIN LATERAL (\n  SELECT\n    f.rate_to_eur\n  FROM stg.fx_rates AS f\n  WHERE\n    f.currency = t.currency AND f.rate_date <= t.txn_date\n  ORDER BY\n    f.rate_date DESC,\n    f._row_seq DESC\n  LIMIT 1\n) AS fx\nWHERE\n  t.txn_date >= ${YearStart} AND t.txn_date <= ${AsOfDate}\nGROUP BY\n  p.broker_code,\n  p.lob_code\n\n-- lines 94-99; traps: TSQL-13 (line 94)\nCREATE TEMPORARY TABLE clm AS SELECT\n  c.claim_id,\n  p.broker_code,\n  p.lob_code\nFROM stg.claims AS c\nINNER JOIN pol AS p\n  ON p.policy_id = c.policy_id\nWHERE\n  c.reported_date >= ${YearStart} AND c.reported_date <= ${AsOfDate}\n\n-- lines 101-104; traps: TSQL-13 (line 101)\nCREATE TEMPORARY TABLE notified AS SELECT\n  c.broker_code,\n  c.lob_code,\n  COUNT(*) AS claims_notified\nFROM clm AS c\nGROUP BY\n  c.broker_code,\n  c.lob_code\n\n-- lines 107-113; traps: TSQL-13 (line 107)\nCREATE TEMPORARY TABLE paid AS SELECT\n  c.broker_code,\n  c.lob_code,\n  SUM(COALESCE(cp.amount, 0)) AS claims_paid_eur\nFROM stg.claim_payments AS cp\nINNER JOIN clm AS c\n  ON c.claim_id = cp.claim_id\nWHERE\n  cp.payment_date >= ${YearStart} AND cp.payment_date <= ${AsOfDate}\nGROUP BY\n  c.broker_code,\n  c.lob_code\n\n-- lines 117-120; traps: TSQL-13 (line 117)\nCREATE TEMPORARY TABLE keys AS SELECT\n  broker_code,\n  lob_code\nFROM inforce\nUNION\nSELECT\n  broker_code,\n  lob_code\nFROM gwp\nUNION\nSELECT\n  broker_code,\n  lob_code\nFROM notified\nUNION\nSELECT\n  broker_code,\n  lob_code\nFROM paid\n\n-- lines 123-129; traps: TSQL-07 (line 124), TSQL-13 (line 123)\nCREATE TEMPORARY TABLE ratio AS SELECT\n  k.broker_code,\n  CAST(SUM(COALESCE(pd.claims_paid_eur, 0)) / NULLIF(SUM(COALESCE(g.gwp_eur, 0)), 0) AS DECIMAL(12, 4)) AS paid_to_written\nFROM keys AS k\nLEFT JOIN gwp AS g\n  ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\nLEFT JOIN paid AS pd\n  ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\nGROUP BY\n  k.broker_code\n\n-- lines 131-131\nTRUNCATE TABLE   rpt.broker_production\n\n-- lines 133-153; traps: TSQL-01 (line 148), TSQL-02 (line 148), TSQL-07 (line 142), TSQL-07 (line 144)\nINSERT INTO rpt.broker_production (\n  as_of_date,\n  broker_code,\n  broker_name,\n  broker_status,\n  lob_code,\n  policies_in_force,\n  gwp_eur,\n  claims_notified,\n  claims_paid_eur,\n  paid_to_written,\n  review_flag\n)\nSELECT\n  ${AsOfDate},\n  k.broker_code,\n  b.broker_name,\n  UPPER(RTRIM(b.status)),\n  k.lob_code,\n  COALESCE(i.policies_in_force, 0),\n  CAST(COALESCE(g.gwp_eur, 0) AS DECIMAL(14, 2)),\n  COALESCE(n.claims_notified, 0),\n  CAST(COALESCE(pd.claims_paid_eur, 0) AS DECIMAL(14, 2)),\n  r.paid_to_written,\n  CASE WHEN r.paid_to_written > 0.75 THEN 'Y' ELSE 'N' END\nFROM keys AS k\nLEFT JOIN stg.brokers AS b\n  ON b.broker_code = k.broker_code\nLEFT JOIN inforce AS i\n  ON i.broker_code = k.broker_code AND i.lob_code = k.lob_code\nLEFT JOIN gwp AS g\n  ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\nLEFT JOIN notified AS n\n  ON n.broker_code = k.broker_code AND n.lob_code = k.lob_code\nLEFT JOIN paid AS pd\n  ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\nLEFT JOIN ratio AS r\n  ON r.broker_code = k.broker_code\n\n-- lines 160-160\nDECLARE   ${msg} VARCHAR(4000) = ERROR_MESSAGE(),   ${err} INT = ERROR_NUMBER()\n\nLineage agent's notes:\n1) claims_paid_eur takes stg.claim_payments.amount as-is. Despite the name, nothing converts it to EUR and claim_payments has no currency column. The same unconverted amount feeds paid_to_written and review_flag. 2) The stg.brokers LEFT JOIN doesn't remove rows, but brokers has a _row_seq column, so it may hold several versions per broker_code. If it does, output rows are duplicated. I listed the join as a low-confidence filter. 3) Claims count toward claims_notified, and their payments toward claims_paid_eur, only if reported_date falls in the year. Payments in the year on claims reported earlier are dropped. 4) If no fx rate is found for a non-EUR currency, the product is NULL and SUM skips it, so that premium is lost from gwp_eur without any error. 5) policies_in_force and claims_notified are COUNT(*) values defaulted to 0 by ISNULL, so they have no column that derives them. The in-force and claims date filters still decide which rows are counted. 6) The output's broker_code and lob_code are the union of keys across in-force, premium, notified and paid, so every filter on those sets helps decide which rows appear.\n\nSuspected legacy bugs found at Design (reproduce each exactly, and mark the lines that reproduce it with the marker and its id):\n- X1-D1 Claims paid limited to claims notified in the same year (lines [93, 94, 95, 96, 97, 98, 99, 106, 107, 108, 109, 110, 111, 112]): #paid joins claim_payments to #clm, and #clm only holds claims whose reported_date falls between @YearStart and @AsOfDate. Payments made in 2025 on claims reported in earlier years are dropped from claims_paid_eur, from paid_to_written and so from review_flag. A broker/LOB that only has such payments gets no output row at all.\n- X1-D2 Broker dimension joined without deduplication (lines [147, 148]): The final insert LEFT JOINs stg.brokers on broker_code alone. Nothing picks one row per broker the way the policy snapshots and FX rates are deduplicated with _row_seq. A broker with several rows in stg.brokers (history or reloads) repeats every broker/LOB output row, along with its premium, claims and policy counts.\n- X1-D3 Blank broker codes not mapped to DIRECT (lines [52]): ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT') only catches NULL. A broker_code that is empty or all spaces trims to '' and is reported under an empty broker code, separately from DIRECT business.\n- X1-D4 Non-EUR premium silently dropped when no FX rate is found (lines [76, 80, 81, 82, 83, 84, 85, 86]): The OUTER APPLY returns NULL when the currency has no rate dated on or before the transaction (or when currency is NULL). amount * NULL is NULL and SUM skips it, so the premium vanishes from gwp_eur and the paid-to-written ratio without any error.\n- X1-D5 Recoveries added rather than netted off (lines [106, 107]): The comment says recoveries are netted off, but the code sums every payment amount whatever its payment_type. If recoveries are stored as positive amounts with a recovery payment_type, they increase claims_paid_eur instead of reducing it.\n- X1-D6 Duplicate claim rows multiply claims notified and claims paid (lines [94, 95, 96, 97, 110]): stg.claims is used as-is in #clm. stg.policy_snapshots and stg.fx_rates are deduplicated with _row_seq, but claims are not. If a claim_id has several staging rows, it is counted more than once in claims_notified, and each of its payments is added once per duplicate in claims_paid_eur.\n- X1-D7 Policies expiring on the as-of date counted as in force (lines [69, 70, 71]): The in-force test uses expiry_date >= @AsOfDate. A policy whose expiry_date equals the as-of date counts as in force. If expiry_date is the exclusive end of cover (inception plus 12 months), such a policy has already lapsed.\n",
+    "system_prompt": "You are the translator agent of LANSH. You migrate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2, and your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module in the LANSH job template:\n- A module docstring: \"<job id> <name>: migrated from <legacy path>.\", then the lines \"Legacy SHA-256: <hash>\", \"Written by: LANSH translator (Claude)\", \"Traps handled: <ids>\" and \"Bugs reproduced on purpose (# LANSH-DEFECT): <short names, or none>\".\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Handle every trap finding you are given, following its card's fix guidance, and list the trap ids in traps_handled.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- T-SQL specifics: text comparisons, IN lists, GROUP BY, DISTINCT, PARTITION BY and joins ignore case and trailing spaces under the database collation; CHAR(n) output columns hold values padded to n; INT / INT truncates; + on strings is NULL if any part is NULL; ISNULL takes its first argument's type; DATEDIFF counts boundaries. The cards give exact fixes.\n- Temp tables become DataFrames; logging (etl.usp_log_step), transactions, TRY/CATCH and @@ROWCOUNT are harness concerns: leave them out.\n"
+  },
+  "request_sha256": "bd120bc211560b948e3026b76bcdc70bfee4337e239dcd659ed9d321f0999291",
+  "response": {
+    "duration_api_ms": 145044,
+    "duration_ms": 145529,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 15159,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 15159,
+        "cacheReadInputTokens": 1079,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.47045580000000004,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 17448,
+        "provider": "firstParty",
+        "thinkingTokens": 11570,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"X1 usp_broker_production: migrated from estate/holdout/X1_usp_broker_production.sql.\n\nLegacy SHA-256: b683ce412ff6786c3d8aa2e3802be8b05f2943d1fb10d7b6093cab40f2ba01d0\nWritten by: LANSH translator (Claude)\nTraps handled: TSQL-01, TSQL-02, TSQL-07, TSQL-08, TSQL-09, TSQL-13\nBugs reproduced on purpose (# LANSH-DEFECT): X1-D1 claims paid limited to claims notified in the year, X1-D2 broker dimension joined without deduplication, X1-D3 blank broker codes not mapped to DIRECT, X1-D4 non-EUR premium dropped when no FX rate, X1-D5 recoveries added not netted, X1-D6 duplicate claim rows multiply counts and payments, X1-D7 policies expiring on the as-of date counted in force\n\"\"\"\nimport datetime\nimport decimal\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nfrom pyspark.sql import functions as F\n\n\ndef _ci(col):\n    # TSQL-01 / TSQL-02: CI collation and trailing-space-insensitive comparison key\n    return F.upper(F.rtrim(col))\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = datetime.date.fromisoformat(params[\"AsOfDate\"])\n    year_start = datetime.date(as_of.year, 1, 1)  # DATEFROMPARTS(YEAR(@AsOfDate), 1, 1)\n    as_of_lit = F.lit(as_of)\n    ys_lit = F.lit(year_start)\n\n    snaps = inputs[\"stg.policy_snapshots\"]\n    products = inputs[\"stg.products\"]\n    txns = inputs[\"stg.premium_transactions\"]\n    fx = inputs[\"stg.fx_rates\"]\n    claims = inputs[\"stg.claims\"]\n    payments = inputs[\"stg.claim_payments\"]\n    brokers = inputs[\"stg.brokers\"]\n\n    # ---- #pol (TSQL-13): latest snapshot on or before the as-of date ----\n    s = snaps.where(F.col(\"snapshot_date\") <= as_of_lit).alias(\"s\")\n    p = products.alias(\"p\")\n    sp = s.join(p, _ci(F.col(\"s.product_code\")) == _ci(F.col(\"p.product_code\")), \"inner\")  # TSQL-01/02\n    w_pol = Window.partitionBy(F.col(\"s.policy_id\")).orderBy(\n        F.col(\"s.snapshot_date\").desc(), F.col(\"s._row_seq\").desc(), F.col(\"p._row_seq\").desc()\n    )\n    pol = (\n        sp.select(\n            F.col(\"s.policy_id\").alias(\"policy_id\"),\n            F.coalesce(F.upper(F.ltrim(F.rtrim(F.col(\"s.broker_code\")))), F.lit(\"DIRECT\")).alias(\"broker_code\"),  # LANSH-DEFECT: X1-D3 blank/space-only broker code becomes '' not DIRECT\n            F.upper(F.rtrim(F.col(\"p.lob_code\"))).alias(\"lob_code\"),\n            F.col(\"s.inception_date\").alias(\"inception_date\"),\n            F.col(\"s.expiry_date\").alias(\"expiry_date\"),\n            F.col(\"s.cancellation_date\").alias(\"cancellation_date\"),\n            F.row_number().over(w_pol).alias(\"rn\"),\n        )\n        .where(F.col(\"rn\") == 1)\n        .drop(\"rn\")\n    )\n    pol_keys = pol.select(\"policy_id\", \"broker_code\", \"lob_code\")\n\n    # ---- #inforce (TSQL-13) ----\n    inforce = (\n        pol.where(\n            (F.col(\"inception_date\") <= as_of_lit)\n            & (F.col(\"expiry_date\") >= as_of_lit)  # LANSH-DEFECT: X1-D7 policy expiring on the as-of date counted in force\n            & (F.col(\"cancellation_date\").isNull() | (F.col(\"cancellation_date\") > as_of_lit))\n        )\n        .groupBy(\"broker_code\", \"lob_code\")\n        .agg(F.count(F.lit(1)).cast(\"int\").alias(\"policies_in_force\"))\n    )\n\n    # ---- #gwp (TSQL-13): OUTER APPLY TOP 1 fx rate (TSQL-09, TSQL-08) ----\n    t = txns.where((F.col(\"txn_date\") >= ys_lit) & (F.col(\"txn_date\") <= as_of_lit)).alias(\"t\")\n    f = fx.alias(\"f\")\n    tf = t.join(\n        f,\n        (_ci(F.col(\"f.currency\")) == _ci(F.col(\"t.currency\")))  # TSQL-01/02\n        & (F.col(\"f.rate_date\") <= F.col(\"t.txn_date\")),\n        \"left\",  # LANSH-DEFECT: X1-D4 OUTER APPLY keeps transactions with no rate (rate NULL)\n    )\n    w_fx = Window.partitionBy(F.col(\"t._row_seq\")).orderBy(F.col(\"f.rate_date\").desc(), F.col(\"f._row_seq\").desc())\n    tf = (\n        tf.select(\n            F.col(\"t.policy_id\").alias(\"policy_id\"),\n            F.col(\"t.amount\").alias(\"amount\"),\n            F.col(\"t.currency\").alias(\"currency\"),\n            F.col(\"f.rate_to_eur\").alias(\"rate_to_eur\"),\n            F.row_number().over(w_fx).alias(\"rn\"),\n        )\n        .where(F.col(\"rn\") == 1)\n        .drop(\"rn\")\n    )\n    # TSQL-07: CASE -> decimal(18,8); decimal(12,2) * decimal(18,8) -> decimal(31,10); SUM -> decimal(38,10)\n    rate = F.when(_ci(F.col(\"currency\")) == F.lit(\"EUR\"), F.lit(1).cast(\"decimal(18,8)\")).otherwise(\n        F.col(\"rate_to_eur\").cast(\"decimal(18,8)\")\n    )\n    gwp_line = (F.col(\"amount\").cast(\"decimal(12,2)\") * rate).cast(\"decimal(31,10)\")  # LANSH-DEFECT: X1-D4 NULL rate makes the product NULL and SUM skips it\n    gwp = (\n        tf.join(pol_keys, \"policy_id\", \"inner\")\n        .groupBy(\"broker_code\", \"lob_code\")\n        .agg(F.sum(gwp_line).cast(\"decimal(38,10)\").alias(\"gwp_eur\"))\n    )\n\n    # ---- #clm (TSQL-13) ----\n    clm = (\n        claims.where((F.col(\"reported_date\") >= ys_lit) & (F.col(\"reported_date\") <= as_of_lit))  # LANSH-DEFECT: X1-D1 only claims reported in the year\n        .select(\"claim_id\", \"policy_id\")  # LANSH-DEFECT: X1-D6 claims not deduplicated by claim_id\n        .join(pol_keys, \"policy_id\", \"inner\")\n        .select(\"claim_id\", \"broker_code\", \"lob_code\")\n    )\n\n    # ---- #notified (TSQL-13) ----\n    notified = clm.groupBy(\"broker_code\", \"lob_code\").agg(F.count(F.lit(1)).cast(\"int\").alias(\"claims_notified\"))\n\n    # ---- #paid (TSQL-13): ISNULL(amount,0) decimal(12,2), SUM -> decimal(38,2) ----\n    paid = (\n        payments.where((F.col(\"payment_date\") >= ys_lit) & (F.col(\"payment_date\") <= as_of_lit))\n        .select(\"claim_id\", \"amount\")\n        .join(clm, \"claim_id\", \"inner\")  # LANSH-DEFECT: X1-D1 payments on claims reported in earlier years dropped; X1-D6 duplicate claims multiply payments\n        .groupBy(\"broker_code\", \"lob_code\")\n        .agg(\n            F.sum(\n                F.coalesce(F.col(\"amount\"), F.lit(0).cast(\"decimal(12,2)\")).cast(\"decimal(38,2)\")  # LANSH-DEFECT: X1-D5 every payment_type summed, recoveries not netted\n            ).cast(\"decimal(38,2)\").alias(\"claims_paid_eur\")\n        )\n    )\n\n    # ---- #keys (TSQL-13): UNION removes duplicates ----\n    keys = (\n        inforce.select(\"broker_code\", \"lob_code\")\n        .union(gwp.select(\"broker_code\", \"lob_code\"))\n        .union(notified.select(\"broker_code\", \"lob_code\"))\n        .union(paid.select(\"broker_code\", \"lob_code\"))\n        .distinct()\n    )\n\n    # ---- #ratio (TSQL-13, TSQL-07) ----\n    ratio_base = (\n        keys.join(gwp, [\"broker_code\", \"lob_code\"], \"left\")\n        .join(paid, [\"broker_code\", \"lob_code\"], \"left\")\n        .groupBy(\"broker_code\")\n        .agg(\n            F.sum(F.coalesce(F.col(\"claims_paid_eur\"), F.lit(0).cast(\"decimal(38,2)\"))).cast(\"decimal(38,2)\").alias(\"sum_paid\"),\n            F.sum(F.coalesce(F.col(\"gwp_eur\"), F.lit(0).cast(\"decimal(38,10)\"))).cast(\"decimal(38,10)\").alias(\"sum_gwp\"),\n        )\n    )\n    # NULLIF(sum_gwp, 0); decimal(38,2) / decimal(38,10) -> decimal(38,6) (rounded), then DECIMAL(12,4) (rounded again)\n    den = F.when(F.col(\"sum_gwp\") != F.lit(0), F.col(\"sum_gwp\"))\n    ratio = ratio_base.select(\n        F.col(\"broker_code\"),\n        (F.col(\"sum_paid\") / den).cast(\"decimal(38,6)\").cast(\"decimal(12,4)\").alias(\"paid_to_written\"),\n    )\n\n    # ---- final insert ----\n    b = brokers.select(\n        _ci(F.col(\"broker_code\")).alias(\"_b_key\"),  # TSQL-01/02: CHAR(6) padded, case variants\n        F.col(\"broker_name\").alias(\"broker_name\"),\n        F.upper(F.rtrim(F.col(\"status\"))).alias(\"broker_status\"),\n    )\n    out = (\n        keys.join(b, _ci(F.col(\"broker_code\")) == F.col(\"_b_key\"), \"left\")  # LANSH-DEFECT: X1-D2 several broker rows per code repeat output rows\n        .join(inforce, [\"broker_code\", \"lob_code\"], \"left\")\n        .join(gwp, [\"broker_code\", \"lob_code\"], \"left\")\n        .join(notified, [\"broker_code\", \"lob_code\"], \"left\")\n        .join(paid, [\"broker_code\", \"lob_code\"], \"left\")\n        .join(ratio, [\"broker_code\"], \"left\")\n    )\n    result = out.select(\n        F.lit(as_of).alias(\"as_of_date\"),\n        F.col(\"broker_code\"),\n        F.col(\"broker_name\"),\n        F.col(\"broker_status\"),\n        F.col(\"lob_code\"),\n        F.coalesce(F.col(\"policies_in_force\"), F.lit(0)).cast(\"int\").alias(\"policies_in_force\"),\n        F.coalesce(F.col(\"gwp_eur\"), F.lit(0).cast(\"decimal(38,10)\")).cast(\"decimal(14,2)\").alias(\"gwp_eur\"),\n        F.coalesce(F.col(\"claims_notified\"), F.lit(0)).cast(\"int\").alias(\"claims_notified\"),\n        F.coalesce(F.col(\"claims_paid_eur\"), F.lit(0).cast(\"decimal(38,2)\")).cast(\"decimal(14,2)\").alias(\"claims_paid_eur\"),\n        F.col(\"paid_to_written\"),\n        F.when(F.col(\"paid_to_written\") > F.lit(decimal.Decimal(\"0.75\")), F.lit(\"Y\")).otherwise(F.lit(\"N\")).alias(\"review_flag\"),\n    )\n\n    return {\"rpt.broker_production\": result}\n",
+      "defects": [
+        {
+          "intended": "Count every payment made in the year on the broker's claims, whenever the claim was reported.",
+          "legacy_lines": [
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
+          ],
+          "title": "X1-D1 Claims paid limited to claims notified in the same year",
+          "what_it_does": "#paid joins claim_payments to #clm, which only holds claims reported between @YearStart and @AsOfDate. Payments made this year on claims reported in earlier years are dropped from claims_paid_eur, paid_to_written and review_flag."
+        },
+        {
+          "intended": "Join one row per broker (e.g. the latest by _row_seq).",
+          "legacy_lines": [
+            147,
+            148
+          ],
+          "title": "X1-D2 Broker dimension joined without deduplication",
+          "what_it_does": "LEFT JOINs stg.brokers on broker_code alone. A broker with several rows repeats every broker/LOB output row."
+        },
+        {
+          "intended": "Map blank broker codes to DIRECT as well.",
+          "legacy_lines": [
+            52
+          ],
+          "title": "X1-D3 Blank broker codes not mapped to DIRECT",
+          "what_it_does": "ISNULL only catches NULL. Empty or all-space broker codes trim to '' and are reported under an empty broker code."
+        },
+        {
+          "intended": "Flag or fail on missing FX rates rather than losing the premium.",
+          "legacy_lines": [
+            76,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86
+          ],
+          "title": "X1-D4 Non-EUR premium silently dropped when no FX rate is found",
+          "what_it_does": "If there is no rate on or before txn_date (or the currency is NULL), amount * NULL is NULL and SUM skips it, so the premium disappears from gwp_eur."
+        },
+        {
+          "intended": "Net recoveries off (subtract them) as the comment says.",
+          "legacy_lines": [
+            106,
+            107
+          ],
+          "title": "X1-D5 Recoveries added rather than netted off",
+          "what_it_does": "Sums every claim payment amount whatever its payment_type."
+        },
+        {
+          "intended": "Deduplicate claims per claim_id, as is done for snapshots and FX rates.",
+          "legacy_lines": [
+            94,
+            95,
+            96,
+            97,
+            110
+          ],
+          "title": "X1-D6 Duplicate claim rows multiply claims notified and claims paid",
+          "what_it_does": "stg.claims is used without deduplication, so a claim_id with several staging rows is counted several times, and each of its payments is added once per duplicate."
+        },
+        {
+          "intended": "Treat expiry_date as the exclusive end of cover (expiry_date > @AsOfDate).",
+          "legacy_lines": [
+            69,
+            70,
+            71
+          ],
+          "title": "X1-D7 Policies expiring on the as-of date counted as in force",
+          "what_it_does": "expiry_date >= @AsOfDate counts a policy that expires on the as-of date as in force."
+        }
+      ],
+      "notes": "1) Decimal types follow T-SQL. CASE(1, rate) is decimal(18,8). amount*rate is decimal(31,10), and SUM gives gwp_eur decimal(38,10), not 38,2 as the TSQL-07 card for line 124 says. #paid is decimal(38,2): the cast comes before the SUM, so Spark's sum stays at 38,2. The ratio decimal(38,2)/decimal(38,10) gives decimal(38,6) in both engines (the integer part is over 32 digits, so the scale is cut to 6, rounded half up). It is then rounded again to decimal(12,4). The cast to decimal(38,6) is written out explicitly. Spark only gives the same division type when spark.sql.decimalOperations.allowPrecisionLoss is on, which is the default. 2) NULLIF is done with when(sum_gwp != 0), so ANSI mode never divides by zero. 3) The 0.75 threshold is a decimal literal, not a double. 4) The #pol ROW_NUMBER also sorts on products._row_seq DESC as a last tie-break. Legacy is arbitrary when a product_code matches several product rows, so check that stg.products is unique on upper(rtrim(product_code)). 5) The FX window is partitioned on premium_transactions._row_seq, which is assumed unique per transaction. 6) Text keys are compared on upper(rtrim()) to stand in for the CI collation. The stored broker/lob values were already upper-cased and trimmed in #pol, so the internal joins and the UNION use plain equality. 7) If lob_code or another NOT NULL output column came out NULL, the legacy insert would fail; this code does not raise that error.",
+      "traps_handled": [
+        "TSQL-01",
+        "TSQL-02",
+        "TSQL-07",
+        "TSQL-08",
+        "TSQL-09",
+        "TSQL-13"
+      ]
+    },
+    "total_cost_usd": 0.47045580000000004,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 15159,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 15159,
+      "cache_read_input_tokens": 1079,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 15159,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 15159,
+          "cache_read_input_tokens": 1079,
+          "input_tokens": 2,
+          "output_tokens": 17448,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 17448,
+      "output_tokens_details": {
+        "thinking_tokens": 11570
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,261 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 16,
+        "line_start": 16,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 36,
+        "line_start": 18,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 41,
+        "line_start": 38,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 42,
+        "line_start": 42,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 44,
+        "line_start": 44,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 5,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 45,
+        "line_start": 45,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 6,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 46,
+        "line_start": 46,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 48,
+        "line_start": 48,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 8,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 49,
+        "line_start": 49,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 59,
+        "line_start": 52,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 60,
+        "line_start": 60,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 11,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 61,
+        "line_start": 61,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 72,
+        "line_start": 64,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 82,
+        "line_start": 75,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 90,
+        "line_start": 84,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 100,
+        "line_start": 93,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 16,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 114,
+        "line_start": 102,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 116,
+        "line_start": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 134,
+        "line_start": 118,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 135,
+        "line_start": 135,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 136,
+        "line_start": 136,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 138,
+        "line_start": 138,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 22,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 139,
+        "line_start": 139,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 23,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 140,
+        "line_start": 140,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 24,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 141,
+        "line_start": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 25,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 143,
+        "line_start": 142,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "X2",
+        "kind": "statement",
+        "line_end": 144,
+        "line_start": 144,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 27,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 145,
+        "line_start": 145,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 28,
+        "job_id": "X2",
+        "kind": "other",
+        "line_end": 146,
+        "line_start": 146,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "X2",
+    "reads": [
+      "stg.claim_payments",
+      "stg.claim_reserves",
+      "stg.claims"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.large_loss_watchlist"
+    ]
+  },
+  "stats": {
+    "blocks": 29,
+    "lineage_edges": 48,
+    "rule_candidates": 43,
+    "sqlglot_agreeing_columns": 16,
+    "sqlglot_traced_columns": 16,
+    "statements_unparsed": 0,
+    "trap_findings": 12
+  },
+  "warnings": [
+    "lineage agent notes: The ROW_NUMBER at lines 76-77 groups by (period, claim_id) only, not by reserve_type. So each claim keeps just its single latest reserve row, whatever its type. The header says expense reserves count towards incurred (CR-0577), but they are only included when the expense reserve happens to be the latest row. The SUM at lines 85-86 then always adds up exactly one row per period. The PySpark version must copy this exactly, not fix it. Ties on reserve_date are broken by reserve_id DESC.\n\nWhen computing last_payment_date, payments with a NULL amount are skipped (line 67), but they still count as nil in the sums.\n\ndays_since_last_activity is NULL when the claim has no payments and no reserves. The 1900-01-01 sentinel only affects the comparison and never reaches the output.\n\nThe filter edges on payment_date, reserve_date and the claim_id joins in the payment and reserve steps decide which payment and reserve rows feed the sums. They change which rows appear only indirectly, through the incurred_amount >= 25000 threshold at line 134."
+  ]
+}

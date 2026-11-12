@@ -1,0 +1,318 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 17,
+        "line_start": 17,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 32,
+        "line_start": 19,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 37,
+        "line_start": 34,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 38,
+        "line_start": 38,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 40,
+        "line_start": 40,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 5,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 41,
+        "line_start": 41,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 6,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 42,
+        "line_start": 42,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 44,
+        "line_start": 44,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 8,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 45,
+        "line_start": 45,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 61,
+        "line_start": 48,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 62,
+        "line_start": 62,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 11,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 63,
+        "line_start": 63,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 72,
+        "line_start": 66,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 89,
+        "line_start": 75,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 90,
+        "line_start": 90,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 91,
+        "line_start": 91,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 16,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 99,
+        "line_start": 94,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 104,
+        "line_start": 101,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 113,
+        "line_start": 107,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 114,
+        "line_start": 114,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 115,
+        "line_start": 115,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 120,
+        "line_start": 117,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 22,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 129,
+        "line_start": 123,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 23,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 131,
+        "line_start": 131,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 24,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 153,
+        "line_start": 133,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 25,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 154,
+        "line_start": 154,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 155,
+        "line_start": 155,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 27,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 157,
+        "line_start": 157,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 28,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 158,
+        "line_start": 158,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 29,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 159,
+        "line_start": 159,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 30,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 160,
+        "line_start": 160,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 31,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 162,
+        "line_start": 161,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 32,
+        "job_id": "X1",
+        "kind": "statement",
+        "line_end": 163,
+        "line_start": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 33,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 164,
+        "line_start": 164,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 34,
+        "job_id": "X1",
+        "kind": "other",
+        "line_end": 165,
+        "line_start": 165,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "X1",
+    "reads": [
+      "stg.brokers",
+      "stg.claim_payments",
+      "stg.claims",
+      "stg.fx_rates",
+      "stg.policy_snapshots",
+      "stg.premium_transactions",
+      "stg.products"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.broker_production"
+    ]
+  },
+  "stats": {
+    "blocks": 35,
+    "lineage_edges": 46,
+    "rule_candidates": 50,
+    "sqlglot_agreeing_columns": 6,
+    "sqlglot_traced_columns": 11,
+    "statements_unparsed": 0,
+    "trap_findings": 22
+  },
+  "warnings": [
+    "lineage of rpt.broker_production.broker_code disagrees with sqlglot (agent only: ['stg.policy_snapshots.broker_code']; sqlglot only: ['keys.broker_code'])",
+    "lineage of rpt.broker_production.gwp_eur disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+    "lineage of rpt.broker_production.lob_code disagrees with sqlglot (agent only: ['stg.products.lob_code']; sqlglot only: ['keys.lob_code'])",
+    "lineage of rpt.broker_production.paid_to_written disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+    "lineage of rpt.broker_production.review_flag disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+    "lineage agent notes: 1) claims_paid_eur takes stg.claim_payments.amount as-is. Despite the name, nothing converts it to EUR and claim_payments has no currency column. The same unconverted amount feeds paid_to_written and review_flag. 2) The stg.brokers LEFT JOIN doesn't remove rows, but brokers has a _row_seq column, so it may hold several versions per broker_code. If it does, output rows are duplicated. I listed the join as a low-confidence filter. 3) Claims count toward claims_notified, and their payments toward claims_paid_eur, only if reported_date falls in the year. Payments in the year on claims reported earlier are dropped. 4) If no fx rate is found for a non-EUR currency, the product is NULL and SUM skips it, so that premium is lost from gwp_eur without any error. 5) policies_in_force and claims_notified are COUNT(*) values defaulted to 0 by ISNULL, so they have no column that derives them. The in-force and claims date filters still decide which rows are counted. 6) The output's broker_code and lob_code are the union of keys across in-force, premium, notified and paid, so every filter on those sets helps decide which rows appear."
+  ]
+}

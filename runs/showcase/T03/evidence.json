@@ -1,0 +1,6100 @@
+{
+  "job_id": "T03",
+  "generated_at": "2026-11-12T04:08:22.253903Z",
+  "legacy_path": "estate/tsql/T03_usp_build_fact_premium_earned.sql",
+  "legacy_sha256": "5fbf16f70c9c202ea4f177ec504f51992cf11022b0d992bc484b0cfa10e93670",
+  "discovery": {
+    "job_id": "T03",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "T03",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 18,
+        "line_end": 18,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 20,
+        "line_end": 44,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 2,
+        "kind": "other",
+        "line_start": 46,
+        "line_end": 49,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T03",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 50,
+        "line_end": 50,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 52,
+        "line_end": 55,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 5,
+        "kind": "other",
+        "line_start": 57,
+        "line_end": 57,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T03",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 58,
+        "line_end": 58,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 7,
+        "kind": "statement",
+        "line_start": 62,
+        "line_end": 62,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 64,
+        "line_end": 70,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 72,
+        "line_end": 83,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 85,
+        "line_end": 85,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 86,
+        "line_end": 86,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 89,
+        "line_end": 89,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 91,
+        "line_end": 99,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 101,
+        "line_end": 101,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 103,
+        "line_end": 103,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 105,
+        "line_end": 134,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 136,
+        "line_end": 136,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 138,
+        "line_end": 138,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 140,
+        "line_end": 140,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 141,
+        "line_end": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 21,
+        "kind": "other",
+        "line_start": 142,
+        "line_end": 142,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T03",
+        "index": 22,
+        "kind": "other",
+        "line_start": 143,
+        "line_end": 143,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T03",
+        "index": 23,
+        "kind": "statement",
+        "line_start": 144,
+        "line_end": 144,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 146,
+        "line_end": 147,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 149,
+        "line_end": 150,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 151,
+        "line_end": 151,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T03",
+        "index": 27,
+        "kind": "other",
+        "line_start": 152,
+        "line_end": 152,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T03",
+        "index": 28,
+        "kind": "other",
+        "line_start": 153,
+        "line_end": 153,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "dw.dim_policy",
+      "stg.fx_rates",
+      "stg.premium_transactions"
+    ],
+    "writes": [
+      "dw.fact_premium_earned"
+    ]
+  },
+  "code": {
+    "job_id": "T03",
+    "module_path": "runs/showcase/T03/jobs/t03.py",
+    "code_sha256": "ba9048a1fa89b01c4926078d7af32becfcb344c9bf786436c4623e3f8136bc9c",
+    "legacy_path": "estate/tsql/T03_usp_build_fact_premium_earned.sql",
+    "legacy_sha256": "5fbf16f70c9c202ea4f177ec504f51992cf11022b0d992bc484b0cfa10e93670",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-03",
+      "TSQL-07",
+      "TSQL-08",
+      "TSQL-09",
+      "TSQL-13",
+      "TSQL-18"
+    ],
+    "defects_reproduced": [
+      "T03-M1",
+      "T03-M2",
+      "T03-M3",
+      "T03-M4",
+      "T03-M5",
+      "T03-M6",
+      "T03-M7",
+      "T03-M8",
+      "T03-M9",
+      "T03-M10",
+      "T03-M11",
+      "T03-M12"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "0",
+        "line": 14,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "EUR",
+        "line": 37,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 46,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "EUR",
+        "line": 50,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 63,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 78,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 82,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 84,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 86,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 90,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "13",
+        "line": 101,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 101,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "365",
+        "line": 101,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "13",
+        "line": 104,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 105,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "30",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 109,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 109,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "13",
+        "line": 110,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 110,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 114,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 130,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "3",
+        "line": 130,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "100",
+        "line": 136,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T04:08:30.980965Z"
+  },
+  "lineage": [
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "txn_id",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "txn_id",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        64,
+        74,
+        110
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "policy_id",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "policy_id",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        64,
+        74,
+        111
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "policy_sk",
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "policy_sk",
+      "kind": "derives",
+      "transform": "direct from current dim_policy row",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        112,
+        132
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "direct from current dim_policy row",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        113,
+        132
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "txn_type",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "txn_type",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(txn_type))",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        64,
+        74,
+        114
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "txn_date",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "txn_date",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        64,
+        74,
+        115
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "effective_from",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        65,
+        75,
+        116
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "effective_to",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        65,
+        75,
+        117
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "currency",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        65,
+        75,
+        118
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "amount",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        65,
+        75,
+        119
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "fx_rate",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "latest rate_to_eur on or before txn_date for non-EUR transactions (CROSS APPLY TOP 1)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        75,
+        77,
+        78,
+        81,
+        120
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "fx_rate",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "CAST(1 AS DECIMAL(18,8)) for EUR transactions",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        120
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "written_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        121
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "written_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        75,
+        92,
+        121
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "term_days",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        122
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "term_days",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        122
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_days",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        123
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_days",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        95,
+        123
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_days",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE on @AsOfDate against the cover period",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        123
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_pct",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "earned_days * 100 / term_days (integer division)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        94,
+        95,
+        96,
+        124
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_pct",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "earned_days * 100 / term_days (integer division)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        95,
+        124
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_pct",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "earned_days * 100 / term_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        124
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_pct",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "multiplier 100",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        124
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "ROUND(written_eur * earned_days / 365, 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "ROUND(written_eur * earned_days / 365, 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        95,
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "earned_eur",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "divisor 365 (fixed year, not term_days)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        125
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        95,
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "via earned_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "unearned_eur",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "divisor 365",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        126
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "daily_rate_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        127
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "daily_rate_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        127
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "daily_rate_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "via term_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        127
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "daily_rate_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "via term_days",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        127
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "monthly_instalment_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        128
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "monthly_instalment_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        128
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "monthly_instalment_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "via term_days / 30 (integer division)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        128
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "monthly_instalment_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_to",
+      "kind": "derives",
+      "transform": "via term_days / 30 (integer division)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        128
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "first_due_date",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "effective_from",
+      "kind": "derives",
+      "transform": "DATEADD(MONTH, 1, EOMONTH(effective_from))",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate",
+      "source": "llm",
+      "confidence": 0.99,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        130
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "filters",
+      "transform": "currency = 'EUR' branch / currency <> 'EUR' branch",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        69,
+        82
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "txn_date",
+      "kind": "filters",
+      "transform": "txn_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70,
+        83
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "txn_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70,
+        83
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "currency",
+      "kind": "filters",
+      "transform": "r.currency = t.currency in CROSS APPLY (non-EUR rows with no rate are dropped)",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        79
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_date",
+      "kind": "filters",
+      "transform": "r.rate_date <= t.txn_date in CROSS APPLY",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        80
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_date",
+      "kind": "ranks",
+      "transform": "TOP 1 ORDER BY rate_date DESC",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        77,
+        81
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "_row_seq",
+      "kind": "ranks",
+      "transform": "TOP 1 tie-break ORDER BY _row_seq DESC",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        77,
+        81
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "JOIN dim_policy ON p.policy_id = e.policy_id",
+      "source": "llm",
+      "confidence": 0.96,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        132,
+        133
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "JOIN ON p.policy_id = e.policy_id",
+      "source": "llm",
+      "confidence": 0.96,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        132,
+        133
+      ]
+    },
+    {
+      "job_id": "T03",
+      "output_table": "dw.fact_premium_earned",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "is_current",
+      "kind": "filters",
+      "transform": "p.is_current = 'Y'",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-13",
+      "line_start": 62,
+      "line_end": 67,
+      "snippet": "IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount,\n                CAST(1 AS DECIMAL(18,8)) AS fx_rate\n        INTO    #txn",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "The #txn temp table is built with SELECT INTO and then added to by an INSERT; in Spark it becomes a DataFrame made by unioning the EUR and non-EUR branches."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-01",
+      "line_start": 69,
+      "line_end": 69,
+      "snippet": "WHERE   t.currency = 'EUR'",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "currency is CHAR(3) text. Under a CI collation, 'eur' or 'Eur' also matches 'EUR', but Spark's binary compare would drop those rows from the EUR branch."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-02",
+      "line_start": 69,
+      "line_end": 69,
+      "snippet": "WHERE   t.currency = 'EUR'",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "currency is CHAR(3), and SQL Server ignores trailing spaces in the comparison. A value like 'EU ' or a padded source value would compare differently in Spark."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-08",
+      "line_start": 77,
+      "line_end": 81,
+      "snippet": "CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "TOP 1 is ordered by rate_date DESC, _row_seq DESC. If _row_seq ties within a date, the row chosen is arbitrary, so the window ordering must match."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-09",
+      "line_start": 77,
+      "line_end": 81,
+      "snippet": "CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "CROSS APPLY TOP 1 picks the latest rate per transaction and drops transactions that have no rate. In Spark this needs a join with a row_number window (inner semantics)."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-01",
+      "line_start": 79,
+      "line_end": 79,
+      "snippet": "WHERE  r.currency = t.currency",
+      "detector": "llm",
+      "confidence": 0.75,
+      "note": "The rate lookup joins on the CHAR(3) currency columns. The CI collation matches case variants such as 'usd' to 'USD', and Spark's join would miss them."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-02",
+      "line_start": 79,
+      "line_end": 79,
+      "snippet": "WHERE  r.currency = t.currency",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "The CHAR(3) join on currency ignores trailing spaces in the legacy engine. Spark needs trimmed keys to match the same way."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-01",
+      "line_start": 82,
+      "line_end": 82,
+      "snippet": "WHERE   t.currency <> 'EUR'",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "The <> 'EUR' test is case-insensitive in the legacy engine. In Spark, lower-case 'eur' rows would go to the FX branch and also be missing from the EUR branch."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-02",
+      "line_start": 82,
+      "line_end": 82,
+      "snippet": "WHERE   t.currency <> 'EUR'",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "currency is CHAR(3) and the legacy comparison ignores trailing spaces. Spark compares the exact string."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-13",
+      "line_start": 89,
+      "line_end": 99,
+      "snippet": "IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n\n        SELECT  x.*,\n                CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n                DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n                CASE WHEN @AsOfDate < x.effectiv…",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "The #earn temp table holds the intermediate term and earned-day columns; in Spark it becomes a DataFrame or temp view."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "line_start": 92,
+      "line_end": 92,
+      "snippet": "CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,",
+      "detector": "llm",
+      "confidence": 0.5,
+      "note": "DECIMAL(12,2)*DECIMAL(18,8) is rounded half away from zero to 2 places and cast to DECIMAL(14,2). Spark must keep decimal types and HALF_UP rounding, not doubles."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-03",
+      "line_start": 124,
+      "line_end": 124,
+      "snippet": "e.earned_days * 100 / e.term_days,",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "earned_days*100/term_days is INT/INT, so the percentage is truncated to a whole number before it is stored in DECIMAL(5,2) (e.g. 33.00, not 33.33). Spark's / would return a fraction."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "line_start": 125,
+      "line_end": 125,
+      "snippet": "ROUND(e.written_eur * e.earned_days / 365, 2),",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "Decimal * int / 365 follows SQL Server's precision and scale rules for division, then ROUND to 2 places half away from zero. Spark's decimal division and rounding must reproduce this."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "line_start": 126,
+      "line_end": 126,
+      "snippet": "e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "Unearned is written_eur minus the separately rounded earned amount, so the decimal scale and rounding of the subtrahend must match the legacy result."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "line_start": 127,
+      "line_end": 127,
+      "snippet": "ROUND(e.written_eur / e.term_days, 4, 1),",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "ROUND(x, 4, 1) truncates rather than rounds. Spark needs an explicit truncation of the decimal quotient (e.g. floor-based for positive values, toward zero for negatives), not F.round."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-03",
+      "line_start": 128,
+      "line_end": 128,
+      "snippet": "ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "term_days/30 is integer division, so the instalment count is truncated: 365 days gives 12, and under 30 days gives 0, which falls back to 1."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "line_start": 128,
+      "line_end": 128,
+      "snippet": "ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "Decimal divided by an int count, then ROUND to 2 places half away from zero into DECIMAL(14,2). The decimal types must be kept."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-18",
+      "line_start": 129,
+      "line_end": 129,
+      "snippet": "DATEADD(MONTH, 1, EOMONTH(e.effective_from)),",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "DATEADD(MONTH,1,EOMONTH(d)) clamps without snapping to month-end: an end of February gives the 28th/29th of March. Spark's add_months on a last-day input returns the 31st, so the result would differ."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-01",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "AND p.is_current = 'Y';",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "is_current is CHAR(1) text. Under the CI collation a lower-case 'y' also matches, and Spark's exact compare would drop those policies from the inner join."
+    },
+    {
+      "job_id": "T03",
+      "trap_id": "TSQL-02",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "AND p.is_current = 'Y';",
+      "detector": "llm",
+      "confidence": 0.3,
+      "note": "is_current is CHAR(1). The trailing-space-insensitive compare is a latent risk only if values are stored with spaces."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "T03",
+      "table": "silver.fact_premium_earned",
+      "legacy_table": "dw.fact_premium_earned",
+      "layer": "silver",
+      "grain": "One row per premium transaction booked on or before the reporting date whose policy has a current row in dim_policy. Each row holds the written and earned premium in EUR as at @AsOfDate.",
+      "keys": [
+        "txn_id"
+      ],
+      "columns": [
+        {
+          "name": "txn_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_sk",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "From the current dim_policy row (is_current='Y').",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "txn_type",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(4)",
+          "nullable": false,
+          "max_length": 4,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "txn_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "effective_from",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "effective_to",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "currency",
+          "data_type": "string",
+          "legacy_type": "CHAR(3)",
+          "nullable": false,
+          "max_length": 3,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "amount",
+          "data_type": "decimal(12,2)",
+          "legacy_type": "DECIMAL(12,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "fx_rate",
+          "data_type": "decimal(18,8)",
+          "legacy_type": "DECIMAL(18,8)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "1 for EUR. For other currencies it is the latest stg.fx_rates rate on or before txn_date; if two rows share a date, the higher _row_seq wins. Transactions with no rate found are dropped (CROSS APPLY).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "written_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "amount * fx_rate, rounded to 2 decimal places.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "term_days",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Days of cover counting both ends: DATEDIFF(effective_from, effective_to) + 1.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "earned_days",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Days of cover earned by as_of_date, between 0 and term_days.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "earned_pct",
+          "data_type": "decimal(5,2)",
+          "legacy_type": "DECIMAL(5,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Integer division earned_days*100/term_days, so it is truncated to a whole percent.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "earned_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "written_eur * earned_days / 365 (not / term_days), rounded to 2 dp. It can differ from written_eur even when fully earned.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "unearned_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "written_eur - earned_eur.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "daily_rate_eur",
+          "data_type": "decimal(12,4)",
+          "legacy_type": "DECIMAL(12,4)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "written_eur / term_days, truncated (not rounded) to 4 dp.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "monthly_instalment_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "written_eur divided by integer term_days/30, or by 1 if that is 0; rounded to 2 dp.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "first_due_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "First day of the second month after effective_from (DATEADD month 1 to EOMONTH).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The @AsOfDate parameter; the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "lob_code",
+        "currency"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 67879,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "T03-D1",
+      "job_id": "T03",
+      "title": "Earned premium pro-rated over a fixed 365 days instead of the policy term",
+      "description": "earned_eur = ROUND(written_eur * earned_days / 365, 2) and unearned_eur = written_eur - that. The denominator is hard-coded at 365 while term_days is computed right above. Leap-year terms (366 days), short-term policies and terms over a year are earned wrongly; a fully earned 366-day policy shows earned > written and negative unearned.",
+      "intended_behaviour": "earned_eur = ROUND(written_eur * earned_days / term_days, 2), so a fully earned policy earns exactly written_eur; unearned_eur = written_eur - earned_eur.",
+      "evidence_lines": [
+        93,
+        125,
+        126
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+      "impact": {
+        "rows_affected": 21145,
+        "amount_affected": "307279.59",
+        "amount_column": "earned_eur",
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)"
+      },
+      "source": "llm",
+      "confidence": 0.8
+    },
+    {
+      "defect_id": "T03-D2",
+      "job_id": "T03",
+      "title": "Earned percentage truncated by integer division",
+      "description": "earned_pct = e.earned_days * 100 / e.term_days, where every operand is INT, so SQL Server does integer division and drops the fraction (e.g. 182*100/365 = 49 instead of 49.86) before storing into DECIMAL(5,2).",
+      "intended_behaviour": "earned_pct = ROUND(earned_days * 100.0 / term_days, 2), keeping two decimals.",
+      "evidence_lines": [
+        36,
+        124
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+      "impact": {
+        "rows_affected": 24201,
+        "amount_affected": "12045.22",
+        "amount_column": "earned_pct",
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)"
+      },
+      "source": "llm",
+      "confidence": 0.75
+    },
+    {
+      "defect_id": "T03-D3",
+      "job_id": "T03",
+      "title": "First instalment due date: month added to month-end gives an inconsistent date",
+      "description": "first_due_date = DATEADD(MONTH, 1, EOMONTH(effective_from)). This takes the last day of the effective month and adds a month, giving the end of next month sometimes (31 Jan -> 29 Feb) and not other times (28 Feb -> 28 Mar, 30 Apr -> 30 May). It is neither the 1st of the next month nor reliably the end of next month.",
+      "intended_behaviour": "Most likely the first day of the month after the effective month: DATEADD(DAY, 1, EOMONTH(effective_from)), or else EOMONTH(effective_from, 1).",
+      "evidence_lines": [
+        129
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+      "impact": {
+        "rows_affected": 67879,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)"
+      },
+      "source": "llm",
+      "confidence": 0.45
+    },
+    {
+      "defect_id": "T03-D4",
+      "job_id": "T03",
+      "title": "Non-EUR transactions without an FX rate on/before booking date silently dropped",
+      "description": "The non-EUR branch uses CROSS APPLY to the latest rate with rate_date <= txn_date. A transaction whose currency has no rate on or before its booking date (or has a NULL currency, which fails both = 'EUR' and <> 'EUR') produces no row at all, so the written premium disappears from the fact table without any error or log.",
+      "intended_behaviour": "Every transaction should be in the fact (full premium population). A missing rate should fall back (e.g. the earliest available rate) or fail/log the job rather than drop the premium.",
+      "evidence_lines": [
+        69,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+      "impact": {
+        "rows_affected": 7,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)"
+      },
+      "source": "llm",
+      "confidence": 0.5
+    },
+    {
+      "defect_id": "T03-D5",
+      "job_id": "T03",
+      "title": "Transactions dropped when the policy has no current dim_policy row",
+      "description": "The final INSERT inner-joins to dw.dim_policy on is_current = 'Y'. Transactions for policies with no current version (not yet loaded, or the version-closing logic left none current) are silently excluded from the premium fact.",
+      "intended_behaviour": "All premium transactions up to the as-of date should be reported; a missing policy should map to an unknown member or be logged, not dropped.",
+      "evidence_lines": [
+        132,
+        133,
+        134
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    },
+    {
+      "defect_id": "T03-D6",
+      "job_id": "T03",
+      "title": "Daily rate truncated instead of rounded",
+      "description": "daily_rate_eur = ROUND(written_eur / term_days, 4, 1); the third argument 1 truncates rather than rounds, unlike every other amount in the job, so the daily rate is consistently understated.",
+      "intended_behaviour": "ROUND(written_eur / term_days, 4) with normal rounding.",
+      "evidence_lines": [
+        127
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+      "impact": {
+        "rows_affected": 32841,
+        "amount_affected": "3.28",
+        "amount_column": "daily_rate_eur",
+        "measured_on": "golden:T03",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)"
+      },
+      "source": "llm",
+      "confidence": 0.2
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "T03-D1",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.130453Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T03-D2",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.131382Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T03-D3",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.132232Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T03-D4",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.133061Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T03-D5",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.133882Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T03-D6",
+      "job_id": "T03",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:29:05.134697Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [
+    {
+      "job_id": "T03",
+      "table": "dw.fact_premium_earned",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "ba9048a1fa89b01c4926078d7af32becfcb344c9bf786436c4623e3f8136bc9c",
+      "keys": [
+        "txn_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 67879,
+        "candidate": 67879,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', currency='EUR'",
+            "legacy": 23247,
+            "candidate": 23247
+          },
+          {
+            "partition": "lob_code='HOM', currency='GBP'",
+            "legacy": 830,
+            "candidate": 830
+          },
+          {
+            "partition": "lob_code='MOT', currency='EUR'",
+            "legacy": 30826,
+            "candidate": 30826
+          },
+          {
+            "partition": "lob_code='MOT', currency='GBP'",
+            "legacy": 1125,
+            "candidate": 1125
+          },
+          {
+            "partition": "lob_code='TRV', currency='EUR'",
+            "legacy": 10717,
+            "candidate": 10717
+          },
+          {
+            "partition": "lob_code='TRV', currency='GBP'",
+            "legacy": 398,
+            "candidate": 398
+          },
+          {
+            "partition": "lob_code='TRV', currency='USD'",
+            "legacy": 736,
+            "candidate": 736
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "txn_id",
+          "legacy": "477457288333",
+          "candidate": "477457288333",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "36027338916",
+          "candidate": "36027338916",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_sk",
+          "legacy": "2451710359",
+          "candidate": "2451710359",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "amount",
+          "legacy": "23878512.88",
+          "candidate": "23878512.88",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "fx_rate",
+          "legacy": "68243.18983386",
+          "candidate": "68243.18983386",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "written_eur",
+          "legacy": "24033402.72",
+          "candidate": "24033402.72",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "term_days",
+          "legacy": "22352049",
+          "candidate": "22352049",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_days",
+          "legacy": "17376000",
+          "candidate": "17376000",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_pct",
+          "legacy": "5370266",
+          "candidate": "5370266",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_eur",
+          "legacy": "18768844.41",
+          "candidate": "18768844.41",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "unearned_eur",
+          "legacy": "5264558.31",
+          "candidate": "5264558.31",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "daily_rate_eur",
+          "legacy": "79181.1928",
+          "candidate": "79181.1928",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "monthly_instalment_eur",
+          "legacy": "2121880.48",
+          "candidate": "2121880.48",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 67879,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 67,879 rows agree record for record, compared on the keys ['txn_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "2928d4e808d4201784d0f6796ed22c8f85002e06ef544d1d2f2fa4763937285b",
+      "golden_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+      "candidate_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+      "started_at": "2026-11-12T04:09:00.522471Z",
+      "duration_seconds": 2.499,
+      "error": null
+    },
+    {
+      "job_id": "T03",
+      "table": "dw.fact_premium_earned",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "txn_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 67879,
+        "candidate": 67879,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', currency='EUR'",
+            "legacy": 23247,
+            "candidate": 23247
+          },
+          {
+            "partition": "lob_code='HOM', currency='GBP'",
+            "legacy": 830,
+            "candidate": 830
+          },
+          {
+            "partition": "lob_code='MOT', currency='EUR'",
+            "legacy": 30826,
+            "candidate": 30826
+          },
+          {
+            "partition": "lob_code='MOT', currency='GBP'",
+            "legacy": 1125,
+            "candidate": 1125
+          },
+          {
+            "partition": "lob_code='TRV', currency='EUR'",
+            "legacy": 10717,
+            "candidate": 10717
+          },
+          {
+            "partition": "lob_code='TRV', currency='GBP'",
+            "legacy": 398,
+            "candidate": 398
+          },
+          {
+            "partition": "lob_code='TRV', currency='USD'",
+            "legacy": 736,
+            "candidate": 736
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "txn_id",
+          "legacy": "477457288333",
+          "candidate": "477457288333",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "36027338916",
+          "candidate": "36027338916",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_sk",
+          "legacy": "2451710359",
+          "candidate": "2451710359",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "amount",
+          "legacy": "23878512.88",
+          "candidate": "23878512.88",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "fx_rate",
+          "legacy": "68243.18983386",
+          "candidate": "68243.18983386",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "written_eur",
+          "legacy": "24033402.72",
+          "candidate": "24033402.72",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "term_days",
+          "legacy": "22352049",
+          "candidate": "22352049",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_days",
+          "legacy": "17376000",
+          "candidate": "17376000",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_pct",
+          "legacy": "5370266",
+          "candidate": "5370266",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "earned_eur",
+          "legacy": "18768844.41",
+          "candidate": "18768844.41",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "unearned_eur",
+          "legacy": "5264558.31",
+          "candidate": "5264558.31",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "daily_rate_eur",
+          "legacy": "79181.1928",
+          "candidate": "79181.1928",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "monthly_instalment_eur",
+          "legacy": "2121880.48",
+          "candidate": "2121880.48",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 67879,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 67,879 rows agree record for record, compared on the keys ['txn_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "2928d4e808d4201784d0f6796ed22c8f85002e06ef544d1d2f2fa4763937285b",
+      "golden_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+      "candidate_sha256": "8877a71b1cda17bad64abf611a0f0c6320dbd950cfb47fd685c2272732ef7561",
+      "started_at": "2026-11-12T04:09:22.173016Z",
+      "duration_seconds": 5.897,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "T03-TSQL-01-1",
+      "job_id": "T03",
+      "trap_id": "TSQL-01",
+      "description": "Currency case variants: 'eur' and 'Eur' rows belong to the EUR branch (lines 69/82). Under the CI collation they get rate 1, and they must not go to the FX branch. A naive binary compare would drop them, or send them looking for a rate. The FX join on line 79 must match txn 'usd' to fx 'USD', and txn 'GBP' to fx 'Gbp'. In dim_policy, policy 104 has is_current 'y' (line 134), so its rows join only under the CI compare. Canonical 'EUR'/'USD'/'Y' rows are included as controls, along with a non-current 'N' row.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "NB",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "1200.00",
+              "EUR",
+              "1"
+            ],
+            [
+              "2",
+              "102",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "850.00",
+              "eur",
+              "2"
+            ],
+            [
+              "3",
+              "103",
+              "NB",
+              "2025-04-10",
+              "2025-04-10",
+              "2026-04-09",
+              "640.00",
+              "Eur",
+              "3"
+            ],
+            [
+              "4",
+              "104",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "1000.00",
+              "USD",
+              "4"
+            ],
+            [
+              "5",
+              "105",
+              "NB",
+              "2025-07-15",
+              "2025-07-15",
+              "2026-07-14",
+              "500.00",
+              "usd",
+              "5"
+            ],
+            [
+              "6",
+              "102",
+              "MTA",
+              "2025-09-01",
+              "2025-09-01",
+              "2026-02-28",
+              "200.00",
+              "GBP",
+              "6"
+            ],
+            [
+              "7",
+              "104",
+              "mta",
+              "2025-10-01",
+              "2025-10-01",
+              "2026-06-30",
+              "150.00",
+              "eUr",
+              "7"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-01-01",
+              "USD",
+              "0.92000000",
+              "ECB",
+              "1"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.91500000",
+              "ECB",
+              "2"
+            ],
+            [
+              "2025-06-01",
+              "Gbp",
+              "1.18500000",
+              "ECB",
+              "3"
+            ],
+            [
+              "2025-01-01",
+              "CHF",
+              "1.05000000",
+              "ECB",
+              "4"
+            ],
+            [
+              "2025-12-01",
+              "USD",
+              "0.95000000",
+              "ECB",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "1200.00",
+              "EUR",
+              "241-D-1234",
+              "3",
+              "2025-01-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "850.00",
+              "EUR",
+              null,
+              null,
+              "2025-03-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-04-10",
+              "2026-04-09",
+              null,
+              "640.00",
+              "EUR",
+              "251-C-555",
+              "1",
+              "2025-04-10",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "ACTIVE",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "1000.00",
+              "USD",
+              null,
+              null,
+              "2025-07-01",
+              "9999-12-31",
+              "y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-07-15",
+              "2026-07-14",
+              null,
+              "500.00",
+              "USD",
+              null,
+              null,
+              "2025-07-15",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "6",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2024-01-01",
+              "2024-12-31",
+              null,
+              "1100.00",
+              "EUR",
+              "241-D-1234",
+              "2",
+              "2024-01-01",
+              "2024-12-31",
+              "N",
+              "2024-12-31",
+              "2024-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "EUR",
+              "1200.00",
+              "1.00000000",
+              "1200.00",
+              "365",
+              "365",
+              "100.00",
+              "1200.00",
+              "0.00",
+              "3.2876",
+              "100.00",
+              "2025-02-28",
+              "2025-12-31"
+            ],
+            [
+              "2",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "eur",
+              "850.00",
+              "1.00000000",
+              "850.00",
+              "365",
+              "306",
+              "83.00",
+              "712.60",
+              "137.40",
+              "2.3287",
+              "70.83",
+              "2025-04-30",
+              "2025-12-31"
+            ],
+            [
+              "3",
+              "103",
+              "3",
+              "MOT",
+              "NB",
+              "2025-04-10",
+              "2025-04-10",
+              "2026-04-09",
+              "Eur",
+              "640.00",
+              "1.00000000",
+              "640.00",
+              "365",
+              "266",
+              "72.00",
+              "466.41",
+              "173.59",
+              "1.7534",
+              "53.33",
+              "2025-05-30",
+              "2025-12-31"
+            ],
+            [
+              "4",
+              "104",
+              "4",
+              "FLT",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "USD",
+              "1000.00",
+              "0.91500000",
+              "915.00",
+              "365",
+              "184",
+              "50.00",
+              "461.26",
+              "453.74",
+              "2.5068",
+              "76.25",
+              "2025-08-31",
+              "2025-12-31"
+            ],
+            [
+              "5",
+              "105",
+              "5",
+              "HOM",
+              "NB",
+              "2025-07-15",
+              "2025-07-15",
+              "2026-07-14",
+              "usd",
+              "500.00",
+              "0.91500000",
+              "457.50",
+              "365",
+              "170",
+              "46.00",
+              "213.08",
+              "244.42",
+              "1.2534",
+              "38.13",
+              "2025-08-31",
+              "2025-12-31"
+            ],
+            [
+              "6",
+              "102",
+              "2",
+              "HOM",
+              "MTA",
+              "2025-09-01",
+              "2025-09-01",
+              "2026-02-28",
+              "GBP",
+              "200.00",
+              "1.18500000",
+              "237.00",
+              "181",
+              "122",
+              "67.00",
+              "79.22",
+              "157.78",
+              "1.3093",
+              "39.50",
+              "2025-10-30",
+              "2025-12-31"
+            ],
+            [
+              "7",
+              "104",
+              "4",
+              "FLT",
+              "MTA",
+              "2025-10-01",
+              "2025-10-01",
+              "2026-06-30",
+              "eUr",
+              "150.00",
+              "1.00000000",
+              "150.00",
+              "273",
+              "92",
+              "33.00",
+              "37.81",
+              "112.19",
+              "0.5494",
+              "16.67",
+              "2025-11-30",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T03-TSQL-02-2",
+      "job_id": "T03",
+      "trap_id": "TSQL-02",
+      "description": "Trailing spaces in CHAR(3) currency keys (lines 69/79/82). Txn currency 'CH' matches fx 'CH ', and txn 'JP ' matches fx 'JP'. The legacy engine pads both and ignores trailing spaces, so the rows find their rates. A naive exact-string join drops them. txn_type values carry trailing spaces ('NB  ', 'MTA '), and RTRIM removes them. Canonical 'EUR' and 'USD' rows are included as controls, and is_current is 'Y'.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "11",
+              "101",
+              "NB  ",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "1200.00",
+              "EUR",
+              "1"
+            ],
+            [
+              "12",
+              "102",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "850.00",
+              "CH",
+              "2"
+            ],
+            [
+              "13",
+              "103",
+              "MTA ",
+              "2025-04-10",
+              "2025-04-10",
+              "2026-04-09",
+              "640.00",
+              "JP ",
+              "3"
+            ],
+            [
+              "14",
+              "104",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "1000.00",
+              "USD",
+              "4"
+            ],
+            [
+              "15",
+              "105",
+              "REN ",
+              "2025-07-15",
+              "2025-07-15",
+              "2026-07-14",
+              "500.00",
+              "CH ",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-01-01",
+              "USD",
+              "0.92000000",
+              "ECB",
+              "1"
+            ],
+            [
+              "2025-01-01",
+              "CH ",
+              "1.05000000",
+              "ECB",
+              "2"
+            ],
+            [
+              "2025-01-01",
+              "JP",
+              "0.00620000",
+              "ECB",
+              "3"
+            ],
+            [
+              "2025-06-01",
+              "CH",
+              "1.06000000",
+              "ECB ",
+              "4"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.91500000",
+              "ECB",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "1200.00",
+              "EUR",
+              "241-D-1234",
+              "3",
+              "2025-01-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "850.00",
+              "CH",
+              null,
+              null,
+              "2025-03-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-04-10",
+              "2026-04-09",
+              null,
+              "640.00",
+              "JP",
+              "251-C-555",
+              "1",
+              "2025-04-10",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "ACTIVE",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "1000.00",
+              "USD",
+              null,
+              null,
+              "2025-07-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-07-15",
+              "2026-07-14",
+              null,
+              "500.00",
+              "CH",
+              null,
+              null,
+              "2025-07-15",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "11",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "EUR",
+              "1200.00",
+              "1.00000000",
+              "1200.00",
+              "365",
+              "365",
+              "100.00",
+              "1200.00",
+              "0.00",
+              "3.2876",
+              "100.00",
+              "2025-02-28",
+              "2025-12-31"
+            ],
+            [
+              "12",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "CH ",
+              "850.00",
+              "1.05000000",
+              "892.50",
+              "365",
+              "306",
+              "83.00",
+              "748.23",
+              "144.27",
+              "2.4452",
+              "74.38",
+              "2025-04-30",
+              "2025-12-31"
+            ],
+            [
+              "13",
+              "103",
+              "3",
+              "MOT",
+              "MTA",
+              "2025-04-10",
+              "2025-04-10",
+              "2026-04-09",
+              "JP ",
+              "640.00",
+              "0.00620000",
+              "3.97",
+              "365",
+              "266",
+              "72.00",
+              "2.89",
+              "1.08",
+              "0.0108",
+              "0.33",
+              "2025-05-30",
+              "2025-12-31"
+            ],
+            [
+              "14",
+              "104",
+              "4",
+              "FLT",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "USD",
+              "1000.00",
+              "0.91500000",
+              "915.00",
+              "365",
+              "184",
+              "50.00",
+              "461.26",
+              "453.74",
+              "2.5068",
+              "76.25",
+              "2025-08-31",
+              "2025-12-31"
+            ],
+            [
+              "15",
+              "105",
+              "5",
+              "HOM",
+              "REN",
+              "2025-07-15",
+              "2025-07-15",
+              "2026-07-14",
+              "CH ",
+              "500.00",
+              "1.06000000",
+              "530.00",
+              "365",
+              "170",
+              "46.00",
+              "246.85",
+              "283.15",
+              "1.4520",
+              "44.17",
+              "2025-08-31",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T03-TSQL-08-3",
+      "job_id": "T03",
+      "trap_id": "TSQL-08",
+      "description": "FX TOP 1 tie-break (lines 77-81). USD has two rates on 2025-06-01 (0.92 at seq 2, a revision 0.93 at seq 4). GBP has two rates on 2025-06-01 (1.18 at seq 5, 1.17 at seq 6). The legacy engine picks the later _row_seq. A window ordered only by rate_date, or by insertion order, could pick the other row. A USD rate dated after some txn dates (2025-07-01, inserted first) must be ignored for those txns and used for a later txn. A txn on 2025-05-15 must take the older 0.91 rate. A EUR row is included as a control.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "21",
+              "101",
+              "NB",
+              "2025-06-15",
+              "2025-06-15",
+              "2026-06-14",
+              "1000.00",
+              "USD",
+              "1"
+            ],
+            [
+              "22",
+              "102",
+              "NB",
+              "2025-06-01",
+              "2025-06-01",
+              "2026-05-31",
+              "777.77",
+              "USD",
+              "2"
+            ],
+            [
+              "23",
+              "103",
+              "NB",
+              "2025-06-20",
+              "2025-06-20",
+              "2026-06-19",
+              "500.00",
+              "GBP",
+              "3"
+            ],
+            [
+              "24",
+              "104",
+              "MTA",
+              "2025-07-02",
+              "2025-07-02",
+              "2026-06-30",
+              "250.00",
+              "USD",
+              "4"
+            ],
+            [
+              "25",
+              "105",
+              "NB",
+              "2025-05-15",
+              "2025-05-15",
+              "2026-05-14",
+              "400.00",
+              "USD",
+              "5"
+            ],
+            [
+              "26",
+              "101",
+              "MTA",
+              "2025-08-01",
+              "2025-08-01",
+              "2026-06-14",
+              "90.00",
+              "EUR",
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-07-01",
+              "USD",
+              "0.99000000",
+              "ECB",
+              "1"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.92000000",
+              "ECB",
+              "2"
+            ],
+            [
+              "2025-05-01",
+              "USD",
+              "0.91000000",
+              "ECB",
+              "3"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.93000000",
+              "REVISED",
+              "4"
+            ],
+            [
+              "2025-06-01",
+              "GBP",
+              "1.18000000",
+              "ECB",
+              "5"
+            ],
+            [
+              "2025-06-01",
+              "GBP",
+              "1.17000000",
+              "REVISED",
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-06-15",
+              "2026-06-14",
+              null,
+              "1000.00",
+              "USD",
+              "241-D-1234",
+              "3",
+              "2025-06-15",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-06-01",
+              "2026-05-31",
+              null,
+              "777.77",
+              "USD",
+              null,
+              null,
+              "2025-06-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-06-20",
+              "2026-06-19",
+              null,
+              "500.00",
+              "GBP",
+              "251-C-555",
+              "1",
+              "2025-06-20",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "ACTIVE",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "1000.00",
+              "USD",
+              null,
+              null,
+              "2025-07-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-05-15",
+              "2026-05-14",
+              null,
+              "400.00",
+              "USD",
+              null,
+              null,
+              "2025-05-15",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "21",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-06-15",
+              "2025-06-15",
+              "2026-06-14",
+              "USD",
+              "1000.00",
+              "0.93000000",
+              "930.00",
+              "365",
+              "200",
+              "54.00",
+              "509.59",
+              "420.41",
+              "2.5479",
+              "77.50",
+              "2025-07-30",
+              "2025-12-31"
+            ],
+            [
+              "22",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2025-06-01",
+              "2025-06-01",
+              "2026-05-31",
+              "USD",
+              "777.77",
+              "0.93000000",
+              "723.33",
+              "365",
+              "214",
+              "58.00",
+              "424.09",
+              "299.24",
+              "1.9817",
+              "60.28",
+              "2025-07-30",
+              "2025-12-31"
+            ],
+            [
+              "23",
+              "103",
+              "3",
+              "MOT",
+              "NB",
+              "2025-06-20",
+              "2025-06-20",
+              "2026-06-19",
+              "GBP",
+              "500.00",
+              "1.17000000",
+              "585.00",
+              "365",
+              "195",
+              "53.00",
+              "312.53",
+              "272.47",
+              "1.6027",
+              "48.75",
+              "2025-07-30",
+              "2025-12-31"
+            ],
+            [
+              "24",
+              "104",
+              "4",
+              "FLT",
+              "MTA",
+              "2025-07-02",
+              "2025-07-02",
+              "2026-06-30",
+              "USD",
+              "250.00",
+              "0.99000000",
+              "247.50",
+              "364",
+              "183",
+              "50.00",
+              "124.09",
+              "123.41",
+              "0.6799",
+              "20.63",
+              "2025-08-31",
+              "2025-12-31"
+            ],
+            [
+              "25",
+              "105",
+              "5",
+              "HOM",
+              "NB",
+              "2025-05-15",
+              "2025-05-15",
+              "2026-05-14",
+              "USD",
+              "400.00",
+              "0.91000000",
+              "364.00",
+              "365",
+              "231",
+              "63.00",
+              "230.37",
+              "133.63",
+              "0.9972",
+              "30.33",
+              "2025-06-30",
+              "2025-12-31"
+            ],
+            [
+              "26",
+              "101",
+              "1",
+              "MOT",
+              "MTA",
+              "2025-08-01",
+              "2025-08-01",
+              "2026-06-14",
+              "EUR",
+              "90.00",
+              "1.00000000",
+              "90.00",
+              "318",
+              "153",
+              "48.00",
+              "37.73",
+              "52.27",
+              "0.2830",
+              "9.00",
+              "2025-09-30",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T03-TSQL-07-4",
+      "job_id": "T03",
+      "trap_id": "TSQL-07",
+      "description": "Decimal rounding, lines 92 and 125-128. Several amount*rate products land exactly on half a cent: 10.01*0.5=5.005, 2.35*1.5=3.525, -10.01*0.5=-5.005. Rounding half away from zero is required. Doubles or HALF_EVEN would differ. CHF 999.99*1.07123457 tests the full-precision product. Partial-term EUR rows (1000.00 over 184 of 365 days, 333.33 over a short term) test the /365 decimal scale and unearned = written - ROUND(...). A negative EUR -100.00 over 365 days tests ROUND(x,4,1) truncation toward zero for the daily rate (floor would differ). Other rows give non-terminating quotients for the daily rate and the instalment.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "31",
+              "101",
+              "NB",
+              "2025-02-01",
+              "2025-02-01",
+              "2026-01-31",
+              "10.01",
+              "USD",
+              "1"
+            ],
+            [
+              "32",
+              "102",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "2.35",
+              "GBP",
+              "2"
+            ],
+            [
+              "33",
+              "101",
+              "CAN",
+              "2025-04-01",
+              "2025-04-01",
+              "2026-01-31",
+              "-10.01",
+              "USD",
+              "3"
+            ],
+            [
+              "34",
+              "103",
+              "NB",
+              "2025-05-01",
+              "2025-05-01",
+              "2026-04-30",
+              "999.99",
+              "CHF",
+              "4"
+            ],
+            [
+              "35",
+              "104",
+              "CAN",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "-100.00",
+              "EUR",
+              "5"
+            ],
+            [
+              "36",
+              "105",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "1000.00",
+              "EUR",
+              "6"
+            ],
+            [
+              "37",
+              "102",
+              "MTA",
+              "2025-12-20",
+              "2025-12-26",
+              "2026-01-01",
+              "333.33",
+              "EUR",
+              "7"
+            ],
+            [
+              "38",
+              "103",
+              "MTA",
+              "2025-06-01",
+              "2025-06-01",
+              "2026-04-30",
+              "123.47",
+              "EUR",
+              "8"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-01-01",
+              "USD",
+              "0.50000000",
+              "TEST",
+              "1"
+            ],
+            [
+              "2025-01-01",
+              "GBP",
+              "1.50000000",
+              "TEST",
+              "2"
+            ],
+            [
+              "2025-01-01",
+              "CHF",
+              "1.07123457",
+              "TEST",
+              "3"
+            ],
+            [
+              "2026-01-15",
+              "USD",
+              "0.90000000",
+              "TEST",
+              "4"
+            ],
+            [
+              "2026-01-15",
+              "GBP",
+              "1.20000000",
+              "TEST",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "10.01",
+              "USD",
+              "241-D-1234",
+              "3",
+              "2025-02-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "2.35",
+              "GBP",
+              null,
+              null,
+              "2025-03-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-05-01",
+              "2026-04-30",
+              null,
+              "999.99",
+              "CHF",
+              "251-C-555",
+              "1",
+              "2025-05-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "CANCELLED",
+              "2025-01-01",
+              "2025-12-31",
+              "2025-01-01",
+              "100.00",
+              "EUR",
+              null,
+              null,
+              "2025-01-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "1000.00",
+              "EUR",
+              null,
+              null,
+              "2025-07-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "31",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-02-01",
+              "2025-02-01",
+              "2026-01-31",
+              "USD",
+              "10.01",
+              "0.50000000",
+              "5.01",
+              "365",
+              "334",
+              "91.00",
+              "4.58",
+              "0.43",
+              "0.0137",
+              "0.42",
+              "2025-03-28",
+              "2025-12-31"
+            ],
+            [
+              "32",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2025-03-01",
+              "2025-03-01",
+              "2026-02-28",
+              "GBP",
+              "2.35",
+              "1.50000000",
+              "3.53",
+              "365",
+              "306",
+              "83.00",
+              "2.96",
+              "0.57",
+              "0.0096",
+              "0.29",
+              "2025-04-30",
+              "2025-12-31"
+            ],
+            [
+              "33",
+              "101",
+              "1",
+              "MOT",
+              "CAN",
+              "2025-04-01",
+              "2025-04-01",
+              "2026-01-31",
+              "USD",
+              "-10.01",
+              "0.50000000",
+              "-5.01",
+              "306",
+              "275",
+              "89.00",
+              "-3.77",
+              "-1.24",
+              "-0.0163",
+              "-0.50",
+              "2025-05-30",
+              "2025-12-31"
+            ],
+            [
+              "34",
+              "103",
+              "3",
+              "MOT",
+              "NB",
+              "2025-05-01",
+              "2025-05-01",
+              "2026-04-30",
+              "CHF",
+              "999.99",
+              "1.07123457",
+              "1071.22",
+              "365",
+              "245",
+              "67.00",
+              "719.04",
+              "352.18",
+              "2.9348",
+              "89.27",
+              "2025-06-30",
+              "2025-12-31"
+            ],
+            [
+              "35",
+              "104",
+              "4",
+              "FLT",
+              "CAN",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "EUR",
+              "-100.00",
+              "1.00000000",
+              "-100.00",
+              "365",
+              "365",
+              "100.00",
+              "-100.00",
+              "0.00",
+              "-0.2739",
+              "-8.33",
+              "2025-02-28",
+              "2025-12-31"
+            ],
+            [
+              "36",
+              "105",
+              "5",
+              "HOM",
+              "NB",
+              "2025-07-01",
+              "2025-07-01",
+              "2026-06-30",
+              "EUR",
+              "1000.00",
+              "1.00000000",
+              "1000.00",
+              "365",
+              "184",
+              "50.00",
+              "504.11",
+              "495.89",
+              "2.7397",
+              "83.33",
+              "2025-08-31",
+              "2025-12-31"
+            ],
+            [
+              "37",
+              "102",
+              "2",
+              "HOM",
+              "MTA",
+              "2025-12-20",
+              "2025-12-26",
+              "2026-01-01",
+              "EUR",
+              "333.33",
+              "1.00000000",
+              "333.33",
+              "7",
+              "6",
+              "85.00",
+              "5.48",
+              "327.85",
+              "47.6185",
+              "333.33",
+              "2026-01-31",
+              "2025-12-31"
+            ],
+            [
+              "38",
+              "103",
+              "3",
+              "MOT",
+              "MTA",
+              "2025-06-01",
+              "2025-06-01",
+              "2026-04-30",
+              "EUR",
+              "123.47",
+              "1.00000000",
+              "123.47",
+              "334",
+              "214",
+              "64.00",
+              "72.39",
+              "51.08",
+              "0.3696",
+              "11.22",
+              "2025-07-30",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T03-TSQL-03-5",
+      "job_id": "T03",
+      "trap_id": "TSQL-03",
+      "description": "Integer division, lines 124 and 128. A 3-day term with 1 earned day gives an earned_pct of 1*100/3, truncated to 33 (not 33.33). A 90-day term with 31 days earned gives 34, not 34.44. A 151-day term with 31 days earned gives 20 (3100/151=20.53, so rounding would give 21). A future-dated term earns 0. A fully earned 365-day term is included as a control. Instalments: a 365-day term gives a count of 12 (not 12.17). A 20-day term gives 0, which falls back to 1. A 59-day term gives 1 and a 366-day term gives 12. All rows are EUR.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "41",
+              "101",
+              "NB",
+              "2025-12-31",
+              "2025-12-31",
+              "2026-01-02",
+              "30.00",
+              "EUR",
+              "1"
+            ],
+            [
+              "42",
+              "102",
+              "NB",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-02-28",
+              "900.00",
+              "EUR",
+              "2"
+            ],
+            [
+              "43",
+              "103",
+              "NB",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "1200.00",
+              "EUR",
+              "3"
+            ],
+            [
+              "44",
+              "104",
+              "MTA",
+              "2025-12-10",
+              "2025-12-10",
+              "2025-12-29",
+              "100.00",
+              "EUR",
+              "4"
+            ],
+            [
+              "45",
+              "105",
+              "MTA",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-01-28",
+              "118.00",
+              "EUR",
+              "5"
+            ],
+            [
+              "46",
+              "101",
+              "REN",
+              "2025-12-15",
+              "2026-01-01",
+              "2027-01-01",
+              "1464.00",
+              "EUR",
+              "6"
+            ],
+            [
+              "47",
+              "102",
+              "MTA",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-04-30",
+              "151.00",
+              "EUR",
+              "7"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-01-01",
+              "USD",
+              "0.92000000",
+              "ECB",
+              "1"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.91500000",
+              "ECB",
+              "2"
+            ],
+            [
+              "2025-01-01",
+              "GBP",
+              "1.17000000",
+              "ECB",
+              "3"
+            ],
+            [
+              "2025-06-01",
+              "GBP",
+              "1.18500000",
+              "ECB",
+              "4"
+            ],
+            [
+              "2025-12-01",
+              "USD",
+              "0.95000000",
+              "ECB",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-12-31",
+              "2027-01-01",
+              null,
+              "1464.00",
+              "EUR",
+              "241-D-1234",
+              "3",
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-12-01",
+              "2026-04-30",
+              null,
+              "900.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "1200.00",
+              "EUR",
+              "251-C-555",
+              "1",
+              "2025-01-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "ACTIVE",
+              "2025-12-10",
+              "2025-12-29",
+              null,
+              "100.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-10",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-12-01",
+              "2026-01-28",
+              null,
+              "118.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-01",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "41",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-12-31",
+              "2025-12-31",
+              "2026-01-02",
+              "EUR",
+              "30.00",
+              "1.00000000",
+              "30.00",
+              "3",
+              "1",
+              "33.00",
+              "0.08",
+              "29.92",
+              "10.0000",
+              "30.00",
+              "2026-01-31",
+              "2025-12-31"
+            ],
+            [
+              "42",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-02-28",
+              "EUR",
+              "900.00",
+              "1.00000000",
+              "900.00",
+              "90",
+              "31",
+              "34.00",
+              "76.44",
+              "823.56",
+              "10.0000",
+              "300.00",
+              "2026-01-31",
+              "2025-12-31"
+            ],
+            [
+              "43",
+              "103",
+              "3",
+              "MOT",
+              "NB",
+              "2025-01-01",
+              "2025-01-01",
+              "2025-12-31",
+              "EUR",
+              "1200.00",
+              "1.00000000",
+              "1200.00",
+              "365",
+              "365",
+              "100.00",
+              "1200.00",
+              "0.00",
+              "3.2876",
+              "100.00",
+              "2025-02-28",
+              "2025-12-31"
+            ],
+            [
+              "44",
+              "104",
+              "4",
+              "FLT",
+              "MTA",
+              "2025-12-10",
+              "2025-12-10",
+              "2025-12-29",
+              "EUR",
+              "100.00",
+              "1.00000000",
+              "100.00",
+              "20",
+              "20",
+              "100.00",
+              "5.48",
+              "94.52",
+              "5.0000",
+              "100.00",
+              "2026-01-31",
+              "2025-12-31"
+            ],
+            [
+              "45",
+              "105",
+              "5",
+              "HOM",
+              "MTA",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-01-28",
+              "EUR",
+              "118.00",
+              "1.00000000",
+              "118.00",
+              "59",
+              "31",
+              "52.00",
+              "10.02",
+              "107.98",
+              "2.0000",
+              "118.00",
+              "2026-01-31",
+              "2025-12-31"
+            ],
+            [
+              "46",
+              "101",
+              "1",
+              "MOT",
+              "REN",
+              "2025-12-15",
+              "2026-01-01",
+              "2027-01-01",
+              "EUR",
+              "1464.00",
+              "1.00000000",
+              "1464.00",
+              "366",
+              "0",
+              "0.00",
+              "0.00",
+              "1464.00",
+              "4.0000",
+              "122.00",
+              "2026-02-28",
+              "2025-12-31"
+            ],
+            [
+              "47",
+              "102",
+              "2",
+              "HOM",
+              "MTA",
+              "2025-12-01",
+              "2025-12-01",
+              "2026-04-30",
+              "EUR",
+              "151.00",
+              "1.00000000",
+              "151.00",
+              "151",
+              "31",
+              "20.00",
+              "12.82",
+              "138.18",
+              "1.0000",
+              "30.20",
+              "2026-01-31",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T03-TSQL-18-6",
+      "job_id": "T03",
+      "trap_id": "TSQL-18",
+      "description": "first_due_date = DATEADD(MONTH,1,EOMONTH(effective_from)), line 129. These effective_from dates have month-ends shorter than the following month: Feb 2025 (to Mar 28), Feb 2024 leap (to Mar 29), Apr 30 (to May 30), Jun 30 (to Jul 30), Sep (to Oct 30), Nov 30 (to Dec 30). The legacy engine does not snap to month-end, but a last-day-preserving add_months would return the 31st. Controls: January (clamps to Feb 28), Mar 31 (to Apr 30) and Dec 2025 (to Jan 31, 2026). All rows are EUR.",
+      "inputs": [
+        {
+          "table": "stg.premium_transactions",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "amount",
+            "currency",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "51",
+              "101",
+              "NB",
+              "2025-02-15",
+              "2025-02-15",
+              "2026-02-14",
+              "600.00",
+              "EUR",
+              "1"
+            ],
+            [
+              "52",
+              "102",
+              "NB",
+              "2024-02-10",
+              "2024-02-10",
+              "2025-02-09",
+              "700.00",
+              "EUR",
+              "2"
+            ],
+            [
+              "53",
+              "103",
+              "NB",
+              "2025-04-30",
+              "2025-04-30",
+              "2026-04-29",
+              "800.00",
+              "EUR",
+              "3"
+            ],
+            [
+              "54",
+              "104",
+              "NB",
+              "2025-06-05",
+              "2025-06-05",
+              "2026-06-04",
+              "900.00",
+              "EUR",
+              "4"
+            ],
+            [
+              "55",
+              "105",
+              "NB",
+              "2025-09-12",
+              "2025-09-12",
+              "2026-09-11",
+              "450.00",
+              "EUR",
+              "5"
+            ],
+            [
+              "56",
+              "101",
+              "MTA",
+              "2025-11-30",
+              "2025-11-30",
+              "2026-02-14",
+              "60.00",
+              "EUR",
+              "6"
+            ],
+            [
+              "57",
+              "102",
+              "REN",
+              "2025-01-20",
+              "2025-01-20",
+              "2026-01-19",
+              "720.00",
+              "EUR",
+              "7"
+            ],
+            [
+              "58",
+              "103",
+              "MTA",
+              "2025-03-31",
+              "2025-03-31",
+              "2026-04-29",
+              "40.00",
+              "EUR",
+              "8"
+            ],
+            [
+              "59",
+              "104",
+              "MTA",
+              "2025-12-15",
+              "2025-12-15",
+              "2026-06-04",
+              "55.00",
+              "EUR",
+              "9"
+            ]
+          ]
+        },
+        {
+          "table": "stg.fx_rates",
+          "columns": [
+            "rate_date",
+            "currency",
+            "rate_to_eur",
+            "source",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-01-01",
+              "USD",
+              "0.92000000",
+              "ECB",
+              "1"
+            ],
+            [
+              "2025-06-01",
+              "USD",
+              "0.91500000",
+              "ECB",
+              "2"
+            ],
+            [
+              "2025-01-01",
+              "GBP",
+              "1.17000000",
+              "ECB",
+              "3"
+            ],
+            [
+              "2025-06-01",
+              "GBP",
+              "1.18500000",
+              "ECB",
+              "4"
+            ],
+            [
+              "2025-12-01",
+              "USD",
+              "0.95000000",
+              "ECB",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "101",
+              "POL-000101",
+              "5001",
+              "RETL",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2025-02-15",
+              "2026-02-14",
+              null,
+              "600.00",
+              "EUR",
+              "241-D-1234",
+              "3",
+              "2025-02-15",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "2",
+              "102",
+              "POL-000102",
+              "5002",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK001",
+              "Acme Brokers",
+              "ACTIVE",
+              "2024-02-10",
+              "2026-01-19",
+              null,
+              "720.00",
+              "EUR",
+              null,
+              null,
+              "2025-01-20",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "3",
+              "103",
+              "POL-000103",
+              "5003",
+              "SME",
+              "MOTOR01",
+              "Private Motor",
+              "MOT",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-04-30",
+              "2026-04-29",
+              null,
+              "800.00",
+              "EUR",
+              "251-C-555",
+              "1",
+              "2025-04-30",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "4",
+              "104",
+              "POL-000104",
+              "5004",
+              "CORP",
+              "FLEET01",
+              "Fleet Motor",
+              "FLT",
+              "BRK003",
+              "Gamma Partners",
+              "ACTIVE",
+              "2025-06-05",
+              "2026-06-04",
+              null,
+              "900.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-05",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ],
+            [
+              "5",
+              "105",
+              "POL-000105",
+              "5005",
+              "RETL",
+              "HOME01",
+              "Home Combined",
+              "HOM",
+              "BRK002",
+              "Beta Insure",
+              "ACTIVE",
+              "2025-09-12",
+              "2026-09-11",
+              null,
+              "450.00",
+              "EUR",
+              null,
+              null,
+              "2025-09-12",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2025-12-31T02:00:00"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.fact_premium_earned",
+          "columns": [
+            "txn_id",
+            "policy_id",
+            "policy_sk",
+            "lob_code",
+            "txn_type",
+            "txn_date",
+            "effective_from",
+            "effective_to",
+            "currency",
+            "amount",
+            "fx_rate",
+            "written_eur",
+            "term_days",
+            "earned_days",
+            "earned_pct",
+            "earned_eur",
+            "unearned_eur",
+            "daily_rate_eur",
+            "monthly_instalment_eur",
+            "first_due_date",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "51",
+              "101",
+              "1",
+              "MOT",
+              "NB",
+              "2025-02-15",
+              "2025-02-15",
+              "2026-02-14",
+              "EUR",
+              "600.00",
+              "1.00000000",
+              "600.00",
+              "365",
+              "320",
+              "87.00",
+              "526.03",
+              "73.97",
+              "1.6438",
+              "50.00",
+              "2025-03-28",
+              "2025-12-31"
+            ],
+            [
+              "52",
+              "102",
+              "2",
+              "HOM",
+              "NB",
+              "2024-02-10",
+              "2024-02-10",
+              "2025-02-09",
+              "EUR",
+              "700.00",
+              "1.00000000",
+              "700.00",
+              "366",
+              "366",
+              "100.00",
+              "701.92",
+              "-1.92",
+              "1.9125",
+              "58.33",
+              "2024-03-29",
+              "2025-12-31"
+            ],
+            [
+              "53",
+              "103",
+              "3",
+              "MOT",
+              "NB",
+              "2025-04-30",
+              "2025-04-30",
+              "2026-04-29",
+              "EUR",
+              "800.00",
+              "1.00000000",
+              "800.00",
+              "365",
+              "246",
+              "67.00",
+              "539.18",
+              "260.82",
+              "2.1917",
+              "66.67",
+              "2025-05-30",
+              "2025-12-31"
+            ],
+            [
+              "54",
+              "104",
+              "4",
+              "FLT",
+              "NB",
+              "2025-06-05",
+              "2025-06-05",
+              "2026-06-04",
+              "EUR",
+              "900.00",
+              "1.00000000",
+              "900.00",
+              "365",
+              "210",
+              "57.00",
+              "517.81",
+              "382.19",
+              "2.4657",
+              "75.00",
+              "2025-07-30",
+              "2025-12-31"
+            ],
+            [
+              "55",
+              "105",
+              "5",
+              "HOM",
+              "NB",
+              "2025-09-12",
+              "2025-09-12",
+              "2026-09-11",
+              "EUR",
+              "450.00",
+              "1.00000000",
+              "450.00",
+              "365",
+              "111",
+              "30.00",
+              "136.85",
+              "313.15",
+              "1.2328",
+              "37.50",
+              "2025-10-30",
+              "2025-12-31"
+            ],
+            [
+              "56",
+              "101",
+              "1",
+              "MOT",
+              "MTA",
+              "2025-11-30",
+              "2025-11-30",
+              "2026-02-14",
+              "EUR",
+              "60.00",
+              "1.00000000",
+              "60.00",
+              "77",
+              "32",
+              "41.00",
+              "5.26",
+              "54.74",
+              "0.7792",
+              "30.00",
+              "2025-12-30",
+              "2025-12-31"
+            ],
+            [
+              "57",
+              "102",
+              "2",
+              "HOM",
+              "REN",
+              "2025-01-20",
+              "2025-01-20",
+              "2026-01-19",
+              "EUR",
+              "720.00",
+              "1.00000000",
+              "720.00",
+              "365",
+              "346",
+              "94.00",
+              "682.52",
+              "37.48",
+              "1.9726",
+              "60.00",
+              "2025-02-28",
+              "2025-12-31"
+            ],
+            [
+              "58",
+              "103",
+              "3",
+              "MOT",
+              "MTA",
+              "2025-03-31",
+              "2025-03-31",
+              "2026-04-29",
+              "EUR",
+              "40.00",
+              "1.00000000",
+              "40.00",
+              "395",
+              "276",
+              "69.00",
+              "30.25",
+              "9.75",
+              "0.1012",
+              "3.08",
+              "2025-04-30",
+              "2025-12-31"
+            ],
+            [
+              "59",
+              "104",
+              "4",
+              "FLT",
+              "MTA",
+              "2025-12-15",
+              "2025-12-15",
+              "2026-06-04",
+              "EUR",
+              "55.00",
+              "1.00000000",
+              "55.00",
+              "172",
+              "17",
+              "9.00",
+              "2.56",
+              "52.44",
+              "0.3197",
+              "11.00",
+              "2026-01-31",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t03.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "8b0229769f9a4244a7525af736b888bc",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "T03",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "fcacac4293ca823ddb28dde03c67df6fd4c5c913da42fcb9fa3dc736573748e3",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 3556,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 9820,
+      "duration_ms": 33676,
+      "cost_usd_equivalent": 0.14994980000000002,
+      "replayed": true
+    },
+    {
+      "call_id": "10ed81bf530848f587758467f598b0a8",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "T03",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "b6aa497081d20f132a2774ad50fe115963e4bfbb4bd0470af88f6acec906db01",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 7541,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5035,
+      "duration_ms": 53584,
+      "cost_usd_equivalent": 0.19148180000000004,
+      "replayed": true
+    },
+    {
+      "call_id": "db60502ba986484998bdb9a9b01c2354",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "T03",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "cb2776a7903fc9495d915341e5309e6002ce1e5c4baa8e3c9567d99b3d04255f",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 674,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4310,
+      "duration_ms": 8951,
+      "cost_usd_equivalent": 0.0481478,
+      "replayed": true
+    },
+    {
+      "call_id": "834b864f01154f288906402938d10f1f",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "T03",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "6132ba28c66a78c263a5051fe6b4e1da79d5f995bb561efe4d6cb7d017249cfe",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 7072,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 4885,
+      "duration_ms": 64543,
+      "cost_usd_equivalent": 0.18080220000000002,
+      "replayed": true
+    },
+    {
+      "call_id": "f2b5d36b7cab4237a733e36ae059fd51",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "T03",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "954890a816ccb684204e0f4f2491bc163dada6ce46f90be261e781cbd7466a77",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 14027,
+      "cache_read_tokens": 2221,
+      "cache_creation_tokens": 13368,
+      "duration_ms": 122851,
+      "cost_usd_equivalent": 0.3879362,
+      "replayed": true
+    },
+    {
+      "call_id": "1cd405c2fff340e5966573e4a4887e16",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "T03",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "2367804ba12730fb2459ad5b7c93d26a49509e2144a38ff30c453573821b62fb",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 19226,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 6660,
+      "duration_ms": 142338,
+      "cost_usd_equivalent": 0.4380926,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "57f30c2f9546",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage agent notes: Things to check when matching the PySpark output against the legacy output:\n1) earned_pct = earned_days*100/term_days uses integer division",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T03/discovery.json",
+          "sha256": "2530a2808c14a941b299bb154ab51972f5606dfb04538c3b93b9170fdf3c5271"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/T03/lineage.json",
+          "sha256": "139051047e8d0fa0b9081548f3c5cf17f71be261a80b796f18fc7112f35bde4c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/T03/traps.json",
+          "sha256": "1fbc8045e78f82d20a9a951bfe9fa2fe589bcaa7e5fceefe7ed198560dc90764"
+        }
+      ],
+      "warnings": [
+        "lineage agent notes: Things to check when matching the PySpark output against the legacy output:\n1) earned_pct = earned_days*100/term_days uses integer division in T-SQL. The value is cut down to a whole number, then stored as DECIMAL(5,2), so values like 33.00 appear, not 33.33.\n2) earned_eur and unearned_eur divide by a fixed 365, not by term_days. For terms longer than 365 days, or when the cover period is fully earned, earned_eur can be more than written_eur, which makes unearned_eur negative. The decimal multiply happens before the divide, so precision follows SQL Server's decimal rules.\n3) daily_rate_eur uses ROUND(..., 4, 1), which cuts the value off at 4 places instead of rounding it.\n4) monthly_instalment_eur divides by term_days/30, which is integer division. If that gives 0 (terms under 30 days), the divisor falls back to 1.\n5) fx_rate takes one of two paths. EUR rows get the constant 1. Non-EUR rows get the latest stg.fx_rates.rate_to_eur on or before txn_date, with ties broken by the higher _row_seq. A non-EUR transaction with no rate on or before its txn_date is dropped by the CROSS APPLY. Currency matching depends on how CHAR(3) values are compared, including trailing spaces.\n6) A transaction whose policy has no current dim_policy row (is_current='Y') is dropped by the inner join. If a policy has more than one current row, the transaction is duplicated and breaks the primary key on txn_id.\n7) The NOLOCK reads can return results that change from run to run.\n8) The code doesn't read stg.premium_transactions._row_seq or stg.fx_rates.source. There is no dedup on txn_id."
+      ],
+      "shown_at": "2026-11-12T02:27:49.052284Z",
+      "decided_at": "2026-11-12T02:27:49.052303Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "83c40cf7081b76aec9d3f11a001b3c807838f524f9bf1dab4be846950b962902"
+    },
+    {
+      "decision_id": "9aa9393fbe53",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: T03-D1 suspected defect: Earned premium pro-rated over a fixed 365 days instead of the policy term (21145 rows); T03-D2 suspected defect: Earned percentage truncated by integer division (24201 rows); T03-D3 suspected defect: First instalment due date: month added to month-end gives an inconsistent date (67879 rows); T03-D4 suspected defect: Non-EUR transactions without an FX rate on/before booking date silently dropped (7 rows); T03-D5 suspected defect: Transactions dropped when the policy has no current dim_policy row (0 rows); T03-D6 suspected defect: Daily rate truncated instead of rounded (32841 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/T03/contracts/dw.fact_premium_earned.json",
+          "sha256": "120ddcb9c8d7af1ee37a4e55f2a5bb41a1c166005f06e3390012025e651847c4"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/T03/defects.json",
+          "sha256": "bb82f3109fe75a76d5fc6d18159d426d9d719c0c08a21528aa477ce127098693"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/T03/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "T03-D1 suspected defect: Earned premium pro-rated over a fixed 365 days instead of the policy term (21145 rows)",
+        "T03-D2 suspected defect: Earned percentage truncated by integer division (24201 rows)",
+        "T03-D3 suspected defect: First instalment due date: month added to month-end gives an inconsistent date (67879 rows)",
+        "T03-D4 suspected defect: Non-EUR transactions without an FX rate on/before booking date silently dropped (7 rows)",
+        "T03-D5 suspected defect: Transactions dropped when the policy has no current dim_policy row (0 rows)",
+        "T03-D6 suspected defect: Daily rate truncated instead of rounded (32841 rows)"
+      ],
+      "shown_at": "2026-11-12T02:29:05.137515Z",
+      "decided_at": "2026-11-12T02:29:05.138348Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "73400d46dce3a929f208c297f609e9d1c5b9a6106dabfdf2629df082a1fa5622"
+    },
+    {
+      "decision_id": "339fcd46f6fb",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: 1) The CROSS APPLY window is partitioned by stg.premium_transactions._row_seq, one partition per outer source row. txn_id is not deduplicated,",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T03/jobs/t03.py",
+          "sha256": "2c58a87e3ae4faab8fe56633986dec4128709017ed8e61ab7e6ba03c7cfb6e46"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T03/guardrails.json",
+          "sha256": "4bef98383828357884dd0e79e8e4e08c6f08634c09d8427e7f47e0eb8cfe3bba"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T03/tests.json",
+          "sha256": "955de7c2dad4fd6aae6e4a28e685fd37410127895412de7164c9366d37deab1e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T03/tests/cases/t03.json",
+          "sha256": "9e0de9c960dfaababf669c357bdc59276070e8d4c40f9c794b91176ed04d483b"
+        }
+      ],
+      "warnings": [
+        "translator notes: 1) The CROSS APPLY window is partitioned by stg.premium_transactions._row_seq, one partition per outer source row. txn_id is not deduplicated, which matches the legacy code. 2) Decimal intermediates are cast to the SQL Server result types: (31,10) for amount*fx_rate, (25,2) and then (36,13) for earned, and (25,13) for daily and monthly. SQL Server cuts the quotient off at scale 13, while Spark rounds it half up at scale 13. Working through the numbers shows this cannot change the final 2- or 4-place result: the denominators are 365 (odd), term_days or term_days/30, all small integers, so the exact quotient is never within 1e-13 of a rounding or truncation boundary. Exact half-cent cases are representable and round half away from zero in both engines. 3) Truncation toward zero is done with floor/ceil at scale 4, chosen by sign. 4) Integer division uses Spark 'div' (truncates toward zero; with ANSI on, division by zero raises, as in SQL Server). A term_days of 0 (effective_to = effective_from - 1) raises in both engines. 5) Currency is padded to CHAR(3) on output; txn_type is UPPER(RTRIM()) as in the legacy code; lob_code is passed through unchanged. 6) The 365 integer literal is treated as DECIMAL(10,0) when combined with decimals, as SQL Server does for int operands. 7) F.floor/F.ceil with a scale argument need PySpark 3.5 or later. Check that the target runtime (4.2) accepts a Column scale."
+      ],
+      "shown_at": "2026-11-12T02:33:41.202009Z",
+      "decided_at": "2026-11-12T02:33:41.202926Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "112b495d5eaf53efc1b7745ea8bf92ec9201977472d173609748a2de6f1f4035"
+    },
+    {
+      "decision_id": "4031d0625523",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T03/recon/dw.fact_premium_earned.json",
+          "sha256": "193a79523a1143bf6afe5397c5fa6af1beb6c8b202c7d1186dd14d97a5eee468"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T03/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:33:54.210022Z",
+      "decided_at": "2026-11-12T02:33:54.211082Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "93bfb8b4bc9ddc1d7d6c109c086b903ab5f45a7e23aa733be812b2ef1bcf789a"
+    },
+    {
+      "decision_id": "2001e928245b",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": 3,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T03/operate.json",
+          "sha256": "e1354cc0a79b659610bfb6c22b55a723314c8c07585305c498017e1da1a9fe4a"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:34:16.101348Z",
+      "decided_at": "2026-11-12T02:34:16.102316Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "799cd0d45e674563379900fac8afe92d7abd3cdd6cb6a4c4993d612f8dcb68ee"
+    },
+    {
+      "decision_id": "b099801c60e3",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: I haven't run this module. Points to check in review:\n\n1) first_due_date: the target month comes from add_months(last_day(d), 1). The day is t",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T03/jobs/t03.py",
+          "sha256": "ba9048a1fa89b01c4926078d7af32becfcb344c9bf786436c4623e3f8136bc9c"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T03/guardrails.json",
+          "sha256": "9ed3c86de00f13fc67a9443b3ce1a0011cd7badb0270feaf7a11efd762b8667a"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T03/tests.json",
+          "sha256": "955de7c2dad4fd6aae6e4a28e685fd37410127895412de7164c9366d37deab1e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T03/tests/cases/t03.json",
+          "sha256": "9e0de9c960dfaababf669c357bdc59276070e8d4c40f9c794b91176ed04d483b"
+        }
+      ],
+      "warnings": [
+        "translator notes: I haven't run this module. Points to check in review:\n\n1) first_due_date: the target month comes from add_months(last_day(d), 1). The day is then set to the smaller of the month-end day and the target month's last day. The result is right whichever way Spark's add_months handles month-end inputs.\n\n2) Decimal divisions (earned_eur, daily_rate_eur, monthly_instalment_eur): each quotient is worked out at scale 18 and then cut off toward zero at the T-SQL scale of 13 using floor(x, s) or ceil(x, s), with the target scale passed in. This needs PySpark 3.5 or later, so it's fine on 4.2. After that comes ROUND half-up, or a cut-off at 4 places for daily_rate_eur.\n\n3) earned_pct and the instalment divisor both use the Spark expression 'div', which cuts the result off toward zero the way T-SQL integer division does. A term_days of 0 raises a division error, as the legacy job does.\n\n4) The latest-FX-rate lookup is grouped per source row (premium_transactions._row_seq), not per txn_id, because txn_ids are never deduplicated. Duplicate txn_ids, or a policy with more than one current dim_policy row, would give duplicate keys. The legacy job would fail on its primary key in that case.\n\n5) Currency and is_current comparisons ignore case and trailing spaces. The output currency is padded to 3 characters. Reading with NOLOCK can change results from run to run, which the migration can't reproduce."
+      ],
+      "shown_at": "2026-11-12T04:08:47.192450Z",
+      "decided_at": "2026-11-12T04:08:47.193721Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "4e1b2944464ff09a40cb8de4ab99f8924e0cc2484a8ea2415318a0113b3f62f3"
+    },
+    {
+      "decision_id": "b0aebea46110",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T03/recon/dw.fact_premium_earned.json",
+          "sha256": "a23615d388e09186f768ddb099338d853c5539d911f19ceb293cefd26a57122f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T03/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T04:09:04.013953Z",
+      "decided_at": "2026-11-12T04:09:04.015391Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "c245b390b68c243d8a4817dfe9ecdd5412337a7f0bc1f8637ce813ace26a3eb3"
+    },
+    {
+      "decision_id": "365ed1e41eca",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "T03"
+      ],
+      "wave": 3,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T03/operate.json",
+          "sha256": "e1354cc0a79b659610bfb6c22b55a723314c8c07585305c498017e1da1a9fe4a"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T04:09:29.651572Z",
+      "decided_at": "2026-11-12T04:09:29.652929Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "38aaa7e40e49a2473477a7025fe81b800e8467b74e178954cad3116ec0d37ad0"
+    }
+  ]
+}

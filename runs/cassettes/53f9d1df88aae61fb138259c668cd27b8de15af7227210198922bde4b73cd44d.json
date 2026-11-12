@@ -1,0 +1,187 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:56:05.253019Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer. Customer dimension, one row per CRM customer.\nOutput table dw.dim_customer, 20000 rows in the legacy output.\n\nColumns:\n- customer_id INT: 20000 distinct, 0 NULL\n- first_name NVARCHAR(40): 806 distinct, 0 NULL\n- last_name NVARCHAR(60): 2322 distinct, 0 NULL\n- full_name NVARCHAR(101): 16045 distinct, 0 NULL\n- initials NVARCHAR(2): 533 distinct, 0 NULL\n- email VARCHAR(120): 18996 distinct, 974 NULL\n- email_shared_count INT: 3 distinct, 0 NULL\n- date_of_birth DATE: 13834 distinct, 86 NULL\n- age_at_join INT: 77 distinct, 86 NULL\n- address_line1 NVARCHAR(100): 5590 distinct, 0 NULL\n- town NVARCHAR(50): 97 distinct, 0 NULL\n- county VARCHAR(30): 109 distinct, 78 NULL\n- region VARCHAR(12): 6 distinct, 0 NULL\n- eircode VARCHAR(10): 18997 distinct, 1001 NULL\n- eircode_valid CHAR(1): 2 distinct, 0 NULL\n- segment_code CHAR(4): 4 distinct, 962 NULL\n- is_standard_segment CHAR(1): 2 distinct, 0 NULL\n- marketing_opt_in CHAR(1): 2 distinct, 0 NULL\n- customer_since DATE: 5276 distinct, 0 NULL\n- source_system VARCHAR(10): 3 distinct, 0 NULL\n- version_count INT: 3 distinct, 0 NULL\n- record_updated_at DATETIME2(0): 19994 distinct, 0 NULL\n- as_of_date DATE: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['customer_id']\n\nLegacy code:\n/*==============================================================================\n  Job      : dw.usp_load_dim_customer\n  Purpose  : Customer dimension for the marketing and pricing teams. One row\n             per CRM customer with the customer's current details from the\n             CRM extract, plus sales region, Eircode check, initials and\n             segment flags for campaigns and the pricing models.\n  Output   : dw.dim_customer (truncated and reloaded on every run)\n  Author   : DOC\n\n  Change log\n    2013-05-20  DOC   Initial version\n    2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n    2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n    2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n    2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n                      (CR-1190)\n    2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n                      (GDPR, CR-1342)\n    2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n    2019-11-04  KB    CRM extract is now change data capture: one row per\n                      saved version, keep the current one (CR-1702)\n    2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n    2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\nCREATE TABLE dw.dim_customer (\n    customer_id          INT            NOT NULL,\n    first_name           NVARCHAR(40)   NOT NULL,\n    last_name            NVARCHAR(60)   NOT NULL,\n    full_name            NVARCHAR(101)  NOT NULL,\n    initials             NVARCHAR(2)    NOT NULL,\n    email                VARCHAR(120)   NULL,\n    email_shared_count   INT            NOT NULL,\n    date_of_birth        DATE           NULL,\n    age_at_join          INT            NULL,\n    address_line1        NVARCHAR(100)  NULL,\n    town                 NVARCHAR(50)   NULL,\n    county               VARCHAR(30)    NULL,\n    region               VARCHAR(12)    NOT NULL,\n    eircode              VARCHAR(10)    NULL,\n    eircode_valid        CHAR(1)        NOT NULL,\n    segment_code         CHAR(4)        NULL,\n    is_standard_segment  CHAR(1)        NOT NULL,\n    marketing_opt_in     CHAR(1)        NOT NULL,\n    customer_since       DATE           NOT NULL,\n    source_system        VARCHAR(10)    NOT NULL,\n    version_count        INT            NOT NULL,\n    record_updated_at    DATETIME2(0)   NOT NULL,\n    as_of_date           DATE           NOT NULL,\n    CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n);\nGO\nCREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n            @rows      INT,\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n        IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n\n        /* 1. Customer versions saved up to the reporting date. The CRM extract\n              writes a new row every time a record is saved. */\n        SELECT  c.customer_id,\n                c.first_name,\n                c.last_name,\n                c.email,\n                c.date_of_birth,\n                c.address_line1,\n                c.town,\n                c.county,\n                c.eircode,\n                c.segment_code,\n                c.marketing_opt_in,\n                c.customer_since,\n                c.source_system,\n                c.updated_at,\n                c._row_seq,\n                COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n        INTO    #customer_versions\n        FROM    stg.customers c WITH (NOLOCK)\n        WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n\n        /* 2. Keep the current version of each customer */\n        SELECT  v.*\n        INTO    #customer\n        FROM   (SELECT  cv.*,\n                        ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n                                           ORDER BY cv.updated_at, cv._row_seq) AS version_no\n                FROM    #customer_versions cv) v\n        WHERE   v.version_no = 1;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n\n        /* 3. Reload the dimension */\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE dw.dim_customer;\n\n        INSERT INTO dw.dim_customer\n               (customer_id, first_name, last_name, full_name, initials, email,\n                email_shared_count, date_of_birth, age_at_join, address_line1, town,\n                county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n                marketing_opt_in, customer_since, source_system, version_count,\n                record_updated_at, as_of_date)\n        SELECT  k.customer_id,\n                RTRIM(k.first_name),\n                k.last_name,\n                RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n                UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n                k.email,\n                CASE WHEN k.email IS NULL THEN 0\n                     ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n                k.date_of_birth,\n                DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n                k.address_line1,\n                k.town,\n                k.county,\n                -- sales regions as agreed with distribution (CR-0412)\n                CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n                     WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n                     WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n                     WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n                     WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n                     ELSE 'UNKNOWN'\n                END,\n                k.eircode,\n                -- routing key (3) and unique identifier (4), keyed with or without the space\n                CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n                     WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n                     ELSE 'N'\n                END,\n                k.segment_code,\n                CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n                ISNULL(k.marketing_opt_in, 'N'),\n                k.customer_since,\n                UPPER(RTRIM(k.source_system)),\n                k.version_count,\n                k.updated_at,\n                @AsOfDate\n        FROM    #customer k;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "53f9d1df88aae61fb138259c668cd27b8de15af7227210198922bde4b73cd44d",
+  "response": {
+    "duration_api_ms": 8200,
+    "duration_ms": 8509,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4615,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4615,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0523278,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 761,
+        "provider": "firstParty",
+        "thinkingTokens": 77,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "age_at_join": "DATEDIFF(YEAR) from date_of_birth to customer_since. This counts calendar-year boundaries crossed, not completed years of age.",
+        "as_of_date": "The @AsOfDate parameter. It is the same on every row.",
+        "eircode_valid": "Checks length only: Y when the length is 7, or 8 with a space in position 4. T-SQL LEN ignores trailing spaces.",
+        "email_shared_count": "Number of kept customer rows with the same email. 0 when email is NULL.",
+        "full_name": "RTRIM(first_name) + ' ' + RTRIM(last_name).",
+        "initials": "SUBSTRING(x,0,2) in T-SQL returns only the first character, so this is the first letter of first_name plus the first letter of last_name, in upper case.",
+        "is_standard_segment": "Y only when segment_code = 'STD'. segment_code is CHAR(4), so it is padded to 'STD '; T-SQL ignores trailing spaces when comparing, Spark does not.",
+        "record_updated_at": "updated_at of the version that was kept. ROW_NUMBER orders by updated_at and _row_seq ascending and keeps version_no = 1, so this is the EARLIEST version, not the current one the header describes. The migration must copy this behaviour.",
+        "region": "Sales region looked up from county. Counties not in the list, and NULL counties, get UNKNOWN.",
+        "version_count": "Number of CDC versions of the customer saved on or before @AsOfDate."
+      },
+      "grain": "One row per CRM customer (customer_id), taken from one version of the customer's CDC records saved on or before @AsOfDate.",
+      "keys": [
+        "customer_id"
+      ],
+      "partition_columns": [
+        "region",
+        "source_system"
+      ]
+    },
+    "total_cost_usd": 0.0523278,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4615,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4615,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4615,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4615,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 761,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 761,
+      "output_tokens_details": {
+        "thinking_tokens": 77
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

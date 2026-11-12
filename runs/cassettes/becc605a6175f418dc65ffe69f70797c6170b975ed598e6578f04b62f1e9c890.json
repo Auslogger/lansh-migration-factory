@@ -1,0 +1,280 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:10:16.343576Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T02",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T02: usp_load_dim_policy. Policy dimension with type-2 history, loaded once per policy snapshot.\nParameters: SnapshotDate=2025-06-30; SnapshotDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_policy\n  3 |   Purpose  : Policy dimension for finance, actuarial and broker reporting. One\n  4 |              row per version of a policy term, with its product, broker and\n  5 |              customer segment. A new version starts whenever the status,\n  6 |              broker, annual premium or vehicle registration changes from one\n  7 |              policy snapshot to the next (type 2 history).\n  8 |   Run by   : POL_SNAPSHOT_LOAD, once per policy snapshot, oldest first:\n  9 |              EXEC dw.usp_load_dim_policy @SnapshotDate = '<snapshot date>'\n 10 |   Output   : dw.dim_policy. Keeps history, so the procedure never truncates\n 11 |              it. Deploying this script recreates the table empty: reload every\n 12 |              snapshot in date order afterwards.\n 13 |   Author   : MOB\n 14 | \n 15 |   Change log\n 16 |     2014-02-10  MOB   Initial version, one row per policy (CR-0655)\n 17 |     2015-06-22  MOB   Broker name from the broker register (CR-0790)\n 18 |     2016-09-05  TF    Direct business reported as broker DIRECT-SALES (CR-0961)\n 19 |     2017-03-13  TF    Type 2 history with MERGE, surrogate key policy_sk\n 20 |                       (CR-1077)\n 21 |     2018-10-01  PH    Vehicle registration tracked for motor (CR-1388)\n 22 |     2019-07-15  PH    Customer segment from dw.dim_customer (CR-1610)\n 23 |     2020-02-03  TF    Refuse a snapshot older than the last one loaded\n 24 |                       (INC-2105)\n 25 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 26 | ==============================================================================*/\n 27 | SET NOCOUNT ON;\n 28 | GO\n 29 | IF OBJECT_ID(N'dw.dim_policy', N'U') IS NOT NULL\n 30 |     DROP TABLE dw.dim_policy;\n 31 | \n 32 | CREATE TABLE dw.dim_policy (\n 33 |     policy_sk             INT IDENTITY(1,1) NOT NULL,\n 34 |     policy_id             INT            NOT NULL,\n 35 |     policy_number         VARCHAR(20)    NOT NULL,\n 36 |     customer_id           INT            NOT NULL,\n 37 |     customer_segment      CHAR(4)        NULL,\n 38 |     product_code          VARCHAR(10)    NOT NULL,\n 39 |     product_name          NVARCHAR(60)   NOT NULL,\n 40 |     lob_code              VARCHAR(5)     NOT NULL,\n 41 |     broker_code           VARCHAR(12)    NOT NULL,\n 42 |     broker_name           NVARCHAR(80)   NULL,\n 43 |     status                VARCHAR(12)    NOT NULL,\n 44 |     inception_date        DATE           NOT NULL,\n 45 |     expiry_date           DATE           NOT NULL,\n 46 |     cancellation_date     DATE           NULL,\n 47 |     annual_premium        DECIMAL(12,2)  NOT NULL,\n 48 |     currency              CHAR(3)        NOT NULL,\n 49 |     vehicle_reg           VARCHAR(12)    NULL,\n 50 |     ncd_years             INT            NULL,\n 51 |     valid_from            DATE           NOT NULL,\n 52 |     valid_to              DATE           NOT NULL,   -- 9999-12-31 while current\n 53 |     is_current            CHAR(1)        NOT NULL,   -- Y / N\n 54 |     source_snapshot_date  DATE           NOT NULL,\n 55 |     load_ts               DATETIME2(3)   NOT NULL,\n 56 |     CONSTRAINT pk_dim_policy PRIMARY KEY CLUSTERED (policy_sk)\n 57 | );\n 58 | \n 59 | CREATE NONCLUSTERED INDEX ix_dim_policy_policy_id ON dw.dim_policy (policy_id, is_current);\n 60 | GO\n 61 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_policy\n 62 |     @SnapshotDate DATE\n 63 | AS\n 64 | BEGIN\n 65 |     SET NOCOUNT ON;\n 66 | \n 67 |     DECLARE @job_name     VARCHAR(128) = 'dw.usp_load_dim_policy',\n 68 |             @rows         INT,\n 69 |             @closed       INT,\n 70 |             @last_loaded  DATE,\n 71 |             @err_msg      NVARCHAR(4000),\n 72 |             @err_no       INT;\n 73 | \n 74 |     BEGIN TRY\n 75 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 76 | \n 77 |         /* Oldest snapshot first: loading an older snapshot after a newer one\n 78 |            would reopen versions that are already closed (INC-2105) */\n 79 |         SELECT  @last_loaded = MAX(d.source_snapshot_date)\n 80 |         FROM    dw.dim_policy d;\n 81 | \n 82 |         IF @SnapshotDate < @last_loaded\n 83 |             THROW 50001, 'dw.dim_policy already holds a later policy snapshot', 1;\n 84 | \n 85 |         IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n 86 | \n 87 |         /* 1. This snapshot's policies with product, broker and customer segment */\n 88 |         SELECT  p.policy_id,\n 89 |                 p.policy_number,\n 90 |                 p.customer_id,\n 91 |                 c.segment_code                          AS customer_segment,\n 92 |                 pr.product_code,\n 93 |                 pr.product_name,\n 94 |                 pr.lob_code,\n 95 |                 ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,\n 96 |                 b.broker_name,\n 97 |                 p.status,\n 98 |                 p.inception_date,\n 99 |                 p.expiry_date,\n100 |                 p.cancellation_date,\n101 |                 p.annual_premium,\n102 |                 p.currency,\n103 |                 p.vehicle_reg,\n104 |                 p.ncd_years\n105 |         INTO    #src\n106 |         FROM    stg.policy_snapshots p WITH (NOLOCK)\n107 |         JOIN    stg.products pr WITH (NOLOCK)\n108 |                 ON pr.product_code = p.product_code\n109 |         LEFT JOIN stg.brokers b WITH (NOLOCK)\n110 |                ON b.broker_code = p.broker_code\n111 |         LEFT JOIN dw.dim_customer c WITH (NOLOCK)\n112 |                ON c.customer_id = p.customer_id\n113 |         WHERE   p.snapshot_date = @SnapshotDate;\n114 | \n115 |         SET @rows = @@ROWCOUNT;\n116 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'policy snapshot', @status = 'INFO', @rows_affected = @rows;\n117 | \n118 |         IF @rows = 0\n119 |             THROW 50002, 'No policies found for this snapshot date', 1;\n120 | \n121 |         CREATE CLUSTERED INDEX ix_src_policy_id ON #src (policy_id);\n122 | \n123 |         BEGIN TRANSACTION;\n124 | \n125 |         /* 2. Close the current version of policies whose status, broker, premium\n126 |               or vehicle registration has changed since the last snapshot */\n127 |         MERGE dw.dim_policy AS tgt\n128 |         USING #src AS src\n129 |            ON tgt.policy_id = src.policy_id\n130 |           AND tgt.is_current = 'Y'\n131 |         WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n132 |                           OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')\n133 |                           OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)\n134 |                           OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))\n135 |         THEN UPDATE\n136 |              SET    tgt.valid_to   = DATEADD(DAY, -1, @SnapshotDate),\n137 |                     tgt.is_current = 'N';\n138 | \n139 |         SET @closed = @@ROWCOUNT;\n140 | \n141 |         /* 3. Open a current version for new policies and for those closed above */\n142 |         INSERT INTO dw.dim_policy\n143 |                (policy_id, policy_number, customer_id, customer_segment, product_code,\n144 |                 product_name, lob_code, broker_code, broker_name, status, inception_date,\n145 |                 expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n146 |                 ncd_years, valid_from, valid_to, is_current, source_snapshot_date, load_ts)\n147 |         SELECT  s.policy_id, s.policy_number, s.customer_id, s.customer_segment, s.product_code,\n148 |                 s.product_name, s.lob_code, s.broker_code, s.broker_name, s.status,\n149 |                 s.inception_date, s.expiry_date, s.cancellation_date, s.annual_premium,\n150 |                 s.currency, s.vehicle_reg, s.ncd_years,\n151 |                 @SnapshotDate,\n152 |                 '9999-12-31',\n153 |                 'Y',\n154 |                 @SnapshotDate,\n155 |                 SYSDATETIME()\n156 |         FROM    #src s\n157 |         WHERE   NOT EXISTS (SELECT 1\n158 |                             FROM   dw.dim_policy d\n159 |                             WHERE  d.policy_id = s.policy_id\n160 |                               AND  d.is_current = 'Y')\n161 |         ORDER BY s.policy_id;\n162 | \n163 |         SET @rows = @@ROWCOUNT;\n164 | \n165 |         COMMIT TRANSACTION;\n166 | \n167 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions closed', @status = 'INFO', @rows_affected = @closed;\n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions opened', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nViews for impact queries:\n- stg_policy_snapshots (stg.policy_snapshots): snapshot_date date, policy_id int, policy_number string, customer_id int, product_code string, broker_code string, inception_date date, expiry_date date, status string, cancellation_date date, annual_premium decimal(12,2), currency string, sum_insured decimal(14,2), payment_frequency string, vehicle_reg string, ncd_years int, _row_seq int\n- stg_brokers (stg.brokers): broker_code string, broker_name string, region string, commission_rate decimal(5,4), status string, appointed_date date, _row_seq int\n- stg_products (stg.products): product_code string, product_name string, lob_code string, term_months int, levy_rate decimal(5,4), launched_on date, withdrawn_on date, _row_seq int\n- dw_dim_customer (dw.dim_customer): customer_id int, first_name string, last_name string, full_name string, initials string, email string, email_shared_count int, date_of_birth date, age_at_join int, address_line1 string, town string, county string, region string, eircode string, eircode_valid string, segment_code string, is_standard_segment string, marketing_opt_in string, customer_since date, source_system string, version_count int, record_updated_at timestamp_ntz, as_of_date date\n- dw_dim_policy (dw.dim_policy): policy_sk int, policy_id int, policy_number string, customer_id int, customer_segment string, product_code string, product_name string, lob_code string, broker_code string, broker_name string, status string, inception_date date, expiry_date date, cancellation_date date, annual_premium decimal(12,2), currency string, vehicle_reg string, ncd_years int, valid_from date, valid_to date, is_current string, source_snapshot_date date, load_ts timestamp_ntz\n- golden_dw_dim_policy (the legacy output dw.dim_policy): policy_sk int, policy_id int, policy_number string, customer_id int, customer_segment string, product_code string, product_name string, lob_code string, broker_code string, broker_name string, status string, inception_date date, expiry_date date, cancellation_date date, annual_premium decimal(12,2), currency string, vehicle_reg string, ncd_years int, valid_from date, valid_to date, is_current string, source_snapshot_date date, load_ts timestamp_ntz\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "becc605a6175f418dc65ffe69f70797c6170b975ed598e6578f04b62f1e9c890",
+  "response": {
+    "duration_api_ms": 49911,
+    "duration_ms": 50199,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5639,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5639,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1501342,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 5237,
+        "provider": "firstParty",
+        "thinkingTokens": 2769,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": "annual_premium",
+          "confidence": 0.55,
+          "description": "#src is built from stg.policy_snapshots joined to stg.products, stg.brokers and dw.dim_customer, and nothing makes it unique per policy_id. If a staging table has a duplicate key (the _row_seq column suggests re-staged rows), or a policy appears twice in one snapshot, #src gets several rows for the policy. The INSERT's NOT EXISTS check only looks at rows already in the table, so every duplicate is opened as another current version (is_current='Y'), which counts its annual_premium twice. On a later snapshot those duplicates can also make the MERGE fail because it tries to update the same target row more than once.",
+          "evidence_lines": [
+            88,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            142,
+            156,
+            157,
+            158,
+            159,
+            160
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+          "intended_behaviour": "Exactly one current version per policy_id per snapshot: each lookup returns at most one row per key, and the snapshot is reduced to one row per policy_id (for example the latest _row_seq) before the MERGE/INSERT.",
+          "title": "Row-multiplying joins / duplicate snapshot rows create duplicate current versions"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.5,
+          "description": "The MERGE only has a WHEN MATCHED branch. A policy that is in dim_policy but missing from the new snapshot (lapsed, purged or moved out) keeps is_current='Y' and valid_to=9999-12-31 for ever, so it is still reported as a live current policy.",
+          "evidence_lines": [
+            127,
+            128,
+            129,
+            130,
+            131,
+            135,
+            136,
+            137
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+          "intended_behaviour": "Close the current version (valid_to = snapshot date - 1, is_current = 'N') when a policy no longer appears in the snapshot, for example with WHEN NOT MATCHED BY SOURCE AND tgt.is_current = 'Y'.",
+          "title": "Policies missing from a later snapshot are never closed"
+        },
+        {
+          "amount_column": "annual_premium",
+          "confidence": 0.4,
+          "description": "stg.products is joined with an INNER JOIN. Any policy whose product_code is missing from the product register is left out of #src with no warning, so it never gets a dimension row, or is never versioned if it already has one.",
+          "evidence_lines": [
+            106,
+            107,
+            108
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+          "intended_behaviour": "Keep every policy in the snapshot (LEFT JOIN with a default or unknown product) or reject/log the unmatched rows. The dimension is meant to hold every policy term.",
+          "title": "Inner join to stg.products silently drops policies with an unknown product"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.25,
+          "description": "A NULL broker_code is replaced with 'DIRECT-SALES' in the output (line 95), but the broker lookup joins on the original p.broker_code (NULL), so broker_name is always NULL for direct business, even when the broker register has a DIRECT-SALES entry.",
+          "evidence_lines": [
+            95,
+            96,
+            109,
+            110
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+          "intended_behaviour": "Join stg.brokers on ISNULL(p.broker_code, 'DIRECT-SALES') so direct business gets the DIRECT-SALES broker name.",
+          "title": "Direct business never gets a broker name"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1501342,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5639,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5639,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5639,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5639,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 5237,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 5237,
+      "output_tokens_details": {
+        "thinking_tokens": 2769
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,109 @@
+[
+  {
+    "confidence": 0.55,
+    "defect_id": "T02-D1",
+    "description": "#src is built from stg.policy_snapshots joined to stg.products, stg.brokers and dw.dim_customer, and nothing makes it unique per policy_id. If a staging table has a duplicate key (the _row_seq column suggests re-staged rows), or a policy appears twice in one snapshot, #src gets several rows for the policy. The INSERT's NOT EXISTS check only looks at rows already in the table, so every duplicate is opened as another current version (is_current='Y'), which counts its annual_premium twice. On a later snapshot those duplicates can also make the MERGE fail because it tries to update the same target row more than once.",
+    "evidence_lines": [
+      88,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      142,
+      156,
+      157,
+      158,
+      159,
+      160
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "annual_premium",
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+    "intended_behaviour": "Exactly one current version per policy_id per snapshot: each lookup returns at most one row per key, and the snapshot is reduced to one row per policy_id (for example the latest _row_seq) before the MERGE/INSERT.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Row-multiplying joins / duplicate snapshot rows create duplicate current versions"
+  },
+  {
+    "confidence": 0.5,
+    "defect_id": "T02-D2",
+    "description": "The MERGE only has a WHEN MATCHED branch. A policy that is in dim_policy but missing from the new snapshot (lapsed, purged or moved out) keeps is_current='Y' and valid_to=9999-12-31 for ever, so it is still reported as a live current policy.",
+    "evidence_lines": [
+      127,
+      128,
+      129,
+      130,
+      131,
+      135,
+      136,
+      137
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": null,
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+    "intended_behaviour": "Close the current version (valid_to = snapshot date - 1, is_current = 'N') when a policy no longer appears in the snapshot, for example with WHEN NOT MATCHED BY SOURCE AND tgt.is_current = 'Y'.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Policies missing from a later snapshot are never closed"
+  },
+  {
+    "confidence": 0.4,
+    "defect_id": "T02-D3",
+    "description": "stg.products is joined with an INNER JOIN. Any policy whose product_code is missing from the product register is left out of #src with no warning, so it never gets a dimension row, or is never versioned if it already has one.",
+    "evidence_lines": [
+      106,
+      107,
+      108
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "annual_premium",
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+    "intended_behaviour": "Keep every policy in the snapshot (LEFT JOIN with a default or unknown product) or reject/log the unmatched rows. The dimension is meant to hold every policy term.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Inner join to stg.products silently drops policies with an unknown product"
+  },
+  {
+    "confidence": 0.25,
+    "defect_id": "T02-D4",
+    "description": "A NULL broker_code is replaced with 'DIRECT-SALES' in the output (line 95), but the broker lookup joins on the original p.broker_code (NULL), so broker_name is always NULL for direct business, even when the broker register has a DIRECT-SALES entry.",
+    "evidence_lines": [
+      95,
+      96,
+      109,
+      110
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+    "intended_behaviour": "Join stg.brokers on ISNULL(p.broker_code, 'DIRECT-SALES') so direct business gets the DIRECT-SALES broker name.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Direct business never gets a broker name"
+  }
+]

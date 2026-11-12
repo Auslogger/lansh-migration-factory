@@ -1,0 +1,890 @@
+[
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      122
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "@AsOfDate written as-is",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      52,
+      122
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "claim_id",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "direct via #clm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      52,
+      122
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "claim_number",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "direct via #clm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      52,
+      122
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "direct via #clm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      53,
+      122
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "UPPER(LTRIM(RTRIM(lob_code)))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      54,
+      122
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "claim_status",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "UPPER(LTRIM(RTRIM(status)))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      55,
+      123
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "reported_date",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "direct via #clm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      55,
+      123
+    ],
+    "input_column": "closed_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "closed_date",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "direct via #clm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      65,
+      103,
+      124
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "paid_to_date",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "ISNULL(SUM(ISNULL(amount,0)),0) for payment_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.7,
+    "evidence_lines": [
+      103
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "paid_to_date",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "ISNULL(...,0) default when no payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.93,
+    "evidence_lines": [
+      75,
+      85,
+      104,
+      124
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "outstanding_reserve",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "SUM of latest reserve_amount per claim (and reserve_type) as at @AsOfDate, ISNULL 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.7,
+    "evidence_lines": [
+      104
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "outstanding_reserve",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "ISNULL(os_now,0) default",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      65,
+      105,
+      124
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_amount",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "paid_now + os_now",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      75,
+      85,
+      105,
+      124
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_amount",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "paid_now + os_now",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      66,
+      106,
+      124
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_90d_ago",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "paid_prior + os_prior",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      106
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_90d_ago",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "CASE WHEN payment_date <= @PriorDate THEN amount",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      75,
+      86,
+      106,
+      124
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_90d_ago",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "latest reserve as at @AsOfDate-90 summed (os_prior)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.8,
+    "evidence_lines": [
+      45,
+      66,
+      81
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "incurred_90d_ago",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "@PriorDate = DATEADD(DAY,-90,@AsOfDate) cutoff",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.93,
+    "evidence_lines": [
+      65,
+      66,
+      125
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "movement_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "incurred_amount - incurred_90d_ago",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.8,
+    "evidence_lines": [
+      66,
+      125
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "movement_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "prior-period split of payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.93,
+    "evidence_lines": [
+      85,
+      86,
+      125
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "movement_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "os_now - os_prior",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.75,
+    "evidence_lines": [
+      45,
+      66,
+      81,
+      125
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "movement_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "@PriorDate cutoff",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.92,
+    "evidence_lines": [
+      94,
+      107,
+      126
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "reserve_changes_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "SUM(CASE WHEN reserve_date > @PriorDate THEN 1 ELSE 0 END), ISNULL 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.8,
+    "evidence_lines": [
+      45,
+      94
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "reserve_changes_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "@PriorDate = @AsOfDate-90 in count condition",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.6,
+    "evidence_lines": [
+      94,
+      107
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "reserve_changes_90d",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "counts 1/0, ISNULL 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.92,
+    "evidence_lines": [
+      67,
+      108,
+      109,
+      127
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "days_since_last_activity",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "MAX payment_date (non-null amount) vs last reserve date, greatest, DATEDIFF to @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.7,
+    "evidence_lines": [
+      67
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "days_since_last_activity",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "only payments with amount IS NOT NULL count for last_payment_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.92,
+    "evidence_lines": [
+      95,
+      108,
+      109,
+      127
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "days_since_last_activity",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "MAX(reserve_date) as last_reserve_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      127
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "days_since_last_activity",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY,last_activity_date,@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      128,
+      129,
+      130
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "watch_category",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "CASE on incurred vs incurred_90d_ago",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.75,
+    "evidence_lines": [
+      66,
+      128
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "watch_category",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "prior-period split feeding incurred_90d_ago",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      128,
+      129,
+      130
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "watch_category",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "CASE on incurred vs incurred_90d_ago",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      128,
+      129,
+      130,
+      131
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "watch_category",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "'NEW'/'DETERIORATING'/'IMPROVING'/'STABLE'; thresholds 25000, 1.10, 0.90",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.65,
+    "evidence_lines": [
+      45,
+      66,
+      81
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "derives",
+    "output_column": "watch_category",
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "@PriorDate cutoff in incurred_90d_ago",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      58
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "reported_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      59
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "status <> 'CLOSED' OR closed_date > @PriorDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      59
+    ],
+    "input_column": "closed_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "closed_date > @PriorDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      45,
+      58,
+      59,
+      71,
+      82,
+      99
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "claim cutoffs and @PriorDate = @AsOfDate-90",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      59,
+      134
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "'CLOSED' literal; incurred_amount >= 25000",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      105,
+      134
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "incurred_amount >= 25000",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      105,
+      134
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "incurred_amount >= 25000",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      71
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "payment_date <= @AsOfDate (payments counted)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      82,
+      99
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "reserve_date <= as_at / @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      70
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "INNER JOIN #clm on claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      80,
+      98
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "INNER JOIN #clm on claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      70,
+      80,
+      98,
+      112,
+      113,
+      114,
+      133
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X2",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "joins #inc to #clm and the aggregates",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      76,
+      77,
+      89
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "ROW_NUMBER ORDER BY reserve_date DESC, latest reserve per claim/period",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      77,
+      89
+    ],
+    "input_column": "reserve_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "X2",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.large_loss_watchlist",
+    "source": "llm",
+    "transform": "ROW_NUMBER tie-break reserve_id DESC",
+    "verified": true
+  }
+]

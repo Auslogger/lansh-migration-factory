@@ -1,0 +1,3586 @@
+{
+  "job_id": "T06",
+  "generated_at": "2026-11-12T02:17:07.713164Z",
+  "legacy_path": "estate/tsql/T06_usp_loss_triangle.sql",
+  "legacy_sha256": "cee60f041de5a268d53d966f273fdde67f2a7710f57427e91412a791d568b613",
+  "discovery": {
+    "job_id": "T06",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "T06",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 21,
+        "line_end": 21,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 23,
+        "line_end": 43,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 2,
+        "kind": "other",
+        "line_start": 45,
+        "line_end": 48,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T06",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 49,
+        "line_end": 49,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 51,
+        "line_end": 53,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 5,
+        "kind": "other",
+        "line_start": 55,
+        "line_end": 55,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T06",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 56,
+        "line_end": 57,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 7,
+        "kind": "statement",
+        "line_start": 62,
+        "line_end": 62,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 64,
+        "line_end": 71,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 73,
+        "line_end": 73,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 74,
+        "line_end": 75,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 80,
+        "line_end": 80,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 82,
+        "line_end": 94,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 96,
+        "line_end": 96,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 97,
+        "line_end": 98,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 103,
+        "line_end": 103,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 105,
+        "line_end": 112,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 114,
+        "line_end": 114,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 115,
+        "line_end": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 122,
+        "line_end": 122,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 124,
+        "line_end": 137,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 139,
+        "line_end": 139,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 22,
+        "kind": "statement",
+        "line_start": 140,
+        "line_end": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 23,
+        "kind": "statement",
+        "line_start": 144,
+        "line_end": 151,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 153,
+        "line_end": 153,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 154,
+        "line_end": 155,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 157,
+        "line_end": 158,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 27,
+        "kind": "other",
+        "line_start": 159,
+        "line_end": 159,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T06",
+        "index": 28,
+        "kind": "other",
+        "line_start": 160,
+        "line_end": 160,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T06",
+        "index": 29,
+        "kind": "statement",
+        "line_start": 161,
+        "line_end": 162,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 30,
+        "kind": "statement",
+        "line_start": 164,
+        "line_end": 165,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 31,
+        "kind": "statement",
+        "line_start": 166,
+        "line_end": 166,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T06",
+        "index": 32,
+        "kind": "other",
+        "line_start": 167,
+        "line_end": 167,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T06",
+        "index": 33,
+        "kind": "other",
+        "line_start": 168,
+        "line_end": 168,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "stg.claim_payments",
+      "stg.claims"
+    ],
+    "writes": [
+      "rpt.loss_triangle_paid"
+    ]
+  },
+  "code": {
+    "job_id": "T06",
+    "module_path": "runs/showcase/T06/jobs/t06.py",
+    "code_sha256": "beffffb76844623877592771f084846001b26a49a6631ee5104fbd1631e3c806",
+    "legacy_path": "estate/tsql/T06_usp_loss_triangle.sql",
+    "legacy_sha256": "cee60f041de5a268d53d966f273fdde67f2a7710f57427e91412a791d568b613",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-04",
+      "TSQL-13",
+      "TSQL-17"
+    ],
+    "defects_reproduced": [
+      "T06-M1",
+      "T06-M2",
+      "T06-M3",
+      "T06-M4",
+      "T06-M5",
+      "T06-M6"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "6",
+        "line": 29,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "3",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "5",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "6",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "14",
+        "line": 87,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 87,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 90,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 91,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 95,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 103,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 109,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 111,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 111,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 118,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T02:17:08.818810Z"
+  },
+  "lineage": [
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "accident_year",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "YEAR(loss_date); PIVOT group key",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        84,
+        105,
+        110,
+        127
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(lob_code)); PIVOT group key",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        67,
+        85,
+        106,
+        110,
+        128
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate literal into column",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        126,
+        136
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_0",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) where dev_year=0, ISNULL(...,0)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        129
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_0",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        107,
+        112,
+        129
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_0",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        107,
+        112,
+        129
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_0",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d0, 0)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_1",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=1, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        130
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_1",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [1]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        107,
+        112,
+        130
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_1",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [1]; CASE WHEN YEAR(loss_date)+1 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        107,
+        112,
+        130
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_1",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+1 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_1",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d1, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        130
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_2",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=2, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        131
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_2",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [2]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        107,
+        112,
+        131
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_2",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [2]; CASE WHEN YEAR(loss_date)+2 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        107,
+        112,
+        131
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_2",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+2 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        131
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_2",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d2, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        131
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_3",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=3, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        132
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_3",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [3]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        107,
+        112,
+        132
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_3",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [3]; CASE WHEN YEAR(loss_date)+3 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        107,
+        112,
+        132
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_3",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+3 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        132
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_3",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d3, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        132
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_4",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=4, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        133
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_4",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [4]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        108,
+        112,
+        133
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_4",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [4]; CASE WHEN YEAR(loss_date)+4 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        108,
+        112,
+        133
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_4",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+4 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        133
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_4",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d4, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        133
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_5",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=5, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        134
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_5",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [5]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        108,
+        112,
+        134
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_5",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [5]; CASE WHEN YEAR(loss_date)+5 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        108,
+        112,
+        134
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_5",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+5 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        134
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_5",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d5, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_6",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "PIVOT SUM(amount) for dev_year=6, ISNULL(...,0) inside CASE",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        110,
+        112,
+        135
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_6",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [6]",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        108,
+        112,
+        135
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_6",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "dev_year bucket [6]; CASE WHEN YEAR(loss_date)+6 <= YEAR(@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        108,
+        112,
+        135
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_6",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "CASE WHEN accident_year+6 <= YEAR(@AsOfDate) ELSE NULL",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        135
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "dev_6",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(d6, 0)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        135
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_0",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "cumulative_0 = dev_0 (SUM amount, dev_year 0)",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        145
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_0",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_0 dev_year bucket",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        145
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_0",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_0 dev_year bucket",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        145
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_0",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via dev_0 ISNULL(d0,0)",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        145
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_1",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + dev_1 (UPDATE after insert)",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        146
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_1",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        146
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_1",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        146
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_1",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_1 CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        146
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_1",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        146
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_2",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + .. + dev_2",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        131,
+        147
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_2",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        147
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_2",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        131,
+        147
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_2",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_n CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        131,
+        147
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_2",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        131,
+        147
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_3",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + .. + dev_3",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        131,
+        132,
+        148
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_3",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        148
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_3",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        131,
+        132,
+        148
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_3",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_n CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        131,
+        132,
+        148
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_3",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        131,
+        132,
+        148
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_4",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + .. + dev_4",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        131,
+        132,
+        133,
+        149
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_4",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        149
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_4",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        131,
+        132,
+        133,
+        149
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_4",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_n CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        131,
+        132,
+        133,
+        149
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_4",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        131,
+        132,
+        133,
+        149
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_5",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + .. + dev_5",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        150
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_5",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        150
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_5",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        131,
+        132,
+        133,
+        134,
+        150
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_5",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_n CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        131,
+        132,
+        133,
+        134,
+        150
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_5",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        150
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_6",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "dev_0 + .. + dev_6",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        112,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        151
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_6",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "via dev_n dev_year buckets",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        112,
+        151
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_6",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "derives",
+      "transform": "via dev_n buckets and accident_year CASE",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        66,
+        86,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        151
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_6",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "NULL via dev_n CASE after as-at year",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        151
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": "cumulative_6",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "via ISNULL(...,0) in dev_n",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        151
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "loss_date",
+      "kind": "filters",
+      "transform": "YEAR(loss_date) BETWEEN YEAR(@AsOfDate)-6 AND YEAR(@AsOfDate) AND loss_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70,
+        71
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "accident-year window, loss_date <= @AsOfDate, payment_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        52,
+        70,
+        71,
+        92
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "filters",
+      "transform": "seven-year window offset @as_at_yr - 6",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "INNER JOIN p.claim_id = cl.claim_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        64,
+        91
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "INNER JOIN p.claim_id = cl.claim_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        90,
+        91
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "filters",
+      "transform": "payment_date <= @AsOfDate AND payment_date > loss_date",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92,
+        93
+      ]
+    },
+    {
+      "job_id": "T06",
+      "output_table": "rpt.loss_triangle_paid",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "filters",
+      "transform": "amount IS NOT NULL",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "T06",
+      "trap_id": "TSQL-13",
+      "line_start": 62,
+      "line_end": 68,
+      "snippet": "IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT c.claim_id,\n               c.loss_date,\n               YEAR(c.loss_date)        AS accident_year,\n               UPPER(RTRIM(c.lob_code)) AS lob_code\n        INTO   #claims",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #claims temp table holds the filtered claims with accident_year and the normalised lob_code. In Spark it becomes an intermediate DataFrame."
+    },
+    {
+      "job_id": "T06",
+      "trap_id": "TSQL-13",
+      "line_start": 80,
+      "line_end": 88,
+      "snippet": "IF OBJECT_ID('tempdb..#paid') IS NOT NULL DROP TABLE #paid;\n\n        SELECT cl.claim_id,\n               p.payment_id,\n               cl.accident_year,\n               cl.lob_code,\n               DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,\n               p.amount\n        INTO   #paid",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #paid temp table holds the payments joined to claims, with their dev_year. In Spark it becomes an intermediate DataFrame."
+    },
+    {
+      "job_id": "T06",
+      "trap_id": "TSQL-04",
+      "line_start": 86,
+      "line_end": 86,
+      "snippet": "DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "dev_year counts the calendar-year boundaries crossed between loss_date and payment_date, not the full years elapsed. A loss on 2023-12-31 paid on 2024-01-01 lands in dev_1. Spark needs year(payment_date) - year(loss_date), not months_between or a day-based calculation."
+    },
+    {
+      "job_id": "T06",
+      "trap_id": "TSQL-13",
+      "line_start": 103,
+      "line_end": 109,
+      "snippet": "IF OBJECT_ID('tempdb..#tri') IS NOT NULL DROP TABLE #tri;\n\n        SELECT pv.accident_year,\n               pv.lob_code,\n               pv.[0] AS d0, pv.[1] AS d1, pv.[2] AS d2, pv.[3] AS d3,\n               pv.[4] AS d4, pv.[5] AS d5, pv.[6] AS d6\n        INTO   #tri",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #tri temp table holds the pivoted triangle before the insert. In Spark it becomes an intermediate DataFrame."
+    },
+    {
+      "job_id": "T06",
+      "trap_id": "TSQL-17",
+      "line_start": 110,
+      "line_end": 112,
+      "snippet": "FROM  (SELECT accident_year, lob_code, dev_year, amount\n               FROM   #paid) AS src\n        PIVOT (SUM(amount) FOR dev_year IN ([0], [1], [2], [3], [4], [5], [6])) AS pv;",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "The PIVOT implicitly groups by accident_year and lob_code and keeps only dev_year 0-6, so payments in dev years above 6 are dropped. Spark needs groupBy('accident_year','lob_code').pivot('dev_year',[0..6]).sum('amount') with the values listed, and missing cells stay NULL."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "T06",
+      "table": "gold.loss_triangle_paid",
+      "legacy_table": "rpt.loss_triangle_paid",
+      "layer": "gold",
+      "grain": "One row per accident year and line of business: the paid loss development triangle as at the run's as-of date.",
+      "keys": [
+        "accident_year",
+        "lob_code"
+      ],
+      "columns": [
+        {
+          "name": "accident_year",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": "Line of business, trimmed and upper-cased before grouping.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Amount paid in the accident year itself (development year 0). Uses DATEDIFF(YEAR), so it counts calendar-year boundaries crossed, not elapsed years. 0 if nothing was paid.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Amount paid in development year n. NULL when accident_year + n is after the as-at year, otherwise 0 if nothing was paid. dev_2 to dev_6 follow the same rule.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "dev_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_0",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_1",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_2",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_3",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_4",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_5",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cumulative_6",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Total of dev_0 through dev_n. NULL when any of those cells is NULL, so it goes NULL at the same point as dev_n. The other cumulative_n columns follow the same rule.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The @AsOfDate run parameter. It is the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 21,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "T06-D1",
+      "job_id": "T06",
+      "title": "Same-day payments (payment_date = loss_date) dropped",
+      "description": "The INC-2318 filter keeps only payments where p.payment_date > cl.loss_date. Any payment dated on the loss date itself is treated as a keying error and dropped. These payments would all land in dev_0, so dev_0 and every cumulative_n are understated. If all of a group's payments are same-day, the accident-year/LOB row is missing from the output entirely.",
+      "intended_behaviour": "The comment and change log say only payments dated BEFORE the loss are keying errors, so the filter should be p.payment_date >= cl.loss_date. That keeps same-day payments in dev_0.",
+      "evidence_lines": [
+        13,
+        14,
+        93
+      ],
+      "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+      "impact": {
+        "rows_affected": 19,
+        "amount_affected": "390467.67",
+        "amount_column": "dev_0",
+        "measured_on": "golden:T06",
+        "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g"
+      },
+      "source": "llm",
+      "confidence": 0.8
+    },
+    {
+      "defect_id": "T06-D2",
+      "job_id": "T06",
+      "title": "lob_code only right-trimmed; leading spaces split LOB groups",
+      "description": "Line 67 uses UPPER(RTRIM(lob_code)), which removes trailing spaces only. A lob_code with leading spaces (e.g. ' MOT') makes its own row in the triangle, separate from the clean code, so that LOB's paid amounts are split across two rows.",
+      "intended_behaviour": "INC-2851 says lob_code is to be trimmed before grouping, so it should be UPPER(LTRIM(RTRIM(lob_code))) (TRIM) and each LOB should have one row per accident year.",
+      "evidence_lines": [
+        18,
+        19,
+        67
+      ],
+      "impact_query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "dev_0",
+        "measured_on": "golden:T06",
+        "query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff"
+      },
+      "source": "llm",
+      "confidence": 0.45
+    },
+    {
+      "defect_id": "T06-D3",
+      "job_id": "T06",
+      "title": "Duplicate claim rows in staging multiply payments",
+      "description": "#claims takes every row of stg.claims and does not deduplicate by claim_id (the staging table has a _row_seq column, which suggests one claim can be loaded more than once). Each payment is then joined to every copy of its claim, so its amount is counted twice or more in the dev and cumulative cells.",
+      "intended_behaviour": "Each claim should appear once, for example by keeping only the latest _row_seq per claim_id, so that every payment is counted exactly once.",
+      "evidence_lines": [
+        64,
+        69,
+        89,
+        90,
+        91
+      ],
+      "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "dev_0",
+        "measured_on": "golden:T06",
+        "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    },
+    {
+      "defect_id": "T06-D4",
+      "job_id": "T06",
+      "title": "Accident year / LOB with claims but no payments missing from triangle",
+      "description": "The triangle is built by pivoting #paid only. An accident year/LOB that has claims in scope but no qualifying payments gets no row, even though the step-4 comment says 'Nothing paid yet = 0'. The chain-ladder workbook ends up missing those rows instead of getting zero-filled rows.",
+      "intended_behaviour": "Drive the triangle from the distinct accident-year/LOB pairs in #claims and LEFT JOIN the pivoted payments, so pairs with nothing paid show 0 in the elapsed cells and NULL after the as-at date.",
+      "evidence_lines": [
+        105,
+        110,
+        111,
+        112,
+        119,
+        120,
+        137
+      ],
+      "impact_query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T06",
+        "query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "T06-D1",
+      "job_id": "T06",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:05:42.437827Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T06-D2",
+      "job_id": "T06",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:05:42.438446Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T06-D3",
+      "job_id": "T06",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:05:42.439001Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T06-D4",
+      "job_id": "T06",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:05:42.439544Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [
+    {
+      "job_id": "T06",
+      "table": "rpt.loss_triangle_paid",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "beffffb76844623877592771f084846001b26a49a6631ee5104fbd1631e3c806",
+      "keys": [
+        "accident_year",
+        "lob_code"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 21,
+        "candidate": 21,
+        "by_partition": []
+      },
+      "totals": [
+        {
+          "column": "accident_year",
+          "legacy": "42462",
+          "candidate": "42462",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_0",
+          "legacy": "7882235.07",
+          "candidate": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_1",
+          "legacy": "3393699.94",
+          "candidate": "3393699.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_2",
+          "legacy": "292335.67",
+          "candidate": "292335.67",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_3",
+          "legacy": "45795.45",
+          "candidate": "45795.45",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_4",
+          "legacy": "9880.56",
+          "candidate": "9880.56",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_5",
+          "legacy": "10353.73",
+          "candidate": "10353.73",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_6",
+          "legacy": "2718.43",
+          "candidate": "2718.43",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_0",
+          "legacy": "7882235.07",
+          "candidate": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_1",
+          "legacy": "7559842.22",
+          "candidate": "7559842.22",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_2",
+          "legacy": "5073529.77",
+          "candidate": "5073529.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_3",
+          "legacy": "3157882.77",
+          "candidate": "3157882.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_4",
+          "legacy": "1692178.97",
+          "candidate": "1692178.97",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_5",
+          "legacy": "676988.77",
+          "candidate": "676988.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_6",
+          "legacy": "95788.47",
+          "candidate": "95788.47",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 21,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 21 rows agree record for record, compared on the keys ['accident_year', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "11a85ac5b2addf3762fda46481375a40493c6d6c5e61e239536415f29fc35792",
+      "golden_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "candidate_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "started_at": "2026-11-12T02:17:28.644459Z",
+      "duration_seconds": 1.039,
+      "error": null
+    },
+    {
+      "job_id": "T06",
+      "table": "rpt.loss_triangle_paid",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "accident_year",
+        "lob_code"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 21,
+        "candidate": 21,
+        "by_partition": []
+      },
+      "totals": [
+        {
+          "column": "accident_year",
+          "legacy": "42462",
+          "candidate": "42462",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_0",
+          "legacy": "7882235.07",
+          "candidate": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_1",
+          "legacy": "3393699.94",
+          "candidate": "3393699.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_2",
+          "legacy": "292335.67",
+          "candidate": "292335.67",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_3",
+          "legacy": "45795.45",
+          "candidate": "45795.45",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_4",
+          "legacy": "9880.56",
+          "candidate": "9880.56",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_5",
+          "legacy": "10353.73",
+          "candidate": "10353.73",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "dev_6",
+          "legacy": "2718.43",
+          "candidate": "2718.43",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_0",
+          "legacy": "7882235.07",
+          "candidate": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_1",
+          "legacy": "7559842.22",
+          "candidate": "7559842.22",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_2",
+          "legacy": "5073529.77",
+          "candidate": "5073529.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_3",
+          "legacy": "3157882.77",
+          "candidate": "3157882.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_4",
+          "legacy": "1692178.97",
+          "candidate": "1692178.97",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_5",
+          "legacy": "676988.77",
+          "candidate": "676988.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "cumulative_6",
+          "legacy": "95788.47",
+          "candidate": "95788.47",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 21,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 21 rows agree record for record, compared on the keys ['accident_year', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "11a85ac5b2addf3762fda46481375a40493c6d6c5e61e239536415f29fc35792",
+      "golden_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "candidate_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "started_at": "2026-11-12T02:19:04.736840Z",
+      "duration_seconds": 3.053,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "T06-TSQL-04-1",
+      "job_id": "T06",
+      "trap_id": "TSQL-04",
+      "description": "Payments that cross a calendar-year boundary after less than a full year has passed since the loss. For example, a loss on 2023-12-31 paid on 2024-01-01, a loss on 2022-12-15 paid on 2023-06-10, a loss on 2021-11-30 paid on 2023-02-01, a loss on 2024-12-20 paid on 2025-01-05, and a loss on 2019-06-30 paid on 2025-06-01. DATEDIFF(YEAR) counts calendar-year boundaries crossed, so it puts these payments one development year later than a translation based on full years elapsed (months_between or day counts). Those payments would land in the wrong dev_n and cumulative_n cells, or in the wrong row. Control payments where both methods give the same development year are included too (same-year payments, and payments past the loss anniversary).",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "101",
+              "1001",
+              "MOTOR",
+              "2023-12-31",
+              "2024-01-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "102",
+              "1002",
+              "MOTOR",
+              "2022-12-15",
+              "2022-12-20",
+              "CLOSED",
+              "2023-07-01",
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "103",
+              "1003",
+              "MOTOR",
+              "2023-03-01",
+              "2023-03-05",
+              "CLOSED",
+              "2023-10-01",
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "104",
+              "1004",
+              "HOME",
+              "2021-11-30",
+              "2021-12-03",
+              "CLOSED",
+              "2023-03-01",
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "105",
+              "1005",
+              "HOME",
+              "2021-02-01",
+              "2021-02-04",
+              "CLOSED",
+              "2022-04-01",
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0006",
+              "106",
+              "1006",
+              "TRAV",
+              "2024-12-20",
+              "2024-12-22",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ],
+            [
+              "7",
+              "CLM-0007",
+              "107",
+              "1007",
+              "HOME",
+              "2019-06-30",
+              "2019-07-02",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "7"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "501",
+              "1",
+              "2024-01-01",
+              "100.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "1"
+            ],
+            [
+              "502",
+              "2",
+              "2023-06-10",
+              "250.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "2"
+            ],
+            [
+              "503",
+              "3",
+              "2023-09-01",
+              "75.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "3"
+            ],
+            [
+              "504",
+              "4",
+              "2023-02-01",
+              "500.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "4"
+            ],
+            [
+              "505",
+              "5",
+              "2022-03-01",
+              "300.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "5"
+            ],
+            [
+              "506",
+              "6",
+              "2025-01-05",
+              "40.00",
+              "EXPENSE",
+              "VENDOR",
+              "6"
+            ],
+            [
+              "507",
+              "6",
+              "2024-12-28",
+              "10.00",
+              "EXPENSE",
+              "VENDOR",
+              "7"
+            ],
+            [
+              "508",
+              "7",
+              "2025-06-01",
+              "80.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "8"
+            ],
+            [
+              "509",
+              "7",
+              "2025-12-30",
+              "60.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "9"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.loss_triangle_paid",
+          "columns": [
+            "accident_year",
+            "lob_code",
+            "dev_0",
+            "dev_1",
+            "dev_2",
+            "dev_3",
+            "dev_4",
+            "dev_5",
+            "dev_6",
+            "cumulative_0",
+            "cumulative_1",
+            "cumulative_2",
+            "cumulative_3",
+            "cumulative_4",
+            "cumulative_5",
+            "cumulative_6",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "2019",
+              "HOME",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "140.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "0.00",
+              "140.00",
+              "2025-12-31"
+            ],
+            [
+              "2021",
+              "HOME",
+              "0.00",
+              "300.00",
+              "500.00",
+              "0.00",
+              "0.00",
+              null,
+              null,
+              "0.00",
+              "300.00",
+              "800.00",
+              "800.00",
+              "800.00",
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2022",
+              "MOTOR",
+              "0.00",
+              "250.00",
+              "0.00",
+              "0.00",
+              null,
+              null,
+              null,
+              "0.00",
+              "250.00",
+              "250.00",
+              "250.00",
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2023",
+              "MOTOR",
+              "75.00",
+              "100.00",
+              "0.00",
+              null,
+              null,
+              null,
+              null,
+              "75.00",
+              "175.00",
+              "175.00",
+              null,
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ],
+            [
+              "2024",
+              "TRAV",
+              "10.00",
+              "40.00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "10.00",
+              "50.00",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t06.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "ed5f01be70474ff1a202ec7fbe0e608f",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "T06",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "6966a2a76cf32b39124aeff233a9a2de2a8c69873247c678bc718506b48f03db",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 1488,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 9637,
+      "duration_ms": 14914,
+      "cost_usd_equivalent": 0.1071258,
+      "replayed": true
+    },
+    {
+      "call_id": "c58e0c79ef884b7f958b13832da36b3b",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "T06",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "38aa21fc16651bb960f47496330828fe9307c816be8944646a4e31c875eb99cf",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 10524,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5232,
+      "duration_ms": 73481,
+      "cost_usd_equivalent": 0.2527178,
+      "replayed": true
+    },
+    {
+      "call_id": "4f985d86c6a04f0bb6d89d21baaf250e",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "T06",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "c7ba5d8213a212e313587c7117d0656d4bfeb6fe616c26b2cf70ce3f5b7c415b",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 452,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4625,
+      "duration_ms": 6940,
+      "cost_usd_equivalent": 0.0462278,
+      "replayed": true
+    },
+    {
+      "call_id": "663bc8aa063d4b82a7c952b0775d4504",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "T06",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "65af79d96a892d0c5179626288a52a17903437a5096c76363d610f9af11dfcd3",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5062,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 5139,
+      "duration_ms": 45047,
+      "cost_usd_equivalent": 0.1426342,
+      "replayed": true
+    },
+    {
+      "call_id": "19ba600e746a4064bb27ac390c030621",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "T06",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "a9e32e4760d8439285fd754ccc34c2a445e0e232a2da328468e79b4433144003",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5007,
+      "cache_read_tokens": 2221,
+      "cache_creation_tokens": 9826,
+      "duration_ms": 42366,
+      "cost_usd_equivalent": 0.1792002,
+      "replayed": true
+    },
+    {
+      "call_id": "2ce7743113e54615b9ad9987e8837937",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "T06",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "fbd9dcfdda5673adae011069ec6fca27d34a1bb59cc8448f9430632795b07d35",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 2067,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 5135,
+      "duration_ms": 17335,
+      "cost_usd_equivalent": 0.0827126,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "5f10749103b4",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "T06"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage agent notes: - Rows: the output has one row per (accident_year, lob_code) group that has at least one qualifying payment. The INNER JOIN to stg.claim_pa",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T06/discovery.json",
+          "sha256": "a78e2754a68c1fac204036252a5ef5795719bdeff24c06556f3d9cdc5454d589"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/T06/lineage.json",
+          "sha256": "286f17f543e6eb5d3528f4727765779844f241dce5cbf958ec894ad5d8f0cc9c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/T06/traps.json",
+          "sha256": "8e025f534a14ef75ad835afce9a202373a0119a43aa32c80353b21cccd854704"
+        }
+      ],
+      "warnings": [
+        "lineage agent notes: - Rows: the output has one row per (accident_year, lob_code) group that has at least one qualifying payment. The INNER JOIN to stg.claim_payments and the payment filters on lines 92-94 decide which groups appear, so claims with no qualifying payments drop out. The PIVOT groups only by accident_year and lob_code, because the source subquery selects only those two columns, dev_year and amount (claim_id and payment_id are left out).\n- dev_n / cumulative_n: payment_date and loss_date are listed as derives edges because they pick the pivot bucket a payment lands in: dev_year = DATEDIFF(YEAR, loss_date, payment_date), which counts calendar-year boundaries, not full years. You could argue they are filters instead; their confidence is lower for that reason. A payment made later in the same calendar year as the loss is in dev_0. dev_year can't fall outside 0..6 given the filters.\n- dev_1..dev_6 are NULL when accident_year + n > YEAR(@AsOfDate). The cumulative columns are filled by a later UPDATE (lines 144-151) that adds up the stored dev_n values. With ordinary + arithmetic, a NULL dev cell makes every later cumulative NULL too, which is the intended behavior.\n- The cumulative columns are left out of the INSERT column list, so they are NULL until the UPDATE runs. A migration must match the final state after the UPDATE.\n- lob_code is trimmed and upper-cased before grouping (UPPER(RTRIM)), so lob_code values that differ only in case or trailing spaces end up in the same group.\n- Both stg tables are read WITH (NOLOCK). The legacy output can therefore be non-deterministic if the inputs change during the run."
+      ],
+      "shown_at": "2026-11-12T02:04:48.395089Z",
+      "decided_at": "2026-11-12T02:04:48.395102Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "91691127e39f95806ff8ca460ee66dc7cdab452054017232208cbd9e74d1e560"
+    },
+    {
+      "decision_id": "ba2d23eaa8e0",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "T06"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: T06-D1 suspected defect: Same-day payments (payment_date = loss_date) dropped (19 rows); T06-D2 suspected defect: lob_code only right-trimmed; leading spaces split LOB groups (0 rows); T06-D3 suspected defect: Duplicate claim rows in staging multiply payments (0 rows); T06-D4 suspected defect: Accident year / LOB with claims but no payments missing from triangle (0 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/T06/contracts/rpt.loss_triangle_paid.json",
+          "sha256": "aa4b48deb1f0b9e02ca651557ec322124d3491164c9f6883893d42bbd9fc7c2d"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/T06/defects.json",
+          "sha256": "ee5599e075d6b24b44cbc5bb14124e50f0bb507f5b9f0e3d6ecf75031daeff39"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/T06/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "T06-D1 suspected defect: Same-day payments (payment_date = loss_date) dropped (19 rows)",
+        "T06-D2 suspected defect: lob_code only right-trimmed; leading spaces split LOB groups (0 rows)",
+        "T06-D3 suspected defect: Duplicate claim rows in staging multiply payments (0 rows)",
+        "T06-D4 suspected defect: Accident year / LOB with claims but no payments missing from triangle (0 rows)"
+      ],
+      "shown_at": "2026-11-12T02:05:42.441445Z",
+      "decided_at": "2026-11-12T02:05:42.441950Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "37b88480e6b02daa7380572501809e15a544ecf926bb0ab9a108240f5864524d"
+    },
+    {
+      "decision_id": "41992d4e132c",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T06"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: - Pivot sums come from decimal(12,2) amounts. Spark gives decimal(22,2) and T-SQL gives decimal(38,2); both are exact. dev_n is cast to decima",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T06/jobs/t06.py",
+          "sha256": "beffffb76844623877592771f084846001b26a49a6631ee5104fbd1631e3c806"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T06/guardrails.json",
+          "sha256": "3d86211c3dbd57e3e5be0e7443c47d344a24535dfbdf530f3e48c8ce15282637"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T06/tests.json",
+          "sha256": "2be09848f4385f2f10c04594afab1a8bc01c45880b5494c2fa84c10ab1769134"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T06/tests/cases/t06.json",
+          "sha256": "cc96299c249630257a1dfb65434e7a8ea7ee47f9475bf8eb591d4a0c149d4025"
+        }
+      ],
+      "warnings": [
+        "translator notes: - Pivot sums come from decimal(12,2) amounts. Spark gives decimal(22,2) and T-SQL gives decimal(38,2); both are exact. dev_n is cast to decimal(14,2), the type the INSERT stores, before cumulative_n is computed from the stored values, as the legacy UPDATE does. With ANSI on, an overflow raises an error in both engines.\n- cumulative_n uses ordinary +, so a NULL dev cell makes it NULL, matching the legacy UPDATE. The lineage notes say this is the intended behaviour, so it is not marked as a defect.\n- If a claim has a NULL lob_code, the legacy INSERT fails on the NOT NULL column. Spark instead outputs a row with a NULL lob_code, and the harness insert or cast should reject it the same way. Please check this edge case if such data exists.\n- The grouping matches the legacy collation-aware grouping because lob_code is already upper-cased and right-trimmed. A case difference for non-ASCII characters between Java and SQL Server UPPER (e.g. 'ß') is not expected in 5-character LOB codes.\n- dev_year is year(payment_date) - year(loss_date) (TSQL-04). With the filters it always falls in 0..6, and the pivot values are listed explicitly (TSQL-17).\n- WITH (NOLOCK) has no Spark equivalent; inputs are static snapshots."
+      ],
+      "shown_at": "2026-11-12T02:17:18.862942Z",
+      "decided_at": "2026-11-12T02:17:18.863631Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "02244eefd309d3f8874045abc32aaadbf98edec69c640626ba5e41449322d9a4"
+    },
+    {
+      "decision_id": "5f272441638f",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T06"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T06/recon/rpt.loss_triangle_paid.json",
+          "sha256": "8315e0172ac279ea541fb0a2f268128ea6a11899147cb634a85f5b5b409d220b"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T06/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:17:29.689535Z",
+      "decided_at": "2026-11-12T02:17:29.690211Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "e159371bac219898e3f72a49472c7daf183175138527905405c2b8527fb32566"
+    },
+    {
+      "decision_id": "b06c86a4f3d7",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05",
+        "T06"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T06/operate.json",
+          "sha256": "8771ef7a397abaf9befdd17711f1a37f6d7772efe98858f3bf4a32018a5aa56a"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:19:08.155201Z",
+      "decided_at": "2026-11-12T02:19:08.158224Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "fe81151351c2cfdf0d6100152f548aadc564833b508ba5f18f0ba331a61acc8d"
+    }
+  ]
+}

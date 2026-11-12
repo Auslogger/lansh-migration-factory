@@ -1,0 +1,2246 @@
+{
+  "job_id": "X1",
+  "generated_at": "2026-11-12T03:31:00.233012Z",
+  "legacy_path": "estate/holdout/X1_usp_broker_production.sql",
+  "legacy_sha256": "b683ce412ff6786c3d8aa2e3802be8b05f2943d1fb10d7b6093cab40f2ba01d0",
+  "discovery": {
+    "job_id": "X1",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "X1",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 17,
+        "line_end": 17,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 19,
+        "line_end": 32,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 2,
+        "kind": "other",
+        "line_start": 34,
+        "line_end": 37,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X1",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 38,
+        "line_end": 38,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 40,
+        "line_end": 40,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 5,
+        "kind": "statement",
+        "line_start": 41,
+        "line_end": 41,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 42,
+        "line_end": 42,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 7,
+        "kind": "other",
+        "line_start": 44,
+        "line_end": 44,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X1",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 45,
+        "line_end": 45,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 48,
+        "line_end": 61,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 62,
+        "line_end": 62,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 63,
+        "line_end": 63,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 66,
+        "line_end": 72,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 75,
+        "line_end": 89,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 90,
+        "line_end": 90,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 91,
+        "line_end": 91,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 94,
+        "line_end": 99,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 101,
+        "line_end": 104,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 107,
+        "line_end": 113,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 114,
+        "line_end": 114,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 115,
+        "line_end": 115,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 117,
+        "line_end": 120,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 22,
+        "kind": "statement",
+        "line_start": 123,
+        "line_end": 129,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 23,
+        "kind": "statement",
+        "line_start": 131,
+        "line_end": 131,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 133,
+        "line_end": 153,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 154,
+        "line_end": 154,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 155,
+        "line_end": 155,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 27,
+        "kind": "statement",
+        "line_start": 157,
+        "line_end": 157,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 28,
+        "kind": "other",
+        "line_start": 158,
+        "line_end": 158,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X1",
+        "index": 29,
+        "kind": "other",
+        "line_start": 159,
+        "line_end": 159,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X1",
+        "index": 30,
+        "kind": "statement",
+        "line_start": 160,
+        "line_end": 160,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 31,
+        "kind": "statement",
+        "line_start": 161,
+        "line_end": 162,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 32,
+        "kind": "statement",
+        "line_start": 163,
+        "line_end": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X1",
+        "index": 33,
+        "kind": "other",
+        "line_start": 164,
+        "line_end": 164,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X1",
+        "index": 34,
+        "kind": "other",
+        "line_start": 165,
+        "line_end": 165,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "stg.brokers",
+      "stg.claim_payments",
+      "stg.claims",
+      "stg.fx_rates",
+      "stg.policy_snapshots",
+      "stg.premium_transactions",
+      "stg.products"
+    ],
+    "writes": [
+      "rpt.broker_production"
+    ]
+  },
+  "code": {
+    "job_id": "X1",
+    "module_path": "runs/showcase/held-out/X1/jobs/x1.py",
+    "code_sha256": "04f89c76d2dd6b1a957a8ed7262307276ada39908a91d15efc247a85d6cf6e65",
+    "legacy_path": "estate/holdout/X1_usp_broker_production.sql",
+    "legacy_sha256": "b683ce412ff6786c3d8aa2e3802be8b05f2943d1fb10d7b6093cab40f2ba01d0",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-07",
+      "TSQL-08",
+      "TSQL-09",
+      "TSQL-13"
+    ],
+    "defects_reproduced": [
+      "X1-M1",
+      "X1-M2",
+      "X1-M3",
+      "X1-M4",
+      "X1-M5",
+      "X1-M6",
+      "X1-M7",
+      "X1-M8",
+      "X1-M9",
+      "X1-M10"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "1",
+        "line": 22,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 22,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "DIRECT",
+        "line": 44,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 51,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 64,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 85,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "EUR",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 118,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 138,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 139,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 143,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 169,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 170,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 171,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 172,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0.75",
+        "line": 174,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "N",
+        "line": 174,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 174,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T03:36:47.096833Z"
+  },
+  "lineage": [
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate written as-is",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        136
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "broker_code",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "broker_code",
+      "kind": "derives",
+      "transform": "ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT'), passed through the union of keys",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        52,
+        117,
+        118,
+        119,
+        120,
+        137
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "broker_code",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'DIRECT' when the broker code is null",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        52
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "broker_name",
+      "input_kind": "column",
+      "input_table": "stg.brokers",
+      "input_column": "broker_name",
+      "kind": "derives",
+      "transform": "LEFT JOIN lookup on broker_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        138,
+        148
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "broker_status",
+      "input_kind": "column",
+      "input_table": "stg.brokers",
+      "input_column": "status",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(status))",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        139,
+        148
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(p.lob_code)) from the product of the latest snapshot",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        53,
+        117,
+        118,
+        119,
+        120,
+        140
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "policies_in_force",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "COUNT(*) of in-force policies; ISNULL(...,0)",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        66,
+        141
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "gwp_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "SUM(amount * fx rate), CAST DECIMAL(14,2), ISNULL 0",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        142
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "gwp_eur",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "derives",
+      "transform": "CASE WHEN currency='EUR' THEN 1 ELSE rate_to_eur",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "gwp_eur",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "multiplier for amounts not in EUR (latest rate on or before txn_date)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        81
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "gwp_eur",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(gwp_eur,0); multiplier 1 for EUR",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        142
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "claims_notified",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "COUNT(*) of claims notified in the year; ISNULL(...,0)",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        101,
+        143
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "claims_paid_eur",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "SUM(ISNULL(amount,0)), CAST DECIMAL(14,2), ISNULL 0",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        107,
+        144
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "claims_paid_eur",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL defaults of 0",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        107,
+        144
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "paid_to_written",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "broker-level SUM(paid) / NULLIF(SUM(gwp),0), DECIMAL(12,4)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        107,
+        124,
+        145
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "paid_to_written",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "denominator: broker-level SUM(gwp_eur)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        124,
+        145
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "paid_to_written",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "derives",
+      "transform": "EUR check in the gwp conversion",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        124
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "paid_to_written",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "fx conversion in the gwp denominator",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        124
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "review_flag",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "CASE WHEN paid_to_written > 0.75 THEN 'Y' ELSE 'N'",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        124,
+        146
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "review_flag",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "via the paid_to_written ratio > 0.75",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        124,
+        146
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "review_flag",
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "derives",
+      "transform": "via the gwp conversion in the ratio",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        124,
+        146
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "review_flag",
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_to_eur",
+      "kind": "derives",
+      "transform": "via the gwp conversion in the ratio",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        76,
+        124,
+        146
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": "review_flag",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "threshold 0.75, literals 'Y'/'N'",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": false,
+      "evidence_lines": [
+        146
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "snapshot_date",
+      "kind": "filters",
+      "transform": "snapshot_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        59
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "as-of cutoffs and year window (@YearStart = Jan 1 of the as-of year)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        41,
+        59,
+        69,
+        70,
+        71,
+        87,
+        88,
+        98,
+        99,
+        111,
+        112
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "snapshot_date",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER per policy_id ORDER BY snapshot_date DESC, rn=1",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        55,
+        56,
+        61
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "_row_seq",
+      "kind": "ranks",
+      "transform": "tie-break _row_seq DESC",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        56
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "partition key; joined to premium_transactions/claims on policy_id",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        55,
+        79,
+        97
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "product_code",
+      "kind": "filters",
+      "transform": "INNER JOIN products ON product_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        58
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "product_code",
+      "kind": "filters",
+      "transform": "INNER JOIN products ON product_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        58
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "inception_date",
+      "kind": "filters",
+      "transform": "inception_date <= @AsOfDate (in-force)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        69
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "expiry_date",
+      "kind": "filters",
+      "transform": "expiry_date >= @AsOfDate (in-force)",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "cancellation_date",
+      "kind": "filters",
+      "transform": "cancellation_date IS NULL OR > @AsOfDate",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        71
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "INNER JOIN #pol on policy_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        79
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "txn_date",
+      "kind": "filters",
+      "transform": "txn_date between @YearStart and @AsOfDate; fx rate_date <= txn_date",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84,
+        87,
+        88
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.premium_transactions",
+      "input_column": "currency",
+      "kind": "filters",
+      "transform": "fx lookup f.currency = t.currency",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        83
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "currency",
+      "kind": "filters",
+      "transform": "f.currency = t.currency",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        83
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_date",
+      "kind": "filters",
+      "transform": "rate_date <= txn_date",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "rate_date",
+      "kind": "ranks",
+      "transform": "TOP 1 ORDER BY rate_date DESC",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        81,
+        85
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.fx_rates",
+      "input_column": "_row_seq",
+      "kind": "ranks",
+      "transform": "TOP 1 tie-break _row_seq DESC",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        85
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "INNER JOIN #pol on policy_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        97
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "filters",
+      "transform": "reported_date between @YearStart and @AsOfDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        98,
+        99
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "claim_payments joined to notified claims on claim_id",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        110
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "INNER JOIN #clm on claim_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        110
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "filters",
+      "transform": "payment_date between @YearStart and @AsOfDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        111,
+        112
+      ]
+    },
+    {
+      "job_id": "X1",
+      "output_table": "rpt.broker_production",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.brokers",
+      "input_column": "broker_code",
+      "kind": "filters",
+      "transform": "LEFT JOIN brokers ON broker_code (no rows removed; repeated broker codes would duplicate rows)",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        148
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 48,
+      "line_end": 61,
+      "snippet": "SELECT x.policy_id, x.broker_code, x.lob_code, x.inception_date, x.expiry_date, x.cancellation_date\n        INTO #pol\n        FROM (\n            SELECT s.policy_id,\n                   ISNULL(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n                   UPPER(RTRIM(p.lob_code)) AS…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#pol temp table holding the latest policy snapshot; becomes a DataFrame."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-01",
+      "line_start": 58,
+      "line_end": 58,
+      "snippet": "INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code",
+      "detector": "llm",
+      "confidence": 0.75,
+      "note": "The products join compares the raw VARCHAR product_code values without any normalisation. Under the CI collation, case variants match; in Spark they would not, so policies would drop out of the inner join."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-02",
+      "line_start": 58,
+      "line_end": 58,
+      "snippet": "INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The product_code join ignores trailing spaces in SQL Server. Spark needs an rtrim on both sides or padded codes miss the inner join."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 66,
+      "line_end": 72,
+      "snippet": "SELECT p.broker_code, p.lob_code, COUNT(*) AS policies_in_force\n        INTO #inforce\n        FROM #pol p\n        WHERE p.inception_date <= @AsOfDate\n          AND p.expiry_date >= @AsOfDate\n          AND (p.cancellation_date IS NULL OR p.cancellation_date > @AsOfDate)\n        GROUP BY p.broker_cod…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#inforce temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 75,
+      "line_end": 89,
+      "snippet": "SELECT p.broker_code, p.lob_code,\n               SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\n        INTO #gwp\n        FROM stg.premium_transactions t WITH (NOLOCK)\n        INNER JOIN #pol p ON p.policy_id = t.policy_id\n        OUTER APPLY (\n            SE…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#gwp temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-01",
+      "line_start": 76,
+      "line_end": 76,
+      "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "t.currency is CHAR(3) text, so currency = 'EUR' also matches 'eur'/'Eur' under the CI collation. A binary comparison in Spark would route those rows to the fx rate instead."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-02",
+      "line_start": 76,
+      "line_end": 76,
+      "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "currency is CHAR(3) and the comparison ignores trailing spaces (e.g. 'EUR ' or a padded short code). Spark compares exactly."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-07",
+      "line_start": 76,
+      "line_end": 76,
+      "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+      "detector": "llm",
+      "confidence": 0.45,
+      "note": "amount DECIMAL(12,2) * rate DECIMAL(18,8), summed. The result's precision and scale must match legacy before the final rounding to 2dp."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-09",
+      "line_start": 80,
+      "line_end": 86,
+      "snippet": "OUTER APPLY (\n            SELECT TOP 1 f.rate_to_eur\n            FROM stg.fx_rates f WITH (NOLOCK)\n            WHERE f.currency = t.currency\n              AND f.rate_date <= t.txn_date\n            ORDER BY f.rate_date DESC, f._row_seq DESC\n        ) fx",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "OUTER APPLY TOP 1 picks the latest fx rate on or before txn_date and keeps transactions that have no rate. In Spark this must become a left join plus a row_number window."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-08",
+      "line_start": 81,
+      "line_end": 85,
+      "snippet": "SELECT TOP 1 f.rate_to_eur\n            FROM stg.fx_rates f WITH (NOLOCK)\n            WHERE f.currency = t.currency\n              AND f.rate_date <= t.txn_date\n            ORDER BY f.rate_date DESC, f._row_seq DESC",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "TOP 1 ordered by rate_date DESC, _row_seq DESC. The order is deterministic as long as _row_seq is unique per date, and the Spark window must use the same tie-break."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-01",
+      "line_start": 83,
+      "line_end": 83,
+      "snippet": "WHERE f.currency = t.currency",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The fx lookup matches f.currency = t.currency, two text columns from different sources, case-insensitively. In Spark, case variants would find no rate and the premium would come out NULL."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-02",
+      "line_start": 83,
+      "line_end": 83,
+      "snippet": "WHERE f.currency = t.currency",
+      "detector": "llm",
+      "confidence": 0.5,
+      "note": "The CHAR(3) currency match ignores trailing spaces in SQL Server. Spark matches exactly unless both sides are trimmed."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 94,
+      "line_end": 99,
+      "snippet": "SELECT c.claim_id, p.broker_code, p.lob_code\n        INTO #clm\n        FROM stg.claims c WITH (NOLOCK)\n        INNER JOIN #pol p ON p.policy_id = c.policy_id\n        WHERE c.reported_date >= @YearStart\n          AND c.reported_date <= @AsOfDate;",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#clm temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 101,
+      "line_end": 104,
+      "snippet": "SELECT c.broker_code, c.lob_code, COUNT(*) AS claims_notified\n        INTO #notified\n        FROM #clm c\n        GROUP BY c.broker_code, c.lob_code;",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#notified temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 107,
+      "line_end": 113,
+      "snippet": "SELECT c.broker_code, c.lob_code, SUM(ISNULL(cp.amount, 0)) AS claims_paid_eur\n        INTO #paid\n        FROM stg.claim_payments cp WITH (NOLOCK)\n        INNER JOIN #clm c ON c.claim_id = cp.claim_id\n        WHERE cp.payment_date >= @YearStart\n          AND cp.payment_date <= @AsOfDate\n        GRO…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#paid temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 117,
+      "line_end": 120,
+      "snippet": "SELECT broker_code, lob_code INTO #keys FROM #inforce\n        UNION SELECT broker_code, lob_code FROM #gwp\n        UNION SELECT broker_code, lob_code FROM #notified\n        UNION SELECT broker_code, lob_code FROM #paid;",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#keys temp table built by UNION, which removes duplicates; needs union plus distinct in Spark."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-13",
+      "line_start": 123,
+      "line_end": 129,
+      "snippet": "SELECT k.broker_code,\n               CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written\n        INTO #ratio\n        FROM #keys k\n        LEFT JOIN #gwp g   ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n        LEFT JOIN…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "#ratio temp table."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-07",
+      "line_start": 124,
+      "line_end": 124,
+      "snippet": "CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "DECIMAL(38,2)/DECIMAL(38,2) division is cut down to scale 6 in SQL Server and then rounded to DECIMAL(12,4), so the value is rounded twice. Spark's decimal division and cast must give the same ratio, which feeds the 0.75 flag."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-07",
+      "line_start": 142,
+      "line_end": 142,
+      "snippet": "CAST(ISNULL(g.gwp_eur, 0) AS DECIMAL(14,2)),",
+      "detector": "llm",
+      "confidence": 0.5,
+      "note": "The high-scale gwp sum is cast to DECIMAL(14,2), rounding half away from zero. Spark must cast the decimal and must not round a double."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-07",
+      "line_start": 144,
+      "line_end": 144,
+      "snippet": "CAST(ISNULL(pd.claims_paid_eur, 0) AS DECIMAL(14,2)),",
+      "detector": "llm",
+      "confidence": 0.35,
+      "note": "Claims paid is cast to DECIMAL(14,2). Spark must keep decimal types (not double) so the result matches."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-01",
+      "line_start": 148,
+      "line_end": 148,
+      "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code",
+      "detector": "llm",
+      "confidence": 0.75,
+      "note": "stg.brokers.broker_code is not normalised, but k.broker_code is upper-cased. The CI join still matches lower- or mixed-case broker codes; a binary Spark join would lose broker_name and status."
+    },
+    {
+      "job_id": "X1",
+      "trap_id": "TSQL-02",
+      "line_start": 148,
+      "line_end": 148,
+      "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "stg.brokers.broker_code is CHAR(6), so it is padded with spaces and may also carry stored trailing spaces. SQL Server's join ignores them, while Spark needs rtrim on b.broker_code to match the trimmed key."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "X1",
+      "table": "gold.broker_production",
+      "legacy_table": "rpt.broker_production",
+      "layer": "gold",
+      "grain": "One row per broker (trimmed, upper-cased broker code, with DIRECT for policies that have no broker) and line of business that has any in-force policies, written premium, notified claims or paid claims in the year up to the as-of date.",
+      "keys": [
+        "broker_code",
+        "lob_code"
+      ],
+      "columns": [
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": "Trimmed and upper-cased. 'DIRECT' when the policy snapshot has no broker.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(80)",
+          "nullable": true,
+          "max_length": 80,
+          "tags": [],
+          "description": "NULL when the broker code is not in stg.brokers (for example DIRECT).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_status",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": true,
+          "max_length": 10,
+          "tags": [],
+          "description": "Upper-cased status from stg.brokers. NULL when the broker is not found.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policies_in_force",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Number of policies whose latest snapshot on or before the as-of date is in force on that date.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "gwp_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Premium booked from 1 January to the as-of date, converted to EUR at the latest FX rate published on or before the transaction date.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claims_notified",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Claims reported in the year up to the as-of date.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claims_paid_eur",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Payments made in the year on claims notified in the year, with recoveries netted off and NULL amounts ignored.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "paid_to_written",
+          "data_type": "decimal(12,4)",
+          "legacy_type": "DECIMAL(12,4)",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Broker-level ratio over all of the broker's lines, so the same value repeats on each of the broker's rows. NULL when the broker's total premium is zero.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "review_flag",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": "'Y' when the broker-level paid_to_written is above 0.75, otherwise 'N' (including when the ratio is NULL).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "review_flag"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 126,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "X1-D1",
+      "job_id": "X1",
+      "title": "Claims paid limited to claims notified in the same year",
+      "description": "#paid joins claim_payments to #clm, and #clm only holds claims whose reported_date falls between @YearStart and @AsOfDate. Payments made in 2025 on claims reported in earlier years are dropped from claims_paid_eur, from paid_to_written and so from review_flag. A broker/LOB that only has such payments gets no output row at all.",
+      "intended_behaviour": "claims_paid_eur should hold every payment dated in the year on the broker's policies, whenever the claim was notified. Only claims_notified should be limited by reported_date.",
+      "evidence_lines": [
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112
+      ],
+      "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), paid_int AS (SELECT p.broker_code, p.lob_code, SUM(COALESCE(cp.amount,0)) AS paid FROM stg_claim_payments cp JOIN stg_claims c ON c.claim_id = cp.claim_id JOIN pol p ON p.policy_id = c.policy_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' GROUP BY p.broker_code, p.lob_code), g AS (SELECT broker_code, lob_code, MAX(claims_paid_eur) AS paid FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(i.paid,0) - COALESCE(g.paid,0))),0) AS amount_affected FROM paid_int i FULL OUTER JOIN g ON i.broker_code = g.broker_code AND i.lob_code = g.lob_code WHERE COALESCE(i.paid,0) <> COALESCE(g.paid,0)",
+      "impact": {
+        "rows_affected": 87,
+        "amount_affected": "1388119.21",
+        "amount_column": "claims_paid_eur",
+        "measured_on": "golden:X1",
+        "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), paid_int AS (SELECT p.broker_code, p.lob_code, SUM(COALESCE(cp.amount,0)) AS paid FROM stg_claim_payments cp JOIN stg_claims c ON c.claim_id = cp.claim_id JOIN pol p ON p.policy_id = c.policy_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' GROUP BY p.broker_code, p.lob_code), g AS (SELECT broker_code, lob_code, MAX(claims_paid_eur) AS paid FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(i.paid,0) - COALESCE(g.paid,0))),0) AS amount_affected FROM paid_int i FULL OUTER JOIN g ON i.broker_code = g.broker_code AND i.lob_code = g.lob_code WHERE COALESCE(i.paid,0) <> COALESCE(g.paid,0)"
+      },
+      "source": "llm",
+      "confidence": 0.8
+    },
+    {
+      "defect_id": "X1-D2",
+      "job_id": "X1",
+      "title": "Broker dimension joined without deduplication",
+      "description": "The final insert LEFT JOINs stg.brokers on broker_code alone. Nothing picks one row per broker the way the policy snapshots and FX rates are deduplicated with _row_seq. A broker with several rows in stg.brokers (history or reloads) repeats every broker/LOB output row, along with its premium, claims and policy counts.",
+      "intended_behaviour": "Exactly one output row per broker and LOB, using only the latest broker record.",
+      "evidence_lines": [
+        147,
+        148
+      ],
+      "impact_query": "WITH g AS (SELECT broker_code, lob_code, COUNT(*) AS n, MAX(gwp_eur) AS gwp FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COALESCE(SUM(n - 1),0) AS rows_affected, COALESCE(SUM((n - 1) * ABS(gwp)),0) AS amount_affected FROM g WHERE n > 1",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "gwp_eur",
+        "measured_on": "golden:X1",
+        "query": "WITH g AS (SELECT broker_code, lob_code, COUNT(*) AS n, MAX(gwp_eur) AS gwp FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COALESCE(SUM(n - 1),0) AS rows_affected, COALESCE(SUM((n - 1) * ABS(gwp)),0) AS amount_affected FROM g WHERE n > 1"
+      },
+      "source": "llm",
+      "confidence": 0.5
+    },
+    {
+      "defect_id": "X1-D3",
+      "job_id": "X1",
+      "title": "Blank broker codes not mapped to DIRECT",
+      "description": "ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT') only catches NULL. A broker_code that is empty or all spaces trims to '' and is reported under an empty broker code, separately from DIRECT business.",
+      "intended_behaviour": "Direct business, meaning a NULL or blank broker code, should all be reported under DIRECT (NULLIF(trimmed,'') before ISNULL).",
+      "evidence_lines": [
+        52
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(gwp_eur)),0) AS amount_affected FROM golden_rpt_broker_production WHERE TRIM(broker_code) = ''",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "gwp_eur",
+        "measured_on": "golden:X1",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(gwp_eur)),0) AS amount_affected FROM golden_rpt_broker_production WHERE TRIM(broker_code) = ''"
+      },
+      "source": "llm",
+      "confidence": 0.45
+    },
+    {
+      "defect_id": "X1-D4",
+      "job_id": "X1",
+      "title": "Non-EUR premium silently dropped when no FX rate is found",
+      "description": "The OUTER APPLY returns NULL when the currency has no rate dated on or before the transaction (or when currency is NULL). amount * NULL is NULL and SUM skips it, so the premium vanishes from gwp_eur and the paid-to-written ratio without any error.",
+      "intended_behaviour": "Every written premium transaction should be converted, using a fallback rate or by failing or flagging the run, not dropped. The amount shown is estimated at the earliest available rate, or left unconverted if the currency has no rate at all.",
+      "evidence_lines": [
+        76,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86
+      ],
+      "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), t AS (SELECT t.txn_id, t.txn_date, UPPER(TRIM(t.currency)) AS currency, t.amount, p.broker_code, p.lob_code FROM stg_premium_transactions t JOIN pol p ON p.policy_id = t.policy_id WHERE t.txn_date >= DATE'2025-01-01' AND t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(TRIM(t.currency)) <> 'EUR')), nr AS (SELECT t.* FROM t LEFT ANTI JOIN stg_fx_rates f ON UPPER(TRIM(f.currency)) = t.currency AND f.rate_date <= t.txn_date), fr AS (SELECT UPPER(TRIM(currency)) AS currency, MIN_BY(rate_to_eur, rate_date) AS r FROM stg_fx_rates GROUP BY UPPER(TRIM(currency))) SELECT COUNT(DISTINCT nr.broker_code, nr.lob_code) AS rows_affected, COALESCE(SUM(ABS(nr.amount * COALESCE(fr.r, 1))),0) AS amount_affected FROM nr LEFT JOIN fr ON fr.currency = nr.currency",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "gwp_eur",
+        "measured_on": "golden:X1",
+        "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), t AS (SELECT t.txn_id, t.txn_date, UPPER(TRIM(t.currency)) AS currency, t.amount, p.broker_code, p.lob_code FROM stg_premium_transactions t JOIN pol p ON p.policy_id = t.policy_id WHERE t.txn_date >= DATE'2025-01-01' AND t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(TRIM(t.currency)) <> 'EUR')), nr AS (SELECT t.* FROM t LEFT ANTI JOIN stg_fx_rates f ON UPPER(TRIM(f.currency)) = t.currency AND f.rate_date <= t.txn_date), fr AS (SELECT UPPER(TRIM(currency)) AS currency, MIN_BY(rate_to_eur, rate_date) AS r FROM stg_fx_rates GROUP BY UPPER(TRIM(currency))) SELECT COUNT(DISTINCT nr.broker_code, nr.lob_code) AS rows_affected, COALESCE(SUM(ABS(nr.amount * COALESCE(fr.r, 1))),0) AS amount_affected FROM nr LEFT JOIN fr ON fr.currency = nr.currency"
+      },
+      "source": "llm",
+      "confidence": 0.4
+    },
+    {
+      "defect_id": "X1-D5",
+      "job_id": "X1",
+      "title": "Recoveries added rather than netted off",
+      "description": "The comment says recoveries are netted off, but the code sums every payment amount whatever its payment_type. If recoveries are stored as positive amounts with a recovery payment_type, they increase claims_paid_eur instead of reducing it.",
+      "intended_behaviour": "Recovery-type payments should reduce claims paid (subtracted, or sign-flipped when stored as positives).",
+      "evidence_lines": [
+        106,
+        107
+      ],
+      "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), r AS (SELECT c.broker_code, c.lob_code, cp.amount FROM stg_claim_payments cp JOIN clm c ON c.claim_id = cp.claim_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' AND UPPER(cp.payment_type) LIKE '%RECOV%' AND cp.amount > 0) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COALESCE(SUM(2 * amount),0) AS amount_affected FROM r",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "claims_paid_eur",
+        "measured_on": "golden:X1",
+        "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), r AS (SELECT c.broker_code, c.lob_code, cp.amount FROM stg_claim_payments cp JOIN clm c ON c.claim_id = cp.claim_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' AND UPPER(cp.payment_type) LIKE '%RECOV%' AND cp.amount > 0) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COALESCE(SUM(2 * amount),0) AS amount_affected FROM r"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    },
+    {
+      "defect_id": "X1-D6",
+      "job_id": "X1",
+      "title": "Duplicate claim rows multiply claims notified and claims paid",
+      "description": "stg.claims is used as-is in #clm. stg.policy_snapshots and stg.fx_rates are deduplicated with _row_seq, but claims are not. If a claim_id has several staging rows, it is counted more than once in claims_notified, and each of its payments is added once per duplicate in claims_paid_eur.",
+      "intended_behaviour": "One row per claim_id (the latest by _row_seq) before counting and joining payments.",
+      "evidence_lines": [
+        94,
+        95,
+        96,
+        97,
+        110
+      ],
+      "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), d AS (SELECT claim_id, broker_code, lob_code, COUNT(*) AS n FROM clm GROUP BY claim_id, broker_code, lob_code HAVING COUNT(*) > 1), pay AS (SELECT claim_id, SUM(COALESCE(amount,0)) AS amt FROM stg_claim_payments WHERE payment_date >= DATE'2025-01-01' AND payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(DISTINCT d.broker_code, d.lob_code) AS rows_affected, COALESCE(SUM(ABS((d.n - 1) * COALESCE(p.amt,0))),0) AS amount_affected FROM d LEFT JOIN pay p ON p.claim_id = d.claim_id",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "claims_paid_eur",
+        "measured_on": "golden:X1",
+        "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), d AS (SELECT claim_id, broker_code, lob_code, COUNT(*) AS n FROM clm GROUP BY claim_id, broker_code, lob_code HAVING COUNT(*) > 1), pay AS (SELECT claim_id, SUM(COALESCE(amount,0)) AS amt FROM stg_claim_payments WHERE payment_date >= DATE'2025-01-01' AND payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(DISTINCT d.broker_code, d.lob_code) AS rows_affected, COALESCE(SUM(ABS((d.n - 1) * COALESCE(p.amt,0))),0) AS amount_affected FROM d LEFT JOIN pay p ON p.claim_id = d.claim_id"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    },
+    {
+      "defect_id": "X1-D7",
+      "job_id": "X1",
+      "title": "Policies expiring on the as-of date counted as in force",
+      "description": "The in-force test uses expiry_date >= @AsOfDate. A policy whose expiry_date equals the as-of date counts as in force. If expiry_date is the exclusive end of cover (inception plus 12 months), such a policy has already lapsed.",
+      "intended_behaviour": "If expiry is exclusive, the test should be expiry_date > @AsOfDate.",
+      "evidence_lines": [
+        69,
+        70,
+        71
+      ],
+      "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code, inception_date, expiry_date, cancellation_date FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, s.inception_date, s.expiry_date, s.cancellation_date, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COUNT(*) AS amount_affected FROM pol WHERE inception_date <= DATE'2025-12-31' AND expiry_date = DATE'2025-12-31' AND (cancellation_date IS NULL OR cancellation_date > DATE'2025-12-31')",
+      "impact": {
+        "rows_affected": 30,
+        "amount_affected": "69.00",
+        "amount_column": "policies_in_force",
+        "measured_on": "golden:X1",
+        "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code, inception_date, expiry_date, cancellation_date FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, s.inception_date, s.expiry_date, s.cancellation_date, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COUNT(*) AS amount_affected FROM pol WHERE inception_date <= DATE'2025-12-31' AND expiry_date = DATE'2025-12-31' AND (cancellation_date IS NULL OR cancellation_date > DATE'2025-12-31')"
+      },
+      "source": "llm",
+      "confidence": 0.2
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "X1-D1",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.773950Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D2",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.774128Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D3",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.774289Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D4",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.774417Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D5",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.774535Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D6",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.774652Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X1-D7",
+      "job_id": "X1",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T03:34:20.775032Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [],
+  "heal": [],
+  "tests": [],
+  "escalations": [
+    {
+      "escalation_id": "X1-E1",
+      "job_id": "X1",
+      "stage": "generate",
+      "reason": "guardrail",
+      "diagnosis": "1 of 13 trap tests fail",
+      "attempts": 0,
+      "created_at": "2026-11-12T03:41:58.774809Z",
+      "resolved_at": null,
+      "resolution": null,
+      "human_minutes": null
+    }
+  ],
+  "llm_usage": [
+    {
+      "call_id": "4c550d1747a34ff8bbeb82289fd7cfde",
+      "run_id": "dev-holdout",
+      "agent": "trap_scan",
+      "job_id": "X1",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "2cdcd700ac4bbaee2da088ef5721c68df35f9387a63c534807c48cc06074f0f9",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 4130,
+      "cache_read_tokens": 854,
+      "cache_creation_tokens": 11026,
+      "duration_ms": 38758,
+      "cost_usd_equivalent": 0.1709868,
+      "replayed": false
+    },
+    {
+      "call_id": "77cb214304824c26a4699b53242af519",
+      "run_id": "dev-holdout",
+      "agent": "lineage",
+      "job_id": "X1",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "d013ee74eb8410493a41fb99bfb85f60469a3447488ead9a6e6395c3ce4adc2b",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 6376,
+      "cache_read_tokens": 1513,
+      "cache_creation_tokens": 6236,
+      "duration_ms": 48174,
+      "cost_usd_equivalent": 0.1777186,
+      "replayed": false
+    },
+    {
+      "call_id": "e11b3dcc6a854210b7f31122f634a6ae",
+      "run_id": "dev-holdout",
+      "agent": "contract",
+      "job_id": "X1",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "7fc83b23b4616b5152fadac86e62780b46882196ab5d3b44904a1c78512fedf3",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 600,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4698,
+      "duration_ms": 6216,
+      "cost_usd_equivalent": 0.0497718,
+      "replayed": false
+    },
+    {
+      "call_id": "85e5c0290e4e4c1b9e9d565a52571343",
+      "run_id": "dev-holdout",
+      "agent": "defect_reviewer",
+      "job_id": "X1",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "4e6fbf07d3e90db2738c029b30b6185f48e8e8674067363247ed3755a94ed071",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 11324,
+      "cache_read_tokens": 1044,
+      "cache_creation_tokens": 5991,
+      "duration_ms": 93279,
+      "cost_usd_equivalent": 0.2746248,
+      "replayed": false
+    },
+    {
+      "call_id": "366fedd02e9543d5873d7db87269fd83",
+      "run_id": "dev-holdout",
+      "agent": "translator",
+      "job_id": "X1",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "bd120bc211560b948e3026b76bcdc70bfee4337e239dcd659ed9d321f0999291",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 17448,
+      "cache_read_tokens": 1079,
+      "cache_creation_tokens": 15159,
+      "duration_ms": 145529,
+      "cost_usd_equivalent": 0.47045580000000004,
+      "replayed": false
+    },
+    {
+      "call_id": "6032040146014edbaa93c750d18c3d75",
+      "run_id": "dev-holdout",
+      "agent": "test_author",
+      "job_id": "X1",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "dba91cc9edb94cf08926f9dfe0dbf10f43966145388c48e6997f54ad1ba92f45",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 35559,
+      "cache_read_tokens": 1067,
+      "cache_creation_tokens": 7673,
+      "duration_ms": 261296,
+      "cost_usd_equivalent": 0.7727854000000001,
+      "replayed": false
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "4aa3cd91386f",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "X1"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage of rpt.broker_production.broker_code disagrees with sqlglot (agent only: ['stg.policy_snapshots.broker_code']; sqlglot only: ['keys.broker_code']); lineage of rpt.broker_production.gwp_eur disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur']); lineage of rpt.broker_production.lob_code disagrees with sqlglot (agent only: ['stg.products.lob_code']; sqlglot only: ['keys.lob_code']); lineage of rpt.broker_production.paid_to_written disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur']); lineage of rpt.broker_production.review_flag disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur']); lineage agent notes: 1) claims_paid_eur takes stg.claim_payments.amount as-is. Despite the name, nothing converts it to EUR and claim_payments has no currency c",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/held-out/X1/discovery.json",
+          "sha256": "a0707f1efe90004e73c656b0ccb7d678070b13de78177d70037773c7298732b6"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/held-out/X1/lineage.json",
+          "sha256": "fa99f3753a63f446aa159e907fe9be6f009adbf4fa6d54ae1d59643d9af8406a"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/held-out/X1/traps.json",
+          "sha256": "db6370bb040c5cd97ea75b3829ee582da9e457b23b47f58883c1b6b6ef8ecfb2"
+        }
+      ],
+      "warnings": [
+        "lineage of rpt.broker_production.broker_code disagrees with sqlglot (agent only: ['stg.policy_snapshots.broker_code']; sqlglot only: ['keys.broker_code'])",
+        "lineage of rpt.broker_production.gwp_eur disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+        "lineage of rpt.broker_production.lob_code disagrees with sqlglot (agent only: ['stg.products.lob_code']; sqlglot only: ['keys.lob_code'])",
+        "lineage of rpt.broker_production.paid_to_written disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+        "lineage of rpt.broker_production.review_flag disagrees with sqlglot (agent only: ['stg.fx_rates.rate_to_eur'])",
+        "lineage agent notes: 1) claims_paid_eur takes stg.claim_payments.amount as-is. Despite the name, nothing converts it to EUR and claim_payments has no currency column. The same unconverted amount feeds paid_to_written and review_flag. 2) The stg.brokers LEFT JOIN doesn't remove rows, but brokers has a _row_seq column, so it may hold several versions per broker_code. If it does, output rows are duplicated. I listed the join as a low-confidence filter. 3) Claims count toward claims_notified, and their payments toward claims_paid_eur, only if reported_date falls in the year. Payments in the year on claims reported earlier are dropped. 4) If no fx rate is found for a non-EUR currency, the product is NULL and SUM skips it, so that premium is lost from gwp_eur without any error. 5) policies_in_force and claims_notified are COUNT(*) values defaulted to 0 by ISNULL, so they have no column that derives them. The in-force and claims date filters still decide which rows are counted. 6) The output's broker_code and lob_code are the union of keys across in-force, premium, notified and paid, so every filter on those sets helps decide which rows appear."
+      ],
+      "shown_at": "2026-11-12T03:32:29.242995Z",
+      "decided_at": "2026-11-12T03:32:29.243016Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": null
+    },
+    {
+      "decision_id": "b60440cac16a",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "X1"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: X1-D1 suspected defect: Claims paid limited to claims notified in the same year (87 rows); X1-D2 suspected defect: Broker dimension joined without deduplication (0 rows); X1-D3 suspected defect: Blank broker codes not mapped to DIRECT (0 rows); X1-D4 suspected defect: Non-EUR premium silently dropped when no FX rate is found (0 rows); X1-D5 suspected defect: Recoveries added rather than netted off (0 rows); X1-D6 suspected defect: Duplicate claim rows multiply claims notified and claims paid (0 rows); X1-D7 suspected defect: Policies expiring on the as-of date counted as in force (30 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/held-out/X1/contracts/rpt.broker_production.json",
+          "sha256": "5f39ed2f705d2db9647970ea4b75c93f1e09b407803f95b9170a9750bc717163"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/held-out/X1/defects.json",
+          "sha256": "02f00890951bab482e47c1d605ef532b0e746de882e670d1959e4570ad8cc139"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/held-out/X1/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "X1-D1 suspected defect: Claims paid limited to claims notified in the same year (87 rows)",
+        "X1-D2 suspected defect: Broker dimension joined without deduplication (0 rows)",
+        "X1-D3 suspected defect: Blank broker codes not mapped to DIRECT (0 rows)",
+        "X1-D4 suspected defect: Non-EUR premium silently dropped when no FX rate is found (0 rows)",
+        "X1-D5 suspected defect: Recoveries added rather than netted off (0 rows)",
+        "X1-D6 suspected defect: Duplicate claim rows multiply claims notified and claims paid (0 rows)",
+        "X1-D7 suspected defect: Policies expiring on the as-of date counted as in force (30 rows)"
+      ],
+      "shown_at": "2026-11-12T03:34:20.775881Z",
+      "decided_at": "2026-11-12T03:34:20.775990Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "4bed4a356b7cd4b66d9d86374c322d13af813c0a290e5fbd084e6373a55e1763"
+    }
+  ]
+}

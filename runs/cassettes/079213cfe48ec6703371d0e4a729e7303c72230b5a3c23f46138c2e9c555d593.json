@@ -1,0 +1,191 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:50:44.382964Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S01",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S01: claims_enrich.sas. Claim-level payment history and indicators.\nOutput table dw.claims_enriched, 2911 rows in the legacy output.\n\nColumns:\n- claim_id num 8 format=BEST: 2911 distinct, 0 NULL\n- claim_number char 20 format=$CHAR: 2911 distinct, 0 NULL\n- policy_id num 8 format=BEST: 2824 distinct, 0 NULL\n- customer_id num 8 format=BEST: 2543 distinct, 0 NULL\n- lob_code char 5 format=$CHAR: 3 distinct, 0 NULL\n- loss_date num 8 format=YYMMDD: 1445 distinct, 0 NULL\n- reported_date num 8 format=YYMMDD: 1436 distinct, 0 NULL\n- status char 12 format=$CHAR: 3 distinct, 0 NULL\n- n_payments num 8: 10 distinct, 0 NULL\n- n_recoveries num 8: 3 distinct, 0 NULL\n- total_paid num 8: 2458 distinct, 0 NULL\n- indemnity_amt num 8: 2281 distinct, 518 NULL\n- expense_amt num 8: 1443 distinct, 458 NULL\n- recovery_amt num 8: 134 distinct, 445 NULL\n- first_payment_date num 8 format=DATE: 1269 distinct, 445 NULL\n- last_payment_date num 8 format=DATE: 1093 distinct, 445 NULL\n- recovery_flag num 8: 2 distinct, 0 NULL\n- has_payment num 8: 2 distinct, 0 NULL\n- gross_paid num 8: 2379 distinct, 531 NULL\n- net_paid num 8: 2439 distinct, 445 NULL\n\nCandidate keys (unique and never NULL):\n- ['claim_id']\n- ['claim_number']\n\nLegacy code:\n/******************************************************************************\n  Program  : claims_enrich.sas\n  Purpose  : Claim-level payment history for the risk team. One row per claim\n             on the claims register with its payments up to the reporting\n             date: payment and recovery counts, paid to date, the paid split\n             by payment type (gross, and net of recoveries), the first and\n             last payment dates and a recovery marker. Read by the customer\n             risk scoring (risk_scoring.sas).\n  Inputs   : stg.claims, stg.claim_payments\n  Output   : dw.claims_enriched (rebuilt on every run)\n  Params   : as_of - reporting date (SAS date), set by the scheduler\n  Author   : DOS\n\n  Change log\n    2014-03-10  DOS   Initial version\n    2015-08-24  DOS   Recoveries counted and flagged for the subrogation desk\n                      (CR-0611)\n    2017-01-16  AK    Paid split by payment type; gross and net paid (CR-1042)\n    2018-11-05  AK    Payments dated after the reporting date left out\n                      (INC-1677)\n    2019-09-30  AK    Line of business and status tidied for the MI pack\n                      (CR-1502)\n    2021-06-14  SMcC  Claims with nothing paid yet kept, with has_payment, for\n                      risk_scoring.sas (CR-1873)\n******************************************************************************/\n\n/* claims register */\nproc sort data=stg.claims(keep=claim_id claim_number policy_id customer_id lob_code\n                               loss_date reported_date status)\n          out=work.claims;\n  by claim_id;\nrun;\n\n/* payments to the reporting date, claim by claim in the order they were keyed */\nproc sort data=stg.claim_payments(keep=claim_id payment_date amount payment_type _row_seq\n                                  where=(payment_date <= &as_of))\n          out=work.payments;\n  by claim_id _row_seq;\nrun;\n\n/* roll the payments up to one row per claim */\ndata work.pay_summary(keep=claim_id n_payments n_recoveries total_paid indemnity_amt\n                           expense_amt recovery_amt first_payment_date last_payment_date\n                           recovery_flag);\n  set work.payments;\n  by claim_id;\n  length ptype $12;\n  retain n_payments n_recoveries total_paid indemnity_amt expense_amt recovery_amt\n         first_payment_date last_payment_date recovery_flag;\n  format first_payment_date last_payment_date date9.;\n\n  if first.claim_id then do;\n    n_payments    = 0;\n    n_recoveries  = 0;\n    total_paid    = 0;\n    indemnity_amt = 0;\n    expense_amt   = 0;\n    recovery_amt  = 0;\n    recovery_flag = 0;\n    first_payment_date = payment_date;\n  end;\n\n  n_payments + 1;\n  total_paid + amount;\n\n  /* paid split by payment type (keyed in mixed case) */\n  ptype = upcase(strip(payment_type));\n  if ptype = 'INDEMNITY' then indemnity_amt = indemnity_amt + amount;\n  else if ptype = 'EXPENSE' then expense_amt = expense_amt + amount;\n  else if ptype = 'RECOVERY' then recovery_amt = recovery_amt + amount;\n\n  /* recoveries (salvage, third-party) come through as negative amounts */\n  if amount < 0 then do;\n    recovery_flag = 1;\n    n_recoveries + 1;\n  end;\n\n  last_payment_date = payment_date;\n  if last.claim_id then output;\nrun;\n\n/* enrich the register: every claim is reported, paid or not */\ndata dw.claims_enriched(keep=claim_id claim_number policy_id customer_id lob_code\n                             loss_date reported_date status n_payments n_recoveries\n                             total_paid indemnity_amt expense_amt recovery_amt gross_paid\n                             net_paid first_payment_date last_payment_date recovery_flag\n                             has_payment);\n  merge work.claims(in=c) work.pay_summary(in=p);\n  by claim_id;\n  if c;\n\n  lob_code = upcase(strip(lob_code));\n  status   = upcase(strip(status));\n\n  has_payment = p;\n  if not p then do;\n    n_payments    = 0;\n    n_recoveries  = 0;\n    total_paid    = 0;\n    recovery_flag = 0;\n  end;\n\n  gross_paid = indemnity_amt + expense_amt;\n  net_paid   = sum(indemnity_amt, expense_amt, recovery_amt);\nrun;\n\nproc datasets lib=work nolist;\n  delete claims payments pay_summary;\nquit;\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "079213cfe48ec6703371d0e4a729e7303c72230b5a3c23f46138c2e9c555d593",
+  "response": {
+    "duration_api_ms": 24223,
+    "duration_ms": 24447,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 2827,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 2827,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0385838,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 789,
+        "provider": "firstParty",
+        "thinkingTokens": 65,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "expense_amt": "Sum of EXPENSE-type amounts; NULL in the same cases as indemnity_amt.",
+        "first_payment_date": "payment_date of the claim's first payment in keyed order (_row_seq), not necessarily the earliest date.",
+        "gross_paid": "indemnity_amt + expense_amt; NULL if either one is NULL.",
+        "has_payment": "1 if the claim has at least one payment on or before as_of, otherwise 0.",
+        "indemnity_amt": "Sum of INDEMNITY-type amounts (type matched ignoring case). NULL if the claim has no payments, or if any payment amount was missing, because '+' carries missing values through.",
+        "last_payment_date": "payment_date of the claim's last payment in keyed order (_row_seq), not necessarily the latest date.",
+        "lob_code": "Line of business, upper-cased and stripped.",
+        "n_payments": "Number of payment rows dated on or before as_of; 0 if the claim has no payments.",
+        "n_recoveries": "Number of payment rows with a negative amount (recoveries); 0 if no payments.",
+        "net_paid": "SAS sum() of indemnity, expense and recovery, which skips missing values; NULL only when all three are NULL.",
+        "recovery_amt": "Sum of RECOVERY-type amounts; NULL if the claim has no payments.",
+        "recovery_flag": "1 if any payment amount is negative, otherwise 0.",
+        "status": "Claim status, upper-cased and stripped.",
+        "total_paid": "Sum of all payment amounts to as_of, recoveries included; 0 if no payments."
+      },
+      "grain": "One row per claim on the claims register (stg.claims), with its payment history rolled up to the reporting date (as_of); claims with no payments yet are kept too.",
+      "keys": [
+        "claim_id"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "status"
+      ]
+    },
+    "total_cost_usd": 0.0385838,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 2827,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 2827,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2827,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 2827,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 789,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 789,
+      "output_tokens_details": {
+        "thinking_tokens": 65
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

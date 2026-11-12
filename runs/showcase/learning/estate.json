@@ -1,0 +1,92 @@
+{
+  "edges": [
+    {
+      "downstream": "S04",
+      "tables": [
+        "dw.claims_enriched"
+      ],
+      "upstream": "S01"
+    },
+    {
+      "downstream": "S04",
+      "tables": [
+        "rpt.premium_band_summary"
+      ],
+      "upstream": "S03"
+    },
+    {
+      "downstream": "S04",
+      "tables": [
+        "dw.dim_customer"
+      ],
+      "upstream": "T01"
+    },
+    {
+      "downstream": "T02",
+      "tables": [
+        "dw.dim_customer"
+      ],
+      "upstream": "T01"
+    },
+    {
+      "downstream": "T08",
+      "tables": [
+        "dw.dim_customer"
+      ],
+      "upstream": "T01"
+    },
+    {
+      "downstream": "T03",
+      "tables": [
+        "dw.dim_policy"
+      ],
+      "upstream": "T02"
+    },
+    {
+      "downstream": "S03",
+      "tables": [
+        "dw.fact_premium_earned"
+      ],
+      "upstream": "T03"
+    }
+  ],
+  "waves": [
+    {
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05",
+        "T06",
+        "X1",
+        "X2"
+      ],
+      "number": 1
+    },
+    {
+      "job_ids": [
+        "T02",
+        "T08"
+      ],
+      "number": 2
+    },
+    {
+      "job_ids": [
+        "T03"
+      ],
+      "number": 3
+    },
+    {
+      "job_ids": [
+        "S03"
+      ],
+      "number": 4
+    },
+    {
+      "job_ids": [
+        "S04"
+      ],
+      "number": 5
+    }
+  ]
+}

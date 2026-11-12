@@ -1,0 +1,767 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:55:55.632452Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer (tsql), file estate/tsql/T01_usp_load_dim_customer.sql.\nCustomer dimension, one row per CRM customer.\nParameters: AsOfDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_customer\n  3 |   Purpose  : Customer dimension for the marketing and pricing teams. One row\n  4 |              per CRM customer with the customer's current details from the\n  5 |              CRM extract, plus sales region, Eircode check, initials and\n  6 |              segment flags for campaigns and the pricing models.\n  7 |   Output   : dw.dim_customer (truncated and reloaded on every run)\n  8 |   Author   : DOC\n  9 | \n 10 |   Change log\n 11 |     2013-05-20  DOC   Initial version\n 12 |     2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n 13 |     2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n 14 |     2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n 15 |     2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n 16 |                       (CR-1190)\n 17 |     2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n 18 |                       (GDPR, CR-1342)\n 19 |     2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n 20 |     2019-11-04  KB    CRM extract is now change data capture: one row per\n 21 |                       saved version, keep the current one (CR-1702)\n 22 |     2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n 23 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 24 | ==============================================================================*/\n 25 | SET NOCOUNT ON;\n 26 | GO\n 27 | IF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\n 28 | CREATE TABLE dw.dim_customer (\n 29 |     customer_id          INT            NOT NULL,\n 30 |     first_name           NVARCHAR(40)   NOT NULL,\n 31 |     last_name            NVARCHAR(60)   NOT NULL,\n 32 |     full_name            NVARCHAR(101)  NOT NULL,\n 33 |     initials             NVARCHAR(2)    NOT NULL,\n 34 |     email                VARCHAR(120)   NULL,\n 35 |     email_shared_count   INT            NOT NULL,\n 36 |     date_of_birth        DATE           NULL,\n 37 |     age_at_join          INT            NULL,\n 38 |     address_line1        NVARCHAR(100)  NULL,\n 39 |     town                 NVARCHAR(50)   NULL,\n 40 |     county               VARCHAR(30)    NULL,\n 41 |     region               VARCHAR(12)    NOT NULL,\n 42 |     eircode              VARCHAR(10)    NULL,\n 43 |     eircode_valid        CHAR(1)        NOT NULL,\n 44 |     segment_code         CHAR(4)        NULL,\n 45 |     is_standard_segment  CHAR(1)        NOT NULL,\n 46 |     marketing_opt_in     CHAR(1)        NOT NULL,\n 47 |     customer_since       DATE           NOT NULL,\n 48 |     source_system        VARCHAR(10)    NOT NULL,\n 49 |     version_count        INT            NOT NULL,\n 50 |     record_updated_at    DATETIME2(0)   NOT NULL,\n 51 |     as_of_date           DATE           NOT NULL,\n 52 |     CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n 53 | );\n 54 | GO\n 55 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n 56 |     @AsOfDate DATE\n 57 | AS\n 58 | BEGIN\n 59 |     SET NOCOUNT ON;\n 60 | \n 61 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n 62 |             @rows      INT,\n 63 |             @err_msg   NVARCHAR(4000),\n 64 |             @err_no    INT;\n 65 | \n 66 |     BEGIN TRY\n 67 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 68 | \n 69 |         IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n 70 |         IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n 71 | \n 72 |         /* 1. Customer versions saved up to the reporting date. The CRM extract\n 73 |               writes a new row every time a record is saved. */\n 74 |         SELECT  c.customer_id,\n 75 |                 c.first_name,\n 76 |                 c.last_name,\n 77 |                 c.email,\n 78 |                 c.date_of_birth,\n 79 |                 c.address_line1,\n 80 |                 c.town,\n 81 |                 c.county,\n 82 |                 c.eircode,\n 83 |                 c.segment_code,\n 84 |                 c.marketing_opt_in,\n 85 |                 c.customer_since,\n 86 |                 c.source_system,\n 87 |                 c.updated_at,\n 88 |                 c._row_seq,\n 89 |                 COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n 90 |         INTO    #customer_versions\n 91 |         FROM    stg.customers c WITH (NOLOCK)\n 92 |         WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n 93 | \n 94 |         SET @rows = @@ROWCOUNT;\n 95 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n 96 | \n 97 |         /* 2. Keep the current version of each customer */\n 98 |         SELECT  v.*\n 99 |         INTO    #customer\n100 |         FROM   (SELECT  cv.*,\n101 |                         ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n102 |                                            ORDER BY cv.updated_at, cv._row_seq) AS version_no\n103 |                 FROM    #customer_versions cv) v\n104 |         WHERE   v.version_no = 1;\n105 | \n106 |         SET @rows = @@ROWCOUNT;\n107 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n108 | \n109 |         /* 3. Reload the dimension */\n110 |         BEGIN TRANSACTION;\n111 | \n112 |         TRUNCATE TABLE dw.dim_customer;\n113 | \n114 |         INSERT INTO dw.dim_customer\n115 |                (customer_id, first_name, last_name, full_name, initials, email,\n116 |                 email_shared_count, date_of_birth, age_at_join, address_line1, town,\n117 |                 county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n118 |                 marketing_opt_in, customer_since, source_system, version_count,\n119 |                 record_updated_at, as_of_date)\n120 |         SELECT  k.customer_id,\n121 |                 RTRIM(k.first_name),\n122 |                 k.last_name,\n123 |                 RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n124 |                 UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n125 |                 k.email,\n126 |                 CASE WHEN k.email IS NULL THEN 0\n127 |                      ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n128 |                 k.date_of_birth,\n129 |                 DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n130 |                 k.address_line1,\n131 |                 k.town,\n132 |                 k.county,\n133 |                 -- sales regions as agreed with distribution (CR-0412)\n134 |                 CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n135 |                      WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n136 |                      WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n137 |                      WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n138 |                      WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n139 |                      ELSE 'UNKNOWN'\n140 |                 END,\n141 |                 k.eircode,\n142 |                 -- routing key (3) and unique identifier (4), keyed with or without the space\n143 |                 CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n144 |                      WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n145 |                      ELSE 'N'\n146 |                 END,\n147 |                 k.segment_code,\n148 |                 CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n149 |                 ISNULL(k.marketing_opt_in, 'N'),\n150 |                 k.customer_since,\n151 |                 UPPER(RTRIM(k.source_system)),\n152 |                 k.version_count,\n153 |                 k.updated_at,\n154 |                 @AsOfDate\n155 |         FROM    #customer k;\n156 | \n157 |         SET @rows = @@ROWCOUNT;\n158 | \n159 |         COMMIT TRANSACTION;\n160 | \n161 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n163 |     END TRY\n164 |     BEGIN CATCH\n165 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n166 | \n167 |         SELECT  @err_msg = ERROR_MESSAGE(),\n168 |                 @err_no  = ERROR_NUMBER();\n169 | \n170 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n171 |              @message = @err_msg, @error_number = @err_no;\n172 |         THROW;\n173 |     END CATCH\n174 | END;\n175 | GO\n\nInput tables:\n- stg.customers: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), email VARCHAR(120), date_of_birth DATE, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), eircode VARCHAR(10), segment_code CHAR(4), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), updated_at DATETIME2(0), _row_seq INT\n\nOutput tables:\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "9e89c999be84623b9468e22ff431dceed389a74443cf2fb02055f9dc777df3b6",
+  "response": {
+    "duration_api_ms": 42965,
+    "duration_ms": 43282,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5145,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5145,
+        "cacheReadInputTokens": 1869,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.13794179999999998,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4820,
+        "provider": "firstParty",
+        "thinkingTokens": 506,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.97,
+          "input_column": "updated_at",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "filters",
+          "lines": [
+            92
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_customer",
+          "transform": "CAST(updated_at AS DATE) <= @AsOfDate"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            56,
+            92
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_customer",
+          "transform": "CAST(updated_at AS DATE) <= @AsOfDate"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "ranks",
+          "lines": [
+            101,
+            104
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_customer",
+          "transform": "ROW_NUMBER() PARTITION BY customer_id, keep version_no = 1"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "updated_at",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "ranks",
+          "lines": [
+            102,
+            104
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_customer",
+          "transform": "ROW_NUMBER() ORDER BY updated_at ASC, keep version_no = 1 (earliest version survives)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "_row_seq",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "ranks",
+          "lines": [
+            102,
+            104
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_customer",
+          "transform": "ROW_NUMBER() ORDER BY updated_at, _row_seq ASC tiebreak"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            74,
+            120
+          ],
+          "output_column": "customer_id",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "first_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            75,
+            121
+          ],
+          "output_column": "first_name",
+          "output_table": "dw.dim_customer",
+          "transform": "RTRIM(first_name)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "last_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            76,
+            122
+          ],
+          "output_column": "last_name",
+          "output_table": "dw.dim_customer",
+          "transform": "direct (not trimmed)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "first_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            123
+          ],
+          "output_column": "full_name",
+          "output_table": "dw.dim_customer",
+          "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "last_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            123
+          ],
+          "output_column": "full_name",
+          "output_table": "dw.dim_customer",
+          "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)"
+        },
+        {
+          "confidence": 0.8,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            123
+          ],
+          "output_column": "full_name",
+          "output_table": "dw.dim_customer",
+          "transform": "literal N' ' separator"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "first_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            124
+          ],
+          "output_column": "initials",
+          "output_table": "dw.dim_customer",
+          "transform": "UPPER(SUBSTRING(first_name,0,2) + ...) - SUBSTRING from 0 yields first char only"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "last_name",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            124
+          ],
+          "output_column": "initials",
+          "output_table": "dw.dim_customer",
+          "transform": "UPPER(... + SUBSTRING(last_name,0,2)) - first char only"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "email",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            77,
+            125
+          ],
+          "output_column": "email",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "email",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            126,
+            127
+          ],
+          "output_column": "email_shared_count",
+          "output_table": "dw.dim_customer",
+          "transform": "CASE WHEN email IS NULL THEN 0 ELSE COUNT(*) OVER (PARTITION BY email) over surviving rows"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            126
+          ],
+          "output_column": "email_shared_count",
+          "output_table": "dw.dim_customer",
+          "transform": "0 when email IS NULL"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "date_of_birth",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            78,
+            128
+          ],
+          "output_column": "date_of_birth",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "date_of_birth",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            129
+          ],
+          "output_column": "age_at_join",
+          "output_table": "dw.dim_customer",
+          "transform": "DATEDIFF(YEAR, date_of_birth, customer_since) (year-boundary count)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            129
+          ],
+          "output_column": "age_at_join",
+          "output_table": "dw.dim_customer",
+          "transform": "DATEDIFF(YEAR, date_of_birth, customer_since)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "address_line1",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            79,
+            130
+          ],
+          "output_column": "address_line1",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "town",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            80,
+            131
+          ],
+          "output_column": "town",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "county",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            81,
+            132
+          ],
+          "output_column": "county",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "county",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140
+          ],
+          "output_column": "region",
+          "output_table": "dw.dim_customer",
+          "transform": "CASE county IN (...) -> EAST/SOUTH/WEST/NORTH-WEST/MIDLANDS ELSE UNKNOWN"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            134,
+            139
+          ],
+          "output_column": "region",
+          "output_table": "dw.dim_customer",
+          "transform": "region literals incl. 'UNKNOWN' default"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "eircode",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            82,
+            141
+          ],
+          "output_column": "eircode",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "eircode",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            143,
+            144,
+            145,
+            146
+          ],
+          "output_column": "eircode_valid",
+          "output_table": "dw.dim_customer",
+          "transform": "CASE LEN(eircode)=7 -> Y; LEN=8 AND 4th char ' ' -> Y; ELSE N"
+        },
+        {
+          "confidence": 0.8,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            143,
+            145
+          ],
+          "output_column": "eircode_valid",
+          "output_table": "dw.dim_customer",
+          "transform": "'Y'/'N' literals"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "segment_code",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            83,
+            147
+          ],
+          "output_column": "segment_code",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "segment_code",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            148
+          ],
+          "output_column": "is_standard_segment",
+          "output_table": "dw.dim_customer",
+          "transform": "CASE WHEN segment_code = 'STD' THEN 'Y' ELSE 'N'"
+        },
+        {
+          "confidence": 0.8,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            148
+          ],
+          "output_column": "is_standard_segment",
+          "output_table": "dw.dim_customer",
+          "transform": "'Y'/'N' literals"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "marketing_opt_in",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            84,
+            149
+          ],
+          "output_column": "marketing_opt_in",
+          "output_table": "dw.dim_customer",
+          "transform": "ISNULL(marketing_opt_in, 'N')"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            149
+          ],
+          "output_column": "marketing_opt_in",
+          "output_table": "dw.dim_customer",
+          "transform": "default 'N'"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            85,
+            150
+          ],
+          "output_column": "customer_since",
+          "output_table": "dw.dim_customer",
+          "transform": "direct"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "source_system",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            86,
+            151
+          ],
+          "output_column": "source_system",
+          "output_table": "dw.dim_customer",
+          "transform": "UPPER(RTRIM(source_system))"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            89,
+            152
+          ],
+          "output_column": "version_count",
+          "output_table": "dw.dim_customer",
+          "transform": "COUNT(*) OVER (PARTITION BY customer_id) over versions with updated_at <= @AsOfDate"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "updated_at",
+          "input_kind": "column",
+          "input_table": "stg.customers",
+          "kind": "derives",
+          "lines": [
+            87,
+            153
+          ],
+          "output_column": "record_updated_at",
+          "output_table": "dw.dim_customer",
+          "transform": "direct (updated_at of surviving version)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            56,
+            154
+          ],
+          "output_column": "as_of_date",
+          "output_table": "dw.dim_customer",
+          "transform": "@AsOfDate stamped on every row"
+        }
+      ],
+      "notes": "1) Version pick (lines 101-104): ROW_NUMBER orders by updated_at, _row_seq ascending and keeps version_no = 1. That keeps the OLDEST version saved up to @AsOfDate, not the current one the comments promise (CR-1702). The PySpark port must copy the ascending order to match the legacy output. 2) initials (line 124): SUBSTRING(x, 0, 2) returns only the first character. T-SQL counts positions 0 and 1 and keeps the 1 character that exists, so in Spark use substring(x,1,1). 3) email_shared_count is counted over the surviving rows in #customer (one per customer), not over all versions. Matching is case- and collation-sensitive according to the database collation. 4) version_count counts only the versions with CAST(updated_at AS DATE) <= @AsOfDate. 5) age_at_join uses DATEDIFF(YEAR), which counts year boundaries crossed, not completed years. 6) segment_code is CHAR(4), and T-SQL ignores trailing spaces in comparisons, so 'STD ' = 'STD' is true. Spark needs rtrim. In the same way, LEN() ignores trailing spaces in the eircode check. 7) first_name is RTRIMmed but last_name is not (line 122). 8) The read uses NOLOCK, so it can pick up rows that are not yet committed. customer_id is listed as a ranks edge because it is the ROW_NUMBER partition key."
+    },
+    "total_cost_usd": 0.13794179999999998,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5145,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5145,
+      "cache_read_input_tokens": 1869,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5145,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5145,
+          "cache_read_input_tokens": 1869,
+          "input_tokens": 2,
+          "output_tokens": 4820,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4820,
+      "output_tokens_details": {
+        "thinking_tokens": 506
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

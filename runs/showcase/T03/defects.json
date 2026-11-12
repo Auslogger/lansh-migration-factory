@@ -1,0 +1,133 @@
+[
+  {
+    "confidence": 0.8,
+    "defect_id": "T03-D1",
+    "description": "earned_eur = ROUND(written_eur * earned_days / 365, 2) and unearned_eur = written_eur - that. The denominator is hard-coded at 365 while term_days is computed right above. Leap-year terms (366 days), short-term policies and terms over a year are earned wrongly; a fully earned 366-day policy shows earned > written and negative unearned.",
+    "evidence_lines": [
+      93,
+      125,
+      126
+    ],
+    "impact": {
+      "amount_affected": "307279.59",
+      "amount_column": "earned_eur",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+      "rows_affected": 21145
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+    "intended_behaviour": "earned_eur = ROUND(written_eur * earned_days / term_days, 2), so a fully earned policy earns exactly written_eur; unearned_eur = written_eur - earned_eur.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Earned premium pro-rated over a fixed 365 days instead of the policy term"
+  },
+  {
+    "confidence": 0.75,
+    "defect_id": "T03-D2",
+    "description": "earned_pct = e.earned_days * 100 / e.term_days, where every operand is INT, so SQL Server does integer division and drops the fraction (e.g. 182*100/365 = 49 instead of 49.86) before storing into DECIMAL(5,2).",
+    "evidence_lines": [
+      36,
+      124
+    ],
+    "impact": {
+      "amount_affected": "12045.22",
+      "amount_column": "earned_pct",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+      "rows_affected": 24201
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+    "intended_behaviour": "earned_pct = ROUND(earned_days * 100.0 / term_days, 2), keeping two decimals.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Earned percentage truncated by integer division"
+  },
+  {
+    "confidence": 0.45,
+    "defect_id": "T03-D3",
+    "description": "first_due_date = DATEADD(MONTH, 1, EOMONTH(effective_from)). This takes the last day of the effective month and adds a month, giving the end of next month sometimes (31 Jan -> 29 Feb) and not other times (28 Feb -> 28 Mar, 30 Apr -> 30 May). It is neither the 1st of the next month nor reliably the end of next month.",
+    "evidence_lines": [
+      129
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+      "rows_affected": 67879
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+    "intended_behaviour": "Most likely the first day of the month after the effective month: DATEADD(DAY, 1, EOMONTH(effective_from)), or else EOMONTH(effective_from, 1).",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "First instalment due date: month added to month-end gives an inconsistent date"
+  },
+  {
+    "confidence": 0.5,
+    "defect_id": "T03-D4",
+    "description": "The non-EUR branch uses CROSS APPLY to the latest rate with rate_date <= txn_date. A transaction whose currency has no rate on or before its booking date (or has a NULL currency, which fails both = 'EUR' and <> 'EUR') produces no row at all, so the written premium disappears from the fact table without any error or log.",
+    "evidence_lines": [
+      69,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+      "rows_affected": 7
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+    "intended_behaviour": "Every transaction should be in the fact (full premium population). A missing rate should fall back (e.g. the earliest available rate) or fail/log the job rather than drop the premium.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Non-EUR transactions without an FX rate on/before booking date silently dropped"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "T03-D5",
+    "description": "The final INSERT inner-joins to dw.dim_policy on is_current = 'Y'. Transactions for policies with no current version (not yet loaded, or the version-closing logic left none current) are silently excluded from the premium fact.",
+    "evidence_lines": [
+      132,
+      133,
+      134
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+    "intended_behaviour": "All premium transactions up to the as-of date should be reported; a missing policy should map to an unknown member or be logged, not dropped.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Transactions dropped when the policy has no current dim_policy row"
+  },
+  {
+    "confidence": 0.2,
+    "defect_id": "T03-D6",
+    "description": "daily_rate_eur = ROUND(written_eur / term_days, 4, 1); the third argument 1 truncates rather than rounds, unlike every other amount in the job, so the daily rate is consistently understated.",
+    "evidence_lines": [
+      127
+    ],
+    "impact": {
+      "amount_affected": "3.28",
+      "amount_column": "daily_rate_eur",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+      "rows_affected": 32841
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+    "intended_behaviour": "ROUND(written_eur / term_days, 4) with normal rounding.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Daily rate truncated instead of rounded"
+  }
+]

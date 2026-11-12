@@ -1,0 +1,1411 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:16:00.706634Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_build_claims_summary\n  3 |   Purpose   Open claims summary for the claims MI pack: one row per claim that\n  4 |             is open or reopened at the reporting date, with paid, case reserve\n  5 |             and incurred to date.\n  6 |   Author    JMcK\n  7 |   Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  8 |   Output    rpt.claims_summary (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2014-09-03  JMcK  Initial version (CR-0871)\n 12 |     2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n 13 |     2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n 14 |     2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n 15 |     2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n 16 |     2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\n 21 | CREATE TABLE rpt.claims_summary (\n 22 |     claim_id           INT            NOT NULL,\n 23 |     claim_number       VARCHAR(20)    NOT NULL,\n 24 |     claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n 25 |     policy_id          INT            NOT NULL,\n 26 |     policy_number      VARCHAR(20)    NULL,\n 27 |     lob_code           VARCHAR(5)     NOT NULL,\n 28 |     status             VARCHAR(12)    NOT NULL,\n 29 |     handler_code       VARCHAR(8)     NULL,\n 30 |     loss_date          DATE           NOT NULL,\n 31 |     loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n 32 |     reported_date      DATE           NOT NULL,\n 33 |     reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n 34 |     days_open          INT            NOT NULL,\n 35 |     n_payments         INT            NOT NULL,\n 36 |     total_paid         DECIMAL(14,2)  NOT NULL,\n 37 |     indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n 38 |     expense_reserve    DECIMAL(14,2)  NOT NULL,\n 39 |     current_reserve    DECIMAL(14,2)  NOT NULL,\n 40 |     incurred           DECIMAL(14,2)  NOT NULL,\n 41 |     as_of_date         DATE           NOT NULL,\n 42 |     CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n 52 |             @rows           INT,\n 53 |             @snapshot_date  DATE,\n 54 |             @err_msg        NVARCHAR(4000),\n 55 |             @err_no         INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Open book: claims open or reopened and notified by the reporting date */\n 61 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 62 | \n 63 |         SELECT  c.claim_id,\n 64 |                 c.claim_number,\n 65 |                 c.policy_id,\n 66 |                 UPPER(RTRIM(c.lob_code))    AS lob_code,\n 67 |                 c.status,\n 68 |                 c.handler_code,\n 69 |                 c.loss_date,\n 70 |                 c.reported_date\n 71 |         INTO    #open_claims\n 72 |         FROM    stg.claims c WITH (NOLOCK)\n 73 |         WHERE   c.status IN ('OPEN', 'REOPENED')\n 74 |           AND   c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n 78 | \n 79 |         /* Case reserve per claim and reserve type: the latest entry on or before\n 80 |            the reporting date (a second entry on the same day is a correction) */\n 81 |         IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n 82 | \n 83 |         SELECT  x.claim_id,\n 84 |                 x.reserve_type,\n 85 |                 x.reserve_amount\n 86 |         INTO    #reserve\n 87 |         FROM   (SELECT  r.claim_id,\n 88 |                         r.reserve_type,\n 89 |                         r.reserve_amount,\n 90 |                         ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n 91 |                                            ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 92 |                 FROM    stg.claim_reserves r WITH (NOLOCK)\n 93 |                 JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n 94 |                 WHERE   r.reserve_date <= @AsOfDate) x\n 95 |         WHERE   x.rn = 1;\n 96 | \n 97 |         SET @rows = @@ROWCOUNT;\n 98 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         /* Paid to date and case reserves per claim */\n101 |         IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n102 | \n103 |         SELECT  oc.claim_id,\n104 |                 COUNT(DISTINCT p.payment_id)    AS n_payments,\n105 |                 ISNULL(SUM(p.amount), 0)        AS total_paid,\n106 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n107 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n108 |         INTO    #money\n109 |         FROM    #open_claims oc\n110 |         LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n111 |                ON p.claim_id = oc.claim_id\n112 |               AND p.payment_date <= @AsOfDate\n113 |         LEFT JOIN #reserve r\n114 |                ON r.claim_id = oc.claim_id\n115 |         GROUP BY oc.claim_id;\n116 | \n117 |         SET @rows = @@ROWCOUNT;\n118 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n119 | \n120 |         /* Policy number from the latest policy extract on or before the reporting date */\n121 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n122 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n123 |         WHERE   ps.snapshot_date <= @AsOfDate;\n124 | \n125 |         BEGIN TRANSACTION;\n126 | \n127 |         TRUNCATE TABLE rpt.claims_summary;\n128 | \n129 |         INSERT INTO rpt.claims_summary\n130 |                (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n131 |                 status, handler_code, loss_date, loss_date_text, reported_date,\n132 |                 reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n133 |                 expense_reserve, current_reserve, incurred, as_of_date)\n134 |         SELECT  oc.claim_id,\n135 |                 oc.claim_number,\n136 |                 oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n137 |                 oc.policy_id,\n138 |                 ps.policy_number,\n139 |                 oc.lob_code,\n140 |                 oc.status,\n141 |                 oc.handler_code,\n142 |                 oc.loss_date,\n143 |                 CONVERT(VARCHAR(10), oc.loss_date, 103),\n144 |                 oc.reported_date,\n145 |                 CONVERT(CHAR(6), oc.reported_date, 112),\n146 |                 DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n147 |                 m.n_payments,\n148 |                 m.total_paid,\n149 |                 m.indemnity_reserve,\n150 |                 m.expense_reserve,\n151 |                 m.indemnity_reserve + m.expense_reserve,\n152 |                 m.total_paid + m.indemnity_reserve + m.expense_reserve,\n153 |                 @AsOfDate\n154 |         FROM    #open_claims oc\n155 |         JOIN    #money m\n156 |                 ON m.claim_id = oc.claim_id\n157 |         LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n158 |                ON ps.policy_id = oc.policy_id\n159 |               AND ps.snapshot_date = @snapshot_date;\n160 | \n161 |         SET @rows = @@ROWCOUNT;\n162 | \n163 |         COMMIT TRANSACTION;\n164 | \n165 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n166 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n167 |     END TRY\n168 |     BEGIN CATCH\n169 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n170 | \n171 |         SELECT  @err_msg = ERROR_MESSAGE(),\n172 |                 @err_no  = ERROR_NUMBER();\n173 | \n174 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n175 |              @message = @err_msg, @error_number = @err_no;\n176 |         THROW;\n177 |     END CATCH\n178 | END;\n179 | GO\n\nInput tables:\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.claim_payments: payment_id INT NOT NULL, claim_id INT NOT NULL, payment_date DATE NOT NULL, amount DECIMAL(12,2), payment_type VARCHAR(12) NOT NULL, payee_type VARCHAR(12)\n- stg.claim_reserves: reserve_id INT NOT NULL, claim_id INT NOT NULL, reserve_date DATE NOT NULL, reserve_type VARCHAR(12) NOT NULL, reserve_amount DECIMAL(12,2) NOT NULL\n- stg.policy_snapshots: snapshot_date DATE NOT NULL, policy_id INT NOT NULL, policy_number VARCHAR(20) NOT NULL, customer_id INT NOT NULL, product_code VARCHAR(10) NOT NULL, broker_code VARCHAR(10), inception_date DATE NOT NULL, expiry_date DATE NOT NULL, status VARCHAR(12) NOT NULL, cancellation_date DATE, annual_premium DECIMAL(12,2) NOT NULL, currency CHAR(3) NOT NULL, sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10) NOT NULL, vehicle_reg VARCHAR(12), ncd_years INT\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 73-73: status is VARCHAR; IN ('OPEN','REOPENED') matches case variants under CI collation, Spark binary compare drops them.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 73-73: status VARCHAR values with trailing spaces ('OPEN ') still match in SQL Server, not in Spark.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 90-91: PARTITION BY reserve_type (VARCHAR) groups case variants together for the latest-reserve pick; Spark would split them.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 90-91: PARTITION BY reserve_type ignores trailing spaces in SQL Server; Spark partitions 'EXPENSE ' separately.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 106-106: reserve_type = 'INDEMNITY' on VARCHAR matches 'Indemnity' under CI collation; Spark would not.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 106-106: reserve_type = 'INDEMNITY' ignores trailing spaces in SQL Server.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 107-107: reserve_type = 'EXPENSE' on VARCHAR is case-insensitive in legacy.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 107-107: reserve_type = 'EXPENSE' ignores trailing spaces in SQL Server.\n- TSQL-05 (+ concatenation with NULL yields NULL) at lines 136-136: handler_code is nullable; '+' concatenation makes claim_ref NULL when handler_code is NULL; must use concat (not concat_ws).\n- TSQL-16 (CONVERT style codes) at lines 143-143: CONVERT style 103 gives dd/mm/yyyy; Spark needs date_format 'dd/MM/yyyy'.\n- TSQL-16 (CONVERT style codes) at lines 145-145: CONVERT(CHAR(6), d, 112) truncates yyyymmdd to yyyymm; Spark needs date_format 'yyyyMM'.\n- TSQL-04 (DATEDIFF counts boundaries crossed, not elapsed periods) at lines 146-146: DATEDIFF(DAY) on DATE equals day difference, but Spark datediff(end,start) reverses argument order; naive translation flips the sign.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "c16176e42f0c917c923898c978a170251adf6a18851e3adc5c802e68b540dfeb",
+  "response": {
+    "duration_api_ms": 89419,
+    "duration_ms": 89839,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 7889,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 7889,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.31314000000000003,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 12501,
+        "provider": "firstParty",
+        "thinkingTokens": 1527,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Status filter (line 73) with case variants. 'open' and 'Reopened' match IN ('OPEN','REOPENED') under the CI collation, so legacy keeps them. A naive Spark isin drops them. Canonical OPEN/REOPENED rows and CLOSED/closed rows are on either side. Payments give the money columns values.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "101",
+                  "claim_number": "CLM101",
+                  "customer_id": "9001",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-02",
+                  "policy_id": "501",
+                  "reported_date": "2025-03-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "102",
+                  "claim_number": "CLM102",
+                  "customer_id": "9002",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-04-10",
+                  "policy_id": "502",
+                  "reported_date": "2025-04-12",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "103",
+                  "claim_number": "CLM103",
+                  "customer_id": "9003",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "503",
+                  "reported_date": "2025-05-03",
+                  "status": "Reopened"
+                },
+                {
+                  "claim_id": "104",
+                  "claim_number": "CLM104",
+                  "customer_id": "9004",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-06-07",
+                  "policy_id": "504",
+                  "reported_date": "2025-06-09",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "105",
+                  "claim_number": "CLM105",
+                  "closed_date": "2025-09-01",
+                  "customer_id": "9005",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "505",
+                  "reported_date": "2025-07-02",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "106",
+                  "claim_number": "CLM106",
+                  "closed_date": "2025-10-01",
+                  "customer_id": "9006",
+                  "handler_code": "H06",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-08-01",
+                  "policy_id": "506",
+                  "reported_date": "2025-08-02",
+                  "status": "closed"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "100.00",
+                  "claim_id": "101",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "200.00",
+                  "claim_id": "102",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "2",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "103",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "3",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "400.00",
+                  "claim_id": "104",
+                  "payment_date": "2025-07-01",
+                  "payment_id": "4",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "500.00",
+                  "claim_id": "105",
+                  "payment_date": "2025-08-01",
+                  "payment_id": "5",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Status filter (line 73) with trailing spaces. 'OPEN ' and 'REOPENED  ' still match in SQL Server because trailing spaces are ignored. A naive Spark isin drops them. Canonical values are included, plus a leading-space ' OPEN' and a 'CLOSED ' that match in neither engine.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "201",
+                  "claim_number": "CLM201",
+                  "customer_id": "9101",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-02",
+                  "policy_id": "601",
+                  "reported_date": "2025-02-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "202",
+                  "claim_number": "CLM202",
+                  "customer_id": "9102",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-03",
+                  "policy_id": "602",
+                  "reported_date": "2025-03-06",
+                  "status": "OPEN "
+                },
+                {
+                  "claim_id": "203",
+                  "claim_number": "CLM203",
+                  "customer_id": "9103",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-04",
+                  "policy_id": "603",
+                  "reported_date": "2025-04-08",
+                  "status": "REOPENED  "
+                },
+                {
+                  "claim_id": "204",
+                  "claim_number": "CLM204",
+                  "customer_id": "9104",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-05",
+                  "policy_id": "604",
+                  "reported_date": "2025-05-07",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "205",
+                  "claim_number": "CLM205",
+                  "closed_date": "2025-09-01",
+                  "customer_id": "9105",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-06",
+                  "policy_id": "605",
+                  "reported_date": "2025-06-08",
+                  "status": "CLOSED "
+                },
+                {
+                  "claim_id": "206",
+                  "claim_number": "CLM206",
+                  "customer_id": "9106",
+                  "handler_code": "H06",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-07-07",
+                  "policy_id": "606",
+                  "reported_date": "2025-07-09",
+                  "status": " OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Latest-reserve pick (PARTITION BY reserve_type, lines 90-91) with case variants. Claim 301 has INDEMNITY 5000 (Jan) and a later 'Indemnity' 2000 (Jun). Legacy puts both in one partition and keeps only 2000. Spark splits them, keeps both, and MAX gives 5000. Claim 302 has the same pattern for EXPENSE/expense. Claim 303 has two canonical INDEMNITY rows, and 304 has no reserves.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "301",
+                  "claim_number": "CLM301",
+                  "customer_id": "9201",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-02",
+                  "policy_id": "701",
+                  "reported_date": "2025-01-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "302",
+                  "claim_number": "CLM302",
+                  "customer_id": "9202",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "702",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "303",
+                  "claim_number": "CLM303",
+                  "customer_id": "9203",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-02-01",
+                  "policy_id": "703",
+                  "reported_date": "2025-02-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "304",
+                  "claim_number": "CLM304",
+                  "customer_id": "9204",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "704",
+                  "reported_date": "2025-03-04",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "305",
+                  "claim_number": "CLM305",
+                  "customer_id": "9205",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "705",
+                  "reported_date": "2025-04-02",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "301",
+                  "reserve_amount": "5000.00",
+                  "reserve_date": "2025-01-10",
+                  "reserve_id": "1",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "301",
+                  "reserve_amount": "2000.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "2",
+                  "reserve_type": "Indemnity"
+                },
+                {
+                  "claim_id": "302",
+                  "reserve_amount": "800.00",
+                  "reserve_date": "2025-02-01",
+                  "reserve_id": "3",
+                  "reserve_type": "EXPENSE"
+                },
+                {
+                  "claim_id": "302",
+                  "reserve_amount": "300.00",
+                  "reserve_date": "2025-07-01",
+                  "reserve_id": "4",
+                  "reserve_type": "expense"
+                },
+                {
+                  "claim_id": "303",
+                  "reserve_amount": "1000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "5",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "303",
+                  "reserve_amount": "1500.00",
+                  "reserve_date": "2025-08-01",
+                  "reserve_id": "6",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "305",
+                  "reserve_amount": "250.00",
+                  "reserve_date": "2025-05-01",
+                  "reserve_id": "7",
+                  "reserve_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Latest-reserve pick (lines 90-91) with trailing spaces. Claim 401 has EXPENSE 900 (Jan) and a later 'EXPENSE ' 400. Claim 402 has 'INDEMNITY ' 7000 (Feb) and a later INDEMNITY 2500. SQL Server puts each pair in one partition and keeps only the later amount. Spark splits them, and MAX picks the older, larger amount. Claim 403 is a canonical control.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "401",
+                  "claim_number": "CLM401",
+                  "customer_id": "9301",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2024-12-20",
+                  "policy_id": "801",
+                  "reported_date": "2025-01-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "402",
+                  "claim_number": "CLM402",
+                  "customer_id": "9302",
+                  "handler_code": "H02",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-01-15",
+                  "policy_id": "802",
+                  "reported_date": "2025-01-20",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "403",
+                  "claim_number": "CLM403",
+                  "customer_id": "9303",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-02-15",
+                  "policy_id": "803",
+                  "reported_date": "2025-02-20",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "404",
+                  "claim_number": "CLM404",
+                  "customer_id": "9304",
+                  "handler_code": "H04",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-15",
+                  "policy_id": "804",
+                  "reported_date": "2025-03-20",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "405",
+                  "claim_number": "CLM405",
+                  "customer_id": "9305",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-04-15",
+                  "policy_id": "805",
+                  "reported_date": "2025-04-20",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "401",
+                  "reserve_amount": "900.00",
+                  "reserve_date": "2025-01-05",
+                  "reserve_id": "11",
+                  "reserve_type": "EXPENSE"
+                },
+                {
+                  "claim_id": "401",
+                  "reserve_amount": "400.00",
+                  "reserve_date": "2025-05-05",
+                  "reserve_id": "12",
+                  "reserve_type": "EXPENSE "
+                },
+                {
+                  "claim_id": "402",
+                  "reserve_amount": "7000.00",
+                  "reserve_date": "2025-02-01",
+                  "reserve_id": "13",
+                  "reserve_type": "INDEMNITY "
+                },
+                {
+                  "claim_id": "402",
+                  "reserve_amount": "2500.00",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "14",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "403",
+                  "reserve_amount": "1200.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "15",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "403",
+                  "reserve_amount": "150.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "16",
+                  "reserve_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Indemnity pivot (line 106) with case variants. Claims 501 and 502 have a single 'Indemnity' and 'indemnity' reserve. Legacy counts them as INDEMNITY. A case-sensitive Spark CASE gives 0. Claim 503 uses the canonical INDEMNITY, and 504 has only EXPENSE.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "501",
+                  "claim_number": "CLM501",
+                  "customer_id": "9401",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-11",
+                  "policy_id": "901",
+                  "reported_date": "2025-02-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "502",
+                  "claim_number": "CLM502",
+                  "customer_id": "9402",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-11",
+                  "policy_id": "902",
+                  "reported_date": "2025-03-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "503",
+                  "claim_number": "CLM503",
+                  "customer_id": "9403",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-11",
+                  "policy_id": "903",
+                  "reported_date": "2025-04-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "504",
+                  "claim_number": "CLM504",
+                  "customer_id": "9404",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-11",
+                  "policy_id": "904",
+                  "reported_date": "2025-05-14",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "505",
+                  "claim_number": "CLM505",
+                  "customer_id": "9405",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-11",
+                  "policy_id": "905",
+                  "reported_date": "2025-06-14",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "501",
+                  "reserve_amount": "3000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "21",
+                  "reserve_type": "Indemnity"
+                },
+                {
+                  "claim_id": "502",
+                  "reserve_amount": "4500.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "22",
+                  "reserve_type": "indemnity"
+                },
+                {
+                  "claim_id": "503",
+                  "reserve_amount": "1800.00",
+                  "reserve_date": "2025-05-01",
+                  "reserve_id": "23",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "504",
+                  "reserve_amount": "200.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "24",
+                  "reserve_type": "EXPENSE"
+                },
+                {
+                  "claim_id": "505",
+                  "reserve_amount": "600.00",
+                  "reserve_date": "2025-07-01",
+                  "reserve_id": "25",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Indemnity pivot (line 106) with trailing spaces. 'INDEMNITY ' and 'INDEMNITY   ' equal 'INDEMNITY' in SQL Server, so they count. A naive Spark equality gives 0. Claim 603 uses the canonical value as a control.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "601",
+                  "claim_number": "CLM601",
+                  "customer_id": "9501",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-01",
+                  "policy_id": "1001",
+                  "reported_date": "2025-02-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "602",
+                  "claim_number": "CLM602",
+                  "customer_id": "9502",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1002",
+                  "reported_date": "2025-03-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "603",
+                  "claim_number": "CLM603",
+                  "customer_id": "9503",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "1003",
+                  "reported_date": "2025-04-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "604",
+                  "claim_number": "CLM604",
+                  "customer_id": "9504",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "1004",
+                  "reported_date": "2025-05-03",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "605",
+                  "claim_number": "CLM605",
+                  "customer_id": "9505",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "1005",
+                  "reported_date": "2025-06-03",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "601",
+                  "reserve_amount": "3200.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "31",
+                  "reserve_type": "INDEMNITY "
+                },
+                {
+                  "claim_id": "602",
+                  "reserve_amount": "2700.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "32",
+                  "reserve_type": "INDEMNITY   "
+                },
+                {
+                  "claim_id": "603",
+                  "reserve_amount": "1100.00",
+                  "reserve_date": "2025-05-01",
+                  "reserve_id": "33",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "604",
+                  "reserve_amount": "950.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "34",
+                  "reserve_type": "INDEMNITY "
+                },
+                {
+                  "claim_id": "605",
+                  "reserve_amount": "120.00",
+                  "reserve_date": "2025-07-01",
+                  "reserve_id": "35",
+                  "reserve_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Expense pivot (line 107) with case variants. 'Expense' and 'expense' reserves count as EXPENSE under the CI collation. A case-sensitive Spark CASE gives 0. Claim 703 uses the canonical EXPENSE.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "701",
+                  "claim_number": "CLM701",
+                  "customer_id": "9601",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-05",
+                  "policy_id": "1101",
+                  "reported_date": "2025-02-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "702",
+                  "claim_number": "CLM702",
+                  "customer_id": "9602",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-05",
+                  "policy_id": "1102",
+                  "reported_date": "2025-03-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "703",
+                  "claim_number": "CLM703",
+                  "customer_id": "9603",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-05",
+                  "policy_id": "1103",
+                  "reported_date": "2025-04-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "704",
+                  "claim_number": "CLM704",
+                  "customer_id": "9604",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-05",
+                  "policy_id": "1104",
+                  "reported_date": "2025-05-07",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "705",
+                  "claim_number": "CLM705",
+                  "customer_id": "9605",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-05",
+                  "policy_id": "1105",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "701",
+                  "reserve_amount": "350.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "41",
+                  "reserve_type": "Expense"
+                },
+                {
+                  "claim_id": "702",
+                  "reserve_amount": "420.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "42",
+                  "reserve_type": "expense"
+                },
+                {
+                  "claim_id": "703",
+                  "reserve_amount": "180.00",
+                  "reserve_date": "2025-05-01",
+                  "reserve_id": "43",
+                  "reserve_type": "EXPENSE"
+                },
+                {
+                  "claim_id": "704",
+                  "reserve_amount": "2200.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "44",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "705",
+                  "reserve_amount": "75.00",
+                  "reserve_date": "2025-07-01",
+                  "reserve_id": "45",
+                  "reserve_type": "eXpEnSe"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Expense pivot (line 107) with trailing spaces. 'EXPENSE ' and 'EXPENSE  ' match 'EXPENSE' in SQL Server. A naive Spark equality gives 0. Claim 803 uses the canonical value as a control.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "801",
+                  "claim_number": "CLM801",
+                  "customer_id": "9701",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-08",
+                  "policy_id": "1201",
+                  "reported_date": "2025-02-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "802",
+                  "claim_number": "CLM802",
+                  "customer_id": "9702",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-08",
+                  "policy_id": "1202",
+                  "reported_date": "2025-03-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "803",
+                  "claim_number": "CLM803",
+                  "customer_id": "9703",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-08",
+                  "policy_id": "1203",
+                  "reported_date": "2025-04-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "804",
+                  "claim_number": "CLM804",
+                  "customer_id": "9704",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-08",
+                  "policy_id": "1204",
+                  "reported_date": "2025-05-10",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "805",
+                  "claim_number": "CLM805",
+                  "customer_id": "9705",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-08",
+                  "policy_id": "1205",
+                  "reported_date": "2025-06-10",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "801",
+                  "reserve_amount": "310.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "51",
+                  "reserve_type": "EXPENSE "
+                },
+                {
+                  "claim_id": "802",
+                  "reserve_amount": "460.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "52",
+                  "reserve_type": "EXPENSE  "
+                },
+                {
+                  "claim_id": "803",
+                  "reserve_amount": "190.00",
+                  "reserve_date": "2025-05-01",
+                  "reserve_id": "53",
+                  "reserve_type": "EXPENSE"
+                },
+                {
+                  "claim_id": "804",
+                  "reserve_amount": "85.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "54",
+                  "reserve_type": "EXPENSE "
+                },
+                {
+                  "claim_id": "805",
+                  "reserve_amount": "1300.00",
+                  "reserve_date": "2025-07-01",
+                  "reserve_id": "55",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "claim_ref built with + (line 136). Claims 902 and 904 have a NULL handler_code, so legacy claim_ref is NULL. concat_ws or coalescing to '' would give 'MOT/CLM902/' instead. The other claims have handlers. Lower-case and padded lob_code values also exercise the UPPER/RTRIM.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "901",
+                  "claim_number": "CLM901",
+                  "customer_id": "9801",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-02-12",
+                  "policy_id": "1301",
+                  "reported_date": "2025-02-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "902",
+                  "claim_number": "CLM902",
+                  "customer_id": "9802",
+                  "handler_code": null,
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-12",
+                  "policy_id": "1302",
+                  "reported_date": "2025-03-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "903",
+                  "claim_number": "CLM903",
+                  "customer_id": "9803",
+                  "handler_code": "H03",
+                  "lob_code": "hom ",
+                  "loss_date": "2025-04-12",
+                  "policy_id": "1303",
+                  "reported_date": "2025-04-14",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "904",
+                  "claim_number": "CLM904",
+                  "customer_id": "9804",
+                  "handler_code": null,
+                  "lob_code": "HOM",
+                  "loss_date": "2025-05-12",
+                  "policy_id": "1304",
+                  "reported_date": "2025-05-14",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "905",
+                  "claim_number": "CLM905",
+                  "customer_id": "9805",
+                  "handler_code": "HX99",
+                  "lob_code": "mot",
+                  "loss_date": "2025-06-12",
+                  "policy_id": "1305",
+                  "reported_date": "2025-06-14",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "600.00",
+                  "currency": "GBP",
+                  "customer_id": "9801",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1301",
+                  "policy_number": "POL1301",
+                  "product_code": "MOTOR",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "GBP",
+                  "customer_id": "9802",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1302",
+                  "policy_number": "POL1302",
+                  "product_code": "MOTOR",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "currency": "GBP",
+                  "customer_id": "9803",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1303",
+                  "policy_number": "POL1303",
+                  "product_code": "HOME",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "320.00",
+                  "currency": "GBP",
+                  "customer_id": "9804",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1304",
+                  "policy_number": "POL1304",
+                  "product_code": "HOME",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "currency": "GBP",
+                  "customer_id": "9805",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1305",
+                  "policy_number": "POL1305",
+                  "product_code": "MOTOR",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            }
+          ],
+          "trap_id": "TSQL-05"
+        },
+        {
+          "description": "loss_date_text from CONVERT style 103 (line 143), which gives dd/mm/yyyy with leading zeros. Loss dates include single-digit day and month (2025-03-04, 2025-01-09), a day over 12 (2024-11-25) and day=month (2025-07-07). The mix catches dd/MM vs MM/dd swaps, missing padding, or ISO default formatting.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1001",
+                  "claim_number": "CLM1001",
+                  "customer_id": "9901",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-04",
+                  "policy_id": "1401",
+                  "reported_date": "2025-03-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1002",
+                  "claim_number": "CLM1002",
+                  "customer_id": "9902",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2024-11-25",
+                  "policy_id": "1402",
+                  "reported_date": "2024-12-01",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1003",
+                  "claim_number": "CLM1003",
+                  "customer_id": "9903",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-01-09",
+                  "policy_id": "1403",
+                  "reported_date": "2025-01-20",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1004",
+                  "claim_number": "CLM1004",
+                  "customer_id": "9904",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-07",
+                  "policy_id": "1404",
+                  "reported_date": "2025-07-08",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "1005",
+                  "claim_number": "CLM1005",
+                  "customer_id": "9905",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-31",
+                  "policy_id": "1405",
+                  "reported_date": "2025-12-31",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            }
+          ],
+          "trap_id": "TSQL-16"
+        },
+        {
+          "description": "reported_period from CONVERT(CHAR(6), d, 112) (line 145): yyyymmdd cut to yyyymm. Reported dates cover single-digit months, December, a leap day and a year boundary. The mix catches yyyy-MM, yyyyMMdd, or a missing zero pad on the month.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1101",
+                  "claim_number": "CLM1101",
+                  "customer_id": "9911",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2024-12-28",
+                  "policy_id": "1501",
+                  "reported_date": "2025-01-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1102",
+                  "claim_number": "CLM1102",
+                  "customer_id": "9912",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2024-02-20",
+                  "policy_id": "1502",
+                  "reported_date": "2024-02-29",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1103",
+                  "claim_number": "CLM1103",
+                  "customer_id": "9913",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-09-15",
+                  "policy_id": "1503",
+                  "reported_date": "2025-09-30",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1104",
+                  "claim_number": "CLM1104",
+                  "customer_id": "9914",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2023-12-01",
+                  "policy_id": "1504",
+                  "reported_date": "2023-12-15",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "1105",
+                  "claim_number": "CLM1105",
+                  "customer_id": "9915",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-11-10",
+                  "policy_id": "1505",
+                  "reported_date": "2025-11-11",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            }
+          ],
+          "trap_id": "TSQL-16"
+        },
+        {
+          "description": "days_open = DATEDIFF(DAY, reported_date, @AsOfDate) (line 146). Spark's datediff(end, start) takes its arguments in the reverse order, so swapping them gives negative values. Reported dates include the as-of date itself (0 days), the day before, a leap-year span and a multi-year span. Claim 1206 is reported after the as-of date and is filtered out.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1201",
+                  "claim_number": "CLM1201",
+                  "customer_id": "9921",
+                  "handler_code": "H01",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-30",
+                  "policy_id": "1601",
+                  "reported_date": "2025-12-31",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1202",
+                  "claim_number": "CLM1202",
+                  "customer_id": "9922",
+                  "handler_code": "H02",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-29",
+                  "policy_id": "1602",
+                  "reported_date": "2025-12-30",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1203",
+                  "claim_number": "CLM1203",
+                  "customer_id": "9923",
+                  "handler_code": "H03",
+                  "lob_code": "HOM",
+                  "loss_date": "2024-02-25",
+                  "policy_id": "1603",
+                  "reported_date": "2024-02-29",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1204",
+                  "claim_number": "CLM1204",
+                  "customer_id": "9924",
+                  "handler_code": "H04",
+                  "lob_code": "HOM",
+                  "loss_date": "2022-12-20",
+                  "policy_id": "1604",
+                  "reported_date": "2023-01-01",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "1205",
+                  "claim_number": "CLM1205",
+                  "customer_id": "9925",
+                  "handler_code": "H05",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "1605",
+                  "reported_date": "2025-06-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "1206",
+                  "claim_number": "CLM1206",
+                  "customer_id": "9926",
+                  "handler_code": "H06",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-12-30",
+                  "policy_id": "1606",
+                  "reported_date": "2026-01-02",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            }
+          ],
+          "trap_id": "TSQL-04"
+        }
+      ]
+    },
+    "total_cost_usd": 0.31314000000000003,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 7889,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 7889,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 7889,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 7889,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 12501,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 12501,
+      "output_tokens_details": {
+        "thinking_tokens": 1527
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

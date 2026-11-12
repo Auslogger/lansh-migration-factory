@@ -1,0 +1,84 @@
+{
+  "approach": "lansh",
+  "candidate_sha256": "da9d1d50085455e1cf6473c95370ca01ab2604c3d549c79f06bcac164b7e9d45",
+  "code_sha256": "12217d640e36100f9b363aba66ab9f7aa494f39a512de0ca98a222cfb521cf0b",
+  "column_diffs": [],
+  "contract_sha256": "f29df448c7578e58b7f403c8d7e5857171ae01be6efad18bd57b853bcaef5c15",
+  "counts": {
+    "by_partition": [],
+    "candidate": 13,
+    "legacy": 13
+  },
+  "duration_seconds": 0.662,
+  "error": null,
+  "explanation": "MATCH: all 13 rows agree record for record, compared on the keys ['lob_code', 'prem_band']; counts, totals and every compared column agree under their policies.",
+  "extra_samples": [],
+  "golden_sha256": "9c0afce322a3f969e936256b8ae9f0b4d696cb1697f881d9393d99acefb67982",
+  "job_id": "S03",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "lob_code",
+    "prem_band"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 13,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T02:46:47.882947Z",
+  "status": "MATCH",
+  "table": "rpt.premium_band_summary",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "61441.0",
+      "column": "n_policies",
+      "legacy": "61441.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "67879.0",
+      "column": "n_transactions",
+      "legacy": "67879.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "24033402.720000003",
+      "column": "written_eur",
+      "legacy": "24033402.720000003",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "18768844.409999955",
+      "column": "earned_eur",
+      "legacy": "18768844.409999955",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    }
+  ]
+}

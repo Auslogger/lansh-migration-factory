@@ -1,0 +1,756 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:50:19.007802Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S01",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S01: claims_enrich.sas (sas), file estate/sas/S01_claims_enrich.sas.\nClaim-level payment history and indicators.\nParameters: AsOfDate (in SAS, the macro variable &as_of).\n\nCode:\n  1 | /******************************************************************************\n  2 |   Program  : claims_enrich.sas\n  3 |   Purpose  : Claim-level payment history for the risk team. One row per claim\n  4 |              on the claims register with its payments up to the reporting\n  5 |              date: payment and recovery counts, paid to date, the paid split\n  6 |              by payment type (gross, and net of recoveries), the first and\n  7 |              last payment dates and a recovery marker. Read by the customer\n  8 |              risk scoring (risk_scoring.sas).\n  9 |   Inputs   : stg.claims, stg.claim_payments\n 10 |   Output   : dw.claims_enriched (rebuilt on every run)\n 11 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n 12 |   Author   : DOS\n 13 | \n 14 |   Change log\n 15 |     2014-03-10  DOS   Initial version\n 16 |     2015-08-24  DOS   Recoveries counted and flagged for the subrogation desk\n 17 |                       (CR-0611)\n 18 |     2017-01-16  AK    Paid split by payment type; gross and net paid (CR-1042)\n 19 |     2018-11-05  AK    Payments dated after the reporting date left out\n 20 |                       (INC-1677)\n 21 |     2019-09-30  AK    Line of business and status tidied for the MI pack\n 22 |                       (CR-1502)\n 23 |     2021-06-14  SMcC  Claims with nothing paid yet kept, with has_payment, for\n 24 |                       risk_scoring.sas (CR-1873)\n 25 | ******************************************************************************/\n 26 | \n 27 | /* claims register */\n 28 | proc sort data=stg.claims(keep=claim_id claim_number policy_id customer_id lob_code\n 29 |                                loss_date reported_date status)\n 30 |           out=work.claims;\n 31 |   by claim_id;\n 32 | run;\n 33 | \n 34 | /* payments to the reporting date, claim by claim in the order they were keyed */\n 35 | proc sort data=stg.claim_payments(keep=claim_id payment_date amount payment_type _row_seq\n 36 |                                   where=(payment_date <= &as_of))\n 37 |           out=work.payments;\n 38 |   by claim_id _row_seq;\n 39 | run;\n 40 | \n 41 | /* roll the payments up to one row per claim */\n 42 | data work.pay_summary(keep=claim_id n_payments n_recoveries total_paid indemnity_amt\n 43 |                            expense_amt recovery_amt first_payment_date last_payment_date\n 44 |                            recovery_flag);\n 45 |   set work.payments;\n 46 |   by claim_id;\n 47 |   length ptype $12;\n 48 |   retain n_payments n_recoveries total_paid indemnity_amt expense_amt recovery_amt\n 49 |          first_payment_date last_payment_date recovery_flag;\n 50 |   format first_payment_date last_payment_date date9.;\n 51 | \n 52 |   if first.claim_id then do;\n 53 |     n_payments    = 0;\n 54 |     n_recoveries  = 0;\n 55 |     total_paid    = 0;\n 56 |     indemnity_amt = 0;\n 57 |     expense_amt   = 0;\n 58 |     recovery_amt  = 0;\n 59 |     recovery_flag = 0;\n 60 |     first_payment_date = payment_date;\n 61 |   end;\n 62 | \n 63 |   n_payments + 1;\n 64 |   total_paid + amount;\n 65 | \n 66 |   /* paid split by payment type (keyed in mixed case) */\n 67 |   ptype = upcase(strip(payment_type));\n 68 |   if ptype = 'INDEMNITY' then indemnity_amt = indemnity_amt + amount;\n 69 |   else if ptype = 'EXPENSE' then expense_amt = expense_amt + amount;\n 70 |   else if ptype = 'RECOVERY' then recovery_amt = recovery_amt + amount;\n 71 | \n 72 |   /* recoveries (salvage, third-party) come through as negative amounts */\n 73 |   if amount < 0 then do;\n 74 |     recovery_flag = 1;\n 75 |     n_recoveries + 1;\n 76 |   end;\n 77 | \n 78 |   last_payment_date = payment_date;\n 79 |   if last.claim_id then output;\n 80 | run;\n 81 | \n 82 | /* enrich the register: every claim is reported, paid or not */\n 83 | data dw.claims_enriched(keep=claim_id claim_number policy_id customer_id lob_code\n 84 |                              loss_date reported_date status n_payments n_recoveries\n 85 |                              total_paid indemnity_amt expense_amt recovery_amt gross_paid\n 86 |                              net_paid first_payment_date last_payment_date recovery_flag\n 87 |                              has_payment);\n 88 |   merge work.claims(in=c) work.pay_summary(in=p);\n 89 |   by claim_id;\n 90 |   if c;\n 91 | \n 92 |   lob_code = upcase(strip(lob_code));\n 93 |   status   = upcase(strip(status));\n 94 | \n 95 |   has_payment = p;\n 96 |   if not p then do;\n 97 |     n_payments    = 0;\n 98 |     n_recoveries  = 0;\n 99 |     total_paid    = 0;\n100 |     recovery_flag = 0;\n101 |   end;\n102 | \n103 |   gross_paid = indemnity_amt + expense_amt;\n104 |   net_paid   = sum(indemnity_amt, expense_amt, recovery_amt);\n105 | run;\n106 | \n107 | proc datasets lib=work nolist;\n108 |   delete claims payments pay_summary;\n109 | quit;\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.claim_payments: payment_id INT, claim_id INT, payment_date DATE, amount DECIMAL(12,2), payment_type VARCHAR(12), payee_type VARCHAR(12), _row_seq INT\n\nOutput tables:\n- dw.claims_enriched: claim_id num 8 format=BEST, claim_number char 20 format=$CHAR, policy_id num 8 format=BEST, customer_id num 8 format=BEST, lob_code char 5 format=$CHAR, loss_date num 8 format=YYMMDD, reported_date num 8 format=YYMMDD, status char 12 format=$CHAR, n_payments num 8, n_recoveries num 8, total_paid num 8, indemnity_amt num 8, expense_amt num 8, recovery_amt num 8, first_payment_date num 8 format=DATE, last_payment_date num 8 format=DATE, recovery_flag num 8, has_payment num 8, gross_paid num 8, net_paid num 8\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy SAS 9.4 jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "a20b5f299ed39b0b0c9e01400ac17be793764d6454eb735c8d8c75b911274e48",
+  "response": {
+    "duration_api_ms": 38376,
+    "duration_ms": 38633,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 3536,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 3536,
+        "cacheReadInputTokens": 1513,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1263786,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4889,
+        "provider": "firstParty",
+        "thinkingTokens": 914,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.95,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            28,
+            31,
+            88,
+            89
+          ],
+          "output_column": "claim_id",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough (merge BY key)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "claim_number",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            28,
+            88
+          ],
+          "output_column": "claim_number",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            28,
+            88
+          ],
+          "output_column": "policy_id",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            28,
+            88
+          ],
+          "output_column": "customer_id",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            28,
+            92
+          ],
+          "output_column": "lob_code",
+          "output_table": "dw.claims_enriched",
+          "transform": "upcase(strip(lob_code))"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            29,
+            88
+          ],
+          "output_column": "loss_date",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            29,
+            88
+          ],
+          "output_column": "reported_date",
+          "output_table": "dw.claims_enriched",
+          "transform": "passthrough"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            29,
+            93
+          ],
+          "output_column": "status",
+          "output_table": "dw.claims_enriched",
+          "transform": "upcase(strip(status))"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            46,
+            52,
+            53,
+            63,
+            79
+          ],
+          "output_column": "n_payments",
+          "output_table": "dw.claims_enriched",
+          "transform": "count of payments per claim (n_payments + 1)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            53,
+            96,
+            97
+          ],
+          "output_column": "n_payments",
+          "output_table": "dw.claims_enriched",
+          "transform": "0 when claim has no payments"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            73,
+            75
+          ],
+          "output_column": "n_recoveries",
+          "output_table": "dw.claims_enriched",
+          "transform": "count of payments with amount < 0"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            54,
+            96,
+            98
+          ],
+          "output_column": "n_recoveries",
+          "output_table": "dw.claims_enriched",
+          "transform": "0 when no payments"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            64
+          ],
+          "output_column": "total_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "sum(amount) per claim"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            55,
+            96,
+            99
+          ],
+          "output_column": "total_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "0 when no payments"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            68
+          ],
+          "output_column": "indemnity_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "sum(amount) where ptype='INDEMNITY'"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            67,
+            68
+          ],
+          "output_column": "indemnity_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "upcase(strip(payment_type))='INDEMNITY' selects amounts"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            69
+          ],
+          "output_column": "expense_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "sum(amount) where ptype='EXPENSE'"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            67,
+            69
+          ],
+          "output_column": "expense_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "upcase(strip(payment_type))='EXPENSE' selects amounts"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            70
+          ],
+          "output_column": "recovery_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "sum(amount) where ptype='RECOVERY'"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            67,
+            70
+          ],
+          "output_column": "recovery_amt",
+          "output_table": "dw.claims_enriched",
+          "transform": "upcase(strip(payment_type))='RECOVERY' selects amounts"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            52,
+            60
+          ],
+          "output_column": "first_payment_date",
+          "output_table": "dw.claims_enriched",
+          "transform": "payment_date of first payment per claim (by _row_seq)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            78,
+            79
+          ],
+          "output_column": "last_payment_date",
+          "output_table": "dw.claims_enriched",
+          "transform": "payment_date of last payment per claim (by _row_seq)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            73,
+            74
+          ],
+          "output_column": "recovery_flag",
+          "output_table": "dw.claims_enriched",
+          "transform": "1 if any amount < 0"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            59,
+            74,
+            100
+          ],
+          "output_column": "recovery_flag",
+          "output_table": "dw.claims_enriched",
+          "transform": "0/1 literals"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            88,
+            95
+          ],
+          "output_column": "has_payment",
+          "output_table": "dw.claims_enriched",
+          "transform": "in= flag p: claim has matching payment summary"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            68,
+            69,
+            103
+          ],
+          "output_column": "gross_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "indemnity_amt + expense_amt"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            67,
+            103
+          ],
+          "output_column": "gross_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "type split feeding indemnity+expense"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            68,
+            69,
+            70,
+            104
+          ],
+          "output_column": "net_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "sum(indemnity_amt, expense_amt, recovery_amt)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "payment_type",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            67,
+            104
+          ],
+          "output_column": "net_paid",
+          "output_table": "dw.claims_enriched",
+          "transform": "type split feeding net sum"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            36
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "where payment_date <= &as_of"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            36
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "payment_date <= &as_of"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            88,
+            89,
+            90
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "merge by claim_id; if c (left join from claims)"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            88,
+            89
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "merge by claim_id join key"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "_row_seq",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "ranks",
+          "lines": [
+            38,
+            52,
+            60,
+            78,
+            79
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "sort by claim_id _row_seq; first./last.claim_id choose first/last payment_date"
+        },
+        {
+          "confidence": 0.75,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "ranks",
+          "lines": [
+            38,
+            46,
+            52,
+            79
+          ],
+          "output_column": null,
+          "output_table": "dw.claims_enriched",
+          "transform": "by claim_id grouping for first./last."
+        }
+      ],
+      "notes": "The payment_date <= &as_of filter (line 36) controls which payments are summed. It does not drop claim rows: every claim on stg.claims appears in the output because of `if c`. first_payment_date and last_payment_date come from the first and last payment in _row_seq (keying) order, not the earliest and latest payment_date. If payments were keyed out of date order, the two can differ from MIN and MAX. For claims with no payments (not p), n_payments, n_recoveries, total_paid and recovery_flag are set to 0. indemnity_amt, expense_amt, recovery_amt and the payment dates are left missing, so gross_paid is missing too (+ on missing values gives missing). net_paid uses sum() and is also missing when all three amounts are missing. Watch for this in the PySpark port. Also, gross_paid is missing for a paid claim whose payments are all one type (for example indemnity only), because the other amount stays 0 there, not missing. In fact both amounts start at 0 for every paid claim, so gross_paid is only missing for claims with no payments. Payment types other than INDEMNITY, EXPENSE and RECOVERY count toward total_paid but toward no split column. n_recoveries and recovery_flag depend on the sign of amount, not on payment_type."
+    },
+    "total_cost_usd": 0.1263786,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 3536,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 3536,
+      "cache_read_input_tokens": 1513,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 3536,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 3536,
+          "cache_read_input_tokens": 1513,
+          "input_tokens": 2,
+          "output_tokens": 4889,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4889,
+      "output_tokens_details": {
+        "thinking_tokens": 914
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

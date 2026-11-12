@@ -1,0 +1,342 @@
+{
+  "job_id": "S01",
+  "table": "silver.claims_enriched",
+  "legacy_table": "dw.claims_enriched",
+  "layer": "silver",
+  "grain": "One row per claim on the claims register (stg.claims), with its payment history rolled up to the reporting date (as_of); claims with no payments yet are kept too.",
+  "keys": [
+    "claim_id"
+  ],
+  "columns": [
+    {
+      "name": "claim_id",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_number",
+      "data_type": "string",
+      "legacy_type": "char 20 format=$CHAR",
+      "nullable": true,
+      "max_length": 20,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_id",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "customer_id",
+      "data_type": "double",
+      "legacy_type": "num 8 format=BEST",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "char 5 format=$CHAR",
+      "nullable": true,
+      "max_length": 5,
+      "tags": [],
+      "description": "Line of business, upper-cased and stripped.",
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=YYMMDD",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=YYMMDD",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "status",
+      "data_type": "string",
+      "legacy_type": "char 12 format=$CHAR",
+      "nullable": true,
+      "max_length": 12,
+      "tags": [],
+      "description": "Claim status, upper-cased and stripped.",
+      "policy": {
+        "kind": "blank_is_null",
+        "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_payments",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of payment rows dated on or before as_of; 0 if the claim has no payments.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_recoveries",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of payment rows with a negative amount (recoveries); 0 if no payments.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "total_paid",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of all payment amounts to as_of, recoveries included; 0 if no payments.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "indemnity_amt",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of INDEMNITY-type amounts (type matched ignoring case). NULL if the claim has no payments, or if any payment amount was missing, because '+' carries missing values through.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "expense_amt",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of EXPENSE-type amounts; NULL in the same cases as indemnity_amt.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "recovery_amt",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Sum of RECOVERY-type amounts; NULL if the claim has no payments.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "first_payment_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=DATE",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "payment_date of the claim's first payment in keyed order (_row_seq), not necessarily the earliest date.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "last_payment_date",
+      "data_type": "date",
+      "legacy_type": "num 8 format=DATE",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "payment_date of the claim's last payment in keyed order (_row_seq), not necessarily the latest date.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "recovery_flag",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "1 if any payment amount is negative, otherwise 0.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "has_payment",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "1 if the claim has at least one payment on or before as_of, otherwise 0.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "gross_paid",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "indemnity_amt + expense_amt; NULL if either one is NULL.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "net_paid",
+      "data_type": "double",
+      "legacy_type": "num 8",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "SAS sum() of indemnity, expense and recovery, which skips missing values; NULL only when all three are NULL.",
+      "policy": {
+        "kind": "float_rel",
+        "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "rel_tolerance": 1e-9,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "lob_code",
+    "status"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 2911,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

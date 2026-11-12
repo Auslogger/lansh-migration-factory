@@ -1,0 +1,250 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      32,
+      33,
+      37,
+      50,
+      56,
+      64,
+      71,
+      72
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "lob_code of the policy's first row as loaded (NODUPKEY), merged onto every transaction; used as a CLASS grouping key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      32,
+      40,
+      56,
+      64,
+      72
+    ],
+    "input_column": "written_eur",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "prem_band",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "put(written_eur, premband.) on the policy's first row as loaded; used as a CLASS grouping key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "prem_band",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "band labels from the premband format, e.g. 'NEGATIVE', '0-249', '1000+', 'UNKNOWN'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      32,
+      34,
+      63,
+      65,
+      66
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "n_policies",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "n(policy_id) over one row per policy (NODUPKEY), grouped by lob_code and prem_band",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      44,
+      57,
+      59
+    ],
+    "input_column": "written_eur",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "n_transactions",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "n(written_eur): count of non-missing written_eur per lob_code and prem_band",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      44,
+      57,
+      59
+    ],
+    "input_column": "written_eur",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "written_eur",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "sum(written_eur) per lob_code and prem_band",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      44,
+      57,
+      60
+    ],
+    "input_column": "earned_eur",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "sum(earned_eur) per lob_code and prem_band",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      74
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S03",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "as_of_date = &as_of",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      32,
+      33,
+      34
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "PROC SORT NODUPKEY BY policy_id keeps the first row for each policy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.55,
+    "evidence_lines": [
+      5,
+      31,
+      32,
+      33
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "implicit load order decides which duplicate NODUPKEY keeps (the first as loaded)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.75,
+    "evidence_lines": [
+      50,
+      51,
+      52
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "merge BY policy_id with if t keeps only transactions (match to the policy band)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      55,
+      56,
+      63,
+      64
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.fact_premium_earned",
+    "job_id": "S03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.premium_band_summary",
+    "source": "llm",
+    "transform": "PROC MEANS CLASS without MISSING drops rows where lob_code is missing",
+    "verified": true
+  }
+]

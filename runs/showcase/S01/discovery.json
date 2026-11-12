@@ -1,0 +1,68 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "S01",
+        "kind": "proc",
+        "line_end": 32,
+        "line_start": 28,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 1,
+        "job_id": "S01",
+        "kind": "proc",
+        "line_end": 39,
+        "line_start": 35,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 2,
+        "job_id": "S01",
+        "kind": "data_step",
+        "line_end": 80,
+        "line_start": 42,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "S01",
+        "kind": "data_step",
+        "line_end": 105,
+        "line_start": 83,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 4,
+        "job_id": "S01",
+        "kind": "proc",
+        "line_end": 109,
+        "line_start": 107,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "S01",
+    "reads": [
+      "stg.claim_payments",
+      "stg.claims"
+    ],
+    "status": "parsed",
+    "writes": [
+      "dw.claims_enriched"
+    ]
+  },
+  "stats": {
+    "blocks": 5,
+    "lineage_edges": 35,
+    "rule_candidates": 18,
+    "sqlglot_agreeing_columns": 0,
+    "sqlglot_traced_columns": 0,
+    "statements_unparsed": 0,
+    "trap_findings": 17
+  },
+  "warnings": [
+    "lineage agent notes: The payment_date <= &as_of filter (line 36) controls which payments are summed. It does not drop claim rows: every claim on stg.claims appears in the output because of `if c`. first_payment_date and last_payment_date come from the first and last payment in _row_seq (keying) order, not the earliest and latest payment_date. If payments were keyed out of date order, the two can differ from MIN and MAX. For claims with no payments (not p), n_payments, n_recoveries, total_paid and recovery_flag are set to 0. indemnity_amt, expense_amt, recovery_amt and the payment dates are left missing, so gross_paid is missing too (+ on missing values gives missing). net_paid uses sum() and is also missing when all three amounts are missing. Watch for this in the PySpark port. Also, gross_paid is missing for a paid claim whose payments are all one type (for example indemnity only), because the other amount stays 0 there, not missing. In fact both amounts start at 0 for every paid claim, so gross_paid is only missing for claims with no payments. Payment types other than INDEMNITY, EXPENSE and RECOVERY count toward total_paid but toward no split column. n_recoveries and recovery_flag depend on the sign of amount, not on payment_type."
+  ]
+}

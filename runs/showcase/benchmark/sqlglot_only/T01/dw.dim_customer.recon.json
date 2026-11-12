@@ -1,0 +1,40 @@
+{
+  "approach": "sqlglot_only",
+  "candidate_sha256": null,
+  "code_sha256": "df55bf4951a8142174042a64153112bb411057b0e4dc1576b65115b56b133e24",
+  "column_diffs": [],
+  "contract_sha256": null,
+  "counts": null,
+  "duration_seconds": 0.0,
+  "error": "pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(rtrim(first_name) +  )\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTERVAL YEAR TO MONTH\" or \"INTERVAL\"), not \"STRING\". SQLSTATE: 42K09; line 1 pos 98;\n'Project [customer_id#49 AS customer_id#67, rtrim(first_name#50, None) AS first_name#68, last_name#51 AS last_name#69, ((rtrim(first_name#50, None) +  ) + rtrim(last_name#51, None)) AS full_name#70, upper(concat(substring(first_name#50, 0, 2), substring(last_name#51, 0, 2))) AS initials#71, email#52 AS email#72, CASE WHEN isnull(email#52) THEN cast(0 as bigint) ELSE count(1) windowspecdefinition(email#52, specifiedwindowframe(RowFrame, unboundedpreceding$(), unboundedfollowing$())) END AS email_shared_count#73L, date_of_birth#53 AS date_of_birth#74, timestampdiff(YEAR, cast(date_of_birth#53 as timestamp), cast(customer_since#60 as timestamp), Some(UTC)) AS age_at_join#75L, address_line1#54 AS address_line1#76, town#55 AS town#77, county#56 AS county#78, CASE WHEN county#56 IN (Dublin,Kildare,Meath,Wicklow,Louth,Wexford) THEN EAST WHEN county#56 IN (Cork,Kerry,Limerick,Tipperary,Waterford,Kilkenny,Carlow) THEN SOUTH WHEN county#56 IN (Galway,Mayo,Clare,Roscommon) THEN WEST WHEN county#56 IN (Donegal,Sligo,Leitrim,Cavan,Monaghan) THEN NORTH-WEST WHEN county#56 IN (Westmeath,Longford,Offaly,Laois) THEN MIDLANDS ELSE UNKNOWN END AS region#79, eircode#57 AS eircode#80, CASE WHEN (length(eircode#57) = 7) THEN Y WHEN ((length(eircode#57) = 8) AND (substring(eircode#57, 4, 1) =  )) THEN Y ELSE N END AS eircode_valid#81, segment_code#58 AS segment_code#82, CASE WHEN (segment_code#58 = STD) THEN Y ELSE N END AS is_standard_segment#83, coalesce(marketing_opt_in#59, N) AS marketing_opt_in#84, customer_since#60 AS customer_since#85, upper(rtrim(source_system#61, None)) AS source_system#86, version_count#64L AS version_count#87L, updated_at#62 AS rec",
+  "explanation": "The job did not produce its outputs: pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(rtrim(first_name) +  )\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTERVAL YEAR TO MONTH\" or \"INTERVAL\"), not \"STRING\". SQLSTATE: 42K09; line 1 pos 98;\n'Project [customer_id#49 AS customer_id#67, rtrim(first_name#50, None) AS first_name#68, last_name#51 AS last_name#69, ((rtrim(first_name#50, None) +  ) + rtrim(last_name#51, None)) AS full_name#70, upper(concat(substring(first_name#50, 0, 2), substring(last_name#51, 0, 2))) AS initials#71, email#52 AS email#72, CASE WHEN isnull(email#52) THEN cast(0 as bigint) ELSE count(1) windowspecdefinition(email#52, specifiedwindowframe(RowFrame, unboundedpreceding$(), unboundedfollowing$())) END AS email_shared_count#73L, date_of_birth#53 AS date_of_birth#74, timestampdiff(YEAR, cast(date_of_birth#53 as timestamp), cast(customer_since#60 as timestamp), Some(UTC)) AS age_at_join#75L, address_line1#54 AS address_line1#76, town#55 AS town#77, county#56 AS county#78, CASE WHEN county#56 IN (Dublin,Kildare,Meath,Wicklow,Louth,Wexford) THEN EAST WHEN county#56 IN (Cork,Kerry,Limerick,Tipperary,Waterford,Kilkenny,Carlow) THEN SOUTH WHEN county#56 IN (Galway,Mayo,Clare,Roscommon) THEN WEST WHEN county#56 IN (Donegal,Sligo,Leitrim,Cavan,Monaghan) THEN NORTH-WEST WHEN county#56 IN (Westmeath,Longford,Offaly,Laois) THEN MIDLANDS ELSE UNKNOWN END AS region#79, eircode#57 AS eircode#80, CASE WHEN (length(eircode#57) = 7) THEN Y WHEN ((length(eircode#57) = 8) AND (substring(eircode#57, 4, 1) =  )) THEN Y ELSE N END AS eircode_valid#81, segment_code#58 AS segment_code#82, CASE WHEN (segment_code#58 = STD) THEN Y ELSE N END AS is_standard_segment#83, coalesce(marketing_opt_in#59, N) AS marketing_opt_in#84, customer_since#60 AS customer_since#85, upper(rtrim(source_system#61, None)) AS source_system#86, version_count#64L AS version_count#87L, updated_at#62 AS rec",
+  "extra_samples": [],
+  "golden_sha256": null,
+  "job_id": "T01",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 0,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T03:18:51.500847Z",
+  "status": "ERROR",
+  "table": "dw.dim_customer",
+  "totals": []
+}

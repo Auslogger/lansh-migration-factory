@@ -1,0 +1,4135 @@
+{
+  "job_id": "X2",
+  "generated_at": "2026-11-12T04:05:47.515617Z",
+  "legacy_path": "estate/holdout/X2_usp_large_loss_watchlist.sql",
+  "legacy_sha256": "bc9df85f8e39e93cc102c59e14ed2d6f84543a4a3c5cdc8b445ab1108e162772",
+  "discovery": {
+    "job_id": "X2",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "X2",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 16,
+        "line_end": 16,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 18,
+        "line_end": 36,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 2,
+        "kind": "other",
+        "line_start": 38,
+        "line_end": 41,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X2",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 42,
+        "line_end": 42,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 44,
+        "line_end": 44,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 5,
+        "kind": "statement",
+        "line_start": 45,
+        "line_end": 45,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 46,
+        "line_end": 46,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 7,
+        "kind": "other",
+        "line_start": 48,
+        "line_end": 48,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X2",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 49,
+        "line_end": 49,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 52,
+        "line_end": 59,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 60,
+        "line_end": 60,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 61,
+        "line_end": 61,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 64,
+        "line_end": 72,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 75,
+        "line_end": 82,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 84,
+        "line_end": 90,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 93,
+        "line_end": 100,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 102,
+        "line_end": 114,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 116,
+        "line_end": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 118,
+        "line_end": 134,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 135,
+        "line_end": 135,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 136,
+        "line_end": 136,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 138,
+        "line_end": 138,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 22,
+        "kind": "other",
+        "line_start": 139,
+        "line_end": 139,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X2",
+        "index": 23,
+        "kind": "other",
+        "line_start": 140,
+        "line_end": 140,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X2",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 141,
+        "line_end": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 142,
+        "line_end": 143,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 144,
+        "line_end": 144,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "X2",
+        "index": 27,
+        "kind": "other",
+        "line_start": 145,
+        "line_end": 145,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "X2",
+        "index": 28,
+        "kind": "other",
+        "line_start": 146,
+        "line_end": 146,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "stg.claim_payments",
+      "stg.claim_reserves",
+      "stg.claims"
+    ],
+    "writes": [
+      "rpt.large_loss_watchlist"
+    ]
+  },
+  "code": {
+    "job_id": "X2",
+    "module_path": "runs/showcase/learning/X2/jobs/x2.py",
+    "code_sha256": "705920c63602efc410fe2fbaac1a0d85b0c45f02038f3a123df5b993418f4845",
+    "legacy_path": "estate/holdout/X2_usp_large_loss_watchlist.sql",
+    "legacy_sha256": "bc9df85f8e39e93cc102c59e14ed2d6f84543a4a3c5cdc8b445ab1108e162772",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-04",
+      "TSQL-06",
+      "TSQL-07",
+      "TSQL-09",
+      "TSQL-13"
+    ],
+    "defects_reproduced": [
+      "X2-M1",
+      "X2-M2",
+      "X2-M3",
+      "X2-M4",
+      "X2-M5",
+      "X2-M6",
+      "X2-M7",
+      "X2-M8"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "90",
+        "line": 19,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "CLOSED",
+        "line": 35,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 52,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "NOW",
+        "line": 68,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "PRIOR",
+        "line": 68,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "period",
+        "line": 70,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "as_at",
+        "line": 71,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 95,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "NOW",
+        "line": 98,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "PRIOR",
+        "line": 99,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 110,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 110,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 116,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "19000101",
+        "line": 117,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "yyyyMMdd",
+        "line": 117,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 133,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "25000",
+        "line": 145,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "NEW",
+        "line": 145,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.10",
+        "line": 146,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "DETERIORATING",
+        "line": 146,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0.90",
+        "line": 147,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "IMPROVING",
+        "line": 147,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "STABLE",
+        "line": 148,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "25000",
+        "line": 153,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T04:07:18.707398Z"
+  },
+  "lineage": [
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate written as-is",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "claim_id",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "derives",
+      "transform": "direct via #clm",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        52,
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "claim_number",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_number",
+      "kind": "derives",
+      "transform": "direct via #clm",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        52,
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "policy_id",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "policy_id",
+      "kind": "derives",
+      "transform": "direct via #clm",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        52,
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "UPPER(LTRIM(RTRIM(lob_code)))",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        53,
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "claim_status",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "status",
+      "kind": "derives",
+      "transform": "UPPER(LTRIM(RTRIM(status)))",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        54,
+        122
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "reported_date",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "derives",
+      "transform": "direct via #clm",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        55,
+        123
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "closed_date",
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "closed_date",
+      "kind": "derives",
+      "transform": "direct via #clm",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        55,
+        123
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "paid_to_date",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "ISNULL(SUM(ISNULL(amount,0)),0) for payment_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        65,
+        103,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "paid_to_date",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(...,0) default when no payments",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        103
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "outstanding_reserve",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "derives",
+      "transform": "SUM of latest reserve_amount per claim (and reserve_type) as at @AsOfDate, ISNULL 0",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        75,
+        85,
+        104,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "outstanding_reserve",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "ISNULL(os_now,0) default",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        104
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_amount",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "paid_now + os_now",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        65,
+        105,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_amount",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "derives",
+      "transform": "paid_now + os_now",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        75,
+        85,
+        105,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_90d_ago",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "paid_prior + os_prior",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        66,
+        106,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_90d_ago",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "CASE WHEN payment_date <= @PriorDate THEN amount",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        66,
+        106
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_90d_ago",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "derives",
+      "transform": "latest reserve as at @AsOfDate-90 summed (os_prior)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        75,
+        86,
+        106,
+        124
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "incurred_90d_ago",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@PriorDate = DATEADD(DAY,-90,@AsOfDate) cutoff",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        45,
+        66,
+        81
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "movement_90d",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "incurred_amount - incurred_90d_ago",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        65,
+        66,
+        125
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "movement_90d",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "prior-period split of payments",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        66,
+        125
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "movement_90d",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "derives",
+      "transform": "os_now - os_prior",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        85,
+        86,
+        125
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "movement_90d",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@PriorDate cutoff",
+      "source": "llm",
+      "confidence": 0.75,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        45,
+        66,
+        81,
+        125
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "reserve_changes_90d",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_date",
+      "kind": "derives",
+      "transform": "SUM(CASE WHEN reserve_date > @PriorDate THEN 1 ELSE 0 END), ISNULL 0",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        94,
+        107,
+        126
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "reserve_changes_90d",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@PriorDate = @AsOfDate-90 in count condition",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        45,
+        94
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "reserve_changes_90d",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "counts 1/0, ISNULL 0",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        94,
+        107
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "days_since_last_activity",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "MAX payment_date (non-null amount) vs last reserve date, greatest, DATEDIFF to @AsOfDate",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        67,
+        108,
+        109,
+        127
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "days_since_last_activity",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "only payments with amount IS NOT NULL count for last_payment_date",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        67
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "days_since_last_activity",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_date",
+      "kind": "derives",
+      "transform": "MAX(reserve_date) as last_reserve_date",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        95,
+        108,
+        109,
+        127
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "days_since_last_activity",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "DATEDIFF(DAY,last_activity_date,@AsOfDate)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        127
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "watch_category",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "derives",
+      "transform": "CASE on incurred vs incurred_90d_ago",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        128,
+        129,
+        130
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "watch_category",
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "derives",
+      "transform": "prior-period split feeding incurred_90d_ago",
+      "source": "llm",
+      "confidence": 0.75,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        66,
+        128
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "watch_category",
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "derives",
+      "transform": "CASE on incurred vs incurred_90d_ago",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        128,
+        129,
+        130
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "watch_category",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'NEW'/'DETERIORATING'/'IMPROVING'/'STABLE'; thresholds 25000, 1.10, 0.90",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        128,
+        129,
+        130,
+        131
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": "watch_category",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@PriorDate cutoff in incurred_90d_ago",
+      "source": "llm",
+      "confidence": 0.65,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        45,
+        66,
+        81
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "reported_date",
+      "kind": "filters",
+      "transform": "reported_date <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        58
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "status",
+      "kind": "filters",
+      "transform": "status <> 'CLOSED' OR closed_date > @PriorDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        59
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "closed_date",
+      "kind": "filters",
+      "transform": "closed_date > @PriorDate",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        59
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "claim cutoffs and @PriorDate = @AsOfDate-90",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        45,
+        58,
+        59,
+        71,
+        82,
+        99
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "filters",
+      "transform": "'CLOSED' literal; incurred_amount >= 25000",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        59,
+        134
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "amount",
+      "kind": "filters",
+      "transform": "incurred_amount >= 25000",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        105,
+        134
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_amount",
+      "kind": "filters",
+      "transform": "incurred_amount >= 25000",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        105,
+        134
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "payment_date",
+      "kind": "filters",
+      "transform": "payment_date <= @AsOfDate (payments counted)",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        71
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_date",
+      "kind": "filters",
+      "transform": "reserve_date <= as_at / @AsOfDate",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        82,
+        99
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_payments",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "INNER JOIN #clm on claim_id",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "INNER JOIN #clm on claim_id",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        80,
+        98
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claims",
+      "input_column": "claim_id",
+      "kind": "filters",
+      "transform": "joins #inc to #clm and the aggregates",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        70,
+        80,
+        98,
+        112,
+        113,
+        114,
+        133
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_date",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER ORDER BY reserve_date DESC, latest reserve per claim/period",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        76,
+        77,
+        89
+      ]
+    },
+    {
+      "job_id": "X2",
+      "output_table": "rpt.large_loss_watchlist",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.claim_reserves",
+      "input_column": "reserve_id",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER tie-break reserve_id DESC",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        77,
+        89
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 56,
+      "line_end": 56,
+      "snippet": "INTO #clm",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #clm holds the filtered claims; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-01",
+      "line_start": 59,
+      "line_end": 59,
+      "snippet": "AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "c.status is VARCHAR(12) and is compared before the trim and upper-case. Under the CI collation, 'Closed' and 'closed' count as CLOSED and are dropped once closed more than 90 days ago. Spark's binary <> would keep them."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-02",
+      "line_start": 59,
+      "line_end": 59,
+      "snippet": "AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The raw status is compared untrimmed. SQL Server treats 'CLOSED ' as equal to 'CLOSED', but Spark does not, so old closed claims padded with trailing spaces would stay in the Spark result."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 68,
+      "line_end": 68,
+      "snippet": "INTO #paid",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #paid holds the payment aggregates; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 78,
+      "line_end": 78,
+      "snippet": "INTO #res",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #res holds the reserve rows ranked per period; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-09",
+      "line_start": 81,
+      "line_end": 82,
+      "snippet": "CROSS APPLY (VALUES ('NOW', @AsOfDate), ('PRIOR', @PriorDate)) d (period, as_at)\n        WHERE r.reserve_date <= d.as_at;",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "CROSS APPLY (VALUES ...) multiplies each reserve row into a NOW and a PRIOR period. Spark has no APPLY, so this becomes a cross join with a two-row DataFrame, followed by the reserve_date <= as_at filter."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 87,
+      "line_end": 87,
+      "snippet": "INTO #os",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #os holds the outstanding reserves now and 90 days ago; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 96,
+      "line_end": 96,
+      "snippet": "INTO #ract",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #ract holds the reserve activity; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-06",
+      "line_start": 108,
+      "line_end": 109,
+      "snippet": "CASE WHEN ISNULL(p.last_payment_date, '19000101') > ISNULL(a.last_reserve_date, '19000101')\n                    THEN p.last_payment_date ELSE a.last_reserve_date END AS last_activity_date",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "ISNULL takes the DATE type of its first argument, so '19000101' becomes the date 1900-01-01. In Spark, coalesce(date, '19000101') widens to string or fails to cast that literal, so the replacement must be written as a typed date literal."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-13",
+      "line_start": 110,
+      "line_end": 110,
+      "snippet": "INTO #inc",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "Temp table #inc holds the incurred amounts; it becomes a DataFrame."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-04",
+      "line_start": 127,
+      "line_end": 127,
+      "snippet": "DATEDIFF(DAY, i.last_activity_date, @AsOfDate),",
+      "detector": "llm",
+      "confidence": 0.5,
+      "note": "DATEDIFF(DAY, start, end) on DATE values gives the day difference. Spark's datediff takes its arguments in reverse order (end, start), so they must be swapped to avoid a negated result."
+    },
+    {
+      "job_id": "X2",
+      "trap_id": "TSQL-07",
+      "line_start": 129,
+      "line_end": 130,
+      "snippet": "WHEN i.incurred_amount > i.incurred_90d_ago * 1.10 THEN 'DETERIORATING'\n                    WHEN i.incurred_amount < i.incurred_90d_ago * 0.90 THEN 'IMPROVING'",
+      "detector": "llm",
+      "confidence": 0.65,
+      "note": "incurred_90d_ago * 1.10 and * 0.90 are exact DECIMAL multiplications in T-SQL. In PySpark, F.lit(1.10) is a double, which can put a claim on the boundary into the wrong DETERIORATING/IMPROVING/STABLE category. Use decimal literals."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "X2",
+      "table": "gold.large_loss_watchlist",
+      "legacy_table": "rpt.large_loss_watchlist",
+      "layer": "gold",
+      "grain": "One row per claim (open, reopened, or closed within the last 90 days) whose incurred amount (paid to date plus latest outstanding reserve) is at least EUR 25,000 as at the as-of date.",
+      "keys": [
+        "claim_id"
+      ],
+      "columns": [
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claim_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claim_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "claim_status",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": "Trimmed and upper-cased from the source status.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "reported_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "closed_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "paid_to_date",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "outstanding_reserve",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "incurred_amount",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "paid_to_date + outstanding_reserve as at as_of_date; always >= 25000.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "incurred_90d_ago",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Paid to date plus latest reserve as at as_of_date minus 90 days.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "movement_90d",
+          "data_type": "decimal(14,2)",
+          "legacy_type": "DECIMAL(14,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "incurred_amount - incurred_90d_ago.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "reserve_changes_90d",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Count of reserve records dated within the last 90 days.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "days_since_last_activity",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Days from the later of the last keyed payment date or last reserve date to as_of_date; NULL if there was no activity.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "watch_category",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(15)",
+          "nullable": false,
+          "max_length": 15,
+          "tags": [],
+          "description": "NEW if incurred_90d_ago < 25000; DETERIORATING if up more than 10%; IMPROVING if down more than 10%; else STABLE.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "watch_category",
+        "lob_code"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 79,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "X2-D1",
+      "job_id": "X2",
+      "title": "Latest reserve picked across all reserve types, so only one type counts",
+      "description": "#res numbers the reserve rows with ROW_NUMBER() OVER (PARTITION BY period, claim_id ORDER BY reserve_date DESC, reserve_id DESC) and keeps rn = 1. That leaves one reserve row per claim and period. A claim usually holds an indemnity reserve and an expense reserve (CR-0577). Only the most recently changed of the two goes into outstanding_reserve, and the other type's open reserve is dropped. This understates outstanding_reserve, incurred_amount, incurred_90d_ago and movement_90d. It can also keep claims off the list entirely or give them the wrong watch_category.",
+      "intended_behaviour": "Take the latest reserve for each claim, period and reserve_type (add reserve_type to the PARTITION BY), then add up those latest amounts across types to get the outstanding reserve. This is how expense reserves become part of incurred, as CR-0577 asks.",
+      "evidence_lines": [
+        10,
+        75,
+        76,
+        77,
+        84,
+        85,
+        86,
+        89
+      ],
+      "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)",
+      "impact": {
+        "rows_affected": 43,
+        "amount_affected": "683219.73",
+        "amount_column": "incurred_amount",
+        "measured_on": "golden:X2",
+        "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)"
+      },
+      "source": "llm",
+      "confidence": 0.7
+    },
+    {
+      "defect_id": "X2-D2",
+      "job_id": "X2",
+      "title": "Claims closed exactly 90 days ago are dropped",
+      "description": "The claim filter keeps closed claims only when closed_date > @PriorDate, where @PriorDate is AsOfDate - 90 days (2025-10-02). A claim closed on 2025-10-02, exactly 90 days before the as-of date, is therefore left out.",
+      "intended_behaviour": "CR-0912 drops claims closed more than 90 days ago. A claim closed exactly 90 days ago should stay on the list (closed_date >= @PriorDate).",
+      "evidence_lines": [
+        11,
+        45,
+        59
+      ],
+      "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "incurred_amount",
+        "measured_on": "golden:X2",
+        "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000"
+      },
+      "source": "llm",
+      "confidence": 0.35
+    },
+    {
+      "defect_id": "X2-D3",
+      "job_id": "X2",
+      "title": "CLOSED check uses the raw status, not the trimmed one",
+      "description": "Line 59 compares the untrimmed c.status with 'CLOSED'. SQL Server ignores trailing spaces and, under the usual collation, case, but it does not ignore leading spaces. A status such as ' CLOSED' passes the <> 'CLOSED' test, so claims closed long ago (or with no closed_date) still make the list. They then appear as 'CLOSED' because the output column is trimmed (INC-3204).",
+      "intended_behaviour": "Use the same cleaned status in the filter as in the output: UPPER(LTRIM(RTRIM(c.status))) <> 'CLOSED'. Closed claims would then stay only if closed_date > @PriorDate.",
+      "evidence_lines": [
+        14,
+        54,
+        59
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "incurred_amount",
+        "measured_on": "golden:X2",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "X2-D1",
+      "job_id": "X2",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T04:05:48.692463Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X2-D2",
+      "job_id": "X2",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T04:05:48.692726Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "X2-D3",
+      "job_id": "X2",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T04:05:48.692931Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [
+    {
+      "job_id": "X2",
+      "table": "rpt.large_loss_watchlist",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-holdout-learn",
+      "approach": "lansh",
+      "code_sha256": "705920c63602efc410fe2fbaac1a0d85b0c45f02038f3a123df5b993418f4845",
+      "keys": [
+        "claim_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 79,
+        "candidate": 79,
+        "by_partition": [
+          {
+            "partition": "watch_category='DETERIORATING', lob_code='HOM'",
+            "legacy": 4,
+            "candidate": 4
+          },
+          {
+            "partition": "watch_category='DETERIORATING', lob_code='MOT'",
+            "legacy": 9,
+            "candidate": 9
+          },
+          {
+            "partition": "watch_category='IMPROVING', lob_code='HOM'",
+            "legacy": 2,
+            "candidate": 2
+          },
+          {
+            "partition": "watch_category='IMPROVING', lob_code='MOT'",
+            "legacy": 5,
+            "candidate": 5
+          },
+          {
+            "partition": "watch_category='NEW', lob_code='HOM'",
+            "legacy": 10,
+            "candidate": 10
+          },
+          {
+            "partition": "watch_category='NEW', lob_code='MOT'",
+            "legacy": 27,
+            "candidate": 27
+          },
+          {
+            "partition": "watch_category='STABLE', lob_code='HOM'",
+            "legacy": 9,
+            "candidate": 9
+          },
+          {
+            "partition": "watch_category='STABLE', lob_code='MOT'",
+            "legacy": 13,
+            "candidate": 13
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "claim_id",
+          "legacy": "23860095",
+          "candidate": "23860095",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "41899362",
+          "candidate": "41899362",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "paid_to_date",
+          "legacy": "1417688.94",
+          "candidate": "1417688.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "outstanding_reserve",
+          "legacy": "1650193.08",
+          "candidate": "1650193.08",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "incurred_amount",
+          "legacy": "3067882.02",
+          "candidate": "3067882.02",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "incurred_90d_ago",
+          "legacy": "2449365.06",
+          "candidate": "2449365.06",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "movement_90d",
+          "legacy": "618516.96",
+          "candidate": "618516.96",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "reserve_changes_90d",
+          "legacy": "128",
+          "candidate": "128",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "days_since_last_activity",
+          "legacy": "4974",
+          "candidate": "4974",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 79,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 79 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "edbd6f63d7799ba571c151448662a462602e77f38118242e0a0c286f1c404a5b",
+      "golden_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "candidate_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "started_at": "2026-11-12T04:07:46.597934Z",
+      "duration_seconds": 1.311,
+      "error": null
+    },
+    {
+      "job_id": "X2",
+      "table": "rpt.large_loss_watchlist",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-holdout-learn:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "claim_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 79,
+        "candidate": 79,
+        "by_partition": [
+          {
+            "partition": "watch_category='DETERIORATING', lob_code='HOM'",
+            "legacy": 4,
+            "candidate": 4
+          },
+          {
+            "partition": "watch_category='DETERIORATING', lob_code='MOT'",
+            "legacy": 9,
+            "candidate": 9
+          },
+          {
+            "partition": "watch_category='IMPROVING', lob_code='HOM'",
+            "legacy": 2,
+            "candidate": 2
+          },
+          {
+            "partition": "watch_category='IMPROVING', lob_code='MOT'",
+            "legacy": 5,
+            "candidate": 5
+          },
+          {
+            "partition": "watch_category='NEW', lob_code='HOM'",
+            "legacy": 10,
+            "candidate": 10
+          },
+          {
+            "partition": "watch_category='NEW', lob_code='MOT'",
+            "legacy": 27,
+            "candidate": 27
+          },
+          {
+            "partition": "watch_category='STABLE', lob_code='HOM'",
+            "legacy": 9,
+            "candidate": 9
+          },
+          {
+            "partition": "watch_category='STABLE', lob_code='MOT'",
+            "legacy": 13,
+            "candidate": 13
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "claim_id",
+          "legacy": "23860095",
+          "candidate": "23860095",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "41899362",
+          "candidate": "41899362",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "paid_to_date",
+          "legacy": "1417688.94",
+          "candidate": "1417688.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "outstanding_reserve",
+          "legacy": "1650193.08",
+          "candidate": "1650193.08",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "incurred_amount",
+          "legacy": "3067882.02",
+          "candidate": "3067882.02",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "incurred_90d_ago",
+          "legacy": "2449365.06",
+          "candidate": "2449365.06",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "movement_90d",
+          "legacy": "618516.96",
+          "candidate": "618516.96",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "reserve_changes_90d",
+          "legacy": "128",
+          "candidate": "128",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "days_since_last_activity",
+          "legacy": "4974",
+          "candidate": "4974",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 79,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 79 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "edbd6f63d7799ba571c151448662a462602e77f38118242e0a0c286f1c404a5b",
+      "golden_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "candidate_sha256": "0978475d9e1dfdb803399e7cd94fc3cf0c77b73412c91c1367deca1f68fa7b00",
+      "started_at": "2026-11-12T04:08:01.778825Z",
+      "duration_seconds": 4.449,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "X2-TSQL-01-1",
+      "job_id": "X2",
+      "trap_id": "TSQL-01",
+      "description": "Claims with mixed-case CLOSED statuses ('Closed', 'closed', 'clOSed') closed more than 90 days before AsOfDate (PriorDate = 2025-10-02). Under the CI collation, `status <> 'CLOSED'` is false for these rows, so the legacy job drops them. A binary Spark comparison would keep them. There are also controls: an OPEN claim, an upper-case CLOSED claim closed long ago (dropped by both), and a 'Closed' claim closed recently (kept by both). Every claim has a EUR 50,000 reserve, so any claim that passes the filter is written to the output.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "CLM-0001",
+              "5001",
+              "9001",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "2",
+              "CLM-0002",
+              "5002",
+              "9002",
+              "PROP",
+              "2025-01-10",
+              "2025-01-20",
+              "Closed",
+              "2025-06-30",
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "3",
+              "CLM-0003",
+              "5003",
+              "9003",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-25",
+              "closed",
+              "2025-05-15",
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "4",
+              "CLM-0004",
+              "5004",
+              "9004",
+              "MOT",
+              "2025-01-10",
+              "2025-02-01",
+              "CLOSED",
+              "2025-07-01",
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "5",
+              "CLM-0005",
+              "5005",
+              "9005",
+              "PROP",
+              "2025-01-10",
+              "2025-02-05",
+              "Closed",
+              "2025-11-15",
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "6",
+              "CLM-0006",
+              "5006",
+              "9006",
+              "LIAB",
+              "2025-01-10",
+              "2025-02-10",
+              "clOSed",
+              "2025-08-01",
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_reserves",
+          "columns": [
+            "reserve_id",
+            "claim_id",
+            "reserve_date",
+            "reserve_type",
+            "reserve_amount",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "101",
+              "1",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "1"
+            ],
+            [
+              "102",
+              "2",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "2"
+            ],
+            [
+              "103",
+              "3",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "3"
+            ],
+            [
+              "104",
+              "4",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "4"
+            ],
+            [
+              "105",
+              "5",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "5"
+            ],
+            [
+              "106",
+              "6",
+              "2025-03-01",
+              "INDEMNITY",
+              "50000.00",
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.large_loss_watchlist",
+          "columns": [
+            "as_of_date",
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "lob_code",
+            "claim_status",
+            "reported_date",
+            "closed_date",
+            "paid_to_date",
+            "outstanding_reserve",
+            "incurred_amount",
+            "incurred_90d_ago",
+            "movement_90d",
+            "reserve_changes_90d",
+            "days_since_last_activity",
+            "watch_category"
+          ],
+          "rows": [
+            [
+              "2025-12-31",
+              "1",
+              "CLM-0001",
+              "5001",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "50000.00",
+              "50000.00",
+              "50000.00",
+              "0.00",
+              "0",
+              "305",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "5",
+              "CLM-0005",
+              "5005",
+              "PROP",
+              "CLOSED",
+              "2025-02-05",
+              "2025-11-15",
+              "0.00",
+              "50000.00",
+              "50000.00",
+              "50000.00",
+              "0.00",
+              "0",
+              "305",
+              "STABLE"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_x2.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "X2-TSQL-02-2",
+      "job_id": "X2",
+      "trap_id": "TSQL-02",
+      "description": "Claims whose raw status has trailing spaces ('CLOSED ', 'CLOSED  ') and was closed before PriorDate 2025-10-02. SQL Server ignores trailing spaces when comparing, so these count as CLOSED and are dropped. A Spark comparison of the untrimmed string would keep them. Controls: an OPEN claim, an 'OPEN ' claim with padding (kept either way), an unpadded CLOSED claim closed long ago (dropped by both), and a padded 'CLOSED ' claim closed recently (kept). Every claim has a EUR 60,000 reserve.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "11",
+              "CLM-0011",
+              "5011",
+              "9011",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "12",
+              "CLM-0012",
+              "5012",
+              "9012",
+              "PROP",
+              "2025-01-10",
+              "2025-01-20",
+              "CLOSED ",
+              "2025-06-30",
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "13",
+              "CLM-0013",
+              "5013",
+              "9013",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-25",
+              "CLOSED  ",
+              "2025-05-01",
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "14",
+              "CLM-0014",
+              "5014",
+              "9014",
+              "MOT",
+              "2025-01-10",
+              "2025-02-01",
+              "CLOSED",
+              "2025-07-15",
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "15",
+              "CLM-0015",
+              "5015",
+              "9015",
+              "PROP",
+              "2025-01-10",
+              "2025-02-05",
+              "CLOSED ",
+              "2025-12-01",
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "16",
+              "CLM-0016",
+              "5016",
+              "9016",
+              "LIAB",
+              "2025-01-10",
+              "2025-02-10",
+              "OPEN ",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_reserves",
+          "columns": [
+            "reserve_id",
+            "claim_id",
+            "reserve_date",
+            "reserve_type",
+            "reserve_amount",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "111",
+              "11",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "1"
+            ],
+            [
+              "112",
+              "12",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "2"
+            ],
+            [
+              "113",
+              "13",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "3"
+            ],
+            [
+              "114",
+              "14",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "4"
+            ],
+            [
+              "115",
+              "15",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "5"
+            ],
+            [
+              "116",
+              "16",
+              "2025-03-01",
+              "INDEMNITY",
+              "60000.00",
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.large_loss_watchlist",
+          "columns": [
+            "as_of_date",
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "lob_code",
+            "claim_status",
+            "reported_date",
+            "closed_date",
+            "paid_to_date",
+            "outstanding_reserve",
+            "incurred_amount",
+            "incurred_90d_ago",
+            "movement_90d",
+            "reserve_changes_90d",
+            "days_since_last_activity",
+            "watch_category"
+          ],
+          "rows": [
+            [
+              "2025-12-31",
+              "11",
+              "CLM-0011",
+              "5011",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "60000.00",
+              "60000.00",
+              "60000.00",
+              "0.00",
+              "0",
+              "305",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "15",
+              "CLM-0015",
+              "5015",
+              "PROP",
+              "CLOSED",
+              "2025-02-05",
+              "2025-12-01",
+              "0.00",
+              "60000.00",
+              "60000.00",
+              "60000.00",
+              "0.00",
+              "0",
+              "305",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "16",
+              "CLM-0016",
+              "5016",
+              "LIAB",
+              "OPEN",
+              "2025-02-10",
+              null,
+              "0.00",
+              "60000.00",
+              "60000.00",
+              "60000.00",
+              "0.00",
+              "0",
+              "305",
+              "STABLE"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_x2.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "X2-TSQL-06-3",
+      "job_id": "X2",
+      "trap_id": "TSQL-06",
+      "description": "The last-activity choice with NULL on either side. Claims are set up with payments only (last_reserve_date is NULL), reserves only (last_payment_date is NULL), a later payment than reserve, a later reserve than payment, and a NULL-amount payment that does not count as activity, so last_payment_date stays NULL even though a payment row is dated later. In the legacy job, ISNULL(..., '19000101') becomes the date 1900-01-01. A naive coalesce with the string literal would turn the comparison into a string comparison or a cast failure, which changes which date is picked or turns days_since_last_activity into NULL. Every claim's incurred amount is at least EUR 25,000.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "21",
+              "CLM-0021",
+              "5021",
+              "9021",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "22",
+              "CLM-0022",
+              "5022",
+              "9022",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "23",
+              "CLM-0023",
+              "5023",
+              "9023",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "24",
+              "CLM-0024",
+              "5024",
+              "9024",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "25",
+              "CLM-0025",
+              "5025",
+              "9025",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "26",
+              "CLM-0026",
+              "5026",
+              "9026",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "201",
+              "21",
+              "2025-11-20",
+              "30000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "1"
+            ],
+            [
+              "202",
+              "23",
+              "2025-12-10",
+              "10000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "2"
+            ],
+            [
+              "203",
+              "24",
+              "2025-07-01",
+              "15000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "3"
+            ],
+            [
+              "204",
+              "25",
+              "2025-12-28",
+              null,
+              "EXPENSE",
+              "VENDOR",
+              "4"
+            ],
+            [
+              "205",
+              "26",
+              "2025-12-05",
+              "26000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_reserves",
+          "columns": [
+            "reserve_id",
+            "claim_id",
+            "reserve_date",
+            "reserve_type",
+            "reserve_amount",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "221",
+              "22",
+              "2025-10-15",
+              "INDEMNITY",
+              "40000.00",
+              "1"
+            ],
+            [
+              "222",
+              "23",
+              "2025-08-01",
+              "INDEMNITY",
+              "20000.00",
+              "2"
+            ],
+            [
+              "223",
+              "24",
+              "2025-12-20",
+              "INDEMNITY",
+              "20000.00",
+              "3"
+            ],
+            [
+              "224",
+              "25",
+              "2025-09-15",
+              "INDEMNITY",
+              "30000.00",
+              "4"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.large_loss_watchlist",
+          "columns": [
+            "as_of_date",
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "lob_code",
+            "claim_status",
+            "reported_date",
+            "closed_date",
+            "paid_to_date",
+            "outstanding_reserve",
+            "incurred_amount",
+            "incurred_90d_ago",
+            "movement_90d",
+            "reserve_changes_90d",
+            "days_since_last_activity",
+            "watch_category"
+          ],
+          "rows": [
+            [
+              "2025-12-31",
+              "21",
+              "CLM-0021",
+              "5021",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "30000.00",
+              "0.00",
+              "30000.00",
+              "0.00",
+              "30000.00",
+              "0",
+              "41",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "22",
+              "CLM-0022",
+              "5022",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "40000.00",
+              "40000.00",
+              "0.00",
+              "40000.00",
+              "1",
+              "77",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "23",
+              "CLM-0023",
+              "5023",
+              "LIAB",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "10000.00",
+              "20000.00",
+              "30000.00",
+              "20000.00",
+              "10000.00",
+              "0",
+              "21",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "24",
+              "CLM-0024",
+              "5024",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "15000.00",
+              "20000.00",
+              "35000.00",
+              "15000.00",
+              "20000.00",
+              "1",
+              "11",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "25",
+              "CLM-0025",
+              "5025",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "30000.00",
+              "30000.00",
+              "30000.00",
+              "0.00",
+              "0",
+              "107",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "26",
+              "CLM-0026",
+              "5026",
+              "LIAB",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "26000.00",
+              "0.00",
+              "26000.00",
+              "0.00",
+              "26000.00",
+              "0",
+              "26",
+              "NEW"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_x2.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "X2-TSQL-04-4",
+      "job_id": "X2",
+      "trap_id": "TSQL-04",
+      "description": "Claims whose last activity falls at different distances before AsOfDate 2025-12-31: on AsOfDate itself, one day before, mid-month, across a year boundary (2024-01-15), and one where the latest payment is dated after AsOfDate and so is excluded. The legacy DATEDIFF(DAY, last_activity, AsOfDate) is positive. A Spark datediff with the arguments left in T-SQL order would return negative values.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "31",
+              "CLM-0031",
+              "5031",
+              "9031",
+              "MOT",
+              "2023-12-01",
+              "2023-12-10",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "32",
+              "CLM-0032",
+              "5032",
+              "9032",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "33",
+              "CLM-0033",
+              "5033",
+              "9033",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "34",
+              "CLM-0034",
+              "5034",
+              "9034",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "REOPENED",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "35",
+              "CLM-0035",
+              "5035",
+              "9035",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_payments",
+          "columns": [
+            "payment_id",
+            "claim_id",
+            "payment_date",
+            "amount",
+            "payment_type",
+            "payee_type",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "301",
+              "32",
+              "2025-12-31",
+              "28000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "1"
+            ],
+            [
+              "302",
+              "33",
+              "2025-12-30",
+              "5000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "2"
+            ],
+            [
+              "303",
+              "35",
+              "2025-11-03",
+              "12000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "3"
+            ],
+            [
+              "304",
+              "35",
+              "2026-01-10",
+              "9000.00",
+              "INDEMNITY",
+              "CLAIMANT",
+              "4"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_reserves",
+          "columns": [
+            "reserve_id",
+            "claim_id",
+            "reserve_date",
+            "reserve_type",
+            "reserve_amount",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "331",
+              "31",
+              "2024-01-15",
+              "INDEMNITY",
+              "45000.00",
+              "1"
+            ],
+            [
+              "332",
+              "33",
+              "2025-06-01",
+              "INDEMNITY",
+              "25000.00",
+              "2"
+            ],
+            [
+              "333",
+              "34",
+              "2025-12-15",
+              "INDEMNITY",
+              "35000.00",
+              "3"
+            ],
+            [
+              "334",
+              "35",
+              "2025-04-01",
+              "INDEMNITY",
+              "20000.00",
+              "4"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.large_loss_watchlist",
+          "columns": [
+            "as_of_date",
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "lob_code",
+            "claim_status",
+            "reported_date",
+            "closed_date",
+            "paid_to_date",
+            "outstanding_reserve",
+            "incurred_amount",
+            "incurred_90d_ago",
+            "movement_90d",
+            "reserve_changes_90d",
+            "days_since_last_activity",
+            "watch_category"
+          ],
+          "rows": [
+            [
+              "2025-12-31",
+              "31",
+              "CLM-0031",
+              "5031",
+              "MOT",
+              "OPEN",
+              "2023-12-10",
+              null,
+              "0.00",
+              "45000.00",
+              "45000.00",
+              "45000.00",
+              "0.00",
+              "0",
+              "716",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "32",
+              "CLM-0032",
+              "5032",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "28000.00",
+              "0.00",
+              "28000.00",
+              "0.00",
+              "28000.00",
+              "0",
+              "0",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "33",
+              "CLM-0033",
+              "5033",
+              "LIAB",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "5000.00",
+              "25000.00",
+              "30000.00",
+              "25000.00",
+              "5000.00",
+              "0",
+              "1",
+              "DETERIORATING"
+            ],
+            [
+              "2025-12-31",
+              "34",
+              "CLM-0034",
+              "5034",
+              "MOT",
+              "REOPENED",
+              "2025-01-15",
+              null,
+              "0.00",
+              "35000.00",
+              "35000.00",
+              "0.00",
+              "35000.00",
+              "1",
+              "16",
+              "NEW"
+            ],
+            [
+              "2025-12-31",
+              "35",
+              "CLM-0035",
+              "5035",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "12000.00",
+              "20000.00",
+              "32000.00",
+              "20000.00",
+              "12000.00",
+              "0",
+              "58",
+              "NEW"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_x2.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "X2-TSQL-07-5",
+      "job_id": "X2",
+      "trap_id": "TSQL-07",
+      "description": "Claims whose incurred amount is exactly 1.10x or 0.90x of incurred_90d_ago. A reserve on 2025-09-01 sets the prior amount and a reserve on 2025-12-01 sets the current amount. Pairs: 25000.10→27500.11, 30000.00→33000.00, 33333.30→36666.63 (all exactly 1.10x), and 30000.30→27000.27, 28000.70→25200.63, 33333.30→29999.97 (all exactly 0.90x). With exact DECIMAL arithmetic the strict > and < fail, so the legacy job marks these STABLE. Double literals can push them into DETERIORATING or IMPROVING. A clear DETERIORATING claim (40000→50000) is included as a control.",
+      "inputs": [
+        {
+          "table": "stg.claims",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "closed_date",
+            "cause_code",
+            "handler_code",
+            "description",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "41",
+              "CLM-0041",
+              "5041",
+              "9041",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "1"
+            ],
+            [
+              "42",
+              "CLM-0042",
+              "5042",
+              "9042",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "2"
+            ],
+            [
+              "43",
+              "CLM-0043",
+              "5043",
+              "9043",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "3"
+            ],
+            [
+              "44",
+              "CLM-0044",
+              "5044",
+              "9044",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "4"
+            ],
+            [
+              "45",
+              "CLM-0045",
+              "5045",
+              "9045",
+              "PROP",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "5"
+            ],
+            [
+              "46",
+              "CLM-0046",
+              "5046",
+              "9046",
+              "LIAB",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "6"
+            ],
+            [
+              "47",
+              "CLM-0047",
+              "5047",
+              "9047",
+              "MOT",
+              "2025-01-10",
+              "2025-01-15",
+              "OPEN",
+              null,
+              null,
+              null,
+              null,
+              "7"
+            ]
+          ]
+        },
+        {
+          "table": "stg.claim_reserves",
+          "columns": [
+            "reserve_id",
+            "claim_id",
+            "reserve_date",
+            "reserve_type",
+            "reserve_amount",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "401",
+              "41",
+              "2025-09-01",
+              "INDEMNITY",
+              "25000.10",
+              "1"
+            ],
+            [
+              "402",
+              "41",
+              "2025-12-01",
+              "INDEMNITY",
+              "27500.11",
+              "2"
+            ],
+            [
+              "403",
+              "42",
+              "2025-09-01",
+              "INDEMNITY",
+              "30000.00",
+              "3"
+            ],
+            [
+              "404",
+              "42",
+              "2025-12-01",
+              "INDEMNITY",
+              "33000.00",
+              "4"
+            ],
+            [
+              "405",
+              "43",
+              "2025-09-01",
+              "INDEMNITY",
+              "30000.30",
+              "5"
+            ],
+            [
+              "406",
+              "43",
+              "2025-12-01",
+              "INDEMNITY",
+              "27000.27",
+              "6"
+            ],
+            [
+              "407",
+              "44",
+              "2025-09-01",
+              "INDEMNITY",
+              "28000.70",
+              "7"
+            ],
+            [
+              "408",
+              "44",
+              "2025-12-01",
+              "INDEMNITY",
+              "25200.63",
+              "8"
+            ],
+            [
+              "409",
+              "45",
+              "2025-09-01",
+              "INDEMNITY",
+              "40000.00",
+              "9"
+            ],
+            [
+              "410",
+              "45",
+              "2025-12-01",
+              "INDEMNITY",
+              "50000.00",
+              "10"
+            ],
+            [
+              "411",
+              "46",
+              "2025-09-01",
+              "INDEMNITY",
+              "33333.30",
+              "11"
+            ],
+            [
+              "412",
+              "46",
+              "2025-12-01",
+              "INDEMNITY",
+              "36666.63",
+              "12"
+            ],
+            [
+              "413",
+              "47",
+              "2025-09-01",
+              "INDEMNITY",
+              "33333.30",
+              "13"
+            ],
+            [
+              "414",
+              "47",
+              "2025-12-01",
+              "INDEMNITY",
+              "29999.97",
+              "14"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "rpt.large_loss_watchlist",
+          "columns": [
+            "as_of_date",
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "lob_code",
+            "claim_status",
+            "reported_date",
+            "closed_date",
+            "paid_to_date",
+            "outstanding_reserve",
+            "incurred_amount",
+            "incurred_90d_ago",
+            "movement_90d",
+            "reserve_changes_90d",
+            "days_since_last_activity",
+            "watch_category"
+          ],
+          "rows": [
+            [
+              "2025-12-31",
+              "41",
+              "CLM-0041",
+              "5041",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "27500.11",
+              "27500.11",
+              "25000.10",
+              "2500.01",
+              "1",
+              "30",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "42",
+              "CLM-0042",
+              "5042",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "33000.00",
+              "33000.00",
+              "30000.00",
+              "3000.00",
+              "1",
+              "30",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "43",
+              "CLM-0043",
+              "5043",
+              "LIAB",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "27000.27",
+              "27000.27",
+              "30000.30",
+              "-3000.03",
+              "1",
+              "30",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "44",
+              "CLM-0044",
+              "5044",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "25200.63",
+              "25200.63",
+              "28000.70",
+              "-2800.07",
+              "1",
+              "30",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "45",
+              "CLM-0045",
+              "5045",
+              "PROP",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "50000.00",
+              "50000.00",
+              "40000.00",
+              "10000.00",
+              "1",
+              "30",
+              "DETERIORATING"
+            ],
+            [
+              "2025-12-31",
+              "46",
+              "CLM-0046",
+              "5046",
+              "LIAB",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "36666.63",
+              "36666.63",
+              "33333.30",
+              "3333.33",
+              "1",
+              "30",
+              "STABLE"
+            ],
+            [
+              "2025-12-31",
+              "47",
+              "CLM-0047",
+              "5047",
+              "MOT",
+              "OPEN",
+              "2025-01-15",
+              null,
+              "0.00",
+              "29999.97",
+              "29999.97",
+              "33333.30",
+              "-3333.33",
+              "1",
+              "30",
+              "STABLE"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_x2.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "9ca338195c2e42c2bc1f20707ad8621d",
+      "run_id": "dev-holdout-learn",
+      "agent": "trap_scan",
+      "job_id": "X2",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "2994bc6e44d138c36760bbf15788cce54b65d3cd020ed94011ebc292727e161c",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 2673,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 9844,
+      "duration_ms": 31866,
+      "cost_usd_equivalent": 0.1324818,
+      "replayed": true
+    },
+    {
+      "call_id": "cbdbe01210454910a91984f21744c6ed",
+      "run_id": "dev-holdout-learn",
+      "agent": "lineage",
+      "job_id": "X2",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "1c478772a14c73a3c1e322aecbd3aa5e3c98f1587c957fbe6df8de7f46f95cd5",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 6736,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5169,
+      "duration_ms": 57090,
+      "cost_usd_equivalent": 0.17645380000000002,
+      "replayed": true
+    },
+    {
+      "call_id": "092efaeea5724d3b8f99bbf56c7b0ba4",
+      "run_id": "dev-holdout-learn",
+      "agent": "contract",
+      "job_id": "X2",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "45eb87d30e6ea611e3f4a29ef3f251cd3bcc05a537eda1d73f5dec03e204b761",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 475,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4568,
+      "duration_ms": 6097,
+      "cost_usd_equivalent": 0.0462318,
+      "replayed": true
+    },
+    {
+      "call_id": "e8dff4a809414de8866fced80a6a8f08",
+      "run_id": "dev-holdout-learn",
+      "agent": "defect_reviewer",
+      "job_id": "X2",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "903791cbcdd1ffed514561c6ee2808b5d86dce198c16cf1a62c352d8ebd91cbd",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 6521,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 5070,
+      "duration_ms": 57595,
+      "cost_usd_equivalent": 0.17126220000000003,
+      "replayed": true
+    },
+    {
+      "call_id": "1ca1539093b543c8be92f3e49332a3a9",
+      "run_id": "dev-holdout-learn",
+      "agent": "translator",
+      "job_id": "X2",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "fdff48d78beda6abb431e499383941b87a94759947d5b6fa9512e0216fd5c7a0",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 10654,
+      "cache_read_tokens": 2221,
+      "cache_creation_tokens": 12886,
+      "duration_ms": 89243,
+      "cost_usd_equivalent": 0.3166202,
+      "replayed": false
+    },
+    {
+      "call_id": "492e24b01fab4c6cb58825f23110c8f3",
+      "run_id": "dev-holdout-learn",
+      "agent": "test_author",
+      "job_id": "X2",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "c6f439e8f090b473422ac08bdf5147127465954ee967d57f47fbd2dfddd04ec1",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 8907,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 5627,
+      "duration_ms": 67393,
+      "cost_usd_equivalent": 0.2234486,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "84f16228f1b4",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "X2"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage agent notes: The ROW_NUMBER at lines 76-77 groups by (period, claim_id) only, not by reserve_type. So each claim keeps just its single latest reserve ro",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/learning/X2/discovery.json",
+          "sha256": "64f0079c5a1965355dd5e9643f4ae5ee9c53ef55de919627e0fba8df02e1db38"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/learning/X2/lineage.json",
+          "sha256": "d1457c8ff31b3c54655805dbf2052a82aa4aa81e9d0bcb59f457deac42a4c794"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/learning/X2/traps.json",
+          "sha256": "b30ef9e9014700fbe242fbed728b5e48f23c24630c0075b339a47cddce0874f4"
+        }
+      ],
+      "warnings": [
+        "lineage agent notes: The ROW_NUMBER at lines 76-77 groups by (period, claim_id) only, not by reserve_type. So each claim keeps just its single latest reserve row, whatever its type. The header says expense reserves count towards incurred (CR-0577), but they are only included when the expense reserve happens to be the latest row. The SUM at lines 85-86 then always adds up exactly one row per period. The PySpark version must copy this exactly, not fix it. Ties on reserve_date are broken by reserve_id DESC.\n\nWhen computing last_payment_date, payments with a NULL amount are skipped (line 67), but they still count as nil in the sums.\n\ndays_since_last_activity is NULL when the claim has no payments and no reserves. The 1900-01-01 sentinel only affects the comparison and never reaches the output.\n\nThe filter edges on payment_date, reserve_date and the claim_id joins in the payment and reserve steps decide which payment and reserve rows feed the sums. They change which rows appear only indirectly, through the incurred_amount >= 25000 threshold at line 134."
+      ],
+      "shown_at": "2026-11-12T04:05:47.641677Z",
+      "decided_at": "2026-11-12T04:05:47.641700Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "b3e0a6425f5943fd9694aa5b097d43987bd339bc91e96d44a98e68be7247acf7"
+    },
+    {
+      "decision_id": "9551b185a16f",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "X2"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: X2-D1 suspected defect: Latest reserve picked across all reserve types, so only one type counts (43 rows); X2-D2 suspected defect: Claims closed exactly 90 days ago are dropped (0 rows); X2-D3 suspected defect: CLOSED check uses the raw status, not the trimmed one (0 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/learning/X2/contracts/rpt.large_loss_watchlist.json",
+          "sha256": "fe8bbfca70e30ca9a5f6dc3ff27b9e07b7101722721ceac39931d239686d966f"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/learning/X2/defects.json",
+          "sha256": "d9ac1b5873d05a288cc6358c2a394f116e1a47633b29c7134e5064956eda8cd3"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/learning/X2/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "X2-D1 suspected defect: Latest reserve picked across all reserve types, so only one type counts (43 rows)",
+        "X2-D2 suspected defect: Claims closed exactly 90 days ago are dropped (0 rows)",
+        "X2-D3 suspected defect: CLOSED check uses the raw status, not the trimmed one (0 rows)"
+      ],
+      "shown_at": "2026-11-12T04:05:48.693777Z",
+      "decided_at": "2026-11-12T04:05:48.693915Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "a666d35e2293ffba7bb3e1820d28d5cad770bf643892f1c017c2ab7e7b521ec4"
+    },
+    {
+      "decision_id": "84e3c2ecb669",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "X2"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: The status filter compares on upper(rtrim(status)). It deliberately does not use ltrim, so leading spaces count, as they do in SQL Server (X2-",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/learning/X2/jobs/x2.py",
+          "sha256": "705920c63602efc410fe2fbaac1a0d85b0c45f02038f3a123df5b993418f4845"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/learning/X2/guardrails.json",
+          "sha256": "d5e8a732f405145faff334b4cad55a42a538d000483a40568a316b2736fadbb7"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/learning/X2/tests.json",
+          "sha256": "cb588571723817ebc642787ea20c0761abc39c76dabf61f606a70e8526fa6180"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/learning/X2/tests/cases/x2.json",
+          "sha256": "74a1bf2f90444b35a31470a453c80bef112f9e7434e12039d73abeb7ac1af9d7"
+        }
+      ],
+      "warnings": [
+        "translator notes: The status filter compares on upper(rtrim(status)). It deliberately does not use ltrim, so leading spaces count, as they do in SQL Server (X2-D3). If status or closed_date is NULL, three-valued logic handles it the same way in both engines. The NOW/PRIOR CROSS APPLY is a crossJoin with a two-row spark.createDataFrame of (period, as_at). The ROW_NUMBER tiebreak is reserve_date DESC, reserve_id DESC, then _row_seq ASC; _row_seq only matters when two rows share both reserve_date and reserve_id. As in T-SQL, the SUMs and ISNULLs are cast to decimal(38,2). The 1.10 and 0.90 factors are Decimal literals, so the category comparisons stay exact. The 1900-01-01 sentinel is built from the legacy literal '19000101' with to_date. days_since_last_activity is datediff(as_of, last_activity_date), and it is NULL when a claim has no payments and no reserves. Duplicate claim_ids in stg.claims would multiply rows through the joins exactly as the legacy code does. Note for reviewers: SUM(CASE ... reserve_amount ...) can return NULL when the only rn = 1 row has a NULL amount; ISNULL in #inc turns that into 0, and the Spark version does the same."
+      ],
+      "shown_at": "2026-11-12T04:07:36.632882Z",
+      "decided_at": "2026-11-12T04:07:36.633079Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "522cf9b86ecedbfa02435037b04538b32d74274b994beeabf656f4c5821a2bd8"
+    },
+    {
+      "decision_id": "98b7e4ed0b22",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "X2"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/learning/X2/recon/rpt.large_loss_watchlist.json",
+          "sha256": "de6a8fbf484cf07fd55f43480f1895309fc1295ec5b0a786cc43cb067371339a"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/learning/X2/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T04:07:47.916015Z",
+      "decided_at": "2026-11-12T04:07:47.916210Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "e0b9a33a102aa3855a0880144af558ce1f781a31c39dab47caf00a443d226b91"
+    },
+    {
+      "decision_id": "f01332802074",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "X2"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/learning/X2/operate.json",
+          "sha256": "0fcdc7fb55eae2218f873f4d85bba25ffe081f19cb0da0be5b3fd76fd038cb58"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T04:08:06.697273Z",
+      "decided_at": "2026-11-12T04:08:06.697461Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "a1daded5f0d7ddd570d551ca2c2ee8cdcce98e65ce6f9a6ef8fc59140a17a460"
+    }
+  ]
+}

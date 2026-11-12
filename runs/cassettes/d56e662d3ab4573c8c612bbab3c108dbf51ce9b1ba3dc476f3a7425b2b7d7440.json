@@ -1,0 +1,2259 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:25:29.149841Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T08",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T08: usp_fraud_flags. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_fraud_flags\n  3 |   Purpose   Fraud indicators for the Special Investigations Unit (SIU): one row\n  4 |             per claim notified in the twelve months to the reporting date, with\n  5 |             the indicator flags, a score and a referral band for the SIU\n  6 |             worklist and case tool.\n  7 |   Author    MOB\n  8 |   Run by    SIU_WEEKLY, after the claims and policy extracts and dw.dim_customer\n  9 |             have loaded\n 10 |   Output    rpt.claim_fraud_flags (full refresh)\n 11 | \n 12 |   Change log\n 13 |     2016-05-09  MOB   Initial version: early notification and new customer\n 14 |                       indicators (CR-0954)\n 15 |     2016-11-21  MOB   Motor claims: registration not in the Irish format\n 16 |                       (CR-1012)\n 17 |     2017-04-03  SB    Claim keyed against a policy from another line of\n 18 |                       business (INC-1530)\n 19 |     2018-08-27  SB    fraud_score and referral bands agreed with SIU (CR-1377)\n 20 |     2019-02-11  NF    Policy dates from the latest policy extract on or before\n 21 |                       the reporting date, not the old policy master (CR-1529)\n 22 |     2020-06-15  NF    loss_day_key and reason text for the SIU case tool\n 23 |                       (CR-1810)\n 24 |     2021-10-04  SB    lob_code upper-cased for the SIU dashboard (INC-2389)\n 25 | ==============================================================================*/\n 26 | SET NOCOUNT ON;\n 27 | GO\n 28 | IF OBJECT_ID(N'rpt.claim_fraud_flags', N'U') IS NULL\n 29 | CREATE TABLE rpt.claim_fraud_flags (\n 30 |     claim_id                 INT            NOT NULL,\n 31 |     claim_number             VARCHAR(20)    NOT NULL,\n 32 |     policy_id                INT            NOT NULL,\n 33 |     policy_number            VARCHAR(20)    NULL,\n 34 |     customer_id              INT            NOT NULL,\n 35 |     lob_code                 VARCHAR(5)     NOT NULL,\n 36 |     loss_date                DATE           NOT NULL,\n 37 |     reported_date            DATE           NOT NULL,\n 38 |     early_notification_flag  INT            NOT NULL,\n 39 |     invalid_reg_flag         INT            NOT NULL,\n 40 |     new_customer_flag        INT            NOT NULL,\n 41 |     lob_mismatch_flag        INT            NOT NULL,\n 42 |     fraud_score              INT            NOT NULL,\n 43 |     fraud_band               VARCHAR(6)     NOT NULL,  -- HIGH / MEDIUM / LOW\n 44 |     loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n 45 |     reason_text              VARCHAR(100)   NOT NULL,\n 46 |     as_of_date               DATE           NOT NULL,\n 47 |     CONSTRAINT pk_rpt_claim_fraud_flags PRIMARY KEY (claim_id)\n 48 | );\n 49 | GO\n 50 | CREATE OR ALTER PROCEDURE rpt.usp_fraud_flags\n 51 |     @AsOfDate DATE\n 52 | AS\n 53 | BEGIN\n 54 |     SET NOCOUNT ON;\n 55 | \n 56 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_fraud_flags',\n 57 |             @rows           INT,\n 58 |             @snapshot_date  DATE,\n 59 |             @err_msg        NVARCHAR(4000),\n 60 |             @err_no         INT;\n 61 | \n 62 |     BEGIN TRY\n 63 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 64 | \n 65 |         /* Policy details from the latest policy extract on or before the reporting date */\n 66 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n 67 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n 68 |         WHERE   ps.snapshot_date <= @AsOfDate;\n 69 | \n 70 |         /* 1. Claims notified in the twelve months to the reporting date, with the\n 71 |               policy they were made under and when the policyholder became a customer */\n 72 |         IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n 73 | \n 74 |         SELECT  c.claim_id,\n 75 |                 c.claim_number,\n 76 |                 c.policy_id,\n 77 |                 c.customer_id,\n 78 |                 c.lob_code,\n 79 |                 c.loss_date,\n 80 |                 c.reported_date,\n 81 |                 p.policy_number,\n 82 |                 p.inception_date,\n 83 |                 p.expiry_date,\n 84 |                 p.vehicle_reg,\n 85 |                 dc.customer_since\n 86 |         INTO    #claims\n 87 |         FROM    stg.claims c WITH (NOLOCK)\n 88 |         LEFT JOIN stg.policy_snapshots p WITH (NOLOCK)\n 89 |                ON p.policy_id = c.policy_id\n 90 |               AND p.snapshot_date = @snapshot_date\n 91 |         LEFT JOIN dw.dim_customer dc WITH (NOLOCK)\n 92 |                ON dc.customer_id = c.customer_id\n 93 |         WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n 94 |           AND   c.reported_date <= @AsOfDate;\n 95 | \n 96 |         SET @rows = @@ROWCOUNT;\n 97 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claims notified', @status = 'INFO', @rows_affected = @rows;\n 98 | \n 99 |         /* 2. SIU indicators, one point each (CR-0954, CR-1012, INC-1530) */\n100 |         IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n101 | \n102 |         SELECT  f.*,\n103 |                 f.early_notification_flag + f.invalid_reg_flag\n104 |                   + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n105 |         INTO    #flags\n106 |         FROM   (SELECT  cl.claim_id,\n107 |                         -- claim notified within 30 days of the cover starting\n108 |                         CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n109 |                              THEN 1 ELSE 0 END                    AS early_notification_flag,\n110 |                         -- motor: registration not in the Irish format, e.g. 191-D-12345\n111 |                         CASE WHEN cl.lob_code = 'MOT'\n112 |                               AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n113 |                              THEN 1 ELSE 0 END                    AS invalid_reg_flag,\n114 |                         -- customer for less than six months at the date of loss\n115 |                         CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n116 |                              THEN 1 ELSE 0 END                    AS new_customer_flag,\n117 |                         -- policy number starts with its line of business (MOT/2024/500001)\n118 |                         CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n119 |                              THEN 1 ELSE 0 END                    AS lob_mismatch_flag\n120 |                 FROM    #claims cl) f;\n121 | \n122 |         SET @rows = @@ROWCOUNT;\n123 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'indicators', @status = 'INFO', @rows_affected = @rows;\n124 | \n125 |         /* 3. Reload the SIU table: bands agreed with SIU (CR-1377) */\n126 |         BEGIN TRANSACTION;\n127 | \n128 |         TRUNCATE TABLE rpt.claim_fraud_flags;\n129 | \n130 |         INSERT INTO rpt.claim_fraud_flags\n131 |                (claim_id, claim_number, policy_id, policy_number, customer_id, lob_code,\n132 |                 loss_date, reported_date, early_notification_flag, invalid_reg_flag,\n133 |                 new_customer_flag, lob_mismatch_flag, fraud_score, fraud_band,\n134 |                 loss_day_key, reason_text, as_of_date)\n135 |         SELECT  cl.claim_id,\n136 |                 cl.claim_number,\n137 |                 cl.policy_id,\n138 |                 cl.policy_number,\n139 |                 cl.customer_id,\n140 |                 UPPER(RTRIM(cl.lob_code)),\n141 |                 cl.loss_date,\n142 |                 cl.reported_date,\n143 |                 f.early_notification_flag,\n144 |                 f.invalid_reg_flag,\n145 |                 f.new_customer_flag,\n146 |                 f.lob_mismatch_flag,\n147 |                 f.fraud_score,\n148 |                 CASE WHEN f.fraud_score >= 2 THEN 'HIGH'\n149 |                      WHEN f.fraud_score = 1  THEN 'MEDIUM'\n150 |                      ELSE 'LOW'\n151 |                 END,\n152 |                 CONVERT(CHAR(8), cl.loss_date, 112),\n153 |                 'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n154 |                     + CASE WHEN f.fraud_score = 0 THEN ' - no indicators' ELSE ' -' END\n155 |                     + CASE WHEN f.early_notification_flag = 1 THEN ' EARLY'   ELSE '' END\n156 |                     + CASE WHEN f.invalid_reg_flag        = 1 THEN ' REG'     ELSE '' END\n157 |                     + CASE WHEN f.new_customer_flag       = 1 THEN ' NEWCUST' ELSE '' END\n158 |                     + CASE WHEN f.lob_mismatch_flag       = 1 THEN ' LOB'     ELSE '' END,\n159 |                 @AsOfDate\n160 |         FROM    #claims cl\n161 |         JOIN    #flags f\n162 |                 ON f.claim_id = cl.claim_id;\n163 | \n164 |         SET @rows = @@ROWCOUNT;\n165 | \n166 |         COMMIT TRANSACTION;\n167 | \n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claim_fraud_flags', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nInput tables:\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.policy_snapshots: snapshot_date DATE NOT NULL, policy_id INT NOT NULL, policy_number VARCHAR(20) NOT NULL, customer_id INT NOT NULL, product_code VARCHAR(10) NOT NULL, broker_code VARCHAR(10), inception_date DATE NOT NULL, expiry_date DATE NOT NULL, status VARCHAR(12) NOT NULL, cancellation_date DATE, annual_premium DECIMAL(12,2) NOT NULL, currency CHAR(3) NOT NULL, sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10) NOT NULL, vehicle_reg VARCHAR(12), ncd_years INT\n- dw.dim_customer: customer_id INT NOT NULL, first_name NVARCHAR(40) NOT NULL, last_name NVARCHAR(60) NOT NULL, full_name NVARCHAR(101) NOT NULL, initials NVARCHAR(2) NOT NULL, email VARCHAR(120), email_shared_count INT NOT NULL, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12) NOT NULL, eircode VARCHAR(10), eircode_valid CHAR(1) NOT NULL, segment_code CHAR(4), is_standard_segment CHAR(1) NOT NULL, marketing_opt_in CHAR(1) NOT NULL, customer_since DATE NOT NULL, source_system VARCHAR(10) NOT NULL, version_count INT NOT NULL, record_updated_at DATETIME2(0) NOT NULL, as_of_date DATE NOT NULL\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-18 (EOMONTH and DATEADD at month-end) at lines 93-93: DATEADD(MONTH,-12,@AsOfDate) only clamps to a month-end when it has to. Spark add_months also moves a month-end input to a month-end, so @AsOfDate = 2025-02-28 gives 2024-02-29 instead of 2024-02-28 and the 12-month window changes. Latent: only month-end reporting dates trigger it.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 111-111: lob_code is VARCHAR(5). Under the CI collation, 'mot' and 'Mot' match 'MOT', so those claims get the motor registration check; a plain Spark equality would skip them. The later UPPER() suggests mixed-case values really exist.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 111-111: lob_code is VARCHAR(5), and the RTRIM at line 140 shows it can carry trailing spaces. 'MOT ' = 'MOT' in SQL Server but not in Spark.\n- TSQL-14 (LIKE character classes) at lines 112-112: The LIKE pattern uses the [0-9] and [A-Z] character classes, and [A-Z] is case-insensitive under the CI collation. Spark LIKE would read them as literal text, so it must become an rlike with case-insensitive letters.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 118-118: The <> compares text with text: a substring of policy_number (VARCHAR) against lob_code (VARCHAR). Under the CI collation, a case difference such as 'mot' vs 'MOT' is not a mismatch; in Spark it is.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 118-118: SQL Server ignores trailing spaces when comparing, so a lob_code of 'MOT ' equals the 3-character prefix 'MOT'. Spark would raise the mismatch flag.\n- TSQL-15 (LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT) at lines 118-118: SUBSTRING(policy_number, 0, 4) returns only 3 characters in T-SQL. Spark substring(x, 0, 4) returns 4, which would change every lob_mismatch_flag.\n- TSQL-16 (CONVERT style codes) at lines 152-152: CONVERT style 112 gives yyyymmdd and needs date_format 'yyyyMMdd'. A plain cast would give yyyy-MM-dd, which also breaks the CHAR(8) key.\n- TSQL-16 (CONVERT style codes) at lines 153-153: CONVERT style 103 gives dd/mm/yyyy in the reason text and needs date_format 'dd/MM/yyyy'. A string cast would give yyyy-MM-dd.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "d56e662d3ab4573c8c612bbab3c108dbf51ce9b1ba3dc476f3a7425b2b7d7440",
+  "response": {
+    "duration_api_ms": 150732,
+    "duration_ms": 151071,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 6835,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 6835,
+        "cacheReadInputTokens": 1423,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.5002526,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 22264,
+        "provider": "firstParty",
+        "thinkingTokens": 1808,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Claims reported on both sides of the 12-month window: 2024-12-31 (excluded, it is exactly DATEADD(MONTH,-12,AsOfDate)), 2025-01-01 (first day in), mid-year, 2025-12-31 (last day in) and 2026-01-01 (after AsOfDate). This trap is latent at the given AsOfDate of 2025-12-31: December and the December before both have 31 days, so DATEADD and add_months both return 2024-12-31. The rows pin the window boundaries, and the trap would only show with a reporting date like 2025-02-28, where add_months would move the lower bound to 2024-02-29.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "101",
+                  "claim_number": "CLM-101",
+                  "customer_id": "1",
+                  "lob_code": "HOM",
+                  "loss_date": "2024-12-20",
+                  "policy_id": "1",
+                  "reported_date": "2024-12-31",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "102",
+                  "claim_number": "CLM-102",
+                  "customer_id": "2",
+                  "lob_code": "HOM",
+                  "loss_date": "2024-12-28",
+                  "policy_id": "2",
+                  "reported_date": "2025-01-01",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "103",
+                  "claim_number": "CLM-103",
+                  "customer_id": "3",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-06-10",
+                  "policy_id": "3",
+                  "reported_date": "2025-06-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "104",
+                  "claim_number": "CLM-104",
+                  "customer_id": "4",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-12-29",
+                  "policy_id": "4",
+                  "reported_date": "2025-12-31",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "105",
+                  "claim_number": "CLM-105",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-12-30",
+                  "policy_id": "5",
+                  "reported_date": "2026-01-01",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2025-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "HOM/2024/000001",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2025-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "HOM/2024/000002",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "HOM/2025/000003",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "HOM/2025/000004",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2025-12-31",
+                  "inception_date": "2025-01-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2025-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-18"
+        },
+        {
+          "description": "Line 111: motor claims with lob_code 'mot', 'Mot' and 'MOT' on policies whose vehicle_reg is not in the Irish format ('ABC123'), plus one 'MOT' with a valid reg and one 'HOM' control. Under the CI collation all three case variants get invalid_reg_flag = 1; a plain Spark equality would give 0 for 'mot' and 'Mot' and change their score, band and reason.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "201",
+                  "claim_number": "CLM-201",
+                  "customer_id": "1",
+                  "lob_code": "mot",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "202",
+                  "claim_number": "CLM-202",
+                  "customer_id": "2",
+                  "lob_code": "Mot",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "203",
+                  "claim_number": "CLM-203",
+                  "customer_id": "3",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "204",
+                  "claim_number": "CLM-204",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "205",
+                  "claim_number": "CLM-205",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "MOT/2025/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "ABC123"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "MOT/2025/500002",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "ABC123"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "MOT/2025/500003",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "ABC123"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "MOT/2025/500004",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 111: lob_code values 'MOT ' and 'MOT  ' (trailing spaces) on policies with an invalid reg 'XYZ999', next to a plain 'MOT' with the same invalid reg, a 'MOT' with a valid reg, and a 'HOM' control. SQL Server treats 'MOT ' = 'MOT' as true, so the padded rows get invalid_reg_flag = 1; a Spark equality would not flag them.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "301",
+                  "claim_number": "CLM-301",
+                  "customer_id": "1",
+                  "lob_code": "MOT ",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "302",
+                  "claim_number": "CLM-302",
+                  "customer_id": "2",
+                  "lob_code": "MOT  ",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "303",
+                  "claim_number": "CLM-303",
+                  "customer_id": "3",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "304",
+                  "claim_number": "CLM-304",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "305",
+                  "claim_number": "CLM-305",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "MOT/2025/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "XYZ999"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "MOT/2025/500002",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "XYZ999"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "MOT/2025/500003",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "XYZ999"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "MOT/2025/500004",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "231-C-4567"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Motor claims whose vehicle_reg tests the LIKE character classes: '191-D-12345' (valid), '191-d-12345' (lowercase county, which [A-Z] matches under CI), '12-KY-9' (valid), 'ABC-123' (invalid, starts with letters), '1-D-123' (invalid, only one leading digit) and NULL (NOT LIKE on NULL is unknown, so no flag). A Spark LIKE would read the brackets as literal text and flag every non-NULL reg; a case-sensitive regex would flag the lowercase one.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "401",
+                  "claim_number": "CLM-401",
+                  "customer_id": "1",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "402",
+                  "claim_number": "CLM-402",
+                  "customer_id": "2",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "403",
+                  "claim_number": "CLM-403",
+                  "customer_id": "3",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "404",
+                  "claim_number": "CLM-404",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "405",
+                  "claim_number": "CLM-405",
+                  "customer_id": "5",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "406",
+                  "claim_number": "CLM-406",
+                  "customer_id": "1",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-08-01",
+                  "policy_id": "6",
+                  "reported_date": "2025-08-09",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "MOT/2025/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "MOT/2025/500002",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-d-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "MOT/2025/500003",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "12-KY-9"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "MOT/2025/500004",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "ABC-123"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "MOT/2025/500005",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "1-D-123"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "6",
+                  "policy_number": "MOT/2025/500006",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": null
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-14"
+        },
+        {
+          "description": "Line 118: policy_number prefixes that differ from lob_code only in case: 'mot/2025/...' against 'MOT', 'Hom/2025/...' against 'HOM', and 'MOT/...' against lob 'mot'. Controls: an exact 'MOT' match and a real mismatch ('HOM/...' policy on a 'MOT' claim). Under CI the case-only rows get lob_mismatch_flag = 0; a case-sensitive Spark comparison would set it to 1. Regs are valid so only this flag varies.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "501",
+                  "claim_number": "CLM-501",
+                  "customer_id": "1",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "502",
+                  "claim_number": "CLM-502",
+                  "customer_id": "2",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "503",
+                  "claim_number": "CLM-503",
+                  "customer_id": "3",
+                  "lob_code": "mot",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "504",
+                  "claim_number": "CLM-504",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "505",
+                  "claim_number": "CLM-505",
+                  "customer_id": "5",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "mot/2025/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "Hom/2025/000002",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "MOT/2025/500003",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "MOT/2025/500004",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 118: claims with lob_code 'MOT ', 'MOT  ' and 'HOM ' (trailing spaces) on policies whose numbers start with the matching 3-character prefix. Controls: an unpadded 'MOT' and a real mismatch. SQL Server ignores trailing spaces in <>, so the padded rows get lob_mismatch_flag = 0; Spark would set it to 1. Regs are valid, so a padded 'MOT ' that misses the motor check does not change the reg flag here.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "601",
+                  "claim_number": "CLM-601",
+                  "customer_id": "1",
+                  "lob_code": "MOT ",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "602",
+                  "claim_number": "CLM-602",
+                  "customer_id": "2",
+                  "lob_code": "MOT  ",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "603",
+                  "claim_number": "CLM-603",
+                  "customer_id": "3",
+                  "lob_code": "HOM ",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "604",
+                  "claim_number": "CLM-604",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "605",
+                  "claim_number": "CLM-605",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "MOT/2025/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "MOT/2025/500002",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "HOM/2025/000003",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "MOT/2025/500004",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "MOT/2025/500005",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Line 118: policy numbers in the standard 'LOB/yyyy/nnnnnn' form, so T-SQL SUBSTRING(x,0,4) returns the 3-character prefix ('MOT', 'HOM', 'TRV') and matching claims get lob_mismatch_flag = 0. Spark substring(x,0,4) returns 'MOT/' and would flag every one of them. Also included: real mismatches ('HOM/...' on a MOT claim, 'MOT/...' on a HOM claim) and a claim with no policy in the snapshot (NULL policy_number, so the <> is unknown and the flag is 0).",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "701",
+                  "claim_number": "CLM-701",
+                  "customer_id": "1",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "702",
+                  "claim_number": "CLM-702",
+                  "customer_id": "2",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "703",
+                  "claim_number": "CLM-703",
+                  "customer_id": "3",
+                  "lob_code": "TRV",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-06",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "704",
+                  "claim_number": "CLM-704",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-06-07",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "705",
+                  "claim_number": "CLM-705",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-07-08",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "706",
+                  "claim_number": "CLM-706",
+                  "customer_id": "1",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-08-01",
+                  "policy_id": "99",
+                  "reported_date": "2025-08-09",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "MOT/2024/500001",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "HOM/2024/000002",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "90.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "TRV/2025/700003",
+                  "product_code": "TRVSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "HOM/2025/000004",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                },
+                {
+                  "annual_premium": "650.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "MOT/2025/500005",
+                  "product_code": "MOTSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE",
+                  "vehicle_reg": "191-D-12345"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-15"
+        },
+        {
+          "description": "Line 152: loss dates with single-digit months and days (2025-01-02, 2025-03-07, 2025-09-09) and two-digit ones (2025-11-30, 2025-12-25), all in the reporting window. CONVERT style 112 gives an 8-character yyyymmdd loss_day_key; a plain cast would give a 10-character yyyy-MM-dd that does not fit CHAR(8).",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "801",
+                  "claim_number": "CLM-801",
+                  "customer_id": "1",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-01-02",
+                  "policy_id": "1",
+                  "reported_date": "2025-01-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "802",
+                  "claim_number": "CLM-802",
+                  "customer_id": "2",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-03-07",
+                  "policy_id": "2",
+                  "reported_date": "2025-03-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "803",
+                  "claim_number": "CLM-803",
+                  "customer_id": "3",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-09-09",
+                  "policy_id": "3",
+                  "reported_date": "2025-09-12",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "804",
+                  "claim_number": "CLM-804",
+                  "customer_id": "4",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-11-30",
+                  "policy_id": "4",
+                  "reported_date": "2025-12-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "805",
+                  "claim_number": "CLM-805",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-12-25",
+                  "policy_id": "5",
+                  "reported_date": "2025-12-29",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "HOM/2025/000001",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "HOM/2025/000002",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "HOM/2025/000003",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "HOM/2025/000004",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2018-03-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-16"
+        },
+        {
+          "description": "Line 153: reported dates where day and month are both 12 or less (2025-03-04, 2025-04-05, 2025-12-01) and some where they are not (2025-07-25, 2025-10-31), so a day/month swap or a yyyy-MM-dd cast shows up in reason_text. Style 103 needs dd/MM/yyyy. One claim has a new customer, so both the ' - no indicators' and ' - NEWCUST' reason forms appear.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "901",
+                  "claim_number": "CLM-901",
+                  "customer_id": "1",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-04",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "902",
+                  "claim_number": "CLM-902",
+                  "customer_id": "2",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-05",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "903",
+                  "claim_number": "CLM-903",
+                  "customer_id": "3",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-07-20",
+                  "policy_id": "3",
+                  "reported_date": "2025-07-25",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "904",
+                  "claim_number": "CLM-904",
+                  "customer_id": "4",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-10-28",
+                  "policy_id": "4",
+                  "reported_date": "2025-10-31",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "905",
+                  "claim_number": "CLM-905",
+                  "customer_id": "5",
+                  "lob_code": "HOM",
+                  "loss_date": "2025-11-28",
+                  "policy_id": "5",
+                  "reported_date": "2025-12-01",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "1",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "HOM/2025/000001",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "2",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "HOM/2025/000002",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "3",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "HOM/2025/000003",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "4",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "HOM/2025/000004",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "currency": "EUR",
+                  "customer_id": "5",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "HOM/2025/000005",
+                  "product_code": "HOMSTD",
+                  "snapshot_date": "2025-12-31",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "2",
+                  "customer_since": "2019-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Kelly",
+                  "initials": "SK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "3",
+                  "customer_since": "2025-05-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niamh",
+                  "full_name": "Niamh Walsh",
+                  "initials": "NW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "Y",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "DUBLIN",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "4",
+                  "customer_since": "2018-02-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciaran",
+                  "full_name": "Ciaran Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "customer_id": "5",
+                  "customer_since": "2017-07-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Doyle",
+                  "initials": "OD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            }
+          ],
+          "trap_id": "TSQL-16"
+        }
+      ]
+    },
+    "total_cost_usd": 0.5002526,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 6835,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 6835,
+      "cache_read_input_tokens": 1423,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 6835,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 6835,
+          "cache_read_input_tokens": 1423,
+          "input_tokens": 2,
+          "output_tokens": 22264,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 22264,
+      "output_tokens_details": {
+        "thinking_tokens": 1808
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

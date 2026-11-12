@@ -1,0 +1,242 @@
+[
+  {
+    "confidence": 0.35,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 44,
+    "line_start": 44,
+    "note": "The output segment_code is CHAR(4), so legacy values come back padded to 4 characters. Spark output must keep or add that padding to match exactly.",
+    "snippet": "segment_code         CHAR(4)        NULL,",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 70,
+    "line_start": 69,
+    "note": "These lines drop the #customer_versions and #customer temp tables if they exist. In Spark they become DataFrames, so this code goes away.",
+    "snippet": "IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n        IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 90,
+    "line_start": 90,
+    "note": "The #customer_versions temp table holds the filtered CRM versions with version_count. In Spark it becomes an intermediate DataFrame.",
+    "snippet": "INTO    #customer_versions",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 99,
+    "line_start": 99,
+    "note": "The #customer temp table holds one chosen version per customer. In Spark it becomes an intermediate DataFrame.",
+    "snippet": "INTO    #customer",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 123,
+    "line_start": 123,
+    "note": "full_name is built with + from first_name and last_name. If either is NULL, the legacy result is NULL. The translation must use concat(), which also returns NULL, not concat_ws(), which skips NULLs. The trap is latent if the source names are never NULL.",
+    "snippet": "RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),",
+    "trap_id": "TSQL-05"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 124,
+    "line_start": 124,
+    "note": "The initials are joined with +, so a NULL first or last name makes them NULL. The translation must keep that NULL result.",
+    "snippet": "UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),",
+    "trap_id": "TSQL-05"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 124,
+    "line_start": 124,
+    "note": "SUBSTRING(x, 0, 2) returns only 1 character in T-SQL, so initials are 2 letters. Spark's substring(x, 0, 2) returns 2 characters, which gives 4-letter initials.",
+    "snippet": "UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),",
+    "trap_id": "TSQL-15"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 127,
+    "line_start": 127,
+    "note": "PARTITION BY on the VARCHAR email column groups case variants together under the CI collation, so 'A@x.ie' and 'a@x.ie' count as one shared email. Spark keeps them apart.",
+    "snippet": "ELSE COUNT(*) OVER (PARTITION BY k.email) END,",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 127,
+    "line_start": 127,
+    "note": "PARTITION BY email also ignores trailing spaces, so 'a@x.ie ' and 'a@x.ie' land in the same partition in SQL Server but not in Spark.",
+    "snippet": "ELSE COUNT(*) OVER (PARTITION BY k.email) END,",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 129,
+    "line_start": 129,
+    "note": "DATEDIFF(YEAR, ...) counts year boundaries crossed, not full years elapsed. age_at_join must be year(customer_since) - year(date_of_birth), not floor(months_between/12).",
+    "snippet": "DATEDIFF(YEAR, k.date_of_birth, k.customer_since),",
+    "trap_id": "TSQL-04"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "The VARCHAR county is matched with IN against title-case names. SQL Server matches case variants such as 'DUBLIN', but Spark sends them to UNKNOWN.",
+    "snippet": "CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "The county IN check ignores trailing spaces in SQL Server ('Dublin ' matches). Spark does not.",
+    "snippet": "CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 135,
+    "line_start": 135,
+    "note": "The SOUTH county IN list matches case-insensitively in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 135,
+    "line_start": 135,
+    "note": "The SOUTH county IN list ignores trailing spaces in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 136,
+    "line_start": 136,
+    "note": "The WEST county IN list matches case-insensitively in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 136,
+    "line_start": 136,
+    "note": "The WEST county IN list ignores trailing spaces in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 137,
+    "line_start": 137,
+    "note": "The NORTH-WEST county IN list matches case-insensitively in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 137,
+    "line_start": 137,
+    "note": "The NORTH-WEST county IN list ignores trailing spaces in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 138,
+    "line_start": 138,
+    "note": "The MIDLANDS county IN list matches case-insensitively in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 138,
+    "line_start": 138,
+    "note": "The MIDLANDS county IN list ignores trailing spaces in the legacy engine.",
+    "snippet": "WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 143,
+    "line_start": 143,
+    "note": "LEN(eircode) ignores trailing spaces, so 'D02X285 ' still counts as 7 characters. Spark's length() counts 8 and marks the code invalid.",
+    "snippet": "CASE WHEN LEN(k.eircode) = 7 THEN 'Y'",
+    "trap_id": "TSQL-15"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 144,
+    "line_start": 144,
+    "note": "LEN(eircode) = 8 ignores trailing spaces. The translation needs rtrim before length() to give the same result.",
+    "snippet": "WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'",
+    "trap_id": "TSQL-15"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 148,
+    "line_start": 148,
+    "note": "segment_code = 'STD' also matches 'std' or 'Std' under the CI collation. Spark's comparison is case-sensitive.",
+    "snippet": "CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T01",
+    "line_end": 148,
+    "line_start": 148,
+    "note": "segment_code is CHAR(4), so it holds 'STD ' padded with a space. SQL Server's = 'STD' ignores the padding, but Spark compares the padded value exactly and gets no match.",
+    "snippet": "CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,",
+    "trap_id": "TSQL-02"
+  }
+]

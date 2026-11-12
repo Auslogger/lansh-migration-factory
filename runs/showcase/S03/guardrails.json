@@ -1,0 +1,133 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 26,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": "1960-01-01"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 27,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": "yyyy-MM-dd"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 36,
+      "provenance": "contract",
+      "reason": null,
+      "value": "lob_code"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 46,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 53,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 53,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "NEGATIVE"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 54,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0-249"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 54,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "250"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 55,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "250-499"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 55,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "500"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 56,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1000"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 56,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "500-999"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 57,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1000"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 57,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1000+"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 58,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "UNKNOWN"
+    }
+  ],
+  "violations": []
+}

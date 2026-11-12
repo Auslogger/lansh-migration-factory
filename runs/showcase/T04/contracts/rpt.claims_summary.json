@@ -1,0 +1,342 @@
+{
+  "job_id": "T04",
+  "table": "gold.claims_summary",
+  "legacy_table": "rpt.claims_summary",
+  "layer": "gold",
+  "grain": "One row per claim with status OPEN or REOPENED and reported on or before the reporting date (@AsOfDate), with paid to date, latest case reserves and incurred as at that date.",
+  "keys": [
+    "claim_id"
+  ],
+  "columns": [
+    {
+      "name": "claim_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": false,
+      "max_length": 20,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_ref",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(40)",
+      "nullable": true,
+      "max_length": 40,
+      "tags": [],
+      "description": "lob_code + '/' + claim_number + '/' + handler_code. It is NULL whenever handler_code is NULL, because T-SQL string concatenation returns NULL if any part is NULL (109 rows).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": true,
+      "max_length": 20,
+      "tags": [],
+      "description": "Comes from the latest policy snapshot on or before @AsOfDate. Left join, so it can be NULL.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": "UPPER(RTRIM()) of the source lob_code.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "status",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(12)",
+      "nullable": false,
+      "max_length": 12,
+      "tags": [],
+      "description": "Filtered with IN ('OPEN','REOPENED'), but the output has 6 distinct values. A case- or space-insensitive collation is probably letting variants such as 'open' or 'Open ' through, so the Spark filter must compare the same way.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "handler_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(8)",
+      "nullable": true,
+      "max_length": 8,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "loss_date_text",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": false,
+      "max_length": 10,
+      "tags": [],
+      "description": "loss_date formatted dd/mm/yyyy (CONVERT style 103).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_period",
+      "data_type": "string",
+      "legacy_type": "CHAR(6)",
+      "nullable": false,
+      "max_length": 6,
+      "tags": [],
+      "description": "yyyymm from reported_date (CONVERT style 112 cut to 6 characters).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "days_open",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Whole days from reported_date to @AsOfDate (DATEDIFF DAY).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_payments",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "COUNT(DISTINCT payment_id) of payments dated on or before @AsOfDate.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "total_paid",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "SUM of payment amounts on or before @AsOfDate, 0 if none. Legacy fan-out: payments are joined to the reserve rows (up to one per reserve type) before summing, so the sum is multiplied by the number of reserve rows the claim has. Reproduce this, don't fix it.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "indemnity_reserve",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Latest INDEMNITY reserve on or before @AsOfDate. Ties on the date go to the highest reserve_id. 0 if none.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "expense_reserve",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Latest EXPENSE reserve on or before @AsOfDate, chosen the same way. 0 if none.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "current_reserve",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "indemnity_reserve + expense_reserve.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "incurred",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "total_paid + current_reserve, including the inflated total_paid.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The @AsOfDate run parameter. Constant for the whole run.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "lob_code",
+    "status"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 823,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

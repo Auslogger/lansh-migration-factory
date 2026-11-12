@@ -1,0 +1,231 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:11:53.446081Z",
+  "request": {
+    "agent": "translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary (tsql), legacy file estate/tsql/T04_usp_build_claims_summary.sql (SHA-256 632841c99f0c5919975c6fd2266ab04b33e1ba87424c55bbfbe7b0223f3bc975).\nOpen claims with paid, reserve and incurred to date.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_build_claims_summary\n  3 |   Purpose   Open claims summary for the claims MI pack: one row per claim that\n  4 |             is open or reopened at the reporting date, with paid, case reserve\n  5 |             and incurred to date.\n  6 |   Author    JMcK\n  7 |   Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  8 |   Output    rpt.claims_summary (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2014-09-03  JMcK  Initial version (CR-0871)\n 12 |     2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n 13 |     2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n 14 |     2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n 15 |     2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n 16 |     2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\n 21 | CREATE TABLE rpt.claims_summary (\n 22 |     claim_id           INT            NOT NULL,\n 23 |     claim_number       VARCHAR(20)    NOT NULL,\n 24 |     claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n 25 |     policy_id          INT            NOT NULL,\n 26 |     policy_number      VARCHAR(20)    NULL,\n 27 |     lob_code           VARCHAR(5)     NOT NULL,\n 28 |     status             VARCHAR(12)    NOT NULL,\n 29 |     handler_code       VARCHAR(8)     NULL,\n 30 |     loss_date          DATE           NOT NULL,\n 31 |     loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n 32 |     reported_date      DATE           NOT NULL,\n 33 |     reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n 34 |     days_open          INT            NOT NULL,\n 35 |     n_payments         INT            NOT NULL,\n 36 |     total_paid         DECIMAL(14,2)  NOT NULL,\n 37 |     indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n 38 |     expense_reserve    DECIMAL(14,2)  NOT NULL,\n 39 |     current_reserve    DECIMAL(14,2)  NOT NULL,\n 40 |     incurred           DECIMAL(14,2)  NOT NULL,\n 41 |     as_of_date         DATE           NOT NULL,\n 42 |     CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n 52 |             @rows           INT,\n 53 |             @snapshot_date  DATE,\n 54 |             @err_msg        NVARCHAR(4000),\n 55 |             @err_no         INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Open book: claims open or reopened and notified by the reporting date */\n 61 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 62 | \n 63 |         SELECT  c.claim_id,\n 64 |                 c.claim_number,\n 65 |                 c.policy_id,\n 66 |                 UPPER(RTRIM(c.lob_code))    AS lob_code,\n 67 |                 c.status,\n 68 |                 c.handler_code,\n 69 |                 c.loss_date,\n 70 |                 c.reported_date\n 71 |         INTO    #open_claims\n 72 |         FROM    stg.claims c WITH (NOLOCK)\n 73 |         WHERE   c.status IN ('OPEN', 'REOPENED')\n 74 |           AND   c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n 78 | \n 79 |         /* Case reserve per claim and reserve type: the latest entry on or before\n 80 |            the reporting date (a second entry on the same day is a correction) */\n 81 |         IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n 82 | \n 83 |         SELECT  x.claim_id,\n 84 |                 x.reserve_type,\n 85 |                 x.reserve_amount\n 86 |         INTO    #reserve\n 87 |         FROM   (SELECT  r.claim_id,\n 88 |                         r.reserve_type,\n 89 |                         r.reserve_amount,\n 90 |                         ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n 91 |                                            ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 92 |                 FROM    stg.claim_reserves r WITH (NOLOCK)\n 93 |                 JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n 94 |                 WHERE   r.reserve_date <= @AsOfDate) x\n 95 |         WHERE   x.rn = 1;\n 96 | \n 97 |         SET @rows = @@ROWCOUNT;\n 98 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         /* Paid to date and case reserves per claim */\n101 |         IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n102 | \n103 |         SELECT  oc.claim_id,\n104 |                 COUNT(DISTINCT p.payment_id)    AS n_payments,\n105 |                 ISNULL(SUM(p.amount), 0)        AS total_paid,\n106 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n107 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n108 |         INTO    #money\n109 |         FROM    #open_claims oc\n110 |         LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n111 |                ON p.claim_id = oc.claim_id\n112 |               AND p.payment_date <= @AsOfDate\n113 |         LEFT JOIN #reserve r\n114 |                ON r.claim_id = oc.claim_id\n115 |         GROUP BY oc.claim_id;\n116 | \n117 |         SET @rows = @@ROWCOUNT;\n118 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n119 | \n120 |         /* Policy number from the latest policy extract on or before the reporting date */\n121 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n122 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n123 |         WHERE   ps.snapshot_date <= @AsOfDate;\n124 | \n125 |         BEGIN TRANSACTION;\n126 | \n127 |         TRUNCATE TABLE rpt.claims_summary;\n128 | \n129 |         INSERT INTO rpt.claims_summary\n130 |                (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n131 |                 status, handler_code, loss_date, loss_date_text, reported_date,\n132 |                 reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n133 |                 expense_reserve, current_reserve, incurred, as_of_date)\n134 |         SELECT  oc.claim_id,\n135 |                 oc.claim_number,\n136 |                 oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n137 |                 oc.policy_id,\n138 |                 ps.policy_number,\n139 |                 oc.lob_code,\n140 |                 oc.status,\n141 |                 oc.handler_code,\n142 |                 oc.loss_date,\n143 |                 CONVERT(VARCHAR(10), oc.loss_date, 103),\n144 |                 oc.reported_date,\n145 |                 CONVERT(CHAR(6), oc.reported_date, 112),\n146 |                 DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n147 |                 m.n_payments,\n148 |                 m.total_paid,\n149 |                 m.indemnity_reserve,\n150 |                 m.expense_reserve,\n151 |                 m.indemnity_reserve + m.expense_reserve,\n152 |                 m.total_paid + m.indemnity_reserve + m.expense_reserve,\n153 |                 @AsOfDate\n154 |         FROM    #open_claims oc\n155 |         JOIN    #money m\n156 |                 ON m.claim_id = oc.claim_id\n157 |         LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n158 |                ON ps.policy_id = oc.policy_id\n159 |               AND ps.snapshot_date = @snapshot_date;\n160 | \n161 |         SET @rows = @@ROWCOUNT;\n162 | \n163 |         COMMIT TRANSACTION;\n164 | \n165 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n166 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n167 |     END TRY\n168 |     BEGIN CATCH\n169 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n170 | \n171 |         SELECT  @err_msg = ERROR_MESSAGE(),\n172 |                 @err_no  = ERROR_NUMBER();\n173 | \n174 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n175 |              @message = @err_msg, @error_number = @err_no;\n176 |         THROW;\n177 |     END CATCH\n178 | END;\n179 | GO\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n- stg.claim_reserves: reserve_id int (INT), claim_id int (INT), reserve_date date (DATE), reserve_type string (VARCHAR(12)), reserve_amount decimal(12,2) (DECIMAL(12,2)), _row_seq int (INT)\n- stg.policy_snapshots: snapshot_date date (DATE), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), product_code string (VARCHAR(10)), broker_code string (VARCHAR(10)), inception_date date (DATE), expiry_date date (DATE), status string (VARCHAR(12)), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), sum_insured decimal(14,2) (DECIMAL(14,2)), payment_frequency string (VARCHAR(10)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), _row_seq int (INT)\n\nOutput tables (contract types, legacy types):\n- rpt.claims_summary (key ['claim_id']): claim_id int (INT), claim_number string (VARCHAR(20)), claim_ref string (VARCHAR(40)), policy_id int (INT), policy_number string (VARCHAR(20)), lob_code string (VARCHAR(5)), status string (VARCHAR(12)), handler_code string (VARCHAR(8)), loss_date date (DATE), loss_date_text string (VARCHAR(10)), reported_date date (DATE), reported_period string (CHAR(6)), days_open int (INT), n_payments int (INT), total_paid decimal(14,2) (DECIMAL(14,2)), indemnity_reserve decimal(14,2) (DECIMAL(14,2)), expense_reserve decimal(14,2) (DECIMAL(14,2)), current_reserve decimal(14,2) (DECIMAL(14,2)), incurred decimal(14,2) (DECIMAL(14,2)), as_of_date date (DATE)\n\nTrap findings in this job:\n- TSQL-13 lines 61-71: #open_claims temp table becomes a DataFrame.\n- TSQL-01 lines 73-73: status is VARCHAR; IN ('OPEN','REOPENED') matches case variants under CI collation, Spark binary compare drops them.\n- TSQL-02 lines 73-73: status VARCHAR values with trailing spaces ('OPEN ') still match in SQL Server, not in Spark.\n- TSQL-13 lines 81-86: #reserve temp table becomes a DataFrame.\n- TSQL-01 lines 90-91: PARTITION BY reserve_type (VARCHAR) groups case variants together for the latest-reserve pick; Spark would split them.\n- TSQL-02 lines 90-91: PARTITION BY reserve_type ignores trailing spaces in SQL Server; Spark partitions 'EXPENSE ' separately.\n- TSQL-13 lines 101-108: #money temp table becomes a DataFrame.\n- TSQL-01 lines 106-106: reserve_type = 'INDEMNITY' on VARCHAR matches 'Indemnity' under CI collation; Spark would not.\n- TSQL-02 lines 106-106: reserve_type = 'INDEMNITY' ignores trailing spaces in SQL Server.\n- TSQL-01 lines 107-107: reserve_type = 'EXPENSE' on VARCHAR is case-insensitive in legacy.\n- TSQL-02 lines 107-107: reserve_type = 'EXPENSE' ignores trailing spaces in SQL Server.\n- TSQL-05 lines 136-136: handler_code is nullable; '+' concatenation makes claim_ref NULL when handler_code is NULL; must use concat (not concat_ws).\n- TSQL-16 lines 143-143: CONVERT style 103 gives dd/mm/yyyy; Spark needs date_format 'dd/MM/yyyy'.\n- TSQL-16 lines 145-145: CONVERT(CHAR(6), d, 112) truncates yyyymmdd to yyyymm; Spark needs date_format 'yyyyMM'.\n- TSQL-04 lines 146-146: DATEDIFF(DAY) on DATE equals day difference, but Spark datediff(end,start) reverses argument order; naive translation flips the sign.\n\nTrap cards:\n### TSQL-01 (semantic): Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins\nLegacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged.\nSpark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\nFix: Compare, group, partition and join on upper(rtrim(x)) (or collate(x, 'UTF8_LCASE_RTRIM')) while selecting the original column for output. Never change the stored value unless the legacy code does (e.g. UPPER in the SELECT). Use rtrim, not trim: leading spaces count.\nExample: WHERE o.order_state IN ('SHIPPED', 'BILLED') -> F.upper(F.rtrim('order_state')).isin('SHIPPED', 'BILLED')\n\n### TSQL-02 (semantic): Comparisons ignore trailing spaces; CHAR(n) pads with spaces\nLegacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count.\nSpark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\nFix: rtrim both sides of every text comparison, grouping and join key. Where the legacy output column is CHAR(n)/NCHAR(n), pad the value with rpad(x, n, ' ') (NULL stays NULL) so the output matches the stored legacy value. A CHAR(n) source column read into an expression keeps its padding (e.g. in + concatenation).\nExample: account_type CHAR(4) ... WHERE region = 'WEST' -> F.rpad('account_type', 4, ' ') ... F.rtrim('region') == 'WEST'\n\n### TSQL-04 (semantic): DATEDIFF counts boundaries crossed, not elapsed periods\nLegacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference.\nSpark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\nFix: year: year(b) - year(a). quarter: (year(b)*4 + quarter(b)) - (year(a)*4 + quarter(a)). month: (year(b)*12 + month(b)) - (year(a)*12 + month(a)). week: the difference of Sunday-anchored week numbers, floor(datediff(x, DATE'1899-12-31') / 7) for b minus a. day: datediff(b, a). Mind the argument order: T-SQL is (part, start, end), Spark's datediff is (end, start).\nExample: DATEDIFF(YEAR, e.hire_date, @AsOfDate) -> F.year(as_of) - F.year('hire_date')\n\n### TSQL-05 (semantic): + concatenation with NULL yields NULL\nLegacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty.\nSpark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\nFix: Translate T-SQL + on strings to F.concat(...) (NULL if any part is NULL). Translate T-SQL CONCAT() to concat of coalesce(x, '') parts, and CONCAT_WS to concat_ws. CHAR(n) parts keep their padding inside the concatenation (TSQL-02).\nExample: a.first_name + ' ' + a.middle_name + ' ' + a.last_name -> F.concat('first_name', F.lit(' '), 'middle_name', F.lit(' '), 'last_name')\n\n### TSQL-13 (construct): Temp tables\nLegacy: #temp tables hold intermediate results for the session.\nSpark: Intermediate results are DataFrames or temporary views.\nFix: Make each #temp table a DataFrame (or temp view). Keep its column types: SELECT INTO creates columns with the source expressions' types, which can matter downstream.\nExample: SELECT ... INTO #active_orders FROM dbo.orders -> active_orders = orders.where(...)\n\n### TSQL-16 (semantic): CONVERT style codes\nLegacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm.\nSpark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\nFix: Use date_format with the style's pattern ('MM/dd/yyyy' for 101, 'dd/MM/yyyy' for 103, 'dd.MM.yyyy' for 104, 'dd-MM-yyyy' for 105, 'yyyy/MM/dd' for 111, 'yyyyMMdd' for 112, 'yyyy-MM-dd HH:mm:ss' for 120, 'yyyy-MM-dd' for 23), then cut to the target length with substring(x, 1, n) where the target type is shorter.\nExample: CONVERT(VARCHAR(10), o.order_date, 101), CONVERT(CHAR(8), o.ship_date, 120) -> F.date_format('order_date', 'MM/dd/yyyy'), F.substring(F.date_format('ship_date', 'yyyy-MM-dd HH:mm:ss'), 1, 8)\n\nsqlglot draft (a starting point, not trusted):\n-- lines 51-55\nDECLARE   ${job_name} VARCHAR(128) = 'rpt.usp_build_claims_summary',   ${rows} INT,   ${snapshot_date} DATE,   ${err_msg} VARCHAR(4000),   ${err_no} INT\n\n-- lines 63-74; traps: TSQL-01 (line 73), TSQL-02 (line 73), TSQL-13 (line 61)\nCREATE TEMPORARY TABLE open_claims AS SELECT\n  c.claim_id,\n  c.claim_number,\n  c.policy_id,\n  UPPER(RTRIM(c.lob_code)) AS lob_code,\n  c.status,\n  c.handler_code,\n  c.loss_date,\n  c.reported_date\nFROM stg.claims AS c\nWHERE\n  c.status IN ('OPEN', 'REOPENED') AND c.reported_date <= ${AsOfDate}\n\n-- lines 83-95; traps: TSQL-01 (line 90), TSQL-02 (line 90), TSQL-13 (line 81)\nCREATE TEMPORARY TABLE reserve AS SELECT\n  x.claim_id,\n  x.reserve_type,\n  x.reserve_amount\nFROM (\n  SELECT\n    r.claim_id,\n    r.reserve_type,\n    r.reserve_amount,\n    ROW_NUMBER() OVER (\n      PARTITION BY r.claim_id, r.reserve_type\n      ORDER BY r.reserve_date DESC, r.reserve_id DESC\n    ) AS rn\n  FROM stg.claim_reserves AS r\n  JOIN open_claims AS oc\n    ON oc.claim_id = r.claim_id\n  WHERE\n    r.reserve_date <= ${AsOfDate}\n) AS x\nWHERE\n  x.rn = 1\n\n-- lines 103-115; traps: TSQL-01 (line 106), TSQL-01 (line 107), TSQL-02 (line 106), TSQL-02 (line 107), TSQL-13 (line 101)\nCREATE TEMPORARY TABLE money AS SELECT\n  oc.claim_id,\n  COUNT(DISTINCT p.payment_id) AS n_payments,\n  COALESCE(SUM(p.amount), 0) AS total_paid,\n  COALESCE(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n  COALESCE(MAX(CASE WHEN r.reserve_type = 'EXPENSE' THEN r.reserve_amount END), 0) AS expense_reserve\nFROM open_claims AS oc\nLEFT JOIN stg.claim_payments AS p\n  ON p.claim_id = oc.claim_id AND p.payment_date <= ${AsOfDate}\nLEFT JOIN reserve AS r\n  ON r.claim_id = oc.claim_id\nGROUP BY\n  oc.claim_id\n\n-- lines 121-123\nSELECT\n  ${snapshot_date} = MAX(ps.snapshot_date)\nFROM stg.policy_snapshots AS ps\nWHERE\n  ps.snapshot_date <= ${AsOfDate}\n\n-- lines 127-127\nTRUNCATE TABLE   rpt.claims_summary\n\n-- lines 129-159; traps: TSQL-04 (line 146), TSQL-05 (line 136), TSQL-16 (line 143), TSQL-16 (line 145)\nINSERT INTO rpt.claims_summary (\n  claim_id,\n  claim_number,\n  claim_ref,\n  policy_id,\n  policy_number,\n  lob_code,\n  status,\n  handler_code,\n  loss_date,\n  loss_date_text,\n  reported_date,\n  reported_period,\n  days_open,\n  n_payments,\n  total_paid,\n  indemnity_reserve,\n  expense_reserve,\n  current_reserve,\n  incurred,\n  as_of_date\n)\nSELECT\n  oc.claim_id,\n  oc.claim_number,\n  oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n  oc.policy_id,\n  ps.policy_number,\n  oc.lob_code,\n  oc.status,\n  oc.handler_code,\n  oc.loss_date,\n  CAST(DATE_FORMAT(oc.loss_date, 'dd/MM/yyyy') AS VARCHAR(10)),\n  oc.reported_date,\n  CAST(DATE_FORMAT(oc.reported_date, 'yyyyMMdd') AS CHAR(6)),\n  DATEDIFF(DAY, CAST(oc.reported_date AS TIMESTAMP), CAST(${AsOfDate} AS TIMESTAMP)),\n  m.n_payments,\n  m.total_paid,\n  m.indemnity_reserve,\n  m.expense_reserve,\n  m.indemnity_reserve + m.expense_reserve,\n  m.total_paid + m.indemnity_reserve + m.expense_reserve,\n  ${AsOfDate}\nFROM open_claims AS oc\nJOIN money AS m\n  ON m.claim_id = oc.claim_id\nLEFT JOIN stg.policy_snapshots AS ps\n  ON ps.policy_id = oc.policy_id AND ps.snapshot_date = ${snapshot_date}\n\nLineage agent's notes:\n1) Possible legacy bug (row fan-out): #money LEFT JOINs both claim_payments and #reserve on claim_id before GROUP BY (lines 109-115). A claim can have up to two reserve rows (INDEMNITY and EXPENSE), so SUM(p.amount) counts each payment once per reserve row, and total_paid and incurred can come out doubled. The migration must reproduce this behaviour to match the legacy output; n_payments is not affected because it uses COUNT(DISTINCT). 2) claim_ref is NULL whenever handler_code is NULL, because string concatenation with + returns NULL by default (CONCAT_NULL_YIELDS_NULL). 3) policy_number comes from the single latest snapshot_date on or before @AsOfDate across the whole table, picked into the variable @snapshot_date (lines 121-123). If a policy is missing from that snapshot, policy_number is NULL; the job does not fall back to an earlier snapshot. 4) Reserve types other than INDEMNITY or EXPENSE are dropped, and the reserve_date filter only changes the reserve values, not which claim rows appear. 5) The PARTITION BY claim_id, reserve_type in the reserve ROW_NUMBER is listed as a ranks edge with lower confidence (0.6). 6) The joins to #money and #reserve keep every open claim, so the output has one row per claim from stg.claims that passes the filters on lines 73-74.\n",
+    "system_prompt": "You are the translator agent of LANSH. You migrate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2, and your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module in the LANSH job template:\n- A module docstring: \"<job id> <name>: migrated from <legacy path>.\", then the lines \"Legacy SHA-256: <hash>\", \"Written by: LANSH translator (Claude)\", \"Traps handled: <ids>\" and \"Bugs reproduced on purpose (# LANSH-DEFECT): <short names, or none>\".\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Handle every trap finding you are given, following its card's fix guidance, and list the trap ids in traps_handled.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- T-SQL specifics: text comparisons, IN lists, GROUP BY, DISTINCT, PARTITION BY and joins ignore case and trailing spaces under the database collation; CHAR(n) output columns hold values padded to n; INT / INT truncates; + on strings is NULL if any part is NULL; ISNULL takes its first argument's type; DATEDIFF counts boundaries. The cards give exact fixes.\n- Temp tables become DataFrames; logging (etl.usp_log_step), transactions, TRY/CATCH and @@ROWCOUNT are harness concerns: leave them out.\n"
+  },
+  "request_sha256": "8a3487800384c9350c350577124a08bf999582823fe6b25cae07e9f33eb739c5",
+  "response": {
+    "duration_api_ms": 60750,
+    "duration_ms": 60942,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 13739,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 13739,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.25918,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7463,
+        "provider": "firstParty",
+        "thinkingTokens": 3921,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"T04 usp_build_claims_summary: migrated from estate/tsql/T04_usp_build_claims_summary.sql.\n\nLegacy SHA-256: 632841c99f0c5919975c6fd2266ab04b33e1ba87424c55bbfbe7b0223f3bc975\nWritten by: LANSH translator (Claude)\nTraps handled: TSQL-01, TSQL-02, TSQL-04, TSQL-05, TSQL-13, TSQL-16\nBugs reproduced on purpose (# LANSH-DEFECT): payment/reserve join fan-out inflates total_paid and incurred\n\"\"\"\nfrom pyspark.sql import DataFrame, SparkSession, Window\nimport pyspark.sql.functions as F\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    claims = inputs[\"stg.claims\"]\n    payments = inputs[\"stg.claim_payments\"]\n    reserves = inputs[\"stg.claim_reserves\"]\n    snapshots = inputs[\"stg.policy_snapshots\"]\n\n    as_of = F.to_date(F.lit(params[\"AsOfDate\"]))\n\n    # TSQL-13: #open_claims -> DataFrame (lines 63-74)\n    # TSQL-01 / TSQL-02: status IN (...) ignores case and trailing spaces under the CI collation\n    open_claims = (\n        claims\n        .where(\n            F.upper(F.rtrim(F.col(\"status\"))).isin(\"OPEN\", \"REOPENED\")\n            & (F.col(\"reported_date\") <= as_of)\n        )\n        .select(\n            F.col(\"claim_id\"),\n            F.col(\"claim_number\"),\n            F.col(\"policy_id\"),\n            F.upper(F.rtrim(F.col(\"lob_code\"))).alias(\"lob_code\"),\n            F.col(\"status\"),\n            F.col(\"handler_code\"),\n            F.col(\"loss_date\"),\n            F.col(\"reported_date\"),\n        )\n    )\n\n    oc_ids = open_claims.select(\"claim_id\")\n\n    # TSQL-13: #reserve -> DataFrame (lines 83-95)\n    # TSQL-01 / TSQL-02: PARTITION BY reserve_type puts case / trailing-space variants together\n    w_res = (\n        Window.partitionBy(F.col(\"claim_id\"), F.upper(F.rtrim(F.col(\"reserve_type\"))))\n        .orderBy(F.col(\"reserve_date\").desc(), F.col(\"reserve_id\").desc(), F.col(\"_row_seq\").asc())\n    )\n    reserve = (\n        reserves\n        .where(F.col(\"reserve_date\") <= as_of)\n        .join(oc_ids, on=\"claim_id\", how=\"inner\")\n        .withColumn(\"rn\", F.row_number().over(w_res))\n        .where(F.col(\"rn\") == 1)\n        .select(\"claim_id\", \"reserve_type\", \"reserve_amount\")\n    )\n\n    # TSQL-13: #money -> DataFrame (lines 103-115)\n    pay = (\n        payments\n        .where(F.col(\"payment_date\") <= as_of)\n        .select(F.col(\"claim_id\").alias(\"p_claim_id\"), F.col(\"payment_id\"), F.col(\"amount\"))\n    )\n    rsv = reserve.select(\n        F.col(\"claim_id\").alias(\"r_claim_id\"), F.col(\"reserve_type\"), F.col(\"reserve_amount\")\n    )\n    rtype = F.upper(F.rtrim(F.col(\"reserve_type\")))  # TSQL-01 / TSQL-02 on lines 106-107\n    money = (\n        oc_ids\n        .join(pay, F.col(\"claim_id\") == F.col(\"p_claim_id\"), \"left\")\n        .join(rsv, F.col(\"claim_id\") == F.col(\"r_claim_id\"), \"left\")  # LANSH-DEFECT: payments x reserve rows fan-out before GROUP BY\n        .groupBy(\"claim_id\")\n        .agg(\n            F.countDistinct(F.col(\"payment_id\")).alias(\"n_payments\"),\n            F.coalesce(F.sum(F.col(\"amount\")), F.lit(0)).alias(\"total_paid\"),  # LANSH-DEFECT: SUM counts each payment once per reserve row\n            F.coalesce(\n                F.max(F.when(rtype == \"INDEMNITY\", F.col(\"reserve_amount\"))), F.lit(0)\n            ).alias(\"indemnity_reserve\"),\n            F.coalesce(\n                F.max(F.when(rtype == \"EXPENSE\", F.col(\"reserve_amount\"))), F.lit(0)\n            ).alias(\"expense_reserve\"),\n        )\n    )\n\n    # @snapshot_date = MAX(snapshot_date) <= @AsOfDate (lines 121-123); NULL matches nothing\n    snap = (\n        snapshots\n        .where(F.col(\"snapshot_date\") <= as_of)\n        .agg(F.max(F.col(\"snapshot_date\")).alias(\"snap_date\"))\n    )\n    ps = (\n        snapshots\n        .join(snap, F.col(\"snapshot_date\") == F.col(\"snap_date\"), \"inner\")\n        .select(F.col(\"policy_id\").alias(\"ps_policy_id\"), F.col(\"policy_number\"))\n    )\n\n    joined = (\n        open_claims\n        .join(money, on=\"claim_id\", how=\"inner\")\n        .join(ps, F.col(\"policy_id\") == F.col(\"ps_policy_id\"), \"left\")\n    )\n\n    result = joined.select(\n        F.col(\"claim_id\"),\n        F.col(\"claim_number\"),\n        # TSQL-05: '+' concatenation is NULL if any part (e.g. handler_code) is NULL\n        F.concat(\n            F.col(\"lob_code\"), F.lit(\"/\"), F.col(\"claim_number\"), F.lit(\"/\"), F.col(\"handler_code\")\n        ).alias(\"claim_ref\"),\n        F.col(\"policy_id\"),\n        F.col(\"policy_number\"),\n        F.col(\"lob_code\"),\n        F.col(\"status\"),\n        F.col(\"handler_code\"),\n        F.col(\"loss_date\"),\n        # TSQL-16: CONVERT(VARCHAR(10), d, 103) -> dd/MM/yyyy\n        F.date_format(F.col(\"loss_date\"), \"dd/MM/yyyy\").alias(\"loss_date_text\"),\n        F.col(\"reported_date\"),\n        # TSQL-16: CONVERT(CHAR(6), d, 112) -> first 6 chars of yyyyMMdd; TSQL-02 CHAR(6) padding\n        F.rpad(\n            F.substring(F.date_format(F.col(\"reported_date\"), \"yyyyMMdd\"), 1, 6), 6, \" \"\n        ).alias(\"reported_period\"),\n        # TSQL-04: DATEDIFF(DAY, start, end) -> datediff(end, start)\n        F.datediff(as_of, F.col(\"reported_date\")).alias(\"days_open\"),\n        F.col(\"n_payments\"),\n        F.col(\"total_paid\"),\n        F.col(\"indemnity_reserve\"),\n        F.col(\"expense_reserve\"),\n        (F.col(\"indemnity_reserve\") + F.col(\"expense_reserve\")).alias(\"current_reserve\"),\n        (F.col(\"total_paid\") + F.col(\"indemnity_reserve\") + F.col(\"expense_reserve\")).alias(\"incurred\"),  # LANSH-DEFECT: incurred carries the fanned-out total_paid\n        as_of.alias(\"as_of_date\"),\n    )\n\n    return {\"rpt.claims_summary\": result}\n",
+      "defects": [
+        {
+          "intended": "Total paid to date should count each payment once: work out payments and reserves separately per claim (or pre-aggregate them) before joining.",
+          "legacy_lines": [
+            105,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            152
+          ],
+          "title": "Payment/reserve join fan-out inflates total_paid and incurred",
+          "what_it_does": "#money LEFT JOINs claim_payments and #reserve on claim_id before GROUP BY. Each payment row is repeated once for every reserve row the claim has in #reserve (one per distinct reserve type, other types such as non-INDEMNITY/EXPENSE included). So SUM(p.amount) gives paid multiplied by the number of reserve rows (when there are 2 or more), and incurred carries the same inflated figure. n_payments (COUNT DISTINCT) and the MAX reserves are not affected."
+        }
+      ],
+      "notes": "1) The fan-out is reproduced by copying the join shape exactly: open claims LEFT JOIN payments (payment_date <= AsOfDate, filtered before the left join, which gives the same result) LEFT JOIN #reserve, then GROUP BY claim_id. #reserve keeps every reserve type, not just INDEMNITY and EXPENSE, so other types also multiply the payment rows, just as in legacy. 2) The latest reserve per (claim_id, reserve_type) is picked with the type key upper(rtrim()), so case and trailing-space variants share one partition. The stored reserve_type is kept, and the INDEMNITY/EXPENSE CASE checks also use upper(rtrim()). Ties are broken by _row_seq ascending after reserve_date DESC, reserve_id DESC; DESC puts NULLs last, as in SQL Server. 3) @snapshot_date is the single latest snapshot_date <= AsOfDate across the whole table. If there is none, the equality join matches nothing and policy_number is NULL. A policy missing from that snapshot also gets NULL, with no fallback to an earlier snapshot, matching legacy. 4) n_payments comes from countDistinct (bigint) and the harness casts it to INT. The money columns stay exact decimals until the harness casts them to decimal(14,2). 5) claim_ref uses F.concat, so it is NULL when handler_code (or any other part) is NULL. 6) If stg.claims has duplicate claim_ids, the joins repeat them just as legacy does; legacy would then fail on the primary key.",
+      "traps_handled": [
+        "TSQL-13",
+        "TSQL-01",
+        "TSQL-02",
+        "TSQL-05",
+        "TSQL-16",
+        "TSQL-04"
+      ]
+    },
+    "total_cost_usd": 0.25918,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 13739,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 13739,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 13739,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 13739,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 7463,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7463,
+      "output_tokens_details": {
+        "thinking_tokens": 3921
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

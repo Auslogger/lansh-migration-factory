@@ -1,0 +1,305 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 27,
+        "line_start": 27,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 30,
+        "line_start": 29,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 57,
+        "line_start": 32,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 3,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 59,
+        "line_start": 59,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 64,
+        "line_start": 61,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 5,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 65,
+        "line_start": 65,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 6,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 72,
+        "line_start": 67,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 74,
+        "line_start": 74,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 8,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 75,
+        "line_start": 75,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 80,
+        "line_start": 79,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 83,
+        "line_start": 82,
+        "sqlglot_parsed": false
+      },
+      {
+        "index": 11,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 85,
+        "line_start": 85,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 113,
+        "line_start": 88,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 115,
+        "line_start": 115,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 116,
+        "line_start": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 119,
+        "line_start": 118,
+        "sqlglot_parsed": false
+      },
+      {
+        "index": 16,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 121,
+        "line_start": 121,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 123,
+        "line_start": 123,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 137,
+        "line_start": 127,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 139,
+        "line_start": 139,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 161,
+        "line_start": 142,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 163,
+        "line_start": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 22,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 165,
+        "line_start": 165,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 23,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 167,
+        "line_start": 167,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 24,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 168,
+        "line_start": 168,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 25,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 169,
+        "line_start": 169,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 170,
+        "line_start": 170,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 27,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 171,
+        "line_start": 171,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 28,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 172,
+        "line_start": 172,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 29,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 175,
+        "line_start": 174,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 30,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 178,
+        "line_start": 177,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 31,
+        "job_id": "T02",
+        "kind": "statement",
+        "line_end": 179,
+        "line_start": 179,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 32,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 180,
+        "line_start": 180,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 33,
+        "job_id": "T02",
+        "kind": "other",
+        "line_end": 181,
+        "line_start": 181,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [
+      "2 statements sqlglot can't parse (lines 82-83, 118-119); the translator works from the code itself"
+    ],
+    "job_id": "T02",
+    "reads": [
+      "dw.dim_customer",
+      "stg.brokers",
+      "stg.policy_snapshots",
+      "stg.products"
+    ],
+    "status": "flagged",
+    "writes": [
+      "dw.dim_policy"
+    ]
+  },
+  "stats": {
+    "blocks": 34,
+    "lineage_edges": 44,
+    "rule_candidates": 23,
+    "sqlglot_agreeing_columns": 22,
+    "sqlglot_traced_columns": 22,
+    "statements_unparsed": 2,
+    "trap_findings": 19
+  },
+  "warnings": [
+    "flagged: 2 statements sqlglot can't parse (lines 82-83, 118-119); the translator works from the code itself",
+    "lineage agent notes: dw.dim_policy is both an input and the output: the job never truncates it. The MERGE closes changed current versions by setting valid_to = @SnapshotDate - 1 and is_current = 'N'. The INSERT then opens a new version for policies that have no current row left. The change test compares the snapshot with the current row on status, broker_code (after ISNULL to 'DIRECT-SALES'), annual_premium and vehicle_reg. It is listed as filters from both sides because it decides which rows get closed and re-versioned.\n\nproduct_code comes from pr.product_code, which always equals p.product_code because of the inner join. The LEFT JOIN keys to stg.brokers and dw.dim_customer don't remove rows, but they could duplicate them, so I gave them lower confidence as filters.\n\nstg.brokers.broker_code is CHAR(6) while p.broker_code is VARCHAR(10). The join therefore matches only codes of 6 characters or fewer, because SQL Server ignores trailing spaces when comparing. Spark comparisons don't ignore trailing spaces, so the migrated join should trim or pad the codes.\n\nThe @last_loaded guard stops the whole run (THROW) instead of filtering rows. It's listed as a low-confidence filter on source_snapshot_date.\n\nThe script drops and recreates dw.dim_policy on deploy (lines 29-57). That is DDL, not part of the procedure's run.\n\nORDER BY s.policy_id on the INSERT changes only the order in which IDENTITY values are assigned to policy_sk. It doesn't decide which rows appear. To match policy_sk values, the migration must reproduce that order."
+  ]
+}

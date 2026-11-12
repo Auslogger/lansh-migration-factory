@@ -1,0 +1,327 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:26:54.665109Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T03",
+    "json_schema": {
+      "$defs": {
+        "TrapFindingAnswer": {
+          "additionalProperties": false,
+          "description": "One place where a known engine difference (a trap card) affects this job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "Why the trap matters at these lines, in one or two sentences.",
+              "title": "Note",
+              "type": "string"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "line_start",
+            "line_end",
+            "confidence",
+            "note"
+          ],
+          "title": "TrapFindingAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The traps a careful reviewer finds in the job, beyond those the rules already found.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/TrapFindingAnswer"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScanAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T03: usp_build_fact_premium_earned (tsql), file estate/tsql/T03_usp_build_fact_premium_earned.sql.\nWritten and earned premium in EUR per premium transaction.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       dw.usp_build_fact_premium_earned\n  3 |   Purpose   Premium fact for finance: one row per premium transaction, converted\n  4 |             to EUR at the rate published on or before the booking date, with\n  5 |             the premium earned as at the reporting date.\n  6 |   Author    MOD\n  7 |   Run by    FIN_MONTH_END, after dw.usp_load_dim_policy\n  8 |   Output    dw.fact_premium_earned (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2016-01-11  MOD  Initial version (CR-0904)\n 12 |     2016-07-04  MOD  Sterling and dollar business converted to EUR (CR-0977)\n 13 |     2018-03-19  PK   Policy surrogate key and line of business from dim_policy (CR-1290)\n 14 |     2019-09-30  PK   Daily rate and monthly instalment for the cash-flow model (CR-1510)\n 15 |     2021-02-15  MOD  First instalment due date for the direct debit file (CR-1618)\n 16 |     2023-05-08  JMcK Earned percentage for the finance dashboard (INC-2301)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'dw.fact_premium_earned', N'U') IS NULL\n 21 | CREATE TABLE dw.fact_premium_earned (\n 22 |     txn_id                  INT            NOT NULL,\n 23 |     policy_id               INT            NOT NULL,\n 24 |     policy_sk               INT            NOT NULL,\n 25 |     lob_code                VARCHAR(5)     NOT NULL,\n 26 |     txn_type                VARCHAR(4)     NOT NULL,\n 27 |     txn_date                DATE           NOT NULL,\n 28 |     effective_from          DATE           NOT NULL,\n 29 |     effective_to            DATE           NOT NULL,\n 30 |     currency                CHAR(3)        NOT NULL,\n 31 |     amount                  DECIMAL(12,2)  NOT NULL,\n 32 |     fx_rate                 DECIMAL(18,8)  NOT NULL,\n 33 |     written_eur             DECIMAL(14,2)  NOT NULL,\n 34 |     term_days               INT            NOT NULL,\n 35 |     earned_days             INT            NOT NULL,\n 36 |     earned_pct              DECIMAL(5,2)   NOT NULL,\n 37 |     earned_eur              DECIMAL(14,2)  NOT NULL,\n 38 |     unearned_eur            DECIMAL(14,2)  NOT NULL,\n 39 |     daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n 40 |     monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n 41 |     first_due_date          DATE           NOT NULL,\n 42 |     as_of_date              DATE           NOT NULL,\n 43 |     CONSTRAINT pk_dw_fact_premium_earned PRIMARY KEY (txn_id)\n 44 | );\n 45 | GO\n 46 | CREATE OR ALTER PROCEDURE dw.usp_build_fact_premium_earned\n 47 |     @AsOfDate DATE\n 48 | AS\n 49 | BEGIN\n 50 |     SET NOCOUNT ON;\n 51 | \n 52 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_build_fact_premium_earned',\n 53 |             @rows      INT,\n 54 |             @err_msg   NVARCHAR(4000),\n 55 |             @err_no    INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Transactions with their EUR rate: EUR as is, other currencies at the\n 61 |            latest rate on or before the booking date (later row wins on revisions) */\n 62 |         IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n 63 | \n 64 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n 65 |                 t.effective_from, t.effective_to, t.currency, t.amount,\n 66 |                 CAST(1 AS DECIMAL(18,8)) AS fx_rate\n 67 |         INTO    #txn\n 68 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 69 |         WHERE   t.currency = 'EUR'\n 70 |           AND   t.txn_date <= @AsOfDate;\n 71 | \n 72 |         INSERT INTO #txn (txn_id, policy_id, txn_type, txn_date, effective_from, effective_to,\n 73 |                           currency, amount, fx_rate)\n 74 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)), t.txn_date,\n 75 |                 t.effective_from, t.effective_to, t.currency, t.amount, fx.rate_to_eur\n 76 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 77 |         CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n 78 |                      FROM   stg.fx_rates r WITH (NOLOCK)\n 79 |                      WHERE  r.currency = t.currency\n 80 |                        AND  r.rate_date <= t.txn_date\n 81 |                      ORDER BY r.rate_date DESC, r._row_seq DESC) fx\n 82 |         WHERE   t.currency <> 'EUR'\n 83 |           AND   t.txn_date <= @AsOfDate;\n 84 | \n 85 |         SELECT @rows = COUNT(*) FROM #txn;\n 86 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'transactions', @status = 'INFO', @rows_affected = @rows;\n 87 | \n 88 |         /* Days of cover and days earned by the reporting date */\n 89 |         IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n 90 | \n 91 |         SELECT  x.*,\n 92 |                 CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n 93 |                 DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n 94 |                 CASE WHEN @AsOfDate < x.effective_from THEN 0\n 95 |                      WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n 96 |                      ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n 97 |                 END AS earned_days\n 98 |         INTO    #earn\n 99 |         FROM    #txn x;\n100 | \n101 |         BEGIN TRANSACTION;\n102 | \n103 |         TRUNCATE TABLE dw.fact_premium_earned;\n104 | \n105 |         INSERT INTO dw.fact_premium_earned\n106 |                (txn_id, policy_id, policy_sk, lob_code, txn_type, txn_date, effective_from,\n107 |                 effective_to, currency, amount, fx_rate, written_eur, term_days, earned_days,\n108 |                 earned_pct, earned_eur, unearned_eur, daily_rate_eur, monthly_instalment_eur,\n109 |                 first_due_date, as_of_date)\n110 |         SELECT  e.txn_id,\n111 |                 e.policy_id,\n112 |                 p.policy_sk,\n113 |                 p.lob_code,\n114 |                 e.txn_type,\n115 |                 e.txn_date,\n116 |                 e.effective_from,\n117 |                 e.effective_to,\n118 |                 e.currency,\n119 |                 e.amount,\n120 |                 e.fx_rate,\n121 |                 e.written_eur,\n122 |                 e.term_days,\n123 |                 e.earned_days,\n124 |                 e.earned_days * 100 / e.term_days,\n125 |                 ROUND(e.written_eur * e.earned_days / 365, 2),\n126 |                 e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n127 |                 ROUND(e.written_eur / e.term_days, 4, 1),\n128 |                 ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n129 |                 DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n130 |                 @AsOfDate\n131 |         FROM    #earn e\n132 |         JOIN    dw.dim_policy p WITH (NOLOCK)\n133 |                 ON p.policy_id = e.policy_id\n134 |                AND p.is_current = 'Y';\n135 | \n136 |         SET @rows = @@ROWCOUNT;\n137 | \n138 |         COMMIT TRANSACTION;\n139 | \n140 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.fact_premium_earned', @status = 'INFO', @rows_affected = @rows;\n141 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n142 |     END TRY\n143 |     BEGIN CATCH\n144 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n145 | \n146 |         SELECT  @err_msg = ERROR_MESSAGE(),\n147 |                 @err_no  = ERROR_NUMBER();\n148 | \n149 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n150 |              @message = @err_msg, @error_number = @err_no;\n151 |         THROW;\n152 |     END CATCH\n153 | END;\n154 | GO\n\nInput tables:\n- stg.premium_transactions: txn_id INT, policy_id INT, txn_type VARCHAR(4), txn_date DATE, effective_from DATE, effective_to DATE, amount DECIMAL(12,2), currency CHAR(3), _row_seq INT\n- stg.fx_rates: rate_date DATE, currency CHAR(3), rate_to_eur DECIMAL(18,8), source VARCHAR(10), _row_seq INT\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n\nOutput tables:\n- dw.fact_premium_earned: txn_id INT, policy_id INT, policy_sk INT, lob_code VARCHAR(5), txn_type VARCHAR(4), txn_date DATE, effective_from DATE, effective_to DATE, currency CHAR(3), amount DECIMAL(12,2), fx_rate DECIMAL(18,8), written_eur DECIMAL(14,2), term_days INT, earned_days INT, earned_pct DECIMAL(5,2), earned_eur DECIMAL(14,2), unearned_eur DECIMAL(14,2), daily_rate_eur DECIMAL(12,4), monthly_instalment_eur DECIMAL(14,2), first_due_date DATE, as_of_date DATE\n\nTrap cards:\n- TSQL-01 (semantic) Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins. Legacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged. Spark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\n- TSQL-02 (semantic) Comparisons ignore trailing spaces; CHAR(n) pads with spaces. Legacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count. Spark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\n- TSQL-03 (semantic) Integer division truncates. Legacy: INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3. The result type follows the operands, so the fraction is lost before any later cast, e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b. Spark: Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.\n- TSQL-04 (semantic) DATEDIFF counts boundaries crossed, not elapsed periods. Legacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference. Spark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\n- TSQL-05 (semantic) + concatenation with NULL yields NULL. Legacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty. Spark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\n- TSQL-06 (semantic) ISNULL takes the type of its first argument; NULL treated as equal in change checks. Legacy: ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead. Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and '' as the same value. Spark: coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it never truncates.\n- TSQL-07 (semantic) DECIMAL precision and scale, and ROUND on computed values. Legacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds. Spark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\n- TSQL-08 (semantic) TOP and TOP WITH TIES. Legacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one. Spark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\n- TSQL-09 (construct) CROSS APPLY / OUTER APPLY with TOP 1. Legacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs. Spark: Spark has no APPLY; a lateral subquery or a window replaces it.\n- TSQL-10 (construct) UPDATE ... FROM. Legacy: UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source row; with several matches, which one wins is undefined. Spark: DataFrames are immutable; an update becomes a join plus a select.\n- TSQL-11 (construct) MERGE and type-2 history. Legacy: MERGE matches target and source rows and updates, inserts or deletes in one statement. Type-2 history closes the current version (valid_to, is_current) of changed rows and inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY order, continuing from the table's highest value. Spark: Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute the new state as a whole table from the previous state and the batch.\n- TSQL-12 (construct) Cursors and WHILE loops. Legacy: A cursor processes rows one at a time in its ORDER BY order; variables carry state between rows (running totals, last values). NULL arithmetic inside the loop propagates: SET @total = @total + NULL makes @total NULL for the rest of the loop. Spark: Spark is set-based; loops become aggregations or ordered windows.\n- TSQL-13 (construct) Temp tables. Legacy: #temp tables hold intermediate results for the session. Spark: Intermediate results are DataFrames or temporary views.\n- TSQL-14 (semantic) LIKE character classes. Legacy: T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual. Spark: Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.\n- TSQL-15 (semantic) LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT. Legacy: LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters. Spark: length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and returns n characters.\n- TSQL-16 (semantic) CONVERT style codes. Legacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm. Spark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\n- TSQL-17 (construct) PIVOT. Legacy: PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the source and turns listed values into columns; values not listed are dropped; missing combinations give NULL. Spark: groupBy(...).pivot(col, values).agg(...) does the same when the values are listed; the grouping columns must be stated explicitly.\n- TSQL-18 (semantic) EOMONTH and DATEADD at month-end. Legacy: DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1, '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a month-end. EOMONTH(d, n) returns the last day of the month n months away. Spark: add_months clamps the same way but also moves a last-day-of-month input to the target month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.\n- TSQL-19 (semantic) Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings. Legacy: Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order. Spark: Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.\n\nRule candidates:\n- TSQL-02 line 30: currency                CHAR(3)        NOT NULL,\n- TSQL-07 line 31: amount                  DECIMAL(12,2)  NOT NULL,\n- TSQL-07 line 32: fx_rate                 DECIMAL(18,8)  NOT NULL,\n- TSQL-07 line 33: written_eur             DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 36: earned_pct              DECIMAL(5,2)   NOT NULL,\n- TSQL-07 line 37: earned_eur              DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 38: unearned_eur            DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 39: daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n- TSQL-07 line 40: monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 66: CAST(1 AS DECIMAL(18,8)) AS fx_rate\n- TSQL-01 line 69: WHERE   t.currency = 'EUR'\n- TSQL-02 line 69: WHERE   t.currency = 'EUR'\n- TSQL-08 line 77: CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n- TSQL-01 line 82: WHERE   t.currency <> 'EUR'\n- TSQL-02 line 82: WHERE   t.currency <> 'EUR'\n- TSQL-07 line 92: CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n- TSQL-04 line 93: DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n- TSQL-04 line 95: WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n- TSQL-04 line 96: ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n- TSQL-03 line 124: e.earned_days * 100 / e.term_days,\n- TSQL-03 line 125: ROUND(e.written_eur * e.earned_days / 365, 2),\n- TSQL-07 line 125: ROUND(e.written_eur * e.earned_days / 365, 2),\n- TSQL-03 line 126: e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n- TSQL-07 line 126: e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n- TSQL-03 line 127: ROUND(e.written_eur / e.term_days, 4, 1),\n- TSQL-07 line 127: ROUND(e.written_eur / e.term_days, 4, 1),\n- TSQL-03 line 128: ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n- TSQL-06 line 128: ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n- TSQL-07 line 128: ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n- TSQL-18 line 129: DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n- TSQL-01 line 134: AND p.is_current = 'Y';\n- TSQL-02 line 134: AND p.is_current = 'Y';\n",
+    "system_prompt": "You are the trap-scan agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark 4.2 and must reproduce every legacy output exactly, bugs included.\n\nA trap is a place where the legacy engine and Spark behave differently. A semantic trap changes the result if the code is translated naively (a case-insensitive text comparison, integer division, a NULL concatenation). A construct trap is a construct Spark lacks (a cursor, a temp table, a MERGE, a macro loop) that changes only the shape of the code.\n\nYou get the job's code with line numbers, the schemas of its inputs and output, the trap cards (the known engine differences) and candidate findings from deterministic rules.\n\nReturn every trap occurrence in this job that a translator must handle:\n- confirm the candidates that are real, using the schemas: a comparison arms a text trap only if the column is text; integer division only if both operands are integers;\n- leave out candidates that are not real (they are dropped);\n- add occurrences the rules missed, such as joins on text columns, NULL propagation in loops, or variables whose length a first assignment fixes;\n- report each occurrence at the narrowest line range that shows it, and the same trap at different places separately; include latent occurrences that today's data may not trigger;\n- use only trap ids from the cards; set confidence to how sure you are that it is real.\n"
+  },
+  "request_sha256": "fcacac4293ca823ddb28dde03c67df6fd4c5c913da42fcb9fa3dc736573748e3",
+  "response": {
+    "duration_api_ms": 33610,
+    "duration_ms": 33676,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 9820,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 9820,
+        "cacheReadInputTokens": 1309,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.14994980000000002,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 3556,
+        "provider": "firstParty",
+        "thinkingTokens": 1510,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.95,
+          "line_end": 67,
+          "line_start": 62,
+          "note": "The #txn temp table is built with SELECT INTO and then added to by an INSERT; in Spark it becomes a DataFrame made by unioning the EUR and non-EUR branches.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 99,
+          "line_start": 89,
+          "note": "The #earn temp table holds the intermediate term and earned-day columns; in Spark it becomes a DataFrame or temp view.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 69,
+          "line_start": 69,
+          "note": "currency is CHAR(3) text. Under a CI collation, 'eur' or 'Eur' also matches 'EUR', but Spark's binary compare would drop those rows from the EUR branch.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 69,
+          "line_start": 69,
+          "note": "currency is CHAR(3), and SQL Server ignores trailing spaces in the comparison. A value like 'EU ' or a padded source value would compare differently in Spark.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 82,
+          "line_start": 82,
+          "note": "The <> 'EUR' test is case-insensitive in the legacy engine. In Spark, lower-case 'eur' rows would go to the FX branch and also be missing from the EUR branch.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 82,
+          "line_start": 82,
+          "note": "currency is CHAR(3) and the legacy comparison ignores trailing spaces. Spark compares the exact string.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 81,
+          "line_start": 77,
+          "note": "CROSS APPLY TOP 1 picks the latest rate per transaction and drops transactions that have no rate. In Spark this needs a join with a row_number window (inner semantics).",
+          "trap_id": "TSQL-09"
+        },
+        {
+          "confidence": 0.4,
+          "line_end": 81,
+          "line_start": 77,
+          "note": "TOP 1 is ordered by rate_date DESC, _row_seq DESC. If _row_seq ties within a date, the row chosen is arbitrary, so the window ordering must match.",
+          "trap_id": "TSQL-08"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 79,
+          "line_start": 79,
+          "note": "The rate lookup joins on the CHAR(3) currency columns. The CI collation matches case variants such as 'usd' to 'USD', and Spark's join would miss them.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 79,
+          "line_start": 79,
+          "note": "The CHAR(3) join on currency ignores trailing spaces in the legacy engine. Spark needs trimmed keys to match the same way.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.5,
+          "line_end": 92,
+          "line_start": 92,
+          "note": "DECIMAL(12,2)*DECIMAL(18,8) is rounded half away from zero to 2 places and cast to DECIMAL(14,2). Spark must keep decimal types and HALF_UP rounding, not doubles.",
+          "trap_id": "TSQL-07"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 124,
+          "line_start": 124,
+          "note": "earned_days*100/term_days is INT/INT, so the percentage is truncated to a whole number before it is stored in DECIMAL(5,2) (e.g. 33.00, not 33.33). Spark's / would return a fraction.",
+          "trap_id": "TSQL-03"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 125,
+          "line_start": 125,
+          "note": "Decimal * int / 365 follows SQL Server's precision and scale rules for division, then ROUND to 2 places half away from zero. Spark's decimal division and rounding must reproduce this.",
+          "trap_id": "TSQL-07"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 126,
+          "line_start": 126,
+          "note": "Unearned is written_eur minus the separately rounded earned amount, so the decimal scale and rounding of the subtrahend must match the legacy result.",
+          "trap_id": "TSQL-07"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 127,
+          "line_start": 127,
+          "note": "ROUND(x, 4, 1) truncates rather than rounds. Spark needs an explicit truncation of the decimal quotient (e.g. floor-based for positive values, toward zero for negatives), not F.round.",
+          "trap_id": "TSQL-07"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 128,
+          "line_start": 128,
+          "note": "term_days/30 is integer division, so the instalment count is truncated: 365 days gives 12, and under 30 days gives 0, which falls back to 1.",
+          "trap_id": "TSQL-03"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 128,
+          "line_start": 128,
+          "note": "Decimal divided by an int count, then ROUND to 2 places half away from zero into DECIMAL(14,2). The decimal types must be kept.",
+          "trap_id": "TSQL-07"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 129,
+          "line_start": 129,
+          "note": "DATEADD(MONTH,1,EOMONTH(d)) clamps without snapping to month-end: an end of February gives the 28th/29th of March. Spark's add_months on a last-day input returns the 31st, so the result would differ.",
+          "trap_id": "TSQL-18"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "is_current is CHAR(1) text. Under the CI collation a lower-case 'y' also matches, and Spark's exact compare would drop those policies from the inner join.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.3,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "is_current is CHAR(1). The trailing-space-insensitive compare is a latent risk only if values are stored with spaces.",
+          "trap_id": "TSQL-02"
+        }
+      ]
+    },
+    "total_cost_usd": 0.14994980000000002,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 9820,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 9820,
+      "cache_read_input_tokens": 1309,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 9820,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 9820,
+          "cache_read_input_tokens": 1309,
+          "input_tokens": 2,
+          "output_tokens": 3556,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3556,
+      "output_tokens_details": {
+        "thinking_tokens": 1510
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

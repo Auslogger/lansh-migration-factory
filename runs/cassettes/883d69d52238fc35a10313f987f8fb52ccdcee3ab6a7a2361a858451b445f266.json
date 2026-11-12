@@ -1,0 +1,355 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:55:11.673862Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "$defs": {
+        "TrapFindingAnswer": {
+          "additionalProperties": false,
+          "description": "One place where a known engine difference (a trap card) affects this job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "Why the trap matters at these lines, in one or two sentences.",
+              "title": "Note",
+              "type": "string"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "line_start",
+            "line_end",
+            "confidence",
+            "note"
+          ],
+          "title": "TrapFindingAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The traps a careful reviewer finds in the job, beyond those the rules already found.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/TrapFindingAnswer"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScanAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer (tsql), file estate/tsql/T01_usp_load_dim_customer.sql.\nCustomer dimension, one row per CRM customer.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_customer\n  3 |   Purpose  : Customer dimension for the marketing and pricing teams. One row\n  4 |              per CRM customer with the customer's current details from the\n  5 |              CRM extract, plus sales region, Eircode check, initials and\n  6 |              segment flags for campaigns and the pricing models.\n  7 |   Output   : dw.dim_customer (truncated and reloaded on every run)\n  8 |   Author   : DOC\n  9 | \n 10 |   Change log\n 11 |     2013-05-20  DOC   Initial version\n 12 |     2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n 13 |     2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n 14 |     2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n 15 |     2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n 16 |                       (CR-1190)\n 17 |     2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n 18 |                       (GDPR, CR-1342)\n 19 |     2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n 20 |     2019-11-04  KB    CRM extract is now change data capture: one row per\n 21 |                       saved version, keep the current one (CR-1702)\n 22 |     2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n 23 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 24 | ==============================================================================*/\n 25 | SET NOCOUNT ON;\n 26 | GO\n 27 | IF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\n 28 | CREATE TABLE dw.dim_customer (\n 29 |     customer_id          INT            NOT NULL,\n 30 |     first_name           NVARCHAR(40)   NOT NULL,\n 31 |     last_name            NVARCHAR(60)   NOT NULL,\n 32 |     full_name            NVARCHAR(101)  NOT NULL,\n 33 |     initials             NVARCHAR(2)    NOT NULL,\n 34 |     email                VARCHAR(120)   NULL,\n 35 |     email_shared_count   INT            NOT NULL,\n 36 |     date_of_birth        DATE           NULL,\n 37 |     age_at_join          INT            NULL,\n 38 |     address_line1        NVARCHAR(100)  NULL,\n 39 |     town                 NVARCHAR(50)   NULL,\n 40 |     county               VARCHAR(30)    NULL,\n 41 |     region               VARCHAR(12)    NOT NULL,\n 42 |     eircode              VARCHAR(10)    NULL,\n 43 |     eircode_valid        CHAR(1)        NOT NULL,\n 44 |     segment_code         CHAR(4)        NULL,\n 45 |     is_standard_segment  CHAR(1)        NOT NULL,\n 46 |     marketing_opt_in     CHAR(1)        NOT NULL,\n 47 |     customer_since       DATE           NOT NULL,\n 48 |     source_system        VARCHAR(10)    NOT NULL,\n 49 |     version_count        INT            NOT NULL,\n 50 |     record_updated_at    DATETIME2(0)   NOT NULL,\n 51 |     as_of_date           DATE           NOT NULL,\n 52 |     CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n 53 | );\n 54 | GO\n 55 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n 56 |     @AsOfDate DATE\n 57 | AS\n 58 | BEGIN\n 59 |     SET NOCOUNT ON;\n 60 | \n 61 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n 62 |             @rows      INT,\n 63 |             @err_msg   NVARCHAR(4000),\n 64 |             @err_no    INT;\n 65 | \n 66 |     BEGIN TRY\n 67 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 68 | \n 69 |         IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n 70 |         IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n 71 | \n 72 |         /* 1. Customer versions saved up to the reporting date. The CRM extract\n 73 |               writes a new row every time a record is saved. */\n 74 |         SELECT  c.customer_id,\n 75 |                 c.first_name,\n 76 |                 c.last_name,\n 77 |                 c.email,\n 78 |                 c.date_of_birth,\n 79 |                 c.address_line1,\n 80 |                 c.town,\n 81 |                 c.county,\n 82 |                 c.eircode,\n 83 |                 c.segment_code,\n 84 |                 c.marketing_opt_in,\n 85 |                 c.customer_since,\n 86 |                 c.source_system,\n 87 |                 c.updated_at,\n 88 |                 c._row_seq,\n 89 |                 COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n 90 |         INTO    #customer_versions\n 91 |         FROM    stg.customers c WITH (NOLOCK)\n 92 |         WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n 93 | \n 94 |         SET @rows = @@ROWCOUNT;\n 95 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n 96 | \n 97 |         /* 2. Keep the current version of each customer */\n 98 |         SELECT  v.*\n 99 |         INTO    #customer\n100 |         FROM   (SELECT  cv.*,\n101 |                         ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n102 |                                            ORDER BY cv.updated_at, cv._row_seq) AS version_no\n103 |                 FROM    #customer_versions cv) v\n104 |         WHERE   v.version_no = 1;\n105 | \n106 |         SET @rows = @@ROWCOUNT;\n107 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n108 | \n109 |         /* 3. Reload the dimension */\n110 |         BEGIN TRANSACTION;\n111 | \n112 |         TRUNCATE TABLE dw.dim_customer;\n113 | \n114 |         INSERT INTO dw.dim_customer\n115 |                (customer_id, first_name, last_name, full_name, initials, email,\n116 |                 email_shared_count, date_of_birth, age_at_join, address_line1, town,\n117 |                 county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n118 |                 marketing_opt_in, customer_since, source_system, version_count,\n119 |                 record_updated_at, as_of_date)\n120 |         SELECT  k.customer_id,\n121 |                 RTRIM(k.first_name),\n122 |                 k.last_name,\n123 |                 RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n124 |                 UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n125 |                 k.email,\n126 |                 CASE WHEN k.email IS NULL THEN 0\n127 |                      ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n128 |                 k.date_of_birth,\n129 |                 DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n130 |                 k.address_line1,\n131 |                 k.town,\n132 |                 k.county,\n133 |                 -- sales regions as agreed with distribution (CR-0412)\n134 |                 CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n135 |                      WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n136 |                      WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n137 |                      WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n138 |                      WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n139 |                      ELSE 'UNKNOWN'\n140 |                 END,\n141 |                 k.eircode,\n142 |                 -- routing key (3) and unique identifier (4), keyed with or without the space\n143 |                 CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n144 |                      WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n145 |                      ELSE 'N'\n146 |                 END,\n147 |                 k.segment_code,\n148 |                 CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n149 |                 ISNULL(k.marketing_opt_in, 'N'),\n150 |                 k.customer_since,\n151 |                 UPPER(RTRIM(k.source_system)),\n152 |                 k.version_count,\n153 |                 k.updated_at,\n154 |                 @AsOfDate\n155 |         FROM    #customer k;\n156 | \n157 |         SET @rows = @@ROWCOUNT;\n158 | \n159 |         COMMIT TRANSACTION;\n160 | \n161 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n163 |     END TRY\n164 |     BEGIN CATCH\n165 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n166 | \n167 |         SELECT  @err_msg = ERROR_MESSAGE(),\n168 |                 @err_no  = ERROR_NUMBER();\n169 | \n170 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n171 |              @message = @err_msg, @error_number = @err_no;\n172 |         THROW;\n173 |     END CATCH\n174 | END;\n175 | GO\n\nInput tables:\n- stg.customers: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), email VARCHAR(120), date_of_birth DATE, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), eircode VARCHAR(10), segment_code CHAR(4), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), updated_at DATETIME2(0), _row_seq INT\n\nOutput tables:\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n\nTrap cards:\n- TSQL-01 (semantic) Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins. Legacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged. Spark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\n- TSQL-02 (semantic) Comparisons ignore trailing spaces; CHAR(n) pads with spaces. Legacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count. Spark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\n- TSQL-03 (semantic) Integer division truncates. Legacy: INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3. The result type follows the operands, so the fraction is lost before any later cast, e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b. Spark: Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.\n- TSQL-04 (semantic) DATEDIFF counts boundaries crossed, not elapsed periods. Legacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference. Spark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\n- TSQL-05 (semantic) + concatenation with NULL yields NULL. Legacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty. Spark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\n- TSQL-06 (semantic) ISNULL takes the type of its first argument; NULL treated as equal in change checks. Legacy: ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead. Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and '' as the same value. Spark: coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it never truncates.\n- TSQL-07 (semantic) DECIMAL precision and scale, and ROUND on computed values. Legacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds. Spark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\n- TSQL-08 (semantic) TOP and TOP WITH TIES. Legacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one. Spark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\n- TSQL-09 (construct) CROSS APPLY / OUTER APPLY with TOP 1. Legacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs. Spark: Spark has no APPLY; a lateral subquery or a window replaces it.\n- TSQL-10 (construct) UPDATE ... FROM. Legacy: UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source row; with several matches, which one wins is undefined. Spark: DataFrames are immutable; an update becomes a join plus a select.\n- TSQL-11 (construct) MERGE and type-2 history. Legacy: MERGE matches target and source rows and updates, inserts or deletes in one statement. Type-2 history closes the current version (valid_to, is_current) of changed rows and inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY order, continuing from the table's highest value. Spark: Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute the new state as a whole table from the previous state and the batch.\n- TSQL-12 (construct) Cursors and WHILE loops. Legacy: A cursor processes rows one at a time in its ORDER BY order; variables carry state between rows (running totals, last values). NULL arithmetic inside the loop propagates: SET @total = @total + NULL makes @total NULL for the rest of the loop. Spark: Spark is set-based; loops become aggregations or ordered windows.\n- TSQL-13 (construct) Temp tables. Legacy: #temp tables hold intermediate results for the session. Spark: Intermediate results are DataFrames or temporary views.\n- TSQL-14 (semantic) LIKE character classes. Legacy: T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual. Spark: Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.\n- TSQL-15 (semantic) LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT. Legacy: LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters. Spark: length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and returns n characters.\n- TSQL-16 (semantic) CONVERT style codes. Legacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm. Spark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\n- TSQL-17 (construct) PIVOT. Legacy: PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the source and turns listed values into columns; values not listed are dropped; missing combinations give NULL. Spark: groupBy(...).pivot(col, values).agg(...) does the same when the values are listed; the grouping columns must be stated explicitly.\n- TSQL-18 (semantic) EOMONTH and DATEADD at month-end. Legacy: DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1, '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a month-end. EOMONTH(d, n) returns the last day of the month n months away. Spark: add_months clamps the same way but also moves a last-day-of-month input to the target month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.\n- TSQL-19 (semantic) Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings. Legacy: Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order. Spark: Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.\n\nRule candidates:\n- TSQL-02 line 43: eircode_valid        CHAR(1)        NOT NULL,\n- TSQL-02 line 44: segment_code         CHAR(4)        NULL,\n- TSQL-02 line 45: is_standard_segment  CHAR(1)        NOT NULL,\n- TSQL-02 line 46: marketing_opt_in     CHAR(1)        NOT NULL,\n- TSQL-01 line 89: COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n- TSQL-01 line 101: ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n- TSQL-05 line 123: RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n- TSQL-15 line 124: UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n- TSQL-01 line 127: ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n- TSQL-04 line 129: DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n- TSQL-01 line 134: CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n- TSQL-02 line 134: CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n- TSQL-01 line 135: WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n- TSQL-02 line 135: WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n- TSQL-01 line 136: WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n- TSQL-02 line 136: WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n- TSQL-01 line 137: WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n- TSQL-02 line 137: WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n- TSQL-01 line 138: WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n- TSQL-02 line 138: WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n- TSQL-15 line 143: CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n- TSQL-01 line 144: WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n- TSQL-02 line 144: WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n- TSQL-15 line 144: WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n- TSQL-01 line 148: CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n- TSQL-02 line 148: CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n- TSQL-06 line 149: ISNULL(k.marketing_opt_in, 'N'),\n",
+    "system_prompt": "You are the trap-scan agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark 4.2 and must reproduce every legacy output exactly, bugs included.\n\nA trap is a place where the legacy engine and Spark behave differently. A semantic trap changes the result if the code is translated naively (a case-insensitive text comparison, integer division, a NULL concatenation). A construct trap is a construct Spark lacks (a cursor, a temp table, a MERGE, a macro loop) that changes only the shape of the code.\n\nYou get the job's code with line numbers, the schemas of its inputs and output, the trap cards (the known engine differences) and candidate findings from deterministic rules.\n\nReturn every trap occurrence in this job that a translator must handle:\n- confirm the candidates that are real, using the schemas: a comparison arms a text trap only if the column is text; integer division only if both operands are integers;\n- leave out candidates that are not real (they are dropped);\n- add occurrences the rules missed, such as joins on text columns, NULL propagation in loops, or variables whose length a first assignment fixes;\n- report each occurrence at the narrowest line range that shows it, and the same trap at different places separately; include latent occurrences that today's data may not trigger;\n- use only trap ids from the cards; set confidence to how sure you are that it is real.\n"
+  },
+  "request_sha256": "883d69d52238fc35a10313f987f8fb52ccdcee3ab6a7a2361a858451b445f266",
+  "response": {
+    "duration_api_ms": 32780,
+    "duration_ms": 33153,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 10126,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 10126,
+        "cacheReadInputTokens": 1309,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1526978,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 3571,
+        "provider": "firstParty",
+        "thinkingTokens": 1425,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.7,
+          "line_end": 70,
+          "line_start": 69,
+          "note": "These lines drop the #customer_versions and #customer temp tables if they exist. In Spark they become DataFrames, so this code goes away.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 90,
+          "line_start": 90,
+          "note": "The #customer_versions temp table holds the filtered CRM versions with version_count. In Spark it becomes an intermediate DataFrame.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 99,
+          "line_start": 99,
+          "note": "The #customer temp table holds one chosen version per customer. In Spark it becomes an intermediate DataFrame.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 123,
+          "line_start": 123,
+          "note": "full_name is built with + from first_name and last_name. If either is NULL, the legacy result is NULL. The translation must use concat(), which also returns NULL, not concat_ws(), which skips NULLs. The trap is latent if the source names are never NULL.",
+          "trap_id": "TSQL-05"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 124,
+          "line_start": 124,
+          "note": "SUBSTRING(x, 0, 2) returns only 1 character in T-SQL, so initials are 2 letters. Spark's substring(x, 0, 2) returns 2 characters, which gives 4-letter initials.",
+          "trap_id": "TSQL-15"
+        },
+        {
+          "confidence": 0.4,
+          "line_end": 124,
+          "line_start": 124,
+          "note": "The initials are joined with +, so a NULL first or last name makes them NULL. The translation must keep that NULL result.",
+          "trap_id": "TSQL-05"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 127,
+          "line_start": 127,
+          "note": "PARTITION BY on the VARCHAR email column groups case variants together under the CI collation, so 'A@x.ie' and 'a@x.ie' count as one shared email. Spark keeps them apart.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 127,
+          "line_start": 127,
+          "note": "PARTITION BY email also ignores trailing spaces, so 'a@x.ie ' and 'a@x.ie' land in the same partition in SQL Server but not in Spark.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 129,
+          "line_start": 129,
+          "note": "DATEDIFF(YEAR, ...) counts year boundaries crossed, not full years elapsed. age_at_join must be year(customer_since) - year(date_of_birth), not floor(months_between/12).",
+          "trap_id": "TSQL-04"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "The VARCHAR county is matched with IN against title-case names. SQL Server matches case variants such as 'DUBLIN', but Spark sends them to UNKNOWN.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "The county IN check ignores trailing spaces in SQL Server ('Dublin ' matches). Spark does not.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 135,
+          "line_start": 135,
+          "note": "The SOUTH county IN list matches case-insensitively in the legacy engine.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 135,
+          "line_start": 135,
+          "note": "The SOUTH county IN list ignores trailing spaces in the legacy engine.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 136,
+          "line_start": 136,
+          "note": "The WEST county IN list matches case-insensitively in the legacy engine.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 136,
+          "line_start": 136,
+          "note": "The WEST county IN list ignores trailing spaces in the legacy engine.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 137,
+          "line_start": 137,
+          "note": "The NORTH-WEST county IN list matches case-insensitively in the legacy engine.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 137,
+          "line_start": 137,
+          "note": "The NORTH-WEST county IN list ignores trailing spaces in the legacy engine.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 138,
+          "line_start": 138,
+          "note": "The MIDLANDS county IN list matches case-insensitively in the legacy engine.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 138,
+          "line_start": 138,
+          "note": "The MIDLANDS county IN list ignores trailing spaces in the legacy engine.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 143,
+          "line_start": 143,
+          "note": "LEN(eircode) ignores trailing spaces, so 'D02X285 ' still counts as 7 characters. Spark's length() counts 8 and marks the code invalid.",
+          "trap_id": "TSQL-15"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 144,
+          "line_start": 144,
+          "note": "LEN(eircode) = 8 ignores trailing spaces. The translation needs rtrim before length() to give the same result.",
+          "trap_id": "TSQL-15"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 148,
+          "line_start": 148,
+          "note": "segment_code is CHAR(4), so it holds 'STD ' padded with a space. SQL Server's = 'STD' ignores the padding, but Spark compares the padded value exactly and gets no match.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 148,
+          "line_start": 148,
+          "note": "segment_code = 'STD' also matches 'std' or 'Std' under the CI collation. Spark's comparison is case-sensitive.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.35,
+          "line_end": 44,
+          "line_start": 44,
+          "note": "The output segment_code is CHAR(4), so legacy values come back padded to 4 characters. Spark output must keep or add that padding to match exactly.",
+          "trap_id": "TSQL-02"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1526978,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 10126,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 10126,
+      "cache_read_input_tokens": 1309,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 10126,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 10126,
+          "cache_read_input_tokens": 1309,
+          "input_tokens": 2,
+          "output_tokens": 3571,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3571,
+      "output_tokens_details": {
+        "thinking_tokens": 1425
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

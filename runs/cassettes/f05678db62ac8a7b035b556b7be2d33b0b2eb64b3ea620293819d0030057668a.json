@@ -1,0 +1,188 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:20:48.457535Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T08",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T08: usp_fraud_flags. Rule-based fraud indicators for recently notified claims.\nOutput table rpt.claim_fraud_flags, 1042 rows in the legacy output.\n\nColumns:\n- claim_id INT: 1042 distinct, 0 NULL\n- claim_number VARCHAR(20): 1042 distinct, 0 NULL\n- policy_id INT: 1029 distinct, 0 NULL\n- policy_number VARCHAR(20): 1029 distinct, 0 NULL\n- customer_id INT: 1007 distinct, 0 NULL\n- lob_code VARCHAR(5): 3 distinct, 0 NULL\n- loss_date DATE: 371 distinct, 0 NULL\n- reported_date DATE: 342 distinct, 0 NULL\n- early_notification_flag INT: 2 distinct, 0 NULL\n- invalid_reg_flag INT: 2 distinct, 0 NULL\n- new_customer_flag INT: 2 distinct, 0 NULL\n- lob_mismatch_flag INT: 2 distinct, 0 NULL\n- fraud_score INT: 3 distinct, 0 NULL\n- fraud_band VARCHAR(6): 3 distinct, 0 NULL\n- loss_day_key CHAR(8): 371 distinct, 0 NULL\n- reason_text VARCHAR(100): 462 distinct, 0 NULL\n- as_of_date DATE: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['claim_id']\n- ['claim_number']\n\nLegacy code:\n/*==============================================================================\n  Job       rpt.usp_fraud_flags\n  Purpose   Fraud indicators for the Special Investigations Unit (SIU): one row\n            per claim notified in the twelve months to the reporting date, with\n            the indicator flags, a score and a referral band for the SIU\n            worklist and case tool.\n  Author    MOB\n  Run by    SIU_WEEKLY, after the claims and policy extracts and dw.dim_customer\n            have loaded\n  Output    rpt.claim_fraud_flags (full refresh)\n\n  Change log\n    2016-05-09  MOB   Initial version: early notification and new customer\n                      indicators (CR-0954)\n    2016-11-21  MOB   Motor claims: registration not in the Irish format\n                      (CR-1012)\n    2017-04-03  SB    Claim keyed against a policy from another line of\n                      business (INC-1530)\n    2018-08-27  SB    fraud_score and referral bands agreed with SIU (CR-1377)\n    2019-02-11  NF    Policy dates from the latest policy extract on or before\n                      the reporting date, not the old policy master (CR-1529)\n    2020-06-15  NF    loss_day_key and reason text for the SIU case tool\n                      (CR-1810)\n    2021-10-04  SB    lob_code upper-cased for the SIU dashboard (INC-2389)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claim_fraud_flags', N'U') IS NULL\nCREATE TABLE rpt.claim_fraud_flags (\n    claim_id                 INT            NOT NULL,\n    claim_number             VARCHAR(20)    NOT NULL,\n    policy_id                INT            NOT NULL,\n    policy_number            VARCHAR(20)    NULL,\n    customer_id              INT            NOT NULL,\n    lob_code                 VARCHAR(5)     NOT NULL,\n    loss_date                DATE           NOT NULL,\n    reported_date            DATE           NOT NULL,\n    early_notification_flag  INT            NOT NULL,\n    invalid_reg_flag         INT            NOT NULL,\n    new_customer_flag        INT            NOT NULL,\n    lob_mismatch_flag        INT            NOT NULL,\n    fraud_score              INT            NOT NULL,\n    fraud_band               VARCHAR(6)     NOT NULL,  -- HIGH / MEDIUM / LOW\n    loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n    reason_text              VARCHAR(100)   NOT NULL,\n    as_of_date               DATE           NOT NULL,\n    CONSTRAINT pk_rpt_claim_fraud_flags PRIMARY KEY (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_fraud_flags\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name       VARCHAR(128) = 'rpt.usp_fraud_flags',\n            @rows           INT,\n            @snapshot_date  DATE,\n            @err_msg        NVARCHAR(4000),\n            @err_no         INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Policy details from the latest policy extract on or before the reporting date */\n        SELECT  @snapshot_date = MAX(ps.snapshot_date)\n        FROM    stg.policy_snapshots ps WITH (NOLOCK)\n        WHERE   ps.snapshot_date <= @AsOfDate;\n\n        /* 1. Claims notified in the twelve months to the reporting date, with the\n              policy they were made under and when the policyholder became a customer */\n        IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                c.customer_id,\n                c.lob_code,\n                c.loss_date,\n                c.reported_date,\n                p.policy_number,\n                p.inception_date,\n                p.expiry_date,\n                p.vehicle_reg,\n                dc.customer_since\n        INTO    #claims\n        FROM    stg.claims c WITH (NOLOCK)\n        LEFT JOIN stg.policy_snapshots p WITH (NOLOCK)\n               ON p.policy_id = c.policy_id\n              AND p.snapshot_date = @snapshot_date\n        LEFT JOIN dw.dim_customer dc WITH (NOLOCK)\n               ON dc.customer_id = c.customer_id\n        WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n          AND   c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claims notified', @status = 'INFO', @rows_affected = @rows;\n\n        /* 2. SIU indicators, one point each (CR-0954, CR-1012, INC-1530) */\n        IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n\n        SELECT  f.*,\n                f.early_notification_flag + f.invalid_reg_flag\n                  + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n        INTO    #flags\n        FROM   (SELECT  cl.claim_id,\n                        -- claim notified within 30 days of the cover starting\n                        CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n                             THEN 1 ELSE 0 END                    AS early_notification_flag,\n                        -- motor: registration not in the Irish format, e.g. 191-D-12345\n                        CASE WHEN cl.lob_code = 'MOT'\n                              AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n                             THEN 1 ELSE 0 END                    AS invalid_reg_flag,\n                        -- customer for less than six months at the date of loss\n                        CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n                             THEN 1 ELSE 0 END                    AS new_customer_flag,\n                        -- policy number starts with its line of business (MOT/2024/500001)\n                        CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n                             THEN 1 ELSE 0 END                    AS lob_mismatch_flag\n                FROM    #claims cl) f;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'indicators', @status = 'INFO', @rows_affected = @rows;\n\n        /* 3. Reload the SIU table: bands agreed with SIU (CR-1377) */\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE rpt.claim_fraud_flags;\n\n        INSERT INTO rpt.claim_fraud_flags\n               (claim_id, claim_number, policy_id, policy_number, customer_id, lob_code,\n                loss_date, reported_date, early_notification_flag, invalid_reg_flag,\n                new_customer_flag, lob_mismatch_flag, fraud_score, fraud_band,\n                loss_day_key, reason_text, as_of_date)\n        SELECT  cl.claim_id,\n                cl.claim_number,\n                cl.policy_id,\n                cl.policy_number,\n                cl.customer_id,\n                UPPER(RTRIM(cl.lob_code)),\n                cl.loss_date,\n                cl.reported_date,\n                f.early_notification_flag,\n                f.invalid_reg_flag,\n                f.new_customer_flag,\n                f.lob_mismatch_flag,\n                f.fraud_score,\n                CASE WHEN f.fraud_score >= 2 THEN 'HIGH'\n                     WHEN f.fraud_score = 1  THEN 'MEDIUM'\n                     ELSE 'LOW'\n                END,\n                CONVERT(CHAR(8), cl.loss_date, 112),\n                'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n                    + CASE WHEN f.fraud_score = 0 THEN ' - no indicators' ELSE ' -' END\n                    + CASE WHEN f.early_notification_flag = 1 THEN ' EARLY'   ELSE '' END\n                    + CASE WHEN f.invalid_reg_flag        = 1 THEN ' REG'     ELSE '' END\n                    + CASE WHEN f.new_customer_flag       = 1 THEN ' NEWCUST' ELSE '' END\n                    + CASE WHEN f.lob_mismatch_flag       = 1 THEN ' LOB'     ELSE '' END,\n                @AsOfDate\n        FROM    #claims cl\n        JOIN    #flags f\n                ON f.claim_id = cl.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claim_fraud_flags', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "f05678db62ac8a7b035b556b7be2d33b0b2eb64b3ea620293819d0030057668a",
+  "response": {
+    "duration_api_ms": 10850,
+    "duration_ms": 11047,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4716,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4716,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0573958,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 974,
+        "provider": "firstParty",
+        "thinkingTokens": 190,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "as_of_date": "The @AsOfDate run parameter. It is the same for every row.",
+        "early_notification_flag": "1 when the claim was reported 0-30 days after the policy's EXPIRY date. The comment says the start of cover is meant, but the legacy code uses expiry_date, so the migration must do the same. 0 when that date is NULL.",
+        "fraud_band": "HIGH if the score is 2 or more, MEDIUM if it is 1, LOW if it is 0.",
+        "fraud_score": "The sum of the four flags, from 0 to 4.",
+        "invalid_reg_flag": "1 for MOT claims whose vehicle_reg doesn't match the T-SQL pattern [0-9][0-9]%-[A-Z]%-[0-9]%. 0 when vehicle_reg is NULL (because comparing to NULL gives UNKNOWN).",
+        "lob_code": "The claim's lob_code, upper-cased and with trailing spaces removed.",
+        "lob_mismatch_flag": "1 when SUBSTRING(policy_number,0,4) (which gives the first 3 characters) differs from the raw claim lob_code. 0 when policy_number is NULL.",
+        "loss_day_key": "loss_date as yyyymmdd text.",
+        "new_customer_flag": "1 when loss_date minus customer_since is under 180 days. 0 when customer_since is NULL.",
+        "policy_number": "Taken from the latest policy snapshot on or before @AsOfDate. It can be NULL if the policy is not in that snapshot (none are NULL in this output).",
+        "reason_text": "'Notified dd/mm/yyyy' (style 103), then ' - no indicators' or ' -' followed by the tokens EARLY/REG/NEWCUST/LOB for each flag set."
+      },
+      "grain": "One row per claim reported in the 12 months up to the reporting date (@AsOfDate), with its SIU fraud flags, score and referral band.",
+      "keys": [
+        "claim_id"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "fraud_band"
+      ]
+    },
+    "total_cost_usd": 0.0573958,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4716,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4716,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4716,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4716,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 974,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 974,
+      "output_tokens_details": {
+        "thinking_tokens": 190
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

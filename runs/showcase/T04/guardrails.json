@@ -1,0 +1,117 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 27,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "OPEN"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 27,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "REOPENED"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 58,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 87,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 88,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 88,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "INDEMNITY"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "EXPENSE"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 127,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "/"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 127,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "/"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 136,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": "dd/MM/yyyy"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 139,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 139,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "6"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 139,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": "yyyyMMdd"
+    }
+  ],
+  "violations": []
+}

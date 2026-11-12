@@ -1,0 +1,2973 @@
+{
+  "job_id": "T02",
+  "schemas": {
+    "stg.policy_snapshots": [
+      {
+        "name": "snapshot_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date of the extract."
+      },
+      {
+        "name": "policy_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policy term identifier. A renewal is a new policy_id."
+      },
+      {
+        "name": "policy_number",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Printed policy reference."
+      },
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policyholder (CRM customer number)."
+      },
+      {
+        "name": "product_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Product (case varies)."
+      },
+      {
+        "name": "broker_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Introducing broker; NULL for direct business. Case and padding vary."
+      },
+      {
+        "name": "inception_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Start of cover."
+      },
+      {
+        "name": "expiry_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Last day of cover."
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "ACTIVE, EXPIRED, CANCELLED or LAPSED as at the snapshot date (case varies)."
+      },
+      {
+        "name": "cancellation_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Date cover was cancelled, if it was."
+      },
+      {
+        "name": "annual_premium",
+        "data_type": "decimal(12,2)",
+        "legacy_type": "DECIMAL(12,2)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Annual premium in the policy currency."
+      },
+      {
+        "name": "currency",
+        "data_type": "string",
+        "legacy_type": "CHAR(3)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Policy currency (EUR, GBP, USD)."
+      },
+      {
+        "name": "sum_insured",
+        "data_type": "decimal(14,2)",
+        "legacy_type": "DECIMAL(14,2)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Sum insured, where the product has one."
+      },
+      {
+        "name": "payment_frequency",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "ANNUAL or MONTHLY."
+      },
+      {
+        "name": "vehicle_reg",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Vehicle registration (motor only). Free text; may be empty or NULL."
+      },
+      {
+        "name": "ncd_years",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Years of no-claims discount (motor only)."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ],
+    "stg.brokers": [
+      {
+        "name": "broker_code",
+        "data_type": "string",
+        "legacy_type": "CHAR(6)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Broker code. Fixed-width, so shorter codes are space-padded."
+      },
+      {
+        "name": "broker_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(80)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Trading name."
+      },
+      {
+        "name": "region",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Sales region."
+      },
+      {
+        "name": "commission_rate",
+        "data_type": "decimal(5,4)",
+        "legacy_type": "DECIMAL(5,4)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Commission as a fraction of premium."
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "ACTIVE or INACTIVE (case varies)."
+      },
+      {
+        "name": "appointed_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Date the broker agency was appointed."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ],
+    "stg.products": [
+      {
+        "name": "product_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Product code."
+      },
+      {
+        "name": "product_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(60)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Marketing name."
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Line of business (MOT, HOM, TRV)."
+      },
+      {
+        "name": "term_months",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Standard term in months; NULL when the term varies (single-trip travel)."
+      },
+      {
+        "name": "levy_rate",
+        "data_type": "decimal(5,4)",
+        "legacy_type": "DECIMAL(5,4)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Government levy on premium."
+      },
+      {
+        "name": "launched_on",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Launch date."
+      },
+      {
+        "name": "withdrawn_on",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": "Withdrawal date, if withdrawn."
+      },
+      {
+        "name": "_row_seq",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": "Position of the row in the extract file."
+      }
+    ],
+    "dw.dim_customer": [
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "first_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(40)",
+        "nullable": false,
+        "max_length": 40,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "last_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(60)",
+        "nullable": false,
+        "max_length": 60,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "full_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(101)",
+        "nullable": false,
+        "max_length": 101,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "initials",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(2)",
+        "nullable": false,
+        "max_length": 2,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "email",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(120)",
+        "nullable": true,
+        "max_length": 120,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "email_shared_count",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "date_of_birth",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [
+          "pii",
+          "protected"
+        ],
+        "description": null
+      },
+      {
+        "name": "age_at_join",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": true,
+        "max_length": null,
+        "tags": [
+          "pii",
+          "protected"
+        ],
+        "description": null
+      },
+      {
+        "name": "address_line1",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(100)",
+        "nullable": true,
+        "max_length": 100,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "town",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(50)",
+        "nullable": true,
+        "max_length": 50,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "county",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(30)",
+        "nullable": true,
+        "max_length": 30,
+        "tags": [
+          "protected"
+        ],
+        "description": null
+      },
+      {
+        "name": "region",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": 12,
+        "tags": [
+          "protected"
+        ],
+        "description": null
+      },
+      {
+        "name": "eircode",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": true,
+        "max_length": 10,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "eircode_valid",
+        "data_type": "string",
+        "legacy_type": "CHAR(1)",
+        "nullable": false,
+        "max_length": 1,
+        "tags": [
+          "pii"
+        ],
+        "description": null
+      },
+      {
+        "name": "segment_code",
+        "data_type": "string",
+        "legacy_type": "CHAR(4)",
+        "nullable": true,
+        "max_length": 4,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "is_standard_segment",
+        "data_type": "string",
+        "legacy_type": "CHAR(1)",
+        "nullable": false,
+        "max_length": 1,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "marketing_opt_in",
+        "data_type": "string",
+        "legacy_type": "CHAR(1)",
+        "nullable": false,
+        "max_length": 1,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_since",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "source_system",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": 10,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "version_count",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "record_updated_at",
+        "data_type": "timestamp_ntz",
+        "legacy_type": "DATETIME2(0)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "as_of_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      }
+    ],
+    "dw.dim_policy": [
+      {
+        "name": "policy_sk",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "policy_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "policy_number",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": false,
+        "max_length": 20,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_segment",
+        "data_type": "string",
+        "legacy_type": "CHAR(4)",
+        "nullable": true,
+        "max_length": 4,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "product_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": 10,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "product_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(60)",
+        "nullable": false,
+        "max_length": 60,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": 5,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "broker_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "broker_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(80)",
+        "nullable": true,
+        "max_length": 80,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "inception_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "expiry_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cancellation_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "annual_premium",
+        "data_type": "decimal(12,2)",
+        "legacy_type": "DECIMAL(12,2)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "currency",
+        "data_type": "string",
+        "legacy_type": "CHAR(3)",
+        "nullable": false,
+        "max_length": 3,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "vehicle_reg",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": true,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "ncd_years",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "valid_from",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "valid_to",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "is_current",
+        "data_type": "string",
+        "legacy_type": "CHAR(1)",
+        "nullable": false,
+        "max_length": 1,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "source_snapshot_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "load_ts",
+        "data_type": "timestamp_ntz",
+        "legacy_type": "DATETIME2(3)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      }
+    ]
+  },
+  "outputs": {
+    "dw.dim_policy": [
+      {
+        "name": "policy_sk",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "policy_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "policy_number",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(20)",
+        "nullable": false,
+        "max_length": 20,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_id",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "customer_segment",
+        "data_type": "string",
+        "legacy_type": "CHAR(4)",
+        "nullable": true,
+        "max_length": 4,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "product_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(10)",
+        "nullable": false,
+        "max_length": 10,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "product_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(60)",
+        "nullable": false,
+        "max_length": 60,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "lob_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(5)",
+        "nullable": false,
+        "max_length": 5,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "broker_code",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "broker_name",
+        "data_type": "string",
+        "legacy_type": "NVARCHAR(80)",
+        "nullable": true,
+        "max_length": 80,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "status",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": false,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "inception_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "expiry_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "cancellation_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "annual_premium",
+        "data_type": "decimal(12,2)",
+        "legacy_type": "DECIMAL(12,2)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "currency",
+        "data_type": "string",
+        "legacy_type": "CHAR(3)",
+        "nullable": false,
+        "max_length": 3,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "vehicle_reg",
+        "data_type": "string",
+        "legacy_type": "VARCHAR(12)",
+        "nullable": true,
+        "max_length": 12,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "ncd_years",
+        "data_type": "int",
+        "legacy_type": "INT",
+        "nullable": true,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "valid_from",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "valid_to",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "is_current",
+        "data_type": "string",
+        "legacy_type": "CHAR(1)",
+        "nullable": false,
+        "max_length": 1,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "source_snapshot_date",
+        "data_type": "date",
+        "legacy_type": "DATE",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      },
+      {
+        "name": "load_ts",
+        "data_type": "timestamp_ntz",
+        "legacy_type": "DATETIME2(3)",
+        "nullable": false,
+        "max_length": null,
+        "tags": [],
+        "description": null
+      }
+    ]
+  },
+  "contracts": [
+    {
+      "job_id": "T02",
+      "table": "silver.dim_policy",
+      "legacy_table": "dw.dim_policy",
+      "layer": "silver",
+      "grain": "One row per version of a policy (type-2 history): a policy's attributes as they stood from valid_from until valid_to, with a new version opened whenever status, broker, annual premium or vehicle registration changes between snapshots.",
+      "keys": [
+        "policy_id",
+        "valid_from"
+      ],
+      "columns": [
+        {
+          "name": "policy_sk",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "IDENTITY surrogate key that depends on insert order. It is not a business key and will not line up between runs.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_segment",
+          "data_type": "string",
+          "legacy_type": "CHAR(4)",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [],
+          "description": "segment_code from dw.dim_customer via a left join. NULL when the customer is not found.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "product_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "product_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(60)",
+          "nullable": false,
+          "max_length": 60,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": "If the source broker is NULL, this is 'DIRECT-SALES', so broker_name is NULL for direct business.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(80)",
+          "nullable": true,
+          "max_length": 80,
+          "tags": [],
+          "description": "From stg.brokers via a left join. NULL when the broker is not in the register, including DIRECT-SALES.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "status",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "inception_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "expiry_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cancellation_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "annual_premium",
+          "data_type": "decimal(12,2)",
+          "legacy_type": "DECIMAL(12,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "currency",
+          "data_type": "string",
+          "legacy_type": "CHAR(3)",
+          "nullable": false,
+          "max_length": 3,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "vehicle_reg",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": true,
+          "max_length": 12,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "ncd_years",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "valid_from",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The snapshot date that opened this version.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "valid_to",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "9999-12-31 while the version is current. Once closed, it is the day before the next snapshot that changed it.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "is_current",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": "'Y' for the open version, 'N' for a closed one.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "source_snapshot_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The snapshot that inserted the row. Always the same as valid_from.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "load_ts",
+          "data_type": "timestamp_ntz",
+          "legacy_type": "DATETIME2(3)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "SYSDATETIME() at insert time, so it depends on when the job ran. It will differ between legacy and the migration.",
+          "policy": {
+            "kind": "exclude",
+            "reason": "volatile audit column (estate/jobs.yaml): it changes on every run",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "lob_code",
+        "is_current"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 69255,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "invocations": [
+    {
+      "label": "batch 1",
+      "params": {
+        "SnapshotDate": "2025-06-30"
+      }
+    },
+    {
+      "label": "batch 2",
+      "params": {
+        "SnapshotDate": "2025-12-31"
+      }
+    }
+  ],
+  "state_tables": [
+    "dw.dim_policy"
+  ],
+  "cases": [
+    {
+      "test_id": "T02-TSQL-01-1",
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "description": "Letter-case variants across two runs (2025-06-30, then 2025-12-31). Policy 1001 has product_code 'motor01' and the product register has 'MOTOR01'. The legacy inner join still matches it; a binary Spark join drops the policy. Policy 1002 has broker 'brk001' and the register has 'BRK001'. Legacy finds the broker_name; Spark leaves it NULL. In run 2 the changes are case-only: 1001 status 'Active' to 'ACTIVE', 1002 broker 'brk001' to 'BRK001', 1003 vehicle_reg 'ab12cde' to 'AB12CDE'. Legacy opens no new version for these; Spark would close and reopen each one. Policy 1004 is the control: its status really changes, to 'Lapsed'.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK001",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK003",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "1001",
+              "POL-1001",
+              "101",
+              "motor01",
+              "BRK001",
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "11D1234",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "1002",
+              "POL-1002",
+              "102",
+              "MOTOR01",
+              "brk001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "720.00",
+              "EUR",
+              "18000.00",
+              "ANNUAL",
+              "12C555",
+              "3",
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "1003",
+              "POL-1003",
+              "103",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "810.50",
+              "EUR",
+              "25000.00",
+              "MONTHLY",
+              "ab12cde",
+              "2",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "1004",
+              "POL-1004",
+              "104",
+              "HOME01",
+              "BRK002",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "400.00",
+              "EUR",
+              "300000.00",
+              "ANNUAL",
+              null,
+              null,
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "1001",
+              "POL-1001",
+              "101",
+              "motor01",
+              "BRK001",
+              "2025-01-01",
+              "2025-12-31",
+              "ACTIVE",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "11D1234",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "1002",
+              "POL-1002",
+              "102",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "720.00",
+              "EUR",
+              "18000.00",
+              "ANNUAL",
+              "12C555",
+              "3",
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "1003",
+              "POL-1003",
+              "103",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "810.50",
+              "EUR",
+              "25000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "2",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "1004",
+              "POL-1004",
+              "104",
+              "HOME01",
+              "BRK002",
+              "2025-04-01",
+              "2026-03-31",
+              "Lapsed",
+              null,
+              "400.00",
+              "EUR",
+              "300000.00",
+              "ANNUAL",
+              null,
+              null,
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "1001",
+              "POL-1001",
+              "101",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "650.00",
+              "EUR",
+              "11D1234",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "2",
+              "1002",
+              "POL-1002",
+              "102",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "brk001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "720.00",
+              "EUR",
+              "12C555",
+              "3",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "3",
+              "1003",
+              "POL-1003",
+              "103",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "810.50",
+              "EUR",
+              "ab12cde",
+              "2",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "4",
+              "1004",
+              "POL-1004",
+              "104",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "400.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "5",
+              "1004",
+              "POL-1004",
+              "104",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Lapsed",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "400.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:22.717000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "T02-TSQL-02-2",
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "description": "Trailing spaces and CHAR padding across two runs. Policy 2001 has product_code 'MOTOR01 ' with a trailing space. The legacy inner join keeps it; Spark drops the policy. Its broker 'BRK1' matches the CHAR(6) register code 'BRK1  ', which is stored padded. Legacy finds the broker_name; Spark gets NULL. Customers 501 and 503 have CHAR(4) segment codes 'GO' and 'STD', which legacy pads to 'GO  ' and 'STD '; Spark leaves them unpadded. Customer 502's 'PLAT' is the canonical 4-character code. In run 2 the only changes are trailing spaces: 2001 status 'Active  ', 2002 broker 'BRK002 ', 2003 vehicle_reg 'CD34EFG  '. Legacy opens no new version for these; Spark would. Policy 2004 is the control: its premium really changes.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK1",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK3",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "501",
+              "Aoife",
+              "Byrne",
+              "Aoife Byrne",
+              "AB",
+              "aoife@example.ie",
+              "1",
+              "1985-04-12",
+              "30",
+              "1 Main St",
+              "Galway",
+              "Galway",
+              "West",
+              "H91X2Y3",
+              "Y",
+              "GO",
+              "N",
+              "Y",
+              "2015-05-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "502",
+              "Brian",
+              "Kelly",
+              "Brian Kelly",
+              "BK",
+              "brian@example.ie",
+              "1",
+              "1978-09-01",
+              "35",
+              "2 High St",
+              "Dublin",
+              "Dublin",
+              "Dublin",
+              "D02AB12",
+              "Y",
+              "PLAT",
+              "N",
+              "N",
+              "2013-02-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "503",
+              "Ciara",
+              "Walsh",
+              "Ciara Walsh",
+              "CW",
+              "ciara@example.ie",
+              "1",
+              "1990-01-20",
+              "28",
+              "3 Quay Rd",
+              "Cork",
+              "Cork",
+              "South",
+              "T12CD34",
+              "Y",
+              "STD",
+              "Y",
+              "Y",
+              "2018-03-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "504",
+              "Declan",
+              "Ryan",
+              "Declan Ryan",
+              "DR",
+              "declan@example.ie",
+              "1",
+              "1982-11-05",
+              "33",
+              "4 Bridge St",
+              "Limerick",
+              "Limerick",
+              "Mid-West",
+              "V94EF56",
+              "Y",
+              "PLAT",
+              "N",
+              "N",
+              "2016-06-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "505",
+              "Eva",
+              "Doyle",
+              "Eva Doyle",
+              "ED",
+              null,
+              "0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "Dublin",
+              null,
+              "N",
+              null,
+              "N",
+              "N",
+              "2020-01-01",
+              "WEB",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "2001",
+              "POL-2001",
+              "501",
+              "MOTOR01 ",
+              "BRK1",
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "2002",
+              "POL-2002",
+              "502",
+              "HOME01",
+              "BRK002",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "420.00",
+              "EUR",
+              "350000.00",
+              "ANNUAL",
+              null,
+              null,
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "2003",
+              "POL-2003",
+              "503",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "780.00",
+              "EUR",
+              "22000.00",
+              "MONTHLY",
+              "CD34EFG",
+              "4",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "2004",
+              "POL-2004",
+              "504",
+              "MOTOR01",
+              "BRK1",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "900.00",
+              "EUR",
+              "30000.00",
+              "ANNUAL",
+              "GH56IJK",
+              "1",
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "2001",
+              "POL-2001",
+              "501",
+              "MOTOR01 ",
+              "BRK1",
+              "2025-01-01",
+              "2025-12-31",
+              "Active  ",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "2002",
+              "POL-2002",
+              "502",
+              "HOME01",
+              "BRK002 ",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "420.00",
+              "EUR",
+              "350000.00",
+              "ANNUAL",
+              null,
+              null,
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "2003",
+              "POL-2003",
+              "503",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "780.00",
+              "EUR",
+              "22000.00",
+              "MONTHLY",
+              "CD34EFG  ",
+              "4",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "2004",
+              "POL-2004",
+              "504",
+              "MOTOR01",
+              "BRK1",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "950.00",
+              "EUR",
+              "30000.00",
+              "ANNUAL",
+              "GH56IJK",
+              "1",
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "2001",
+              "POL-2001",
+              "501",
+              "GO  ",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "650.00",
+              "EUR",
+              "AB12CDE",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "2",
+              "2002",
+              "POL-2002",
+              "502",
+              "PLAT",
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "420.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "3",
+              "2003",
+              "POL-2003",
+              "503",
+              "STD ",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "780.00",
+              "EUR",
+              "CD34EFG",
+              "4",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "4",
+              "2004",
+              "POL-2004",
+              "504",
+              "PLAT",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "900.00",
+              "EUR",
+              "GH56IJK",
+              "1",
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "5",
+              "2004",
+              "POL-2004",
+              "504",
+              "PLAT",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "950.00",
+              "EUR",
+              "GH56IJK",
+              "1",
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.218000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": null,
+      "status": "pending"
+    },
+    {
+      "test_id": "T02-TSQL-06-3",
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "description": "ISNULL behaviour across two runs. Policies 3001 and 3004 (run 1) and 3005 (new in run 2) have a NULL broker_code. ISNULL takes the VARCHAR(10) type of p.broker_code, so legacy stores 'DIRECT-SAL'; a Spark coalesce writes 'DIRECT-SALES'. 3001 stays NULL in run 2. Legacy compares 'DIRECT-SAL' with 'DIRECT-SAL' and opens no version. A Spark job that compares the full literal against the stored value, or that mixes the two, can flag a change. 3002 moves vehicle_reg from NULL to '', and 3003 from '' to NULL. Under ISNULL(...,'') these are equal and no version opens; a null-safe Spark compare would open one. 3004 is the control: its broker really changes, from NULL to BRK001. NULL status or premium cannot be tested here because both columns are NOT NULL in staging.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK001",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK003",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "3001",
+              "POL-3001",
+              "301",
+              "MOTOR01",
+              null,
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "600.00",
+              "EUR",
+              "15000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "3002",
+              "POL-3002",
+              "302",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "700.00",
+              "EUR",
+              "17000.00",
+              "ANNUAL",
+              null,
+              "2",
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "3003",
+              "POL-3003",
+              "303",
+              "MOTOR01",
+              "BRK001",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "750.00",
+              "EUR",
+              "19000.00",
+              "MONTHLY",
+              "",
+              "3",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "3004",
+              "POL-3004",
+              "304",
+              "HOME01",
+              null,
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "500.00",
+              "EUR",
+              "280000.00",
+              "ANNUAL",
+              null,
+              null,
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "3001",
+              "POL-3001",
+              "301",
+              "MOTOR01",
+              null,
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "600.00",
+              "EUR",
+              "15000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "3002",
+              "POL-3002",
+              "302",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "700.00",
+              "EUR",
+              "17000.00",
+              "ANNUAL",
+              "",
+              "2",
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "3003",
+              "POL-3003",
+              "303",
+              "MOTOR01",
+              "BRK001",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "750.00",
+              "EUR",
+              "19000.00",
+              "MONTHLY",
+              null,
+              "3",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "3004",
+              "POL-3004",
+              "304",
+              "HOME01",
+              "BRK001",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "500.00",
+              "EUR",
+              "280000.00",
+              "ANNUAL",
+              null,
+              null,
+              "8"
+            ],
+            [
+              "2025-12-31",
+              "3005",
+              "POL-3005",
+              "305",
+              "MOTOR01",
+              null,
+              "2025-07-01",
+              "2026-06-30",
+              "Active",
+              null,
+              "820.00",
+              "EUR",
+              "21000.00",
+              "MONTHLY",
+              "GH56IJK",
+              "0",
+              "9"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "3001",
+              "POL-3001",
+              "301",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "600.00",
+              "EUR",
+              "AB12CDE",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "2",
+              "3002",
+              "POL-3002",
+              "302",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "700.00",
+              "EUR",
+              null,
+              "2",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "3",
+              "3003",
+              "POL-3003",
+              "303",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "750.00",
+              "EUR",
+              "",
+              "3",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "4",
+              "3004",
+              "POL-3004",
+              "304",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "500.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "5",
+              "3004",
+              "POL-3004",
+              "304",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "500.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.714000"
+            ],
+            [
+              "6",
+              "3005",
+              "POL-3005",
+              "305",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "820.00",
+              "EUR",
+              "GH56IJK",
+              "0",
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.714000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": null,
+      "status": "pending"
+    }
+  ]
+}

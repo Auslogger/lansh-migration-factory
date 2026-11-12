@@ -1,0 +1,835 @@
+[
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      136
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "@AsOfDate written as-is",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      52,
+      117,
+      118,
+      119,
+      120,
+      137
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "broker_code",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT'), passed through the union of keys",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "broker_code",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "'DIRECT' when the broker code is null",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      138,
+      148
+    ],
+    "input_column": "broker_name",
+    "input_kind": "column",
+    "input_table": "stg.brokers",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "broker_name",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "LEFT JOIN lookup on broker_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      139,
+      148
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.brokers",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "broker_status",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(status))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      53,
+      117,
+      118,
+      119,
+      120,
+      140
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(p.lob_code)) from the product of the latest snapshot",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.8,
+    "evidence_lines": [
+      66,
+      141
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "policies_in_force",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "COUNT(*) of in-force policies; ISNULL(...,0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      76,
+      142
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "gwp_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "SUM(amount * fx rate), CAST DECIMAL(14,2), ISNULL 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.9,
+    "evidence_lines": [
+      76
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "gwp_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "CASE WHEN currency='EUR' THEN 1 ELSE rate_to_eur",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      76,
+      81
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "gwp_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "multiplier for amounts not in EUR (latest rate on or before txn_date)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.7,
+    "evidence_lines": [
+      76,
+      142
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "gwp_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "ISNULL(gwp_eur,0); multiplier 1 for EUR",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.8,
+    "evidence_lines": [
+      101,
+      143
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "claims_notified",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "COUNT(*) of claims notified in the year; ISNULL(...,0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      107,
+      144
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "claims_paid_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "SUM(ISNULL(amount,0)), CAST DECIMAL(14,2), ISNULL 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.7,
+    "evidence_lines": [
+      107,
+      144
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "claims_paid_eur",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "ISNULL defaults of 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      107,
+      124,
+      145
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "paid_to_written",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "broker-level SUM(paid) / NULLIF(SUM(gwp),0), DECIMAL(12,4)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      76,
+      124,
+      145
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "paid_to_written",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "denominator: broker-level SUM(gwp_eur)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.85,
+    "evidence_lines": [
+      76,
+      124
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "paid_to_written",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "EUR check in the gwp conversion",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.9,
+    "evidence_lines": [
+      76,
+      124
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "paid_to_written",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "fx conversion in the gwp denominator",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.9,
+    "evidence_lines": [
+      124,
+      146
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "review_flag",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "CASE WHEN paid_to_written > 0.75 THEN 'Y' ELSE 'N'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.9,
+    "evidence_lines": [
+      124,
+      146
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "review_flag",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "via the paid_to_written ratio > 0.75",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.8,
+    "evidence_lines": [
+      76,
+      124,
+      146
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "review_flag",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "via the gwp conversion in the ratio",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.85,
+    "evidence_lines": [
+      76,
+      124,
+      146
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "review_flag",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "via the gwp conversion in the ratio",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      146
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "derives",
+    "output_column": "review_flag",
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "threshold 0.75, literals 'Y'/'N'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      59
+    ],
+    "input_column": "snapshot_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "snapshot_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      41,
+      59,
+      69,
+      70,
+      71,
+      87,
+      88,
+      98,
+      99,
+      111,
+      112
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "as-of cutoffs and year window (@YearStart = Jan 1 of the as-of year)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      55,
+      56,
+      61
+    ],
+    "input_column": "snapshot_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "ROW_NUMBER per policy_id ORDER BY snapshot_date DESC, rn=1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      56
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "tie-break _row_seq DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      55,
+      79,
+      97
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "partition key; joined to premium_transactions/claims on policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      58
+    ],
+    "input_column": "product_code",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "INNER JOIN products ON product_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      58
+    ],
+    "input_column": "product_code",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "INNER JOIN products ON product_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      69
+    ],
+    "input_column": "inception_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "inception_date <= @AsOfDate (in-force)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      70
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "expiry_date >= @AsOfDate (in-force)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      71
+    ],
+    "input_column": "cancellation_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "cancellation_date IS NULL OR > @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      79
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "INNER JOIN #pol on policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      84,
+      87,
+      88
+    ],
+    "input_column": "txn_date",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "txn_date between @YearStart and @AsOfDate; fx rate_date <= txn_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      83
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "fx lookup f.currency = t.currency",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      83
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "f.currency = t.currency",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      84
+    ],
+    "input_column": "rate_date",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "rate_date <= txn_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      81,
+      85
+    ],
+    "input_column": "rate_date",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "TOP 1 ORDER BY rate_date DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      85
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "X1",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "TOP 1 tie-break _row_seq DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      97
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "INNER JOIN #pol on policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      98,
+      99
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "reported_date between @YearStart and @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      94,
+      110
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "claim_payments joined to notified claims on claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      110
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "INNER JOIN #clm on claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      111,
+      112
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "payment_date between @YearStart and @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      148
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "stg.brokers",
+    "job_id": "X1",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.broker_production",
+    "source": "llm",
+    "transform": "LEFT JOIN brokers ON broker_code (no rows removed; repeated broker codes would duplicate rows)",
+    "verified": true
+  }
+]

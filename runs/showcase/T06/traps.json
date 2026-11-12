@@ -1,0 +1,52 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T06",
+    "line_end": 68,
+    "line_start": 62,
+    "note": "The #claims temp table holds the filtered claims with accident_year and the normalised lob_code. In Spark it becomes an intermediate DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT c.claim_id,\n               c.loss_date,\n               YEAR(c.loss_date)        AS accident_year,\n               UPPER(RTRIM(c.lob_code)) AS lob_code\n        INTO   #claims",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T06",
+    "line_end": 88,
+    "line_start": 80,
+    "note": "The #paid temp table holds the payments joined to claims, with their dev_year. In Spark it becomes an intermediate DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#paid') IS NOT NULL DROP TABLE #paid;\n\n        SELECT cl.claim_id,\n               p.payment_id,\n               cl.accident_year,\n               cl.lob_code,\n               DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,\n               p.amount\n        INTO   #paid",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T06",
+    "line_end": 86,
+    "line_start": 86,
+    "note": "dev_year counts the calendar-year boundaries crossed between loss_date and payment_date, not the full years elapsed. A loss on 2023-12-31 paid on 2024-01-01 lands in dev_1. Spark needs year(payment_date) - year(loss_date), not months_between or a day-based calculation.",
+    "snippet": "DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,",
+    "trap_id": "TSQL-04"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T06",
+    "line_end": 109,
+    "line_start": 103,
+    "note": "The #tri temp table holds the pivoted triangle before the insert. In Spark it becomes an intermediate DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#tri') IS NOT NULL DROP TABLE #tri;\n\n        SELECT pv.accident_year,\n               pv.lob_code,\n               pv.[0] AS d0, pv.[1] AS d1, pv.[2] AS d2, pv.[3] AS d3,\n               pv.[4] AS d4, pv.[5] AS d5, pv.[6] AS d6\n        INTO   #tri",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T06",
+    "line_end": 112,
+    "line_start": 110,
+    "note": "The PIVOT implicitly groups by accident_year and lob_code and keeps only dev_year 0-6, so payments in dev years above 6 are dropped. Spark needs groupBy('accident_year','lob_code').pivot('dev_year',[0..6]).sum('amount') with the values listed, and missing cells stay NULL.",
+    "snippet": "FROM  (SELECT accident_year, lob_code, dev_year, amount\n               FROM   #paid) AS src\n        PIVOT (SUM(amount) FOR dev_year IN ([0], [1], [2], [3], [4], [5], [6])) AS pv;",
+    "trap_id": "TSQL-17"
+  }
+]

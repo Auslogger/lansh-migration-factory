@@ -1,0 +1,21 @@
+wave: 4
+job_ids:
+- S03
+depends_on_waves:
+- 3
+trigger: after wave 3
+databricks_workflow:
+  name: lansh-wave-4
+  schedule: null
+  trigger_after: lansh-wave-3
+  tasks:
+  - task_key: S03
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - S03
+    depends_on: []

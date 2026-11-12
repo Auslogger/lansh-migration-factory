@@ -1,0 +1,198 @@
+{
+  "job_id": "X1",
+  "table": "gold.broker_production",
+  "legacy_table": "rpt.broker_production",
+  "layer": "gold",
+  "grain": "One row per broker (trimmed, upper-cased broker code, with DIRECT for policies that have no broker) and line of business that has any in-force policies, written premium, notified claims or paid claims in the year up to the as-of date.",
+  "keys": [
+    "broker_code",
+    "lob_code"
+  ],
+  "columns": [
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "broker_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": false,
+      "max_length": 10,
+      "tags": [],
+      "description": "Trimmed and upper-cased. 'DIRECT' when the policy snapshot has no broker.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "broker_name",
+      "data_type": "string",
+      "legacy_type": "NVARCHAR(80)",
+      "nullable": true,
+      "max_length": 80,
+      "tags": [],
+      "description": "NULL when the broker code is not in stg.brokers (for example DIRECT).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "broker_status",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": true,
+      "max_length": 10,
+      "tags": [],
+      "description": "Upper-cased status from stg.brokers. NULL when the broker is not found.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policies_in_force",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Number of policies whose latest snapshot on or before the as-of date is in force on that date.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "gwp_eur",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Premium booked from 1 January to the as-of date, converted to EUR at the latest FX rate published on or before the transaction date.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claims_notified",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Claims reported in the year up to the as-of date.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claims_paid_eur",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Payments made in the year on claims notified in the year, with recoveries netted off and NULL amounts ignored.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "paid_to_written",
+      "data_type": "decimal(12,4)",
+      "legacy_type": "DECIMAL(12,4)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Broker-level ratio over all of the broker's lines, so the same value repeats on each of the broker's rows. NULL when the broker's total premium is zero.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "review_flag",
+      "data_type": "string",
+      "legacy_type": "CHAR(1)",
+      "nullable": false,
+      "max_length": 1,
+      "tags": [],
+      "description": "'Y' when the broker-level paid_to_written is above 0.75, otherwise 'N' (including when the ratio is NULL).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "review_flag"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 126,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

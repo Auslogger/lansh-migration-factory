@@ -1,0 +1,42 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "code_sha256_after": "64650e575c7d8f3ee1b8b417da4216115b861db11de00584ad2dfc39287ccec6",
+      "code_sha256_before": "2b9b3d467f42469664847f07077d14e8ccec85b320d1c806fda378da1f2eeb0c",
+      "diagnosis": "All 86 mismatches have the legacy value NULL and the candidate value exactly 0.0, in indemnity_amt (73) and expense_amt (13). gross_paid differs on the same 86 rows: legacy NULL, candidate equal to the other bucket on its own. In the legacy SAS step, `indemnity_amt = indemnity_amt + amount` (and the same for expense) uses a plain '+'. A payment of that type with a missing amount therefore makes the retained bucket missing for the rest of the claim (SAS-02), and gross_paid = indemnity_amt + expense_amt becomes missing with it. The candidate tried to copy this inside F.aggregate, but its starting value was a struct of non-nullable F.lit(0.0) fields. Spark takes the accumulator's and the result's type, including whether each field may be NULL, from that starting value. So the s.indemnity_amt and s.expense_amt fields were typed as never NULL, and the NULL each claim built up was read back as 0.0. Every other column already matched: counts, total_paid, recovery_amt (no NULL ever needed there), the flags and the dates.",
+      "duration_seconds": 296.942,
+      "guardrails_passed": true,
+      "job_id": "S01",
+      "kept": true,
+      "llm_call_ids": [
+        "c810eba9a7314b07827533549717b741"
+      ],
+      "patch_summary": "The ordered F.aggregate now keeps running bucket sums that are never NULL: each step adds coalesce(amount, 0), in _row_seq order as before. Each bucket also gets a per-claim flag, computed with groupBy + max: 1 if the claim has a row of that payment type with a missing amount. If the flag is set, the bucket is output as NULL, because once '+' meets a missing value the SAS bucket stays missing. So the NULL no longer depends on Spark tracking nullability inside aggregate. gross_paid (plain +, NULLs carry through) and net_paid (SAS sum(), NULLs skipped) now get the correct inputs. Everything else is unchanged. The module docstring now follows the LANSH job template, with placeholders for the legacy path and SHA-256, which weren't provided.",
+      "recon_status_after": "MATCH",
+      "report_after": "attempt-1",
+      "report_before": "translation",
+      "score_after": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "score_before": [
+        0,
+        0,
+        0,
+        86
+      ],
+      "started_at": "2026-11-12T03:19:28.637089Z",
+      "suspected_traps": [
+        "SAS-02",
+        "SAS-01",
+        "SAS-05"
+      ]
+    }
+  ],
+  "escalation": null,
+  "job_id": "S01",
+  "status": "MATCH"
+}

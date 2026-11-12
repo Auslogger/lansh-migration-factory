@@ -1,0 +1,779 @@
+{
+  "eventTime": "2026-11-12T02:26:19.933031+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "snapshot_date",
+              "type": "date"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "inception_date",
+              "type": "date"
+            },
+            {
+              "name": "expiry_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "cancellation_date",
+              "type": "date"
+            },
+            {
+              "name": "annual_premium",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "sum_insured",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "payment_frequency",
+              "type": "string"
+            },
+            {
+              "name": "vehicle_reg",
+              "type": "string"
+            },
+            {
+              "name": "ncd_years",
+              "type": "int"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.policy_snapshots",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_name",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "commission_rate",
+              "type": "decimal(5,4)"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "appointed_date",
+              "type": "date"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.brokers",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "product_name",
+              "type": "string"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "term_months",
+              "type": "int"
+            },
+            {
+              "name": "levy_rate",
+              "type": "decimal(5,4)"
+            },
+            {
+              "name": "launched_on",
+              "type": "date"
+            },
+            {
+              "name": "withdrawn_on",
+              "type": "date"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.products",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "string"
+            },
+            {
+              "name": "last_name",
+              "type": "string"
+            },
+            {
+              "name": "full_name",
+              "type": "string"
+            },
+            {
+              "name": "initials",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "email_shared_count",
+              "type": "int"
+            },
+            {
+              "name": "date_of_birth",
+              "type": "date"
+            },
+            {
+              "name": "age_at_join",
+              "type": "int"
+            },
+            {
+              "name": "address_line1",
+              "type": "string"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "county",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "eircode",
+              "type": "string"
+            },
+            {
+              "name": "eircode_valid",
+              "type": "string"
+            },
+            {
+              "name": "segment_code",
+              "type": "string"
+            },
+            {
+              "name": "is_standard_segment",
+              "type": "string"
+            },
+            {
+              "name": "marketing_opt_in",
+              "type": "string"
+            },
+            {
+              "name": "customer_since",
+              "type": "date"
+            },
+            {
+              "name": "source_system",
+              "type": "string"
+            },
+            {
+              "name": "version_count",
+              "type": "int"
+            },
+            {
+              "name": "record_updated_at",
+              "type": "timestamp_ntz"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_customer",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "policy_sk",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_segment",
+              "type": "string"
+            },
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "product_name",
+              "type": "string"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_name",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "inception_date",
+              "type": "date"
+            },
+            {
+              "name": "expiry_date",
+              "type": "date"
+            },
+            {
+              "name": "cancellation_date",
+              "type": "date"
+            },
+            {
+              "name": "annual_premium",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "vehicle_reg",
+              "type": "string"
+            },
+            {
+              "name": "ncd_years",
+              "type": "int"
+            },
+            {
+              "name": "valid_from",
+              "type": "date"
+            },
+            {
+              "name": "valid_to",
+              "type": "date"
+            },
+            {
+              "name": "is_current",
+              "type": "string"
+            },
+            {
+              "name": "source_snapshot_date",
+              "type": "date"
+            },
+            {
+              "name": "load_ts",
+              "type": "timestamp_ntz"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_policy",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T02.usp_load_dim_policy",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "annual_premium": {
+              "inputFields": [
+                {
+                  "field": "annual_premium",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "broker_code": {
+              "inputFields": [
+                {
+                  "field": "broker_code",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ISNULL(p.broker_code,'DIRECT-SALES')",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "broker_name": {
+              "inputFields": [
+                {
+                  "field": "broker_name",
+                  "name": "bronze.brokers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "b.broker_name via LEFT JOIN on broker_code",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cancellation_date": {
+              "inputFields": [
+                {
+                  "field": "cancellation_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "currency": {
+              "inputFields": [
+                {
+                  "field": "currency",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_id": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_segment": {
+              "inputFields": [
+                {
+                  "field": "segment_code",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "c.segment_code via LEFT JOIN on customer_id",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "expiry_date": {
+              "inputFields": [
+                {
+                  "field": "expiry_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "inception_date": {
+              "inputFields": [
+                {
+                  "field": "inception_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "bronze.products",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "ncd_years": {
+              "inputFields": [
+                {
+                  "field": "ncd_years",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_id": {
+              "inputFields": [
+                {
+                  "field": "policy_id",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_number": {
+              "inputFields": [
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "product_code": {
+              "inputFields": [
+                {
+                  "field": "product_code",
+                  "name": "bronze.products",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "pr.product_code (equal to p.product_code by inner join)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "product_name": {
+              "inputFields": [
+                {
+                  "field": "product_name",
+                  "name": "bronze.products",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "status": {
+              "inputFields": [
+                {
+                  "field": "status",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "vehicle_reg": {
+              "inputFields": [
+                {
+                  "field": "vehicle_reg",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #src",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "policy_sk",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_segment",
+              "type": "string"
+            },
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "product_name",
+              "type": "string"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_name",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "inception_date",
+              "type": "date"
+            },
+            {
+              "name": "expiry_date",
+              "type": "date"
+            },
+            {
+              "name": "cancellation_date",
+              "type": "date"
+            },
+            {
+              "name": "annual_premium",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "vehicle_reg",
+              "type": "string"
+            },
+            {
+              "name": "ncd_years",
+              "type": "int"
+            },
+            {
+              "name": "valid_from",
+              "type": "date"
+            },
+            {
+              "name": "valid_to",
+              "type": "date"
+            },
+            {
+              "name": "is_current",
+              "type": "string"
+            },
+            {
+              "name": "source_snapshot_date",
+              "type": "date"
+            },
+            {
+              "name": "load_ts",
+              "type": "timestamp_ntz"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_policy",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:26:19.933031+00:00",
+        "nominalStartTime": "2026-11-12T02:25:54.311290+00:00"
+      }
+    },
+    "runId": "4d5824bd-62c7-5352-8825-b7fa39862f57"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

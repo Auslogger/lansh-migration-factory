@@ -1,0 +1,942 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      74,
+      135
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "claim_id",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      75,
+      136
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "claim_number",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      76,
+      137
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      81,
+      88,
+      138
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "policy_number",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy from the LEFT JOINed snapshot (NULL if no match)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      77,
+      139
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "customer_id",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      78,
+      140
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(lob_code))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      79,
+      141
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "loss_date",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      80,
+      142
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reported_date",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "direct copy via #claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      83,
+      108,
+      109,
+      143
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "early_notification_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      80,
+      108,
+      109,
+      143
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "early_notification_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      111,
+      112,
+      113,
+      144
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "invalid_reg_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN lob_code='MOT' AND vehicle_reg NOT LIKE pattern THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      84,
+      112,
+      113,
+      144
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "invalid_reg_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      111,
+      112
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "invalid_reg_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "literal 'MOT' and LIKE pattern",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      85,
+      115,
+      116,
+      145
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "new_customer_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      79,
+      115,
+      116,
+      145
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "new_customer_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      81,
+      118,
+      119,
+      146
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "lob_mismatch_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      78,
+      118,
+      119,
+      146
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "lob_mismatch_flag",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      108,
+      147
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (early_notification)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      108,
+      147
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (early_notification)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      111,
+      118,
+      147
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (invalid_reg, lob_mismatch)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      112,
+      147
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (invalid_reg)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      115,
+      147
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (new_customer)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      115,
+      147
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (new_customer)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      103,
+      104,
+      118,
+      147
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_score",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "sum of the four flags (lob_mismatch)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      108,
+      148,
+      149,
+      150
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score >=2 HIGH / =1 MEDIUM / else LOW",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      108,
+      148,
+      149,
+      150
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      111,
+      118,
+      148,
+      149,
+      150
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      112,
+      148,
+      149,
+      150
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      115,
+      148,
+      149,
+      150
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      115,
+      148,
+      149,
+      150
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      118,
+      148,
+      149,
+      150
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CASE on fraud_score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.75,
+    "evidence_lines": [
+      148,
+      149,
+      150
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "fraud_band",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "literals 'HIGH'/'MEDIUM'/'LOW'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      152
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "loss_day_key",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "CONVERT(CHAR(8), loss_date, 112) yyyymmdd",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      153,
+      155
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "'Notified ' + CONVERT(VARCHAR(10), reported_date, 103) + flag tags",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      108,
+      154,
+      155
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' EARLY' tag / score tag",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      111,
+      118,
+      156,
+      158
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' REG' / ' LOB' tags",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      112,
+      156
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' REG' tag",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      115,
+      157
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' NEWCUST' tag",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      115,
+      157
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' NEWCUST' tag",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      118,
+      158
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "' LOB' tag",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      153,
+      154,
+      155,
+      156,
+      157,
+      158
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "reason_text",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "literal text 'Notified ', ' - no indicators', ' EARLY' etc.",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      51,
+      159
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T08",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "parameter value",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      93,
+      94
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "reported_date > DATEADD(MONTH,-12,@AsOfDate) AND <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      66,
+      68,
+      93,
+      94
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "12-month reporting window; latest snapshot_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      67,
+      68,
+      90
+    ],
+    "input_column": "snapshot_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "LEFT JOIN on snapshot_date = MAX(snapshot_date) <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      88,
+      89
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "LEFT JOIN p.policy_id = c.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      88,
+      89
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "LEFT JOIN p.policy_id = c.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      91,
+      92
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "LEFT JOIN dc.customer_id = c.customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      91,
+      92
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T08",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_fraud_flags",
+    "source": "llm",
+    "transform": "LEFT JOIN dc.customer_id = c.customer_id",
+    "verified": true
+  }
+]

@@ -1,0 +1,1074 @@
+{
+  "run_id": "showcase",
+  "metrics": [
+    {
+      "name": "Jobs migrated",
+      "value": "10",
+      "unit": "jobs",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Jobs reconciled record for record (MATCH, zero unexplained differences)",
+      "value": "10",
+      "unit": "jobs",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "First-pass MATCH (no healing needed)",
+      "value": "10",
+      "unit": "jobs",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Heal attempts",
+      "value": "0",
+      "unit": "attempts",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Jobs escalated to a person",
+      "value": "0",
+      "unit": "jobs",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Legacy output rows proved record for record",
+      "value": "165412",
+      "unit": "rows",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Outputs whose content hash equals the legacy output's",
+      "value": "8",
+      "unit": "outputs",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Trap-focused tests passing",
+      "value": "55",
+      "unit": "of 55",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Suspected legacy defects flagged",
+      "value": "47",
+      "unit": "defects",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Claude calls per job",
+      "value": "6",
+      "unit": "calls",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/metrics.json",
+          "sha256": "55ccb8211b3d0ffcd19f574623bdc8dfb0d88115c031ba68fd85053da0c9cef6"
+        },
+        {
+          "path": "runs/showcase/S03/metrics.json",
+          "sha256": "5ff7bfac20cc1c265c967dcf6853d502a5746500c37d1a742880112b6e0849a7"
+        },
+        {
+          "path": "runs/showcase/S04/metrics.json",
+          "sha256": "6b13b399dd770c3f941b55847bece8add7efcf7926900ddffeff27e444a7642a"
+        },
+        {
+          "path": "runs/showcase/T01/metrics.json",
+          "sha256": "79aba8babd2bb97bbfb5c28929b677fe0a11243d09413d626c2314759f520963"
+        },
+        {
+          "path": "runs/showcase/T02/metrics.json",
+          "sha256": "e8f87346245fd499acb23ba26342c09c0860820c6be323e70e43b9fad2ae550e"
+        },
+        {
+          "path": "runs/showcase/T03/metrics.json",
+          "sha256": "436c20c3d20e85417f01b64a4ab8ff1f7a7f9cda36c961febd07c8b554481c1d"
+        },
+        {
+          "path": "runs/showcase/T04/metrics.json",
+          "sha256": "287892c986371a8cf30b87f8bd72c72dea9effc6a82cddc4694787299df5f8f9"
+        },
+        {
+          "path": "runs/showcase/T05/metrics.json",
+          "sha256": "e8463cd698e90ef63d285a0e27b9eb9822fd44190a41d6822547590a83444533"
+        },
+        {
+          "path": "runs/showcase/T06/metrics.json",
+          "sha256": "5bb6d9272bca7a824bb317a21b8742481afea668a62d6ed78f4dc764f9c689b6"
+        },
+        {
+          "path": "runs/showcase/T08/metrics.json",
+          "sha256": "6e9a22c74aa6cf65d5f0b108c629a8d13a2320cdddee4b22a09bc554d84e99ea"
+        }
+      ]
+    },
+    {
+      "name": "API-equivalent cost per job (not billed: subscription)",
+      "value": "1.01",
+      "unit": "USD",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/metrics.json",
+          "sha256": "55ccb8211b3d0ffcd19f574623bdc8dfb0d88115c031ba68fd85053da0c9cef6"
+        },
+        {
+          "path": "runs/showcase/S03/metrics.json",
+          "sha256": "5ff7bfac20cc1c265c967dcf6853d502a5746500c37d1a742880112b6e0849a7"
+        },
+        {
+          "path": "runs/showcase/S04/metrics.json",
+          "sha256": "6b13b399dd770c3f941b55847bece8add7efcf7926900ddffeff27e444a7642a"
+        },
+        {
+          "path": "runs/showcase/T01/metrics.json",
+          "sha256": "79aba8babd2bb97bbfb5c28929b677fe0a11243d09413d626c2314759f520963"
+        },
+        {
+          "path": "runs/showcase/T02/metrics.json",
+          "sha256": "e8f87346245fd499acb23ba26342c09c0860820c6be323e70e43b9fad2ae550e"
+        },
+        {
+          "path": "runs/showcase/T03/metrics.json",
+          "sha256": "436c20c3d20e85417f01b64a4ab8ff1f7a7f9cda36c961febd07c8b554481c1d"
+        },
+        {
+          "path": "runs/showcase/T04/metrics.json",
+          "sha256": "287892c986371a8cf30b87f8bd72c72dea9effc6a82cddc4694787299df5f8f9"
+        },
+        {
+          "path": "runs/showcase/T05/metrics.json",
+          "sha256": "e8463cd698e90ef63d285a0e27b9eb9822fd44190a41d6822547590a83444533"
+        },
+        {
+          "path": "runs/showcase/T06/metrics.json",
+          "sha256": "5bb6d9272bca7a824bb317a21b8742481afea668a62d6ed78f4dc764f9c689b6"
+        },
+        {
+          "path": "runs/showcase/T08/metrics.json",
+          "sha256": "6e9a22c74aa6cf65d5f0b108c629a8d13a2320cdddee4b22a09bc554d84e99ea"
+        }
+      ]
+    },
+    {
+      "name": "Machine time per job, end to end, with every Claude call live",
+      "value": "5.35",
+      "unit": "minutes",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/metrics.json",
+          "sha256": "55ccb8211b3d0ffcd19f574623bdc8dfb0d88115c031ba68fd85053da0c9cef6"
+        },
+        {
+          "path": "runs/showcase/S03/metrics.json",
+          "sha256": "5ff7bfac20cc1c265c967dcf6853d502a5746500c37d1a742880112b6e0849a7"
+        },
+        {
+          "path": "runs/showcase/S04/metrics.json",
+          "sha256": "6b13b399dd770c3f941b55847bece8add7efcf7926900ddffeff27e444a7642a"
+        },
+        {
+          "path": "runs/showcase/T01/metrics.json",
+          "sha256": "79aba8babd2bb97bbfb5c28929b677fe0a11243d09413d626c2314759f520963"
+        },
+        {
+          "path": "runs/showcase/T02/metrics.json",
+          "sha256": "e8f87346245fd499acb23ba26342c09c0860820c6be323e70e43b9fad2ae550e"
+        },
+        {
+          "path": "runs/showcase/T03/metrics.json",
+          "sha256": "436c20c3d20e85417f01b64a4ab8ff1f7a7f9cda36c961febd07c8b554481c1d"
+        },
+        {
+          "path": "runs/showcase/T04/metrics.json",
+          "sha256": "287892c986371a8cf30b87f8bd72c72dea9effc6a82cddc4694787299df5f8f9"
+        },
+        {
+          "path": "runs/showcase/T05/metrics.json",
+          "sha256": "e8463cd698e90ef63d285a0e27b9eb9822fd44190a41d6822547590a83444533"
+        },
+        {
+          "path": "runs/showcase/T06/metrics.json",
+          "sha256": "5bb6d9272bca7a824bb317a21b8742481afea668a62d6ed78f4dc764f9c689b6"
+        },
+        {
+          "path": "runs/showcase/T08/metrics.json",
+          "sha256": "6e9a22c74aa6cf65d5f0b108c629a8d13a2320cdddee4b22a09bc554d84e99ea"
+        },
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Claude model time per job",
+      "value": "4.84",
+      "unit": "minutes",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    },
+    {
+      "name": "Live Claude calls in this run",
+      "value": "71",
+      "unit": "calls",
+      "sources": [
+        {
+          "path": "runs/showcase/llm_usage.jsonl",
+          "sha256": "0ce984a41d27ec19bbbac20081183e054072d5bec5a5282d9ff4750cb9595f61"
+        }
+      ]
+    },
+    {
+      "name": "Gate decisions recorded",
+      "value": "50",
+      "unit": "decisions",
+      "sources": [
+        {
+          "path": "runs/showcase/gates.jsonl",
+          "sha256": "f9d94b2019459d97730ce6904b430dbd69b29b60fb3cc57287060a81c018b199"
+        }
+      ]
+    },
+    {
+      "name": "Gate decisions made by people",
+      "value": "0",
+      "unit": "decisions",
+      "sources": [
+        {
+          "path": "runs/showcase/gates.jsonl",
+          "sha256": "f9d94b2019459d97730ce6904b430dbd69b29b60fb3cc57287060a81c018b199"
+        }
+      ]
+    },
+    {
+      "name": "Planted bugs flagged with the planted diagnosis (read by the evaluator)",
+      "value": "6",
+      "unit": "of 8",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        }
+      ]
+    },
+    {
+      "name": "Planted bugs reproduced exactly (their jobs MATCH record for record)",
+      "value": "8",
+      "unit": "of 8",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        },
+        {
+          "path": "runs/showcase/S01/metrics.json",
+          "sha256": "55ccb8211b3d0ffcd19f574623bdc8dfb0d88115c031ba68fd85053da0c9cef6"
+        },
+        {
+          "path": "runs/showcase/S04/metrics.json",
+          "sha256": "6b13b399dd770c3f941b55847bece8add7efcf7926900ddffeff27e444a7642a"
+        },
+        {
+          "path": "runs/showcase/T01/metrics.json",
+          "sha256": "79aba8babd2bb97bbfb5c28929b677fe0a11243d09413d626c2314759f520963"
+        },
+        {
+          "path": "runs/showcase/T03/metrics.json",
+          "sha256": "436c20c3d20e85417f01b64a4ab8ff1f7a7f9cda36c961febd07c8b554481c1d"
+        },
+        {
+          "path": "runs/showcase/T04/metrics.json",
+          "sha256": "287892c986371a8cf30b87f8bd72c72dea9effc6a82cddc4694787299df5f8f9"
+        },
+        {
+          "path": "runs/showcase/T05/metrics.json",
+          "sha256": "e8463cd698e90ef63d285a0e27b9eb9822fd44190a41d6822547590a83444533"
+        },
+        {
+          "path": "runs/showcase/T06/metrics.json",
+          "sha256": "5bb6d9272bca7a824bb317a21b8742481afea668a62d6ed78f4dc764f9c689b6"
+        },
+        {
+          "path": "runs/showcase/T08/metrics.json",
+          "sha256": "6e9a22c74aa6cf65d5f0b108c629a8d13a2320cdddee4b22a09bc554d84e99ea"
+        }
+      ]
+    },
+    {
+      "name": "Labelled trap occurrences detected",
+      "value": "81",
+      "unit": "of 82",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        }
+      ]
+    },
+    {
+      "name": "Armed semantic traps detected",
+      "value": "47",
+      "unit": "of 47",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        }
+      ]
+    },
+    {
+      "name": "Trap findings that match the answer key (precision)",
+      "value": "111",
+      "unit": "of 135",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        }
+      ]
+    },
+    {
+      "name": "Answer-key checks giving the legacy result on the migrated output",
+      "value": "41",
+      "unit": "of 41",
+      "sources": [
+        {
+          "path": "runs/showcase/scores.json",
+          "sha256": "0e987e18743666a0b725b4c0bcd410c03e6c39f4f0890f9a19009edc86840a96"
+        }
+      ]
+    },
+    {
+      "name": "Comparison run, sqlglot alone: jobs reaching MATCH",
+      "value": "0",
+      "unit": "of 10",
+      "sources": [
+        {
+          "path": "runs/showcase/benchmark.json",
+          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+        }
+      ]
+    },
+    {
+      "name": "Comparison run, one-shot Claude (same model, none of LANSH's knowledge, no healing): jobs reaching MATCH",
+      "value": "8",
+      "unit": "of 10",
+      "sources": [
+        {
+          "path": "runs/showcase/benchmark.json",
+          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+        }
+      ]
+    },
+    {
+      "name": "Comparison run, one-shot Claude, then LANSH's heal loop alone: jobs reaching MATCH",
+      "value": "10",
+      "unit": "of 10",
+      "sources": [
+        {
+          "path": "runs/showcase/benchmark.json",
+          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+        }
+      ]
+    },
+    {
+      "name": "One-shot translations that ran cleanly but were wrong (only reconciliation shows it)",
+      "value": "2",
+      "unit": "of 10",
+      "sources": [
+        {
+          "path": "runs/showcase/benchmark.json",
+          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+        }
+      ]
+    },
+    {
+      "name": "Rows those translations got wrong",
+      "value": "805",
+      "unit": "rows",
+      "sources": [
+        {
+          "path": "runs/showcase/benchmark.json",
+          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+        }
+      ]
+    },
+    {
+      "name": "Held-out jobs (sealed, written by an isolated agent) reaching MATCH on their first run",
+      "value": "1",
+      "unit": "of 2",
+      "sources": [
+        {
+          "path": "runs/showcase/held-out/X1/metrics.json",
+          "sha256": "46b4341216abc2bf57d47c4b520360534f4e2e6a32afae1b833ec597e0db7fad"
+        },
+        {
+          "path": "runs/showcase/held-out/X2/metrics.json",
+          "sha256": "43cd2b3d772c8158221cebbedf55833e82893e2a70a8c65b8004a37102417228"
+        }
+      ]
+    },
+    {
+      "name": "Held-out planted bugs reproduced exactly (their jobs MATCH record for record)",
+      "value": "1",
+      "unit": "of 2",
+      "sources": [
+        {
+          "path": "runs/showcase/held-out/X1/metrics.json",
+          "sha256": "46b4341216abc2bf57d47c4b520360534f4e2e6a32afae1b833ec597e0db7fad"
+        },
+        {
+          "path": "runs/showcase/held-out/X2/metrics.json",
+          "sha256": "43cd2b3d772c8158221cebbedf55833e82893e2a70a8c65b8004a37102417228"
+        }
+      ]
+    },
+    {
+      "name": "Held-out planted bugs flagged with the planted diagnosis (read by the evaluator)",
+      "value": "2",
+      "unit": "of 2",
+      "sources": [
+        {
+          "path": "runs/showcase/held-out/holdout_scores.json",
+          "sha256": "606d14a488156843777860a97cea5fc06f31c70ce4b63f59d1f0c1c5e16981e0"
+        }
+      ]
+    },
+    {
+      "name": "Held-out jobs reaching MATCH after the post-freeze learning fixes (a second run, not a held-out result)",
+      "value": "2",
+      "unit": "of 2",
+      "sources": [
+        {
+          "path": "runs/showcase/learning/X1/metrics.json",
+          "sha256": "58658378935408f283ecee8dc714c305956d4de6e348b824540fd52063a9d96d"
+        },
+        {
+          "path": "runs/showcase/learning/X2/metrics.json",
+          "sha256": "8c115633f64be59c59ff6da0787d33f66b027e5c71720165fdcb4758f0b4eb35"
+        }
+      ]
+    },
+    {
+      "name": "Golden capture per job (both approaches need it)",
+      "value": "0.09",
+      "unit": "minutes",
+      "sources": [
+        {
+          "path": "estate/golden/S01/manifest.json",
+          "sha256": "d807909bf2fae6e863597bf8be6cd8e9d8b70e9004a5635a167e2ffda4680175"
+        },
+        {
+          "path": "estate/golden/S03/manifest.json",
+          "sha256": "f8256cb8ffe9db16a3b9622a9b2e8ac8dd3da91f5774fb2d056db89090563624"
+        },
+        {
+          "path": "estate/golden/S04/manifest.json",
+          "sha256": "03b1e4eb2153c422ea16168d5f15da03dc660fc25fd62bd352159a1740a21d95"
+        },
+        {
+          "path": "estate/golden/T01/manifest.json",
+          "sha256": "e168b5bc4c6823486fa933c8bcd73f70b8635d013eed5de7d8a2e947b9b22f20"
+        },
+        {
+          "path": "estate/golden/T02/manifest.json",
+          "sha256": "a6a4b396be5cdf20d3e261dcf82ca76fdf4a0a449338a412d22780712442eb0b"
+        },
+        {
+          "path": "estate/golden/T03/manifest.json",
+          "sha256": "0561a0501117af52732a97ef32db91339c19781006ebfca2a7d9533235142413"
+        },
+        {
+          "path": "estate/golden/T04/manifest.json",
+          "sha256": "2356aef9485af842c9b129252be637c596caea25b46047f0aa0a3d6c1529f9cd"
+        },
+        {
+          "path": "estate/golden/T05/manifest.json",
+          "sha256": "a2b2837b91e38a02d888c341c9c66a02a8c08893f38a12b19f0ebafeaf62a7cd"
+        },
+        {
+          "path": "estate/golden/T06/manifest.json",
+          "sha256": "ee83f64164d3c23a3fb40f4d11f32c6d7271c940384e6fe45a2c2eb76dd044af"
+        },
+        {
+          "path": "estate/golden/T08/manifest.json",
+          "sha256": "c056bafe3bdbc77bf0789afec8e4323950d5bf8b2f50c2585c6fcb72f37da8bd"
+        },
+        {
+          "path": "estate/golden/X1/manifest.json",
+          "sha256": "734e168bc51cca01f5f30161e550f4e81023f1a2c9354262d4828b9bec8e72be"
+        },
+        {
+          "path": "estate/golden/X2/manifest.json",
+          "sha256": "fca5cc92ec913120f16db0889eac397989ce87cf358452448c0ce67cdff0de2c"
+        }
+      ]
+    },
+    {
+      "name": "Jobs with warnings in this run (each carries a planted bug by design)",
+      "value": "100",
+      "unit": "%",
+      "sources": [
+        {
+          "path": "runs/showcase/S01/evidence.json",
+          "sha256": "9ebef48061f29ffb24944a77d732fc23feaa3ef439d19f85ea92dbfc6f46304e"
+        },
+        {
+          "path": "runs/showcase/S03/evidence.json",
+          "sha256": "b6526bcddb6f7042cdaed26e1c1046374510a4d1db3654fbc5aa8da14e9f45fd"
+        },
+        {
+          "path": "runs/showcase/S04/evidence.json",
+          "sha256": "ea7756a737f4e81a6c9a8da48aade4ee903d2a0b58252b7e0ad7b291e2dbdd4c"
+        },
+        {
+          "path": "runs/showcase/T01/evidence.json",
+          "sha256": "255b6619b26b383808976d76ed3698f541161a7ec937e9d753ee51886e0380e8"
+        },
+        {
+          "path": "runs/showcase/T02/evidence.json",
+          "sha256": "cf7327587b0dab5b7b44d75cf5023f633ebaacde1db7bdf28acfcb9d6a849c3c"
+        },
+        {
+          "path": "runs/showcase/T03/evidence.json",
+          "sha256": "d9f4e91aecd32f5ec0bd323e86cb7e6dc8983f65886029255c5db62e18394fa7"
+        },
+        {
+          "path": "runs/showcase/T04/evidence.json",
+          "sha256": "bc31466d73d4d869ec0e013e4c946668fdce613aa9aa9291a56d3849a334a355"
+        },
+        {
+          "path": "runs/showcase/T05/evidence.json",
+          "sha256": "4a2ba337c328603afd6a4c8d1eca326dec5e8c52938274b8d153e0a9ed4083f1"
+        },
+        {
+          "path": "runs/showcase/T06/evidence.json",
+          "sha256": "ee7c55270700acf9edbd7f7f0e62d273dffcabc78382fdaebdcec91cc0480892"
+        },
+        {
+          "path": "runs/showcase/T08/evidence.json",
+          "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
+        }
+      ]
+    }
+  ],
+  "business_case": {
+    "assumptions": {
+      "estate_jobs": 1600,
+      "working_days": [
+        87,
+        130
+      ],
+      "hours_per_day": 7.0,
+      "manual_minutes": [
+        240,
+        480,
+        960
+      ],
+      "review_minutes_per_gate": 5.0,
+      "risk_based_share": 0.3,
+      "escalation_rate": 0.15
+    },
+    "measured": {
+      "escalation_rate_in_this_run": 0.0,
+      "escalation_rate_assumed": 0.15,
+      "golden_capture_minutes": 0.09,
+      "claude_cost_per_job_usd": 1.0053,
+      "claude_cost_for_estate_usd": 1608.46,
+      "share_with_warnings_in_this_run": 1.0,
+      "risk_based_share_assumed": 0.3,
+      "manual_baseline_minutes": null
+    },
+    "rows": [
+      {
+        "manual minutes per job": "240",
+        "case": "low",
+        "manual: person-hours for the estate": "6402",
+        "LANSH, every gate reviewed: person-hours": "1629",
+        "LANSH, risk-based gating: person-hours": "1096",
+        "hours saved": "83%",
+        "manual: people for 6 / 4 months": "7 / 10.5",
+        "LANSH: people for 6 / 4 months": "1.2 / 1.8"
+      },
+      {
+        "manual minutes per job": "480",
+        "case": "middle",
+        "manual: person-hours for the estate": "12802",
+        "LANSH, every gate reviewed: person-hours": "2589",
+        "LANSH, risk-based gating: person-hours": "2056",
+        "hours saved": "84%",
+        "manual: people for 6 / 4 months": "14.1 / 21",
+        "LANSH: people for 6 / 4 months": "2.3 / 3.4"
+      },
+      {
+        "manual minutes per job": "960",
+        "case": "high",
+        "manual: person-hours for the estate": "25602",
+        "LANSH, every gate reviewed: person-hours": "4509",
+        "LANSH, risk-based gating: person-hours": "3976",
+        "hours saved": "84%",
+        "manual: people for 6 / 4 months": "28.1 / 42",
+        "LANSH: people for 6 / 4 months": "4.4 / 6.5"
+      }
+    ],
+    "gate_load": {
+      "every gate for every job": 8000,
+      "risk-based gating": 1600
+    },
+    "notes": [
+      "LANSH person-hours = reviewer minutes (5 a gate; H2-H4 for jobs with warnings, H1 and H5 per wave of about 20 jobs) + escalation rate x manual minutes + golden capture, per job.",
+      "Manual minutes per job are assumptions (4, 8 and 16 hours) until the team's manual baseline (plan \u00a79.1) is recorded in baseline/timesheet.csv; the baseline row then appears first.",
+      "Risk-based gating assumes 30% of a real estate's jobs carry warnings and get per-job review at H2-H4. That is an assumption: in this run 100% did, because every development job has a planted bug.",
+      "The projection assumes 15% of a real estate's jobs escalate and are migrated by hand (in this run 0% did).",
+      "For reference, EXL reports a 50% efficiency gain from its Code Harbor tooling on a SAS-to-PySpark migration (plan \u00a79.3); LANSH's figure counts person-hours to a proven, record-for-record MATCH.",
+      "Machine time runs in parallel and needs no people; it is reported separately.",
+      "Claude at API prices for the whole estate: about $1,608 (measured per job here, not billed on a subscription).",
+      "On their first run, 1 of the 2 held-out jobs escalated to a person (stopped by a failing test, not shipped): a sample too small to replace the assumed rate."
+    ]
+  }
+}

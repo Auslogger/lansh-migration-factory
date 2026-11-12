@@ -1,0 +1,101 @@
+[
+  {
+    "confidence": 0.85,
+    "defect_id": "T04-D1",
+    "description": "#money LEFT JOINs stg.claim_payments and #reserve to #open_claims in one statement before GROUP BY. #reserve has up to one row per reserve type (INDEMNITY, EXPENSE), so every payment row is repeated once per reserve row and SUM(p.amount) is multiplied (typically doubled). COUNT(DISTINCT payment_id) and MAX(reserve) hide the fan-out, but total_paid, and therefore incurred (total_paid + reserves), are overstated.",
+    "evidence_lines": [
+      103,
+      105,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      152
+    ],
+    "impact": {
+      "amount_affected": "1288029.36",
+      "amount_column": "total_paid",
+      "measured_on": "golden:T04",
+      "query": "WITH p AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.total_paid - COALESCE(p.paid, 0))), 0) AS amount_affected FROM golden_rpt_claims_summary g LEFT JOIN p ON p.claim_id = g.claim_id WHERE g.total_paid <> COALESCE(p.paid, 0)",
+      "rows_affected": 289
+    },
+    "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.total_paid - COALESCE(p.paid, 0))), 0) AS amount_affected FROM golden_rpt_claims_summary g LEFT JOIN p ON p.claim_id = g.claim_id WHERE g.total_paid <> COALESCE(p.paid, 0)",
+    "intended_behaviour": "total_paid should be the plain sum of payments on or before @AsOfDate per claim, aggregated separately from the reserves (or pre-aggregated before joining).",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Payment/reserve join fan-out inflates total_paid and incurred"
+  },
+  {
+    "confidence": 0.55,
+    "defect_id": "T04-D2",
+    "description": "claim_ref is built as lob_code + '/' + claim_number + '/' + handler_code. With SQL Server's default CONCAT_NULL_YIELDS_NULL, a NULL handler_code (an allowed value) makes the whole reference NULL, so the claim drops off the handler worklist reference.",
+    "evidence_lines": [
+      24,
+      29,
+      136
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.claim_ref IS NULL AND g.handler_code IS NULL",
+      "rows_affected": 109
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.claim_ref IS NULL AND g.handler_code IS NULL",
+    "intended_behaviour": "Build the reference with the handler part blank or defaulted (e.g. CONCAT or ISNULL(handler_code,'')), so LOB and claim number still appear.",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "claim_ref becomes NULL when handler_code is NULL"
+  },
+  {
+    "confidence": 0.4,
+    "defect_id": "T04-D3",
+    "description": "Claims are selected on today's status IN ('OPEN','REOPENED'), not on whether they were open at @AsOfDate. A claim notified by the reporting date but closed after it (closed_date > @AsOfDate) is left out of the as-of open book, along with its paid and reserves.",
+    "evidence_lines": [
+      60,
+      73,
+      74
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred",
+      "measured_on": "golden:T04",
+      "query": "WITH miss AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (status IS NULL OR UPPER(TRIM(status)) NOT IN ('OPEN','REOPENED')) AND closed_date > DATE'2025-12-31'), pay AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id), res AS (SELECT claim_id, reserve_type, reserve_amount, ROW_NUMBER() OVER (PARTITION BY claim_id, reserve_type ORDER BY reserve_date DESC, reserve_id DESC) AS rn FROM stg_claim_reserves WHERE reserve_date <= DATE'2025-12-31'), r AS (SELECT claim_id, SUM(CASE WHEN UPPER(TRIM(reserve_type)) IN ('INDEMNITY','EXPENSE') THEN reserve_amount ELSE 0 END) AS resv FROM res WHERE rn = 1 GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(pay.paid, 0) + COALESCE(r.resv, 0))), 0) AS amount_affected FROM miss LEFT JOIN pay ON pay.claim_id = miss.claim_id LEFT JOIN r ON r.claim_id = miss.claim_id",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH miss AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (status IS NULL OR UPPER(TRIM(status)) NOT IN ('OPEN','REOPENED')) AND closed_date > DATE'2025-12-31'), pay AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id), res AS (SELECT claim_id, reserve_type, reserve_amount, ROW_NUMBER() OVER (PARTITION BY claim_id, reserve_type ORDER BY reserve_date DESC, reserve_id DESC) AS rn FROM stg_claim_reserves WHERE reserve_date <= DATE'2025-12-31'), r AS (SELECT claim_id, SUM(CASE WHEN UPPER(TRIM(reserve_type)) IN ('INDEMNITY','EXPENSE') THEN reserve_amount ELSE 0 END) AS resv FROM res WHERE rn = 1 GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(pay.paid, 0) + COALESCE(r.resv, 0))), 0) AS amount_affected FROM miss LEFT JOIN pay ON pay.claim_id = miss.claim_id LEFT JOIN r ON r.claim_id = miss.claim_id",
+    "intended_behaviour": "Include claims open at @AsOfDate, i.e. reported on or before @AsOfDate and not closed by then (closed_date IS NULL OR closed_date > @AsOfDate).",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Open book uses current status instead of status at the reporting date"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "T04-D4",
+    "description": "@snapshot_date is the latest snapshot date across all policies, and the policy join matches that exact date. A policy missing from that one snapshot (e.g. lapsed or not extracted that day) gets a NULL policy_number, even though an earlier snapshot on or before @AsOfDate holds it.",
+    "evidence_lines": [
+      120,
+      121,
+      122,
+      123,
+      157,
+      158,
+      159
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.policy_number IS NULL AND EXISTS (SELECT 1 FROM stg_policy_snapshots ps WHERE ps.policy_id = g.policy_id AND ps.snapshot_date <= DATE'2025-12-31' AND ps.policy_number IS NOT NULL)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.policy_number IS NULL AND EXISTS (SELECT 1 FROM stg_policy_snapshots ps WHERE ps.policy_id = g.policy_id AND ps.snapshot_date <= DATE'2025-12-31' AND ps.policy_number IS NOT NULL)",
+    "intended_behaviour": "Use each policy's own latest snapshot on or before @AsOfDate to get the policy number.",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Policy number taken from a single global snapshot date"
+  }
+]

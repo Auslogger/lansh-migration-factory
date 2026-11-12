@@ -1,0 +1,807 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      39,
+      44,
+      66,
+      78,
+      79,
+      92
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "customer_id",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "group key, passed through the per-line score tables and the union",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      39,
+      44,
+      66,
+      78,
+      92
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "group key, passed through",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.5,
+    "evidence_lines": [
+      40,
+      44,
+      66
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "n_claims",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "COUNT(*) of claim rows per customer_id, lob_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      41,
+      66
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "paid",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "SUM(total_paid) per customer and line",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      42,
+      66
+    ],
+    "input_column": "n_recoveries",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "n_recoveries",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "SUM(n_recoveries) per customer and line",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      41,
+      67,
+      68,
+      69
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "severity",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "paid / MEAN(paid) remerged over the line's rows",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      67,
+      69
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "severity",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "which line's rows the mean is taken over (one table per line)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      24,
+      78
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "age",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "int((&as_of - date_of_birth)/365.25)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      24
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "age",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "&as_of minus date_of_birth",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      24,
+      25,
+      26,
+      27,
+      28,
+      78
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "age_load",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "age banding: <25 gives 1.40, >=70 gives 1.25, else 1.00",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "age_load",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through age",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "age_load",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "literal loadings 1.40/1.25/1.00",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.96,
+    "evidence_lines": [
+      29,
+      30,
+      31,
+      32,
+      78
+    ],
+    "input_column": "county",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "county_load",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "SELECT on UPCASE(STRIP(county)): DUBLIN 1.15; CORK/LIMERICK/GALWAY 1.05; else 1.00",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      30,
+      31,
+      32
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "county_load",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "literal loadings 1.15/1.05/1.00",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      41,
+      50,
+      78
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "loss_ratio",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "SUM(paid) per line / earned",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      50,
+      52,
+      53,
+      54
+    ],
+    "input_column": "earned_eur",
+    "input_kind": "column",
+    "input_table": "rpt.premium_band_summary",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "loss_ratio",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "denominator SUM(earned_eur) per lob_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.5,
+    "evidence_lines": [
+      40,
+      97
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "points",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "12.5*min(n_claims,4), where n_claims = COUNT(*)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      42,
+      97
+    ],
+    "input_column": "n_recoveries",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "points",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "7.5*n_recoveries",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      67,
+      93,
+      94,
+      95,
+      96,
+      97
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "points",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "sev_points from severity bands, plus lob_points from loss_ratio",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      50,
+      96,
+      97
+    ],
+    "input_column": "earned_eur",
+    "input_kind": "column",
+    "input_table": "rpt.premium_band_summary",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "points",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "lob_points=round(2.5*loss_ratio,0.5)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      93,
+      94,
+      95,
+      96,
+      97
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "points",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "weights 12.5, 7.5, 2.5, cap 4, sev points 10/5/0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.5,
+    "evidence_lines": [
+      97,
+      98
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through points (n_claims count)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      97,
+      98
+    ],
+    "input_column": "n_recoveries",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through points",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      94,
+      96,
+      97,
+      98
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through points (severity, loss_ratio)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      96,
+      97,
+      98
+    ],
+    "input_column": "earned_eur",
+    "input_kind": "column",
+    "input_table": "rpt.premium_band_summary",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through points (loss_ratio)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      24,
+      98
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "round(points*age_load*county_load,0.01)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      24,
+      98
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through age_load",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      29,
+      98
+    ],
+    "input_column": "county",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "score",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through county_load",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.5,
+    "evidence_lines": [
+      99,
+      100,
+      101
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "score bands, through n_claims count",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      97,
+      98,
+      99,
+      100,
+      101
+    ],
+    "input_column": "n_recoveries",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "score>=35 HIGH, >=22 MEDIUM, else LOW",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      98,
+      99,
+      100,
+      101
+    ],
+    "input_column": "total_paid",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      98,
+      99,
+      100,
+      101
+    ],
+    "input_column": "earned_eur",
+    "input_kind": "column",
+    "input_table": "rpt.premium_band_summary",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      98,
+      99,
+      100,
+      101
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.88,
+    "evidence_lines": [
+      24,
+      98,
+      99
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through age_load and score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      98,
+      99,
+      100,
+      101
+    ],
+    "input_column": "county",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "through score",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      99,
+      100,
+      101
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "tier",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "literals 'HIGH'/'MEDIUM'/'LOW'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      103
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "as_of_date = &as_of",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      69,
+      74,
+      79,
+      81,
+      83
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "lob_code = \"&lob\" for MOT, HOM, TRV only",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      74
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "macro list MOT HOM TRV",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      84
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "S04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "LEFT JOIN cust ON customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.65,
+    "evidence_lines": [
+      84
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.claims_enriched",
+    "job_id": "S04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "LEFT JOIN key s.customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.65,
+    "evidence_lines": [
+      55,
+      85
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "rpt.premium_band_summary",
+    "job_id": "S04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.risk_scores",
+    "source": "llm",
+    "transform": "inner join e.lob_code=p.lob_code into lob_ratio, then LEFT JOIN on lob_code",
+    "verified": true
+  }
+]

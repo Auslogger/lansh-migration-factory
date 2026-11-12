@@ -1,0 +1,264 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:57:01.723318Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer. Customer dimension, one row per CRM customer.\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_customer\n  3 |   Purpose  : Customer dimension for the marketing and pricing teams. One row\n  4 |              per CRM customer with the customer's current details from the\n  5 |              CRM extract, plus sales region, Eircode check, initials and\n  6 |              segment flags for campaigns and the pricing models.\n  7 |   Output   : dw.dim_customer (truncated and reloaded on every run)\n  8 |   Author   : DOC\n  9 | \n 10 |   Change log\n 11 |     2013-05-20  DOC   Initial version\n 12 |     2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n 13 |     2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n 14 |     2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n 15 |     2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n 16 |                       (CR-1190)\n 17 |     2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n 18 |                       (GDPR, CR-1342)\n 19 |     2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n 20 |     2019-11-04  KB    CRM extract is now change data capture: one row per\n 21 |                       saved version, keep the current one (CR-1702)\n 22 |     2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n 23 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 24 | ==============================================================================*/\n 25 | SET NOCOUNT ON;\n 26 | GO\n 27 | IF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\n 28 | CREATE TABLE dw.dim_customer (\n 29 |     customer_id          INT            NOT NULL,\n 30 |     first_name           NVARCHAR(40)   NOT NULL,\n 31 |     last_name            NVARCHAR(60)   NOT NULL,\n 32 |     full_name            NVARCHAR(101)  NOT NULL,\n 33 |     initials             NVARCHAR(2)    NOT NULL,\n 34 |     email                VARCHAR(120)   NULL,\n 35 |     email_shared_count   INT            NOT NULL,\n 36 |     date_of_birth        DATE           NULL,\n 37 |     age_at_join          INT            NULL,\n 38 |     address_line1        NVARCHAR(100)  NULL,\n 39 |     town                 NVARCHAR(50)   NULL,\n 40 |     county               VARCHAR(30)    NULL,\n 41 |     region               VARCHAR(12)    NOT NULL,\n 42 |     eircode              VARCHAR(10)    NULL,\n 43 |     eircode_valid        CHAR(1)        NOT NULL,\n 44 |     segment_code         CHAR(4)        NULL,\n 45 |     is_standard_segment  CHAR(1)        NOT NULL,\n 46 |     marketing_opt_in     CHAR(1)        NOT NULL,\n 47 |     customer_since       DATE           NOT NULL,\n 48 |     source_system        VARCHAR(10)    NOT NULL,\n 49 |     version_count        INT            NOT NULL,\n 50 |     record_updated_at    DATETIME2(0)   NOT NULL,\n 51 |     as_of_date           DATE           NOT NULL,\n 52 |     CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n 53 | );\n 54 | GO\n 55 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n 56 |     @AsOfDate DATE\n 57 | AS\n 58 | BEGIN\n 59 |     SET NOCOUNT ON;\n 60 | \n 61 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n 62 |             @rows      INT,\n 63 |             @err_msg   NVARCHAR(4000),\n 64 |             @err_no    INT;\n 65 | \n 66 |     BEGIN TRY\n 67 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 68 | \n 69 |         IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n 70 |         IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n 71 | \n 72 |         /* 1. Customer versions saved up to the reporting date. The CRM extract\n 73 |               writes a new row every time a record is saved. */\n 74 |         SELECT  c.customer_id,\n 75 |                 c.first_name,\n 76 |                 c.last_name,\n 77 |                 c.email,\n 78 |                 c.date_of_birth,\n 79 |                 c.address_line1,\n 80 |                 c.town,\n 81 |                 c.county,\n 82 |                 c.eircode,\n 83 |                 c.segment_code,\n 84 |                 c.marketing_opt_in,\n 85 |                 c.customer_since,\n 86 |                 c.source_system,\n 87 |                 c.updated_at,\n 88 |                 c._row_seq,\n 89 |                 COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n 90 |         INTO    #customer_versions\n 91 |         FROM    stg.customers c WITH (NOLOCK)\n 92 |         WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n 93 | \n 94 |         SET @rows = @@ROWCOUNT;\n 95 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n 96 | \n 97 |         /* 2. Keep the current version of each customer */\n 98 |         SELECT  v.*\n 99 |         INTO    #customer\n100 |         FROM   (SELECT  cv.*,\n101 |                         ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n102 |                                            ORDER BY cv.updated_at, cv._row_seq) AS version_no\n103 |                 FROM    #customer_versions cv) v\n104 |         WHERE   v.version_no = 1;\n105 | \n106 |         SET @rows = @@ROWCOUNT;\n107 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n108 | \n109 |         /* 3. Reload the dimension */\n110 |         BEGIN TRANSACTION;\n111 | \n112 |         TRUNCATE TABLE dw.dim_customer;\n113 | \n114 |         INSERT INTO dw.dim_customer\n115 |                (customer_id, first_name, last_name, full_name, initials, email,\n116 |                 email_shared_count, date_of_birth, age_at_join, address_line1, town,\n117 |                 county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n118 |                 marketing_opt_in, customer_since, source_system, version_count,\n119 |                 record_updated_at, as_of_date)\n120 |         SELECT  k.customer_id,\n121 |                 RTRIM(k.first_name),\n122 |                 k.last_name,\n123 |                 RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n124 |                 UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n125 |                 k.email,\n126 |                 CASE WHEN k.email IS NULL THEN 0\n127 |                      ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n128 |                 k.date_of_birth,\n129 |                 DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n130 |                 k.address_line1,\n131 |                 k.town,\n132 |                 k.county,\n133 |                 -- sales regions as agreed with distribution (CR-0412)\n134 |                 CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n135 |                      WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n136 |                      WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n137 |                      WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n138 |                      WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n139 |                      ELSE 'UNKNOWN'\n140 |                 END,\n141 |                 k.eircode,\n142 |                 -- routing key (3) and unique identifier (4), keyed with or without the space\n143 |                 CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n144 |                      WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n145 |                      ELSE 'N'\n146 |                 END,\n147 |                 k.segment_code,\n148 |                 CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n149 |                 ISNULL(k.marketing_opt_in, 'N'),\n150 |                 k.customer_since,\n151 |                 UPPER(RTRIM(k.source_system)),\n152 |                 k.version_count,\n153 |                 k.updated_at,\n154 |                 @AsOfDate\n155 |         FROM    #customer k;\n156 | \n157 |         SET @rows = @@ROWCOUNT;\n158 | \n159 |         COMMIT TRANSACTION;\n160 | \n161 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n163 |     END TRY\n164 |     BEGIN CATCH\n165 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n166 | \n167 |         SELECT  @err_msg = ERROR_MESSAGE(),\n168 |                 @err_no  = ERROR_NUMBER();\n169 | \n170 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n171 |              @message = @err_msg, @error_number = @err_no;\n172 |         THROW;\n173 |     END CATCH\n174 | END;\n175 | GO\n\nViews for impact queries:\n- stg_customers (stg.customers): customer_id int, first_name string, last_name string, email string, date_of_birth date, address_line1 string, town string, county string, eircode string, segment_code string, marketing_opt_in string, customer_since date, source_system string, updated_at timestamp_ntz, _row_seq int\n- golden_dw_dim_customer (the legacy output dw.dim_customer): customer_id int, first_name string, last_name string, full_name string, initials string, email string, email_shared_count int, date_of_birth date, age_at_join int, address_line1 string, town string, county string, region string, eircode string, eircode_valid string, segment_code string, is_standard_segment string, marketing_opt_in string, customer_since date, source_system string, version_count int, record_updated_at timestamp_ntz, as_of_date date\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "b556428013b1be22c733d84d0f9992e12b5774baa371cdf5f5f2e4f38f1d722c",
+  "response": {
+    "duration_api_ms": 55557,
+    "duration_ms": 55764,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4978,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4978,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.13002619999999998,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4496,
+        "provider": "firstParty",
+        "thinkingTokens": 2796,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": null,
+          "confidence": 0.93,
+          "description": "Step 2 numbers each customer's versions with ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at, _row_seq) and keeps version_no = 1. The sort is ascending, so row 1 is the first version ever saved. Every customer with more than one version gets their original details (name, email, address, county, segment, opt-in, record_updated_at) instead of their current ones.",
+          "evidence_lines": [
+            97,
+            101,
+            102,
+            104
+          ],
+          "impact_query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+          "intended_behaviour": "Keep the latest version saved up to @AsOfDate, i.e. ORDER BY updated_at DESC, _row_seq DESC, as the header (CR-1702) and the step comment say.",
+          "title": "Keeps the oldest CRM version instead of the current one"
+        },
+        {
+          "amount_column": "age_at_join",
+          "confidence": 0.8,
+          "description": "age_at_join = DATEDIFF(YEAR, date_of_birth, customer_since) only subtracts the years. If the customer joined before their birthday that year, the age comes out one year too high.",
+          "evidence_lines": [
+            129
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+          "intended_behaviour": "Age in completed years at the join date: subtract 1 when the month/day of customer_since is before the month/day of date_of_birth.",
+          "title": "age_at_join counts calendar-year boundaries, not completed years"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.55,
+          "description": "eircode_valid is 'Y' whenever LEN(eircode) = 7, whatever the characters are. A 7-character value that has a space in it (really a 6-character code with a space, e.g. 'D02 X28') or contains punctuation passes. LEN also ignores trailing spaces. Only the 8-character form checks where the space is.",
+          "evidence_lines": [
+            142,
+            143,
+            144,
+            145
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+          "intended_behaviour": "Per the comment (3-character routing key plus 4-character unique identifier, with or without the space), valid means 7 alphanumeric characters with no space, or 3 alphanumerics, a space, then 4 alphanumerics.",
+          "title": "Eircode check accepts any 7-character value, including ones with a misplaced space"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.3,
+          "description": "The region CASE matches only the exact county names (for example 'Dublin'). A populated county written another way, such as 'Co. Dublin', 'County Cork', 'Tipperary North' or 'Laoighis', is mapped to 'UNKNOWN' even though it belongs to a known sales region.",
+          "evidence_lines": [
+            134,
+            135,
+            136,
+            137,
+            138,
+            139
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+          "intended_behaviour": "Normalise the county (strip 'Co.'/'County' prefixes and known variants) before mapping, so every real county gets its region and UNKNOWN is left for missing or unrecognisable values.",
+          "title": "County spelling variants fall into region UNKNOWN"
+        }
+      ]
+    },
+    "total_cost_usd": 0.13002619999999998,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4978,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4978,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4978,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4978,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 4496,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4496,
+      "output_tokens_details": {
+        "thinking_tokens": 2796
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

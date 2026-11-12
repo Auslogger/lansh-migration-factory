@@ -1,0 +1,341 @@
+{
+  "approach": "oneshot_claude",
+  "candidate_sha256": "4c1e8efd12383908c69ac1ac8ed05559136cce01f9569f3af215bdd95acba3ff",
+  "code_sha256": "2b9b3d467f42469664847f07077d14e8ccec85b320d1c806fda378da1f2eeb0c",
+  "column_diffs": [
+    {
+      "column": "indemnity_amt",
+      "n_rows": 73,
+      "policy": "float_rel",
+      "samples": [
+        {
+          "candidate": 0.0,
+          "claim_id": 300016.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300036.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300067.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300082.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300125.0,
+          "legacy": null
+        }
+      ]
+    },
+    {
+      "column": "expense_amt",
+      "n_rows": 13,
+      "policy": "float_rel",
+      "samples": [
+        {
+          "candidate": 0.0,
+          "claim_id": 300005.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300068.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300287.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300394.0,
+          "legacy": null
+        },
+        {
+          "candidate": 0.0,
+          "claim_id": 300705.0,
+          "legacy": null
+        }
+      ]
+    },
+    {
+      "column": "gross_paid",
+      "n_rows": 86,
+      "policy": "float_rel",
+      "samples": [
+        {
+          "candidate": 4906.68,
+          "claim_id": 300005.0,
+          "legacy": null
+        },
+        {
+          "candidate": 7.61,
+          "claim_id": 300016.0,
+          "legacy": null
+        },
+        {
+          "candidate": 259.45,
+          "claim_id": 300036.0,
+          "legacy": null
+        },
+        {
+          "candidate": 6.83,
+          "claim_id": 300067.0,
+          "legacy": null
+        },
+        {
+          "candidate": 16587.63,
+          "claim_id": 300068.0,
+          "legacy": null
+        }
+      ]
+    }
+  ],
+  "contract_sha256": "a51726505f4a2482939ddb31fa0cd1e0754fe962fdde8bc9b455109016d79fcf",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 641,
+        "legacy": 641,
+        "partition": "lob_code='HOM', status='CLOSED'"
+      },
+      {
+        "candidate": 250,
+        "legacy": 250,
+        "partition": "lob_code='HOM', status='OPEN'"
+      },
+      {
+        "candidate": 20,
+        "legacy": 20,
+        "partition": "lob_code='HOM', status='REOPENED'"
+      },
+      {
+        "candidate": 1267,
+        "legacy": 1267,
+        "partition": "lob_code='MOT', status='CLOSED'"
+      },
+      {
+        "candidate": 446,
+        "legacy": 446,
+        "partition": "lob_code='MOT', status='OPEN'"
+      },
+      {
+        "candidate": 40,
+        "legacy": 40,
+        "partition": "lob_code='MOT', status='REOPENED'"
+      },
+      {
+        "candidate": 180,
+        "legacy": 180,
+        "partition": "lob_code='TRV', status='CLOSED'"
+      },
+      {
+        "candidate": 65,
+        "legacy": 65,
+        "partition": "lob_code='TRV', status='OPEN'"
+      },
+      {
+        "candidate": 2,
+        "legacy": 2,
+        "partition": "lob_code='TRV', status='REOPENED'"
+      }
+    ],
+    "candidate": 2911,
+    "legacy": 2911
+  },
+  "duration_seconds": 4.678,
+  "error": null,
+  "explanation": "MISMATCH: the legacy output has 2,911 rows and the candidate 2,911. 86 matched rows differ in: indemnity_amt (73), expense_amt (13), gross_paid (86). Totals differ (legacy vs candidate): gross_paid 11857100.749999985 vs 11930073.429999981. null_vs_value in gross_paid: on all 86 rows that differ in gross_paid, one side is NULL and the other has a value (e.g. legacy None vs candidate 4906.68). null_vs_value in indemnity_amt: on all 73 rows that differ in indemnity_amt, one side is NULL and the other has a value (e.g. legacy None vs candidate 0.0). null_vs_value in expense_amt: on all 13 rows that differ in expense_amt, one side is NULL and the other has a value (e.g. legacy None vs candidate 0.0).",
+  "extra_samples": [],
+  "golden_sha256": "ad9abf25a1f07ee384712267385c9c36ff9ecf60fe7e9b55c959f467856ee2f0",
+  "job_id": "S01",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "claim_id"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 2825,
+    "missing": 0,
+    "value_diff": 86
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [
+    {
+      "column": "gross_paid",
+      "explanation": "null_vs_value in gross_paid: on all 86 rows that differ in gross_paid, one side is NULL and the other has a value (e.g. legacy None vs candidate 4906.68).",
+      "kind": "null_vs_value",
+      "n_rows": 86,
+      "suspected_traps": [
+        "SAS-01",
+        "SAS-02",
+        "SAS-05"
+      ]
+    },
+    {
+      "column": "indemnity_amt",
+      "explanation": "null_vs_value in indemnity_amt: on all 73 rows that differ in indemnity_amt, one side is NULL and the other has a value (e.g. legacy None vs candidate 0.0).",
+      "kind": "null_vs_value",
+      "n_rows": 73,
+      "suspected_traps": [
+        "SAS-01",
+        "SAS-02",
+        "SAS-05"
+      ]
+    },
+    {
+      "column": "expense_amt",
+      "explanation": "null_vs_value in expense_amt: on all 13 rows that differ in expense_amt, one side is NULL and the other has a value (e.g. legacy None vs candidate 0.0).",
+      "kind": "null_vs_value",
+      "n_rows": 13,
+      "suspected_traps": [
+        "SAS-01",
+        "SAS-02",
+        "SAS-05"
+      ]
+    }
+  ],
+  "started_at": "2026-11-12T03:05:36.778585Z",
+  "status": "MISMATCH",
+  "table": "dw.claims_enriched",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "877538416.0",
+      "column": "claim_id",
+      "legacy": "877538416.0",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "1545784723.0",
+      "column": "policy_id",
+      "legacy": "1545784723.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "320603454.0",
+      "column": "customer_id",
+      "legacy": "320603454.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "10200.0",
+      "column": "n_payments",
+      "legacy": "10200.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "218.0",
+      "column": "n_recoveries",
+      "legacy": "218.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "12027486.519999985",
+      "column": "total_paid",
+      "legacy": "12027486.519999985",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "11425755.96999996",
+      "column": "indemnity_amt",
+      "legacy": "11425755.96999996",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "504317.45999999985",
+      "column": "expense_amt",
+      "legacy": "504317.45999999985",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "-197021.5599999999",
+      "column": "recovery_amt",
+      "legacy": "-197021.5599999999",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "213.0",
+      "column": "recovery_flag",
+      "legacy": "213.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2466.0",
+      "column": "has_payment",
+      "legacy": "2466.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "11930073.429999981",
+      "column": "gross_paid",
+      "legacy": "11857100.749999985",
+      "matches": false,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "11733051.86999999",
+      "column": "net_paid",
+      "legacy": "11733051.86999999",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    }
+  ]
+}

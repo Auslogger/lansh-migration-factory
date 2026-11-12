@@ -1,0 +1,102 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 74,
+    "line_start": 67,
+    "note": "The #open_claims temp table becomes a DataFrame.",
+    "snippet": "SELECT c.claim_id,\n               c.claim_number,\n               UPPER(RTRIM(c.lob_code)) AS lob_code,\n               c.reported_date\n        INTO   #open_claims\n        FROM   stg.claims AS c WITH (NOLOCK)\n        WHERE  c.status IN ('OPEN', 'REOPENED')\n          AND  c.reported_date <= @AsOfDate;",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 73,
+    "line_start": 73,
+    "note": "status is VARCHAR(12). Under the CI collation, IN ('OPEN','REOPENED') also matches 'Open' and 'reopened'. Spark's isin is case-sensitive and would drop those claims.",
+    "snippet": "WHERE  c.status IN ('OPEN', 'REOPENED')",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 73,
+    "line_start": 73,
+    "note": "status is VARCHAR. Values stored with trailing spaces, such as 'OPEN ', still match in SQL Server but not with an exact match in Spark.",
+    "snippet": "WHERE  c.status IN ('OPEN', 'REOPENED')",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 88,
+    "line_start": 81,
+    "note": "The #pay temp table and its clustered index become a DataFrame. The index has no Spark equivalent.",
+    "snippet": "SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n        INTO   #pay\n        FROM   stg.claim_payments AS p WITH (NOLOCK)\n        INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n        WHERE  p.payment_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        CREATE CLUSTERED IN\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 101,
+    "line_start": 92,
+    "note": "The #aging temp table is filled row by row and becomes a DataFrame.",
+    "snippet": "CREATE TABLE #aging (\n            claim_id             INT            NOT NULL PRIMARY KEY,\n            n_payments           INT            NOT NULL,\n            total_paid           DECIMAL(14,2)  NULL,\n            last_payment_date    DATE           NULL,\n            last_activity_date   DATE    \u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 156,
+    "line_start": 104,
+    "note": "The claim_cur cursor loop handles one claim at a time and inserts into #aging. It becomes a set-based left join and aggregation per claim.",
+    "snippet": "DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n            SELECT claim_id, reported_date\n            FROM   #open_claims\n            ORDER  BY claim_id;\n\n        OPEN claim_cur;\n        FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n\n        WHILE @@FETCH_STATUS = 0\n        BEGIN\n          \u2026",
+    "trap_id": "TSQL-12"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 137,
+    "line_start": 118,
+    "note": "The nested pay_cur loop carries n_pay, total and last_pay from row to row in payment_date, payment_id order. It becomes count, sum and max per claim. Claims with no payments must get n_payments=0, total_paid=0 (not NULL) and last_payment_date NULL.",
+    "snippet": "DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n                SELECT payment_date, amount\n                FROM   #pay\n                WHERE  claim_id = @claim_id\n                ORDER  BY payment_date, payment_id;\n\n            OPEN pay_cur;\n            FETCH NEXT FROM pay_cur INTO @pay_date, @amoun\u2026",
+    "trap_id": "TSQL-12"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 131,
+    "line_start": 129,
+    "note": "Latent: amount is nullable. One NULL amount makes @total NULL for the rest of that claim's loop and in the output, while Spark's sum skips NULLs. n_pay still counts that row. last_pay is the date of the last payment in order, which equals the max payment_date.",
+    "snippet": "SET @n_pay    = @n_pay + 1;\n                SET @total    = @total + @amount;\n                SET @last_pay = @pay_date;",
+    "trap_id": "TSQL-12"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 141,
+    "line_start": 141,
+    "note": "DATEDIFF(DAY) on DATE values is the plain day difference, so the value is safe. But Spark's datediff(end, start) takes its arguments in reverse order.",
+    "snippet": "SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);",
+    "trap_id": "TSQL-04"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T05",
+    "line_end": 142,
+    "line_start": 142,
+    "note": "DATEDIFF(WEEK) counts the Sundays crossed between reported_date and @AsOfDate, not elapsed weeks. floor(datediff/7) would be wrong.",
+    "snippet": "SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);",
+    "trap_id": "TSQL-04"
+  }
+]

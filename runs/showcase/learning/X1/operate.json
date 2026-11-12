@@ -1,0 +1,125 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-holdout-learn/X1/openlineage/X1.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "8db4e15fa8480e1523befa9fe420bfc7ed7d5f492caa56e3fe21e310cf810e3d",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "81878435d3201fbc507997e2c4e4189d2a6b90ed29e8e03f1ed1cf1728e115fc",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 102,
+            "legacy": 102,
+            "partition": "review_flag='N'"
+          },
+          {
+            "candidate": 24,
+            "legacy": 24,
+            "partition": "review_flag='Y'"
+          }
+        ],
+        "candidate": 126,
+        "legacy": 126
+      },
+      "duration_seconds": 4.228,
+      "error": null,
+      "explanation": "MATCH: all 126 rows agree record for record, compared on the keys ['broker_code', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "8db4e15fa8480e1523befa9fe420bfc7ed7d5f492caa56e3fe21e310cf810e3d",
+      "job_id": "X1",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "broker_code",
+        "lob_code"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 126,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-holdout-learn",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T04:10:52.911737Z",
+      "status": "MATCH",
+      "table": "rpt.broker_production",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "21466",
+          "column": "policies_in_force",
+          "legacy": "21466",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "9177239.83",
+          "column": "gwp_eur",
+          "legacy": "9177239.83",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1042",
+          "column": "claims_notified",
+          "legacy": "1042",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "4010931.67",
+          "column": "claims_paid_eur",
+          "legacy": "4010931.67",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "60.0255",
+          "column": "paid_to_written",
+          "legacy": "60.0255",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 14.773,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 126,
+      "job_id": "X1",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 126,
+      "runtime_seconds": 9.597,
+      "table": "rpt.broker_production"
+    }
+  ],
+  "status": "MATCH"
+}

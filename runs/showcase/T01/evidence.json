@@ -1,0 +1,5108 @@
+{
+  "job_id": "T01",
+  "generated_at": "2026-11-12T02:15:34.735545Z",
+  "legacy_path": "estate/tsql/T01_usp_load_dim_customer.sql",
+  "legacy_sha256": "d38c02712a8ae80f9e6e8fff845b41ac7d89026778fc03455b34ded21bba4dc6",
+  "discovery": {
+    "job_id": "T01",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "T01",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 25,
+        "line_end": 25,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 27,
+        "line_end": 53,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 2,
+        "kind": "other",
+        "line_start": 55,
+        "line_end": 58,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T01",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 59,
+        "line_end": 59,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 4,
+        "kind": "statement",
+        "line_start": 61,
+        "line_end": 64,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 5,
+        "kind": "other",
+        "line_start": 66,
+        "line_end": 66,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T01",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 67,
+        "line_end": 67,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 7,
+        "kind": "statement",
+        "line_start": 69,
+        "line_end": 69,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 70,
+        "line_end": 70,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 74,
+        "line_end": 92,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 94,
+        "line_end": 94,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 95,
+        "line_end": 95,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 98,
+        "line_end": 104,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 106,
+        "line_end": 106,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 107,
+        "line_end": 107,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 110,
+        "line_end": 110,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 112,
+        "line_end": 112,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 114,
+        "line_end": 155,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 157,
+        "line_end": 157,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 159,
+        "line_end": 159,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 161,
+        "line_end": 161,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 162,
+        "line_end": 162,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 22,
+        "kind": "other",
+        "line_start": 163,
+        "line_end": 163,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T01",
+        "index": 23,
+        "kind": "other",
+        "line_start": 164,
+        "line_end": 164,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T01",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 165,
+        "line_end": 165,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 167,
+        "line_end": 168,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 26,
+        "kind": "statement",
+        "line_start": 170,
+        "line_end": 171,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 27,
+        "kind": "statement",
+        "line_start": 172,
+        "line_end": 172,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T01",
+        "index": 28,
+        "kind": "other",
+        "line_start": 173,
+        "line_end": 173,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T01",
+        "index": 29,
+        "kind": "other",
+        "line_start": 174,
+        "line_end": 174,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "stg.customers"
+    ],
+    "writes": [
+      "dw.dim_customer"
+    ]
+  },
+  "code": {
+    "job_id": "T01",
+    "module_path": "runs/showcase/T01/jobs/t01.py",
+    "code_sha256": "cf127dfa3efa1a51520d36cf2e258b3e491b3e07779485fd3cb86402b9e9ebdd",
+    "legacy_path": "estate/tsql/T01_usp_load_dim_customer.sql",
+    "legacy_sha256": "d38c02712a8ae80f9e6e8fff845b41ac7d89026778fc03455b34ded21bba4dc6",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-04",
+      "TSQL-05",
+      "TSQL-13",
+      "TSQL-15"
+    ],
+    "defects_reproduced": [
+      "T01-M1",
+      "T01-M2",
+      "T01-M3",
+      "T01-M4",
+      "T01-M5",
+      "T01-M6",
+      "T01-M7",
+      "T01-M8",
+      "T01-M9",
+      "T01-M10",
+      "T01-M11",
+      "T01-M12"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "Dublin",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Kildare",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Louth",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Meath",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Wexford",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Wicklow",
+        "line": 15,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Carlow",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Cork",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Kerry",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Kilkenny",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Limerick",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Tipperary",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Waterford",
+        "line": 16,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Clare",
+        "line": 17,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Galway",
+        "line": 17,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Mayo",
+        "line": 17,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Roscommon",
+        "line": 17,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Cavan",
+        "line": 18,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Donegal",
+        "line": 18,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Leitrim",
+        "line": 18,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Monaghan",
+        "line": 18,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Sligo",
+        "line": 18,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Laois",
+        "line": 19,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Longford",
+        "line": 19,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Offaly",
+        "line": 19,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Westmeath",
+        "line": 19,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 45,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 57,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "EAST",
+        "line": 65,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "SOUTH",
+        "line": 66,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "WEST",
+        "line": 67,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "NORTH-WEST",
+        "line": 68,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "MIDLANDS",
+        "line": 69,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "UNKNOWN",
+        "line": 70,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7",
+        "line": 76,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 76,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 77,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 77,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 77,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "8",
+        "line": 77,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 77,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "N",
+        "line": 78,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 86,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 89,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 92,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 93,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 103,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 103,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 105,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 105,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "N",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "STD",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 109,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 109,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 112,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 112,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "N",
+        "line": 112,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T02:15:35.480837Z"
+  },
+  "lineage": [
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "updated_at",
+      "kind": "filters",
+      "transform": "CAST(updated_at AS DATE) <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        92
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "filters",
+      "transform": "CAST(updated_at AS DATE) <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        56,
+        92
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "customer_id",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER() PARTITION BY customer_id, keep version_no = 1",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        101,
+        104
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "updated_at",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER() ORDER BY updated_at ASC, keep version_no = 1 (earliest version survives)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        102,
+        104
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "_row_seq",
+      "kind": "ranks",
+      "transform": "ROW_NUMBER() ORDER BY updated_at, _row_seq ASC tiebreak",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        102,
+        104
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "customer_id",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        74,
+        120
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "first_name",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "first_name",
+      "kind": "derives",
+      "transform": "RTRIM(first_name)",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        75,
+        121
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "last_name",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "last_name",
+      "kind": "derives",
+      "transform": "direct (not trimmed)",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        76,
+        122
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "full_name",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "first_name",
+      "kind": "derives",
+      "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        123
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "full_name",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "last_name",
+      "kind": "derives",
+      "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        123
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "full_name",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "literal N' ' separator",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        123
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "initials",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "first_name",
+      "kind": "derives",
+      "transform": "UPPER(SUBSTRING(first_name,0,2) + ...) - SUBSTRING from 0 yields first char only",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        124
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "initials",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "last_name",
+      "kind": "derives",
+      "transform": "UPPER(... + SUBSTRING(last_name,0,2)) - first char only",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        124
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "email",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "email",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        77,
+        125
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "email_shared_count",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "email",
+      "kind": "derives",
+      "transform": "CASE WHEN email IS NULL THEN 0 ELSE COUNT(*) OVER (PARTITION BY email) over surviving rows",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        126,
+        127
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "email_shared_count",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "0 when email IS NULL",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        126
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "date_of_birth",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        78,
+        128
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "age_at_join",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "DATEDIFF(YEAR, date_of_birth, customer_since) (year-boundary count)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "age_at_join",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "customer_since",
+      "kind": "derives",
+      "transform": "DATEDIFF(YEAR, date_of_birth, customer_since)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "address_line1",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "address_line1",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        79,
+        130
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "town",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "town",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        80,
+        131
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "county",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "county",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        81,
+        132
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "region",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "county",
+      "kind": "derives",
+      "transform": "CASE county IN (...) -> EAST/SOUTH/WEST/NORTH-WEST/MIDLANDS ELSE UNKNOWN",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "region",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "region literals incl. 'UNKNOWN' default",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134,
+        139
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "eircode",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "eircode",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        82,
+        141
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "eircode_valid",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "eircode",
+      "kind": "derives",
+      "transform": "CASE LEN(eircode)=7 -> Y; LEN=8 AND 4th char ' ' -> Y; ELSE N",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        143,
+        144,
+        145,
+        146
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "eircode_valid",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'Y'/'N' literals",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        143,
+        145
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "segment_code",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "segment_code",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        83,
+        147
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "is_standard_segment",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "segment_code",
+      "kind": "derives",
+      "transform": "CASE WHEN segment_code = 'STD' THEN 'Y' ELSE 'N'",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        148
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "is_standard_segment",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'Y'/'N' literals",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        148
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "marketing_opt_in",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "marketing_opt_in",
+      "kind": "derives",
+      "transform": "ISNULL(marketing_opt_in, 'N')",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84,
+        149
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "marketing_opt_in",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "default 'N'",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        149
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "customer_since",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "customer_since",
+      "kind": "derives",
+      "transform": "direct",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        85,
+        150
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "source_system",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "source_system",
+      "kind": "derives",
+      "transform": "UPPER(RTRIM(source_system))",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        86,
+        151
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "version_count",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "COUNT(*) OVER (PARTITION BY customer_id) over versions with updated_at <= @AsOfDate",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        89,
+        152
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "record_updated_at",
+      "input_kind": "column",
+      "input_table": "stg.customers",
+      "input_column": "updated_at",
+      "kind": "derives",
+      "transform": "direct (updated_at of surviving version)",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        87,
+        153
+      ]
+    },
+    {
+      "job_id": "T01",
+      "output_table": "dw.dim_customer",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "@AsOfDate stamped on every row",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        56,
+        154
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 44,
+      "line_end": 44,
+      "snippet": "segment_code         CHAR(4)        NULL,",
+      "detector": "llm",
+      "confidence": 0.35,
+      "note": "The output segment_code is CHAR(4), so legacy values come back padded to 4 characters. Spark output must keep or add that padding to match exactly."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-13",
+      "line_start": 69,
+      "line_end": 70,
+      "snippet": "IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n        IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "These lines drop the #customer_versions and #customer temp tables if they exist. In Spark they become DataFrames, so this code goes away."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-13",
+      "line_start": 90,
+      "line_end": 90,
+      "snippet": "INTO    #customer_versions",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #customer_versions temp table holds the filtered CRM versions with version_count. In Spark it becomes an intermediate DataFrame."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-13",
+      "line_start": 99,
+      "line_end": 99,
+      "snippet": "INTO    #customer",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #customer temp table holds one chosen version per customer. In Spark it becomes an intermediate DataFrame."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-05",
+      "line_start": 123,
+      "line_end": 123,
+      "snippet": "RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "full_name is built with + from first_name and last_name. If either is NULL, the legacy result is NULL. The translation must use concat(), which also returns NULL, not concat_ws(), which skips NULLs. The trap is latent if the source names are never NULL."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-05",
+      "line_start": 124,
+      "line_end": 124,
+      "snippet": "UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "The initials are joined with +, so a NULL first or last name makes them NULL. The translation must keep that NULL result."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-15",
+      "line_start": 124,
+      "line_end": 124,
+      "snippet": "UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "SUBSTRING(x, 0, 2) returns only 1 character in T-SQL, so initials are 2 letters. Spark's substring(x, 0, 2) returns 2 characters, which gives 4-letter initials."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 127,
+      "line_end": 127,
+      "snippet": "ELSE COUNT(*) OVER (PARTITION BY k.email) END,",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "PARTITION BY on the VARCHAR email column groups case variants together under the CI collation, so 'A@x.ie' and 'a@x.ie' count as one shared email. Spark keeps them apart."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 127,
+      "line_end": 127,
+      "snippet": "ELSE COUNT(*) OVER (PARTITION BY k.email) END,",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "PARTITION BY email also ignores trailing spaces, so 'a@x.ie ' and 'a@x.ie' land in the same partition in SQL Server but not in Spark."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-04",
+      "line_start": 129,
+      "line_end": 129,
+      "snippet": "DATEDIFF(YEAR, k.date_of_birth, k.customer_since),",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "DATEDIFF(YEAR, ...) counts year boundaries crossed, not full years elapsed. age_at_join must be year(customer_since) - year(date_of_birth), not floor(months_between/12)."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The VARCHAR county is matched with IN against title-case names. SQL Server matches case variants such as 'DUBLIN', but Spark sends them to UNKNOWN."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The county IN check ignores trailing spaces in SQL Server ('Dublin ' matches). Spark does not."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 135,
+      "line_end": 135,
+      "snippet": "WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The SOUTH county IN list matches case-insensitively in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 135,
+      "line_end": 135,
+      "snippet": "WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The SOUTH county IN list ignores trailing spaces in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 136,
+      "line_end": 136,
+      "snippet": "WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The WEST county IN list matches case-insensitively in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 136,
+      "line_end": 136,
+      "snippet": "WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The WEST county IN list ignores trailing spaces in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 137,
+      "line_end": 137,
+      "snippet": "WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The NORTH-WEST county IN list matches case-insensitively in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 137,
+      "line_end": 137,
+      "snippet": "WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The NORTH-WEST county IN list ignores trailing spaces in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 138,
+      "line_end": 138,
+      "snippet": "WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "The MIDLANDS county IN list matches case-insensitively in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 138,
+      "line_end": 138,
+      "snippet": "WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The MIDLANDS county IN list ignores trailing spaces in the legacy engine."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-15",
+      "line_start": 143,
+      "line_end": 143,
+      "snippet": "CASE WHEN LEN(k.eircode) = 7 THEN 'Y'",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "LEN(eircode) ignores trailing spaces, so 'D02X285 ' still counts as 7 characters. Spark's length() counts 8 and marks the code invalid."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-15",
+      "line_start": 144,
+      "line_end": 144,
+      "snippet": "WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "LEN(eircode) = 8 ignores trailing spaces. The translation needs rtrim before length() to give the same result."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "line_start": 148,
+      "line_end": 148,
+      "snippet": "CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "segment_code = 'STD' also matches 'std' or 'Std' under the CI collation. Spark's comparison is case-sensitive."
+    },
+    {
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "line_start": 148,
+      "line_end": 148,
+      "snippet": "CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "segment_code is CHAR(4), so it holds 'STD ' padded with a space. SQL Server's = 'STD' ignores the padding, but Spark compares the padded value exactly and gets no match."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "T01",
+      "table": "silver.dim_customer",
+      "legacy_table": "dw.dim_customer",
+      "layer": "silver",
+      "grain": "One row per CRM customer (customer_id), taken from one version of the customer's CDC records saved on or before @AsOfDate.",
+      "keys": [
+        "customer_id"
+      ],
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "first_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(40)",
+          "nullable": false,
+          "max_length": 40,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "last_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(60)",
+          "nullable": false,
+          "max_length": 60,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "full_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(101)",
+          "nullable": false,
+          "max_length": 101,
+          "tags": [
+            "pii"
+          ],
+          "description": "RTRIM(first_name) + ' ' + RTRIM(last_name).",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "initials",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(2)",
+          "nullable": false,
+          "max_length": 2,
+          "tags": [
+            "pii"
+          ],
+          "description": "SUBSTRING(x,0,2) in T-SQL returns only the first character, so this is the first letter of first_name plus the first letter of last_name, in upper case.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "email",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(120)",
+          "nullable": true,
+          "max_length": 120,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "email_shared_count",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [
+            "pii"
+          ],
+          "description": "Number of kept customer rows with the same email. 0 when email is NULL.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "date_of_birth",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "age_at_join",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": "DATEDIFF(YEAR) from date_of_birth to customer_since. This counts calendar-year boundaries crossed, not completed years of age.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "address_line1",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(100)",
+          "nullable": true,
+          "max_length": 100,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "town",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(50)",
+          "nullable": true,
+          "max_length": 50,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "county",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(30)",
+          "nullable": true,
+          "max_length": 30,
+          "tags": [
+            "protected"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "region",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [
+            "protected"
+          ],
+          "description": "Sales region looked up from county. Counties not in the list, and NULL counties, get UNKNOWN.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "eircode",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": true,
+          "max_length": 10,
+          "tags": [
+            "pii"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "eircode_valid",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [
+            "pii"
+          ],
+          "description": "Checks length only: Y when the length is 7, or 8 with a space in position 4. T-SQL LEN ignores trailing spaces.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "segment_code",
+          "data_type": "string",
+          "legacy_type": "CHAR(4)",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "is_standard_segment",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": "Y only when segment_code = 'STD'. segment_code is CHAR(4), so it is padded to 'STD '; T-SQL ignores trailing spaces when comparing, Spark does not.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "marketing_opt_in",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_since",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "source_system",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "version_count",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "Number of CDC versions of the customer saved on or before @AsOfDate.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "record_updated_at",
+          "data_type": "timestamp_ntz",
+          "legacy_type": "DATETIME2(0)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "updated_at of the version that was kept. ROW_NUMBER orders by updated_at and _row_seq ascending and keeps version_no = 1, so this is the EARLIEST version, not the current one the header describes. The migration must copy this behaviour.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The @AsOfDate parameter. It is the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "region",
+        "source_system"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 20000,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "T01-D1",
+      "job_id": "T01",
+      "title": "Keeps the oldest CRM version instead of the current one",
+      "description": "Step 2 numbers each customer's versions with ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at, _row_seq) and keeps version_no = 1. The sort is ascending, so row 1 is the first version ever saved. Every customer with more than one version gets their original details (name, email, address, county, segment, opt-in, record_updated_at) instead of their current ones.",
+      "intended_behaviour": "Keep the latest version saved up to @AsOfDate, i.e. ORDER BY updated_at DESC, _row_seq DESC, as the header (CR-1702) and the step comment say.",
+      "evidence_lines": [
+        97,
+        101,
+        102,
+        104
+      ],
+      "impact_query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+      "impact": {
+        "rows_affected": 3224,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T01",
+        "query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1"
+      },
+      "source": "llm",
+      "confidence": 0.93
+    },
+    {
+      "defect_id": "T01-D2",
+      "job_id": "T01",
+      "title": "age_at_join counts calendar-year boundaries, not completed years",
+      "description": "age_at_join = DATEDIFF(YEAR, date_of_birth, customer_since) only subtracts the years. If the customer joined before their birthday that year, the age comes out one year too high.",
+      "intended_behaviour": "Age in completed years at the join date: subtract 1 when the month/day of customer_since is before the month/day of date_of_birth.",
+      "evidence_lines": [
+        129
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+      "impact": {
+        "rows_affected": 8436,
+        "amount_affected": "8436.00",
+        "amount_column": "age_at_join",
+        "measured_on": "golden:T01",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)"
+      },
+      "source": "llm",
+      "confidence": 0.8
+    },
+    {
+      "defect_id": "T01-D3",
+      "job_id": "T01",
+      "title": "Eircode check accepts any 7-character value, including ones with a misplaced space",
+      "description": "eircode_valid is 'Y' whenever LEN(eircode) = 7, whatever the characters are. A 7-character value that has a space in it (really a 6-character code with a space, e.g. 'D02 X28') or contains punctuation passes. LEN also ignores trailing spaces. Only the 8-character form checks where the space is.",
+      "intended_behaviour": "Per the comment (3-character routing key plus 4-character unique identifier, with or without the space), valid means 7 alphanumeric characters with no space, or 3 alphanumerics, a space, then 4 alphanumerics.",
+      "evidence_lines": [
+        142,
+        143,
+        144,
+        145
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T01",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END"
+      },
+      "source": "llm",
+      "confidence": 0.55
+    },
+    {
+      "defect_id": "T01-D4",
+      "job_id": "T01",
+      "title": "County spelling variants fall into region UNKNOWN",
+      "description": "The region CASE matches only the exact county names (for example 'Dublin'). A populated county written another way, such as 'Co. Dublin', 'County Cork', 'Tipperary North' or 'Laoighis', is mapped to 'UNKNOWN' even though it belongs to a known sales region.",
+      "intended_behaviour": "Normalise the county (strip 'Co.'/'County' prefixes and known variants) before mapping, so every real county gets its region and UNKNOWN is left for missing or unrecognisable values.",
+      "evidence_lines": [
+        134,
+        135,
+        136,
+        137,
+        138,
+        139
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T01",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "T01-D1",
+      "job_id": "T01",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.245344Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T01-D2",
+      "job_id": "T01",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.245594Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T01-D3",
+      "job_id": "T01",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.245820Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T01-D4",
+      "job_id": "T01",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.246031Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [
+    {
+      "flow_id": "F-de62184651-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "address_line1"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "address_line1"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "address_line1"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "address_line1"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-ae521551b3-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "age_at_join"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "age_at_join"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-ae521551b3-protected",
+      "tag": "protected",
+      "source": {
+        "table": "stg.customers",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "age_at_join"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "age_at_join"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-40f10e92e0-protected",
+      "tag": "protected",
+      "source": {
+        "table": "stg.customers",
+        "column": "county"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "county"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "county"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "county"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-2c6b2ade17-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-2c6b2ade17-protected",
+      "tag": "protected",
+      "source": {
+        "table": "stg.customers",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-e0880aca19-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "eircode"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "eircode"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "eircode"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "eircode"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-dfe32d2f01-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "eircode"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "eircode_valid"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "eircode"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "eircode_valid"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-d993b97f5e-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "email"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "email"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "email"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "email"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-68704c7511-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "email"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "email_shared_count"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "email"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "email_shared_count"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-8e70969fd1-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "first_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "first_name"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "first_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "first_name"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-0a964b3a4c-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "first_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "full_name"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "first_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "full_name"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-12c341275d-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "last_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "full_name"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "last_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "full_name"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-673af2b332-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "first_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "initials"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "first_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "initials"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-d82bccd8d3-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "last_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "initials"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "last_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "initials"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-78d86ff869-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "last_name"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "last_name"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "last_name"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "last_name"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-07a89c7b64-protected",
+      "tag": "protected",
+      "source": {
+        "table": "stg.customers",
+        "column": "county"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "region"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "county"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "region"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    },
+    {
+      "flow_id": "F-225767d127-pii",
+      "tag": "pii",
+      "source": {
+        "table": "stg.customers",
+        "column": "town"
+      },
+      "output": {
+        "table": "dw.dim_customer",
+        "column": "town"
+      },
+      "path": [
+        {
+          "table": "stg.customers",
+          "column": "town"
+        },
+        {
+          "table": "dw.dim_customer",
+          "column": "town"
+        }
+      ],
+      "job_ids": [
+        "T01"
+      ]
+    }
+  ],
+  "flow_decisions": [
+    {
+      "flow_id": "F-de62184651-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.246419Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-ae521551b3-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.246641Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-ae521551b3-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.246877Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-40f10e92e0-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.247102Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-2c6b2ade17-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.247322Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-2c6b2ade17-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.247548Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-e0880aca19-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.247809Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-dfe32d2f01-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.248043Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-d993b97f5e-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.248280Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-68704c7511-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.248517Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-8e70969fd1-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.248763Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-0a964b3a4c-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.249010Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-12c341275d-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.249261Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-673af2b332-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.249523Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-d82bccd8d3-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.249780Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-78d86ff869-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.250041Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-07a89c7b64-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.250309Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-225767d127-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T01:57:02.250577Z",
+      "gate": "H2"
+    }
+  ],
+  "recon": [
+    {
+      "job_id": "T01",
+      "table": "dw.dim_customer",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "cf127dfa3efa1a51520d36cf2e258b3e491b3e07779485fd3cb86402b9e9ebdd",
+      "keys": [
+        "customer_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 20000,
+        "candidate": 20000,
+        "by_partition": [
+          {
+            "partition": "region='EAST', source_system='BROKER'",
+            "legacy": 1607,
+            "candidate": 1607
+          },
+          {
+            "partition": "region='EAST', source_system='CRM'",
+            "legacy": 4513,
+            "candidate": 4513
+          },
+          {
+            "partition": "region='EAST', source_system='WEB'",
+            "legacy": 2902,
+            "candidate": 2902
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='BROKER'",
+            "legacy": 220,
+            "candidate": 220
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='CRM'",
+            "legacy": 641,
+            "candidate": 641
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='WEB'",
+            "legacy": 465,
+            "candidate": 465
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='BROKER'",
+            "legacy": 305,
+            "candidate": 305
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='CRM'",
+            "legacy": 863,
+            "candidate": 863
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='WEB'",
+            "legacy": 550,
+            "candidate": 550
+          },
+          {
+            "partition": "region='SOUTH', source_system='BROKER'",
+            "legacy": 1007,
+            "candidate": 1007
+          },
+          {
+            "partition": "region='SOUTH', source_system='CRM'",
+            "legacy": 2707,
+            "candidate": 2707
+          },
+          {
+            "partition": "region='SOUTH', source_system='WEB'",
+            "legacy": 1695,
+            "candidate": 1695
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='BROKER'",
+            "legacy": 18,
+            "candidate": 18
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='CRM'",
+            "legacy": 35,
+            "candidate": 35
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='WEB'",
+            "legacy": 25,
+            "candidate": 25
+          },
+          {
+            "partition": "region='WEST', source_system='BROKER'",
+            "legacy": 454,
+            "candidate": 454
+          },
+          {
+            "partition": "region='WEST', source_system='CRM'",
+            "legacy": 1200,
+            "candidate": 1200
+          },
+          {
+            "partition": "region='WEST', source_system='WEB'",
+            "legacy": 793,
+            "candidate": 793
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "customer_id",
+          "legacy": "2200010000",
+          "candidate": "2200010000",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "email_shared_count",
+          "legacy": "19336",
+          "candidate": "19336",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age_at_join",
+          "legacy": "961043",
+          "candidate": "961043",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "version_count",
+          "legacy": "23799",
+          "candidate": "23799",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 20000,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 20,000 rows agree record for record, compared on the keys ['customer_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "5231c70dc1e449184da2a3f9cd9e992a84359ba2ae4557486c8677680eb5d0a8",
+      "golden_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "candidate_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "started_at": "2026-11-12T02:16:00.366801Z",
+      "duration_seconds": 1.824,
+      "error": null
+    },
+    {
+      "job_id": "T01",
+      "table": "dw.dim_customer",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "customer_id"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 20000,
+        "candidate": 20000,
+        "by_partition": [
+          {
+            "partition": "region='EAST', source_system='BROKER'",
+            "legacy": 1607,
+            "candidate": 1607
+          },
+          {
+            "partition": "region='EAST', source_system='CRM'",
+            "legacy": 4513,
+            "candidate": 4513
+          },
+          {
+            "partition": "region='EAST', source_system='WEB'",
+            "legacy": 2902,
+            "candidate": 2902
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='BROKER'",
+            "legacy": 220,
+            "candidate": 220
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='CRM'",
+            "legacy": 641,
+            "candidate": 641
+          },
+          {
+            "partition": "region='MIDLANDS', source_system='WEB'",
+            "legacy": 465,
+            "candidate": 465
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='BROKER'",
+            "legacy": 305,
+            "candidate": 305
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='CRM'",
+            "legacy": 863,
+            "candidate": 863
+          },
+          {
+            "partition": "region='NORTH-WEST', source_system='WEB'",
+            "legacy": 550,
+            "candidate": 550
+          },
+          {
+            "partition": "region='SOUTH', source_system='BROKER'",
+            "legacy": 1007,
+            "candidate": 1007
+          },
+          {
+            "partition": "region='SOUTH', source_system='CRM'",
+            "legacy": 2707,
+            "candidate": 2707
+          },
+          {
+            "partition": "region='SOUTH', source_system='WEB'",
+            "legacy": 1695,
+            "candidate": 1695
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='BROKER'",
+            "legacy": 18,
+            "candidate": 18
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='CRM'",
+            "legacy": 35,
+            "candidate": 35
+          },
+          {
+            "partition": "region='UNKNOWN', source_system='WEB'",
+            "legacy": 25,
+            "candidate": 25
+          },
+          {
+            "partition": "region='WEST', source_system='BROKER'",
+            "legacy": 454,
+            "candidate": 454
+          },
+          {
+            "partition": "region='WEST', source_system='CRM'",
+            "legacy": 1200,
+            "candidate": 1200
+          },
+          {
+            "partition": "region='WEST', source_system='WEB'",
+            "legacy": 793,
+            "candidate": 793
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "customer_id",
+          "legacy": "2200010000",
+          "candidate": "2200010000",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "email_shared_count",
+          "legacy": "19336",
+          "candidate": "19336",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age_at_join",
+          "legacy": "961043",
+          "candidate": "961043",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "version_count",
+          "legacy": "23799",
+          "candidate": "23799",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 20000,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 20,000 rows agree record for record, compared on the keys ['customer_id']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "5231c70dc1e449184da2a3f9cd9e992a84359ba2ae4557486c8677680eb5d0a8",
+      "golden_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "candidate_sha256": "a0897c3f9194350966f39f23cc668369a9737f6f8ebb03481338578b2fbcaf14",
+      "started_at": "2026-11-12T02:18:08.615801Z",
+      "duration_seconds": 4.547,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "T01-TSQL-01-1",
+      "job_id": "T01",
+      "trap_id": "TSQL-01",
+      "description": "County values in the wrong case for every region list (DUBLIN, cork, GALWAY, donegal, LAOIS), a segment_code of 'std', and emails that differ only in case (Mary@x.ie / mary@x.ie / MARY@X.IE). Under the CI collation the legacy job puts each county in its region, flags 'std' as standard, and counts the three emails as one shared address (3). A naive Spark translation sends the counties to UNKNOWN, flags 'std' as N, and counts each email as 1. One canonical row (Dublin, STD) is included for comparison.",
+      "inputs": [
+        {
+          "table": "stg.customers",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "date_of_birth",
+            "address_line1",
+            "town",
+            "county",
+            "eircode",
+            "segment_code",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "updated_at",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "Mary",
+              "Byrne",
+              "Mary@x.ie",
+              "1980-05-01",
+              null,
+              null,
+              "DUBLIN",
+              "D02X285",
+              "std",
+              "Y",
+              "2015-03-01",
+              "crm",
+              "2024-01-10T09:00:00",
+              "1"
+            ],
+            [
+              "2",
+              "John",
+              "Walsh",
+              "mary@x.ie",
+              "1975-02-11",
+              null,
+              null,
+              "cork",
+              "T12AB34",
+              "Std",
+              "N",
+              "2016-04-01",
+              "crm",
+              "2024-02-10T09:00:00",
+              "2"
+            ],
+            [
+              "3",
+              "Aoife",
+              "Kelly",
+              "MARY@X.IE",
+              "1990-07-21",
+              null,
+              null,
+              "GALWAY",
+              "H91XY12",
+              "PRM",
+              null,
+              "2018-06-01",
+              "crm",
+              "2024-03-10T09:00:00",
+              "3"
+            ],
+            [
+              "4",
+              "Sean",
+              "Doyle",
+              "sean@y.ie",
+              "1985-09-15",
+              null,
+              null,
+              "donegal",
+              "F92AB12",
+              "STD",
+              "Y",
+              "2019-01-15",
+              "web",
+              "2024-04-10T09:00:00",
+              "4"
+            ],
+            [
+              "5",
+              "Niamh",
+              "Ryan",
+              "niamh@z.ie",
+              "1992-11-30",
+              null,
+              null,
+              "LAOIS",
+              "R32AB12",
+              "STD",
+              "N",
+              "2020-08-01",
+              "web",
+              "2024-05-10T09:00:00",
+              "5"
+            ],
+            [
+              "6",
+              "Ciara",
+              "Nolan",
+              "ciara@z.ie",
+              "1988-03-03",
+              null,
+              null,
+              "Dublin",
+              "D04AB12",
+              "STD",
+              "Y",
+              "2017-02-01",
+              "crm",
+              "2024-06-10T09:00:00",
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "1",
+              "Mary",
+              "Byrne",
+              "Mary Byrne",
+              "MB",
+              "Mary@x.ie",
+              "3",
+              "1980-05-01",
+              "35",
+              null,
+              null,
+              "DUBLIN",
+              "EAST",
+              "D02X285",
+              "Y",
+              "std ",
+              "Y",
+              "Y",
+              "2015-03-01",
+              "CRM",
+              "1",
+              "2024-01-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "2",
+              "John",
+              "Walsh",
+              "John Walsh",
+              "JW",
+              "mary@x.ie",
+              "3",
+              "1975-02-11",
+              "41",
+              null,
+              null,
+              "cork",
+              "SOUTH",
+              "T12AB34",
+              "Y",
+              "Std ",
+              "Y",
+              "N",
+              "2016-04-01",
+              "CRM",
+              "1",
+              "2024-02-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "3",
+              "Aoife",
+              "Kelly",
+              "Aoife Kelly",
+              "AK",
+              "MARY@X.IE",
+              "3",
+              "1990-07-21",
+              "28",
+              null,
+              null,
+              "GALWAY",
+              "WEST",
+              "H91XY12",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2018-06-01",
+              "CRM",
+              "1",
+              "2024-03-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "4",
+              "Sean",
+              "Doyle",
+              "Sean Doyle",
+              "SD",
+              "sean@y.ie",
+              "1",
+              "1985-09-15",
+              "34",
+              null,
+              null,
+              "donegal",
+              "NORTH-WEST",
+              "F92AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2019-01-15",
+              "WEB",
+              "1",
+              "2024-04-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "5",
+              "Niamh",
+              "Ryan",
+              "Niamh Ryan",
+              "NR",
+              "niamh@z.ie",
+              "1",
+              "1992-11-30",
+              "28",
+              null,
+              null,
+              "LAOIS",
+              "MIDLANDS",
+              "R32AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "N",
+              "2020-08-01",
+              "WEB",
+              "1",
+              "2024-05-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "6",
+              "Ciara",
+              "Nolan",
+              "Ciara Nolan",
+              "CN",
+              "ciara@z.ie",
+              "1",
+              "1988-03-03",
+              "29",
+              null,
+              null,
+              "Dublin",
+              "EAST",
+              "D04AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2017-02-01",
+              "CRM",
+              "1",
+              "2024-06-10T09:00:00",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t01.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T01-TSQL-02-2",
+      "job_id": "T01",
+      "trap_id": "TSQL-02",
+      "description": "County values with trailing spaces for every region list ('Dublin ', 'Cork ', 'Mayo ', 'Sligo ', 'Offaly '). Emails that differ only by a trailing space ('pat@x.ie' and 'pat@x.ie '). segment_code values 'STD' (stored padded as 'STD ' in CHAR(4)) and 'PR' (padded to 'PR  '). SQL Server ignores trailing spaces, so it matches the counties to their regions, counts the shared email as 2, flags STD as Y and returns segment_code padded to 4 characters. A naive Spark translation gets UNKNOWN regions, counts 1 for each email, flags the padded 'STD ' as N, or returns an unpadded segment_code.",
+      "inputs": [
+        {
+          "table": "stg.customers",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "date_of_birth",
+            "address_line1",
+            "town",
+            "county",
+            "eircode",
+            "segment_code",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "updated_at",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "11",
+              "Pat",
+              "Murphy",
+              "pat@x.ie",
+              "1970-01-20",
+              null,
+              null,
+              "Dublin ",
+              "D02X285",
+              "STD",
+              "Y",
+              "2014-03-01",
+              "crm",
+              "2024-01-10T09:00:00",
+              "1"
+            ],
+            [
+              "12",
+              "Rose",
+              "Healy",
+              "pat@x.ie ",
+              "1982-04-12",
+              null,
+              null,
+              "Cork ",
+              "T12AB34",
+              "STD ",
+              "N",
+              "2016-05-01",
+              "crm",
+              "2024-02-10T09:00:00",
+              "2"
+            ],
+            [
+              "13",
+              "Liam",
+              "Burke",
+              "liam@x.ie",
+              "1991-06-06",
+              null,
+              null,
+              "Mayo ",
+              "F23AB12",
+              "PR",
+              null,
+              "2019-07-01",
+              "web ",
+              "2024-03-10T09:00:00",
+              "3"
+            ],
+            [
+              "14",
+              "Orla",
+              "Quinn",
+              "orla@x.ie",
+              "1987-08-08",
+              null,
+              null,
+              "Sligo ",
+              "F91AB12",
+              "STD",
+              "Y",
+              "2018-09-01",
+              "crm",
+              "2024-04-10T09:00:00",
+              "4"
+            ],
+            [
+              "15",
+              "Eoin",
+              "Daly",
+              "eoin@x.ie",
+              "1979-10-10",
+              null,
+              null,
+              "Offaly ",
+              "R35AB12",
+              "PRM",
+              "N",
+              "2015-11-01",
+              "crm",
+              "2024-05-10T09:00:00",
+              "5"
+            ],
+            [
+              "16",
+              "Fiona",
+              "Lynch",
+              "fiona@x.ie",
+              "1993-12-12",
+              null,
+              null,
+              "Kerry",
+              "V92AB12",
+              "STD",
+              "Y",
+              "2021-01-01",
+              "crm",
+              "2024-06-10T09:00:00",
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "11",
+              "Pat",
+              "Murphy",
+              "Pat Murphy",
+              "PM",
+              "pat@x.ie",
+              "2",
+              "1970-01-20",
+              "44",
+              null,
+              null,
+              "Dublin ",
+              "EAST",
+              "D02X285",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2014-03-01",
+              "CRM",
+              "1",
+              "2024-01-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "12",
+              "Rose",
+              "Healy",
+              "Rose Healy",
+              "RH",
+              "pat@x.ie ",
+              "2",
+              "1982-04-12",
+              "34",
+              null,
+              null,
+              "Cork ",
+              "SOUTH",
+              "T12AB34",
+              "Y",
+              "STD ",
+              "Y",
+              "N",
+              "2016-05-01",
+              "CRM",
+              "1",
+              "2024-02-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "13",
+              "Liam",
+              "Burke",
+              "Liam Burke",
+              "LB",
+              "liam@x.ie",
+              "1",
+              "1991-06-06",
+              "28",
+              null,
+              null,
+              "Mayo ",
+              "WEST",
+              "F23AB12",
+              "Y",
+              "PR  ",
+              "N",
+              "N",
+              "2019-07-01",
+              "WEB",
+              "1",
+              "2024-03-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "14",
+              "Orla",
+              "Quinn",
+              "Orla Quinn",
+              "OQ",
+              "orla@x.ie",
+              "1",
+              "1987-08-08",
+              "31",
+              null,
+              null,
+              "Sligo ",
+              "NORTH-WEST",
+              "F91AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2018-09-01",
+              "CRM",
+              "1",
+              "2024-04-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "15",
+              "Eoin",
+              "Daly",
+              "Eoin Daly",
+              "ED",
+              "eoin@x.ie",
+              "1",
+              "1979-10-10",
+              "36",
+              null,
+              null,
+              "Offaly ",
+              "MIDLANDS",
+              "R35AB12",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2015-11-01",
+              "CRM",
+              "1",
+              "2024-05-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "16",
+              "Fiona",
+              "Lynch",
+              "Fiona Lynch",
+              "FL",
+              "fiona@x.ie",
+              "1",
+              "1993-12-12",
+              "28",
+              null,
+              null,
+              "Kerry",
+              "SOUTH",
+              "V92AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2021-01-01",
+              "CRM",
+              "1",
+              "2024-06-10T09:00:00",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t01.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T01-TSQL-05-3",
+      "job_id": "T01",
+      "trap_id": "TSQL-05",
+      "description": "Builds full_name and initials with + from first_name and last_name. Both columns are NOT NULL in stg.customers, so a NULL can't be loaded and the NULL case of the trap is latent. The rows cover the edge cases that are allowed: an empty first name, an empty last name, and names with trailing spaces, which are concatenated after RTRIM. On these rows a concat() translation and the legacy job should give the same full_name and initials, and a concat_ws() translation that skips empty or NULL parts would differ only if a NULL could reach it.",
+      "inputs": [
+        {
+          "table": "stg.customers",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "date_of_birth",
+            "address_line1",
+            "town",
+            "county",
+            "eircode",
+            "segment_code",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "updated_at",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "21",
+              "Anne ",
+              "Brady ",
+              "anne@x.ie",
+              "1980-01-01",
+              null,
+              null,
+              "Meath",
+              "C15AB12",
+              "STD",
+              "Y",
+              "2015-01-01",
+              "crm",
+              "2024-01-10T09:00:00",
+              "1"
+            ],
+            [
+              "22",
+              "",
+              "Moran",
+              "moran@x.ie",
+              "1981-02-02",
+              null,
+              null,
+              "Clare",
+              "V95AB12",
+              "PRM",
+              null,
+              "2016-02-02",
+              "crm",
+              "2024-02-10T09:00:00",
+              "2"
+            ],
+            [
+              "23",
+              "Declan",
+              "",
+              "declan@x.ie",
+              "1982-03-03",
+              null,
+              null,
+              "Cavan",
+              "H12AB12",
+              "STD",
+              "N",
+              "2017-03-03",
+              "web",
+              "2024-03-10T09:00:00",
+              "3"
+            ],
+            [
+              "24",
+              "Grace",
+              "Power",
+              "grace@x.ie",
+              "1983-04-04",
+              null,
+              null,
+              "Waterford",
+              "X91AB12",
+              "STD",
+              "Y",
+              "2018-04-04",
+              "crm",
+              "2024-04-10T09:00:00",
+              "4"
+            ],
+            [
+              "25",
+              "Tom",
+              "Casey",
+              "tom@x.ie",
+              "1984-05-05",
+              null,
+              null,
+              "Longford",
+              "N39AB12",
+              "PRM",
+              "N",
+              "2019-05-05",
+              "crm",
+              "2024-05-10T09:00:00",
+              "5"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "21",
+              "Anne",
+              "Brady ",
+              "Anne Brady",
+              "AB",
+              "anne@x.ie",
+              "1",
+              "1980-01-01",
+              "35",
+              null,
+              null,
+              "Meath",
+              "EAST",
+              "C15AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2024-01-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "22",
+              "",
+              "Moran",
+              " Moran",
+              "M",
+              "moran@x.ie",
+              "1",
+              "1981-02-02",
+              "35",
+              null,
+              null,
+              "Clare",
+              "WEST",
+              "V95AB12",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2016-02-02",
+              "CRM",
+              "1",
+              "2024-02-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "23",
+              "Declan",
+              "",
+              "Declan ",
+              "D",
+              "declan@x.ie",
+              "1",
+              "1982-03-03",
+              "35",
+              null,
+              null,
+              "Cavan",
+              "NORTH-WEST",
+              "H12AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "N",
+              "2017-03-03",
+              "WEB",
+              "1",
+              "2024-03-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "24",
+              "Grace",
+              "Power",
+              "Grace Power",
+              "GP",
+              "grace@x.ie",
+              "1",
+              "1983-04-04",
+              "35",
+              null,
+              null,
+              "Waterford",
+              "SOUTH",
+              "X91AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2018-04-04",
+              "CRM",
+              "1",
+              "2024-04-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "25",
+              "Tom",
+              "Casey",
+              "Tom Casey",
+              "TC",
+              "tom@x.ie",
+              "1",
+              "1984-05-05",
+              "35",
+              null,
+              null,
+              "Longford",
+              "MIDLANDS",
+              "N39AB12",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2019-05-05",
+              "CRM",
+              "1",
+              "2024-05-10T09:00:00",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t01.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T01-TSQL-15-4",
+      "job_id": "T01",
+      "trap_id": "TSQL-15",
+      "description": "Names that give 2-letter initials in T-SQL, because SUBSTRING(x,0,2) returns only the first character. A naive Spark substring(x,0,2) returns 2 characters per name, so it gives 4-letter initials. The Eircodes include trailing spaces: 'D02X285 ' and 'D02X2851  ' have a T-SQL LEN of 7 and 8, and 'D02 X285 ' has a LEN of 8 with a space at position 4. T-SQL's LEN ignores trailing spaces, so it marks some of these valid where a naive length() would not. Canonical codes ('D02X285', 'D02 X285') and an invalid code ('D02X28') are included.",
+      "inputs": [
+        {
+          "table": "stg.customers",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "date_of_birth",
+            "address_line1",
+            "town",
+            "county",
+            "eircode",
+            "segment_code",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "updated_at",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "31",
+              "Brian",
+              "Fox",
+              "brian@x.ie",
+              "1980-01-01",
+              null,
+              null,
+              "Dublin",
+              "D02X285 ",
+              "STD",
+              "Y",
+              "2015-01-01",
+              "crm",
+              "2024-01-10T09:00:00",
+              "1"
+            ],
+            [
+              "32",
+              "Siobhan",
+              "Reilly",
+              "siobhan@x.ie",
+              "1981-02-02",
+              null,
+              null,
+              "Cork",
+              "D02 X285 ",
+              "PRM",
+              null,
+              "2016-02-02",
+              "crm",
+              "2024-02-10T09:00:00",
+              "2"
+            ],
+            [
+              "33",
+              "Kevin",
+              "Hayes",
+              "kevin@x.ie",
+              "1982-03-03",
+              null,
+              null,
+              "Galway",
+              "D02X285",
+              "STD",
+              "N",
+              "2017-03-03",
+              "web",
+              "2024-03-10T09:00:00",
+              "3"
+            ],
+            [
+              "34",
+              "Emer",
+              "Duffy",
+              "emer@x.ie",
+              "1983-04-04",
+              null,
+              null,
+              "Sligo",
+              "D02 X285",
+              "STD",
+              "Y",
+              "2018-04-04",
+              "crm",
+              "2024-04-10T09:00:00",
+              "4"
+            ],
+            [
+              "35",
+              "Paul",
+              "Egan",
+              "paul@x.ie",
+              "1984-05-05",
+              null,
+              null,
+              "Laois",
+              "D02X28",
+              "PRM",
+              "N",
+              "2019-05-05",
+              "crm",
+              "2024-05-10T09:00:00",
+              "5"
+            ],
+            [
+              "36",
+              "Maeve",
+              "Carroll",
+              "maeve@x.ie",
+              "1985-06-06",
+              null,
+              null,
+              "Kildare",
+              "D02X2851  ",
+              "STD",
+              "Y",
+              "2020-06-06",
+              "crm",
+              "2024-06-10T09:00:00",
+              "6"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "31",
+              "Brian",
+              "Fox",
+              "Brian Fox",
+              "BF",
+              "brian@x.ie",
+              "1",
+              "1980-01-01",
+              "35",
+              null,
+              null,
+              "Dublin",
+              "EAST",
+              "D02X285 ",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2024-01-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "32",
+              "Siobhan",
+              "Reilly",
+              "Siobhan Reilly",
+              "SR",
+              "siobhan@x.ie",
+              "1",
+              "1981-02-02",
+              "35",
+              null,
+              null,
+              "Cork",
+              "SOUTH",
+              "D02 X285 ",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2016-02-02",
+              "CRM",
+              "1",
+              "2024-02-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "33",
+              "Kevin",
+              "Hayes",
+              "Kevin Hayes",
+              "KH",
+              "kevin@x.ie",
+              "1",
+              "1982-03-03",
+              "35",
+              null,
+              null,
+              "Galway",
+              "WEST",
+              "D02X285",
+              "Y",
+              "STD ",
+              "Y",
+              "N",
+              "2017-03-03",
+              "WEB",
+              "1",
+              "2024-03-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "34",
+              "Emer",
+              "Duffy",
+              "Emer Duffy",
+              "ED",
+              "emer@x.ie",
+              "1",
+              "1983-04-04",
+              "35",
+              null,
+              null,
+              "Sligo",
+              "NORTH-WEST",
+              "D02 X285",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2018-04-04",
+              "CRM",
+              "1",
+              "2024-04-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "35",
+              "Paul",
+              "Egan",
+              "Paul Egan",
+              "PE",
+              "paul@x.ie",
+              "1",
+              "1984-05-05",
+              "35",
+              null,
+              null,
+              "Laois",
+              "MIDLANDS",
+              "D02X28",
+              "N",
+              "PRM ",
+              "N",
+              "N",
+              "2019-05-05",
+              "CRM",
+              "1",
+              "2024-05-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "36",
+              "Maeve",
+              "Carroll",
+              "Maeve Carroll",
+              "MC",
+              "maeve@x.ie",
+              "1",
+              "1985-06-06",
+              "35",
+              null,
+              null,
+              "Kildare",
+              "EAST",
+              "D02X2851  ",
+              "N",
+              "STD ",
+              "Y",
+              "Y",
+              "2020-06-06",
+              "CRM",
+              "1",
+              "2024-06-10T09:00:00",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t01.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T01-TSQL-04-5",
+      "job_id": "T01",
+      "trap_id": "TSQL-04",
+      "description": "Birth dates and join dates where counting year boundaries (DATEDIFF YEAR) gives a different age than counting full years elapsed. Examples: born 1990-12-31 and joined 2020-01-01 (boundaries 30, full years 29), and born 1985-06-15 and joined 2015-06-14. A row where a birthday has already passed in the join year, and a row with no date of birth (NULL age), are included as controls.",
+      "inputs": [
+        {
+          "table": "stg.customers",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "email",
+            "date_of_birth",
+            "address_line1",
+            "town",
+            "county",
+            "eircode",
+            "segment_code",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "updated_at",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "41",
+              "Alan",
+              "Kenny",
+              "alan@x.ie",
+              "1990-12-31",
+              null,
+              null,
+              "Dublin",
+              "D02X285",
+              "STD",
+              "Y",
+              "2020-01-01",
+              "crm",
+              "2024-01-10T09:00:00",
+              "1"
+            ],
+            [
+              "42",
+              "Brid",
+              "Lawlor",
+              "brid@x.ie",
+              "1985-06-15",
+              null,
+              null,
+              "Cork",
+              "T12AB34",
+              "PRM",
+              null,
+              "2015-06-14",
+              "crm",
+              "2024-02-10T09:00:00",
+              "2"
+            ],
+            [
+              "43",
+              "Colm",
+              "Molloy",
+              "colm@x.ie",
+              "2000-11-20",
+              null,
+              null,
+              "Mayo",
+              "F23AB12",
+              "STD",
+              "N",
+              "2018-03-01",
+              "web",
+              "2024-03-10T09:00:00",
+              "3"
+            ],
+            [
+              "44",
+              "Dara",
+              "Hogan",
+              "dara@x.ie",
+              "1975-01-10",
+              null,
+              null,
+              "Leitrim",
+              "N41AB12",
+              "STD",
+              "Y",
+              "2010-05-01",
+              "crm",
+              "2024-04-10T09:00:00",
+              "4"
+            ],
+            [
+              "45",
+              "Ella",
+              "Foley",
+              "ella@x.ie",
+              null,
+              null,
+              null,
+              "Offaly",
+              "R35AB12",
+              "PRM",
+              "N",
+              "2019-05-05",
+              "crm",
+              "2024-05-10T09:00:00",
+              "5"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "41",
+              "Alan",
+              "Kenny",
+              "Alan Kenny",
+              "AK",
+              "alan@x.ie",
+              "1",
+              "1990-12-31",
+              "30",
+              null,
+              null,
+              "Dublin",
+              "EAST",
+              "D02X285",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2020-01-01",
+              "CRM",
+              "1",
+              "2024-01-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "42",
+              "Brid",
+              "Lawlor",
+              "Brid Lawlor",
+              "BL",
+              "brid@x.ie",
+              "1",
+              "1985-06-15",
+              "30",
+              null,
+              null,
+              "Cork",
+              "SOUTH",
+              "T12AB34",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2015-06-14",
+              "CRM",
+              "1",
+              "2024-02-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "43",
+              "Colm",
+              "Molloy",
+              "Colm Molloy",
+              "CM",
+              "colm@x.ie",
+              "1",
+              "2000-11-20",
+              "18",
+              null,
+              null,
+              "Mayo",
+              "WEST",
+              "F23AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "N",
+              "2018-03-01",
+              "WEB",
+              "1",
+              "2024-03-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "44",
+              "Dara",
+              "Hogan",
+              "Dara Hogan",
+              "DH",
+              "dara@x.ie",
+              "1",
+              "1975-01-10",
+              "35",
+              null,
+              null,
+              "Leitrim",
+              "NORTH-WEST",
+              "N41AB12",
+              "Y",
+              "STD ",
+              "Y",
+              "Y",
+              "2010-05-01",
+              "CRM",
+              "1",
+              "2024-04-10T09:00:00",
+              "2025-12-31"
+            ],
+            [
+              "45",
+              "Ella",
+              "Foley",
+              "Ella Foley",
+              "EF",
+              "ella@x.ie",
+              "1",
+              null,
+              null,
+              null,
+              null,
+              "Offaly",
+              "MIDLANDS",
+              "R35AB12",
+              "Y",
+              "PRM ",
+              "N",
+              "N",
+              "2019-05-05",
+              "CRM",
+              "1",
+              "2024-05-10T09:00:00",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t01.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "94070d9c060a4aea9354da0a21d36548",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "T01",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "883d69d52238fc35a10313f987f8fb52ccdcee3ab6a7a2361a858451b445f266",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 3571,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 10126,
+      "duration_ms": 33153,
+      "cost_usd_equivalent": 0.1526978,
+      "replayed": true
+    },
+    {
+      "call_id": "d0d9fa1246cf4429b4d1f022c8334c9e",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "T01",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "9e89c999be84623b9468e22ff431dceed389a74443cf2fb02055f9dc777df3b6",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 4820,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5145,
+      "duration_ms": 43282,
+      "cost_usd_equivalent": 0.13794179999999998,
+      "replayed": true
+    },
+    {
+      "call_id": "dd17a6d67a514e07817f9461d88abaa6",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "T01",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "53f9d1df88aae61fb138259c668cd27b8de15af7227210198922bde4b73cd44d",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 761,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4615,
+      "duration_ms": 8509,
+      "cost_usd_equivalent": 0.0523278,
+      "replayed": true
+    },
+    {
+      "call_id": "96faea4b478f46b7895d9b5003fe94f0",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "T01",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "b556428013b1be22c733d84d0f9992e12b5774baa371cdf5f5f2e4f38f1d722c",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 4496,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 4978,
+      "duration_ms": 55764,
+      "cost_usd_equivalent": 0.13002619999999998,
+      "replayed": true
+    },
+    {
+      "call_id": "97d7c24fea4b4f29a116ba5bae870623",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "T01",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "4b4f29d6625446d778ee008e4816697ee418085079331d6fccf934990a2cd10a",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 6733,
+      "cache_read_tokens": 2221,
+      "cache_creation_tokens": 12006,
+      "duration_ms": 59914,
+      "cost_usd_equivalent": 0.2311602,
+      "replayed": true
+    },
+    {
+      "call_id": "a5f3b9602ce44d1fae5e13dfff576e41",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "T01",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "2c5af9fda6f57f2b35000d150744b99bf9cb58de1b050eec2f987026678f09fa",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5590,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 6899,
+      "duration_ms": 45983,
+      "cost_usd_equivalent": 0.1672846,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "e0b17d93e04f",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "T01"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage agent notes: 1) Version pick (lines 101-104): ROW_NUMBER orders by updated_at, _row_seq ascending and keeps version_no = 1. That keeps the OLDEST versio",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T01/discovery.json",
+          "sha256": "7b029a7514a29ad44eba6e4ddbc139a4880e269c6760c90d87314f92b2ac8750"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/T01/lineage.json",
+          "sha256": "c4749da891ce85a65033e1687ef55796ba2a3dafcb0451d980196bdf4b14fb8f"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/T01/traps.json",
+          "sha256": "7297338f564070c8758103eb09fc0ad4929ad3a407d0a54e616274958734f43d"
+        }
+      ],
+      "warnings": [
+        "lineage agent notes: 1) Version pick (lines 101-104): ROW_NUMBER orders by updated_at, _row_seq ascending and keeps version_no = 1. That keeps the OLDEST version saved up to @AsOfDate, not the current one the comments promise (CR-1702). The PySpark port must copy the ascending order to match the legacy output. 2) initials (line 124): SUBSTRING(x, 0, 2) returns only the first character. T-SQL counts positions 0 and 1 and keeps the 1 character that exists, so in Spark use substring(x,1,1). 3) email_shared_count is counted over the surviving rows in #customer (one per customer), not over all versions. Matching is case- and collation-sensitive according to the database collation. 4) version_count counts only the versions with CAST(updated_at AS DATE) <= @AsOfDate. 5) age_at_join uses DATEDIFF(YEAR), which counts year boundaries crossed, not completed years. 6) segment_code is CHAR(4), and T-SQL ignores trailing spaces in comparisons, so 'STD ' = 'STD' is true. Spark needs rtrim. In the same way, LEN() ignores trailing spaces in the eircode check. 7) first_name is RTRIMmed but last_name is not (line 122). 8) The read uses NOLOCK, so it can pick up rows that are not yet committed. customer_id is listed as a ranks edge because it is the ROW_NUMBER partition key."
+      ],
+      "shown_at": "2026-11-12T01:55:55.706602Z",
+      "decided_at": "2026-11-12T01:55:55.706625Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "36406bd7ec16271cd95a9ebed5ba6a4d264fac3e9decba65774d4e7ab6c5006b"
+    },
+    {
+      "decision_id": "d85ec871abd5",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "T01"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: T01-D1 suspected defect: Keeps the oldest CRM version instead of the current one (3224 rows); T01-D2 suspected defect: age_at_join counts calendar-year boundaries, not completed years (8436 rows); T01-D3 suspected defect: Eircode check accepts any 7-character value, including ones with a misplaced space (0 rows); T01-D4 suspected defect: County spelling variants fall into region UNKNOWN (0 rows); pii column stg.customers.address_line1 flows into dw.dim_customer.address_line1; pii column stg.customers.date_of_birth flows into dw.dim_customer.age_at_join; protected column stg.customers.date_of_birth flows into dw.dim_customer.age_at_join; protected column stg.customers.county flows into dw.dim_customer.county; pii column stg.customers.date_of_birth flows into dw.dim_customer.date_of_birth; protected column stg.customers.date_of_birth flows into dw.dim_customer.date_of_birth; pii column stg.customers.eircode flows into dw.dim_customer.eircode; pii column stg.customers.eircode flows into dw.dim_customer.eircode_valid",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/T01/contracts/dw.dim_customer.json",
+          "sha256": "a10e00791c63452abb174d2633300dd6d37b9a168749964837d3ee55e80ce0ea"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/T01/defects.json",
+          "sha256": "16197fccb5a200f87d6aff78415652e255ce853ebecf621a71ed246b5ed332d6"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/T01/flows.json",
+          "sha256": "97ef86a90d0eed292839f38abe49df1c809774dedc5afdab62d3ab965d78330b"
+        }
+      ],
+      "warnings": [
+        "T01-D1 suspected defect: Keeps the oldest CRM version instead of the current one (3224 rows)",
+        "T01-D2 suspected defect: age_at_join counts calendar-year boundaries, not completed years (8436 rows)",
+        "T01-D3 suspected defect: Eircode check accepts any 7-character value, including ones with a misplaced space (0 rows)",
+        "T01-D4 suspected defect: County spelling variants fall into region UNKNOWN (0 rows)",
+        "pii column stg.customers.address_line1 flows into dw.dim_customer.address_line1",
+        "pii column stg.customers.date_of_birth flows into dw.dim_customer.age_at_join",
+        "protected column stg.customers.date_of_birth flows into dw.dim_customer.age_at_join",
+        "protected column stg.customers.county flows into dw.dim_customer.county",
+        "pii column stg.customers.date_of_birth flows into dw.dim_customer.date_of_birth",
+        "protected column stg.customers.date_of_birth flows into dw.dim_customer.date_of_birth",
+        "pii column stg.customers.eircode flows into dw.dim_customer.eircode",
+        "pii column stg.customers.eircode flows into dw.dim_customer.eircode_valid",
+        "pii column stg.customers.email flows into dw.dim_customer.email",
+        "pii column stg.customers.email flows into dw.dim_customer.email_shared_count",
+        "pii column stg.customers.first_name flows into dw.dim_customer.first_name",
+        "pii column stg.customers.first_name flows into dw.dim_customer.full_name",
+        "pii column stg.customers.last_name flows into dw.dim_customer.full_name",
+        "pii column stg.customers.first_name flows into dw.dim_customer.initials",
+        "pii column stg.customers.last_name flows into dw.dim_customer.initials",
+        "pii column stg.customers.last_name flows into dw.dim_customer.last_name",
+        "protected column stg.customers.county flows into dw.dim_customer.region",
+        "pii column stg.customers.town flows into dw.dim_customer.town"
+      ],
+      "shown_at": "2026-11-12T01:57:02.251679Z",
+      "decided_at": "2026-11-12T01:57:02.251937Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "42d9ccf6c552f129bd6e698bae85365e3b3b596a866a71698b5e0d590e115f54"
+    },
+    {
+      "decision_id": "bcb8402b654e",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T01"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: 1) Collation emulation: county IN lists, segment_code = 'STD' and the email_shared_count PARTITION BY use upper(rtrim(x)). The IN-list constan",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T01/jobs/t01.py",
+          "sha256": "cf127dfa3efa1a51520d36cf2e258b3e491b3e07779485fd3cb86402b9e9ebdd"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T01/guardrails.json",
+          "sha256": "0f791e0e3eb77ebb63dcc4a62569e095b1029f0b587009ff3612ac2be6dcc59f"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T01/tests.json",
+          "sha256": "396fdb148cb76f07c4d9cea765a1a962659196397147122ce4d71924e1731587"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T01/tests/cases/t01.json",
+          "sha256": "68e353893b0eccedb0a16175d3da5d976ec7c1b073a73fde45fe9741af1e806a"
+        }
+      ],
+      "warnings": [
+        "translator notes: 1) Collation emulation: county IN lists, segment_code = 'STD' and the email_shared_count PARTITION BY use upper(rtrim(x)). The IN-list constants are the legacy literals upper-cased in Python. Stored values are output unchanged. SQL_Latin1_General_CP1_CI_AS is accent-sensitive, so upper() is close enough for ASCII data. Exotic Unicode case mappings (e.g. 'ß') could differ between Spark and SQL Server in upper()/initials.\n2) The lineage note says email matching is 'case- and collation-sensitive'. I treated it as case-insensitive and trailing-space-insensitive, following the TSQL-01/TSQL-02 trap findings for line 127. email_shared_count is counted over the surviving #customer rows (one per customer), not over all versions.\n3) The initials use substring(x, 1, 1) on the untrimmed first_name and last_name, as in the legacy code. A leading space stays a space.\n4) last_name is not RTRIMmed in the output, but first_name is (legacy behaviour, kept).\n5) CHAR(n) outputs (segment_code CHAR(4), eircode_valid, is_standard_segment, marketing_opt_in CHAR(1)) are rpad'ed to n. NULL segment_code stays NULL.\n6) If the source has a NULL first_name or last_name, the NOT NULL output columns (first_name, last_name, full_name, initials) would make the legacy INSERT fail. The Spark port just produces NULLs. Check that the source never has NULL names.\n7) The NOLOCK read, logging, transaction and TRY/CATCH are harness concerns and were left out."
+      ],
+      "shown_at": "2026-11-12T01:59:06.108575Z",
+      "decided_at": "2026-11-12T01:59:06.108911Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "036cc4442464e191edfe4c9e4e2120beaae31a3e812413c6f90f7cff94b3e8d3"
+    },
+    {
+      "decision_id": "78dbba617b0c",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T01"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T01/recon/dw.dim_customer.json",
+          "sha256": "cc48c20112a41908b0703d0baf1a67546f1cb8bae15ebdf7b906560e77a7ac05"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T01/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T01:59:17.038147Z",
+      "decided_at": "2026-11-12T01:59:17.038477Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "cb9caac3d836dd959c74575a1f2ae49c68f7a92c32568756f2c0d330801a735c"
+    },
+    {
+      "decision_id": "da748a422e66",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:08:04.297467Z",
+      "decided_at": "2026-11-12T02:08:04.299567Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "e2f497c3b45892eecb21db867ec6d24232282de2c3f69533e0ccd18e370a3bd1"
+    },
+    {
+      "decision_id": "b06c86a4f3d7",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05",
+        "T06"
+      ],
+      "wave": 1,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T06/operate.json",
+          "sha256": "8771ef7a397abaf9befdd17711f1a37f6d7772efe98858f3bf4a32018a5aa56a"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:19:08.155201Z",
+      "decided_at": "2026-11-12T02:19:08.158224Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "fe81151351c2cfdf0d6100152f548aadc564833b508ba5f18f0ba331a61acc8d"
+    }
+  ]
+}

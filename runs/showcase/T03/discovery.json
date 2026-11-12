@@ -1,0 +1,261 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 18,
+        "line_start": 18,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 44,
+        "line_start": 20,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 49,
+        "line_start": 46,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 50,
+        "line_start": 50,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 55,
+        "line_start": 52,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 5,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 57,
+        "line_start": 57,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 6,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 58,
+        "line_start": 58,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 62,
+        "line_start": 62,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 8,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 70,
+        "line_start": 64,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 83,
+        "line_start": 72,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 85,
+        "line_start": 85,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 11,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 86,
+        "line_start": 86,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 89,
+        "line_start": 89,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 99,
+        "line_start": 91,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 101,
+        "line_start": 101,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 103,
+        "line_start": 103,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 16,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 134,
+        "line_start": 105,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 136,
+        "line_start": 136,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 138,
+        "line_start": 138,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 140,
+        "line_start": 140,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 141,
+        "line_start": 141,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 142,
+        "line_start": 142,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 22,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 143,
+        "line_start": 143,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 23,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 144,
+        "line_start": 144,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 24,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 147,
+        "line_start": 146,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 25,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 150,
+        "line_start": 149,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "T03",
+        "kind": "statement",
+        "line_end": 151,
+        "line_start": 151,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 27,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 152,
+        "line_start": 152,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 28,
+        "job_id": "T03",
+        "kind": "other",
+        "line_end": 153,
+        "line_start": 153,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "T03",
+    "reads": [
+      "dw.dim_policy",
+      "stg.fx_rates",
+      "stg.premium_transactions"
+    ],
+    "status": "parsed",
+    "writes": [
+      "dw.fact_premium_earned"
+    ]
+  },
+  "stats": {
+    "blocks": 29,
+    "lineage_edges": 55,
+    "rule_candidates": 41,
+    "sqlglot_agreeing_columns": 0,
+    "sqlglot_traced_columns": 0,
+    "statements_unparsed": 0,
+    "trap_findings": 20
+  },
+  "warnings": [
+    "lineage agent notes: Things to check when matching the PySpark output against the legacy output:\n1) earned_pct = earned_days*100/term_days uses integer division in T-SQL. The value is cut down to a whole number, then stored as DECIMAL(5,2), so values like 33.00 appear, not 33.33.\n2) earned_eur and unearned_eur divide by a fixed 365, not by term_days. For terms longer than 365 days, or when the cover period is fully earned, earned_eur can be more than written_eur, which makes unearned_eur negative. The decimal multiply happens before the divide, so precision follows SQL Server's decimal rules.\n3) daily_rate_eur uses ROUND(..., 4, 1), which cuts the value off at 4 places instead of rounding it.\n4) monthly_instalment_eur divides by term_days/30, which is integer division. If that gives 0 (terms under 30 days), the divisor falls back to 1.\n5) fx_rate takes one of two paths. EUR rows get the constant 1. Non-EUR rows get the latest stg.fx_rates.rate_to_eur on or before txn_date, with ties broken by the higher _row_seq. A non-EUR transaction with no rate on or before its txn_date is dropped by the CROSS APPLY. Currency matching depends on how CHAR(3) values are compared, including trailing spaces.\n6) A transaction whose policy has no current dim_policy row (is_current='Y') is dropped by the inner join. If a policy has more than one current row, the transaction is duplicated and breaks the primary key on txn_id.\n7) The NOLOCK reads can return results that change from run to run.\n8) The code doesn't read stg.premium_transactions._row_seq or stg.fx_rates.source. There is no dedup on txn_id."
+  ]
+}

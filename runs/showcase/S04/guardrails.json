@@ -1,0 +1,317 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 23,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 31,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "365.25"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 33,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 41,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 42,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.4"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 42,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "25"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 43,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.25"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 43,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "70"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 44,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 49,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.15"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 49,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "DUBLIN"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 50,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.05"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 50,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "CORK"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 50,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "GALWAY"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 50,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "LIMERICK"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 51,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 62,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 86,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "HOM"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 86,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "MOT"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 86,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "TRV"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 106,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "10.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 106,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "2"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 107,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 107,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "5.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 108,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 110,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.5"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 110,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "2.5"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 114,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "12.5"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 114,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 115,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "7.5"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 121,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.01"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 126,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "35"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 126,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "HIGH"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 127,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "22"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 127,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "MEDIUM"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 128,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "LOW"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 129,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 129,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4"
+    }
+  ],
+  "violations": []
+}

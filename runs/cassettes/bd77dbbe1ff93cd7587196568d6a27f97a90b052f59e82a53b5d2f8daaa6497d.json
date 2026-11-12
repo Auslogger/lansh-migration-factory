@@ -1,0 +1,233 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:14:07.090928Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T03",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T03: usp_build_fact_premium_earned (tsql), legacy file estate/tsql/T03_usp_build_fact_premium_earned.sql (SHA-256 5fbf16f70c9c202ea4f177ec504f51992cf11022b0d992bc484b0cfa10e93670).\nWritten and earned premium in EUR per premium transaction.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job       dw.usp_build_fact_premium_earned\n  Purpose   Premium fact for finance: one row per premium transaction, converted\n            to EUR at the rate published on or before the booking date, with\n            the premium earned as at the reporting date.\n  Author    MOD\n  Run by    FIN_MONTH_END, after dw.usp_load_dim_policy\n  Output    dw.fact_premium_earned (full refresh)\n\n  Change log\n    2016-01-11  MOD  Initial version (CR-0904)\n    2016-07-04  MOD  Sterling and dollar business converted to EUR (CR-0977)\n    2018-03-19  PK   Policy surrogate key and line of business from dim_policy (CR-1290)\n    2019-09-30  PK   Daily rate and monthly instalment for the cash-flow model (CR-1510)\n    2021-02-15  MOD  First instalment due date for the direct debit file (CR-1618)\n    2023-05-08  JMcK Earned percentage for the finance dashboard (INC-2301)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'dw.fact_premium_earned', N'U') IS NULL\nCREATE TABLE dw.fact_premium_earned (\n    txn_id                  INT            NOT NULL,\n    policy_id               INT            NOT NULL,\n    policy_sk               INT            NOT NULL,\n    lob_code                VARCHAR(5)     NOT NULL,\n    txn_type                VARCHAR(4)     NOT NULL,\n    txn_date                DATE           NOT NULL,\n    effective_from          DATE           NOT NULL,\n    effective_to            DATE           NOT NULL,\n    currency                CHAR(3)        NOT NULL,\n    amount                  DECIMAL(12,2)  NOT NULL,\n    fx_rate                 DECIMAL(18,8)  NOT NULL,\n    written_eur             DECIMAL(14,2)  NOT NULL,\n    term_days               INT            NOT NULL,\n    earned_days             INT            NOT NULL,\n    earned_pct              DECIMAL(5,2)   NOT NULL,\n    earned_eur              DECIMAL(14,2)  NOT NULL,\n    unearned_eur            DECIMAL(14,2)  NOT NULL,\n    daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n    monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n    first_due_date          DATE           NOT NULL,\n    as_of_date              DATE           NOT NULL,\n    CONSTRAINT pk_dw_fact_premium_earned PRIMARY KEY (txn_id)\n);\nGO\nCREATE OR ALTER PROCEDURE dw.usp_build_fact_premium_earned\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'dw.usp_build_fact_premium_earned',\n            @rows      INT,\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Transactions with their EUR rate: EUR as is, other currencies at the\n           latest rate on or before the booking date (later row wins on revisions) */\n        IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount,\n                CAST(1 AS DECIMAL(18,8)) AS fx_rate\n        INTO    #txn\n        FROM    stg.premium_transactions t WITH (NOLOCK)\n        WHERE   t.currency = 'EUR'\n          AND   t.txn_date <= @AsOfDate;\n\n        INSERT INTO #txn (txn_id, policy_id, txn_type, txn_date, effective_from, effective_to,\n                          currency, amount, fx_rate)\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)), t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount, fx.rate_to_eur\n        FROM    stg.premium_transactions t WITH (NOLOCK)\n        CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx\n        WHERE   t.currency <> 'EUR'\n          AND   t.txn_date <= @AsOfDate;\n\n        SELECT @rows = COUNT(*) FROM #txn;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'transactions', @status = 'INFO', @rows_affected = @rows;\n\n        /* Days of cover and days earned by the reporting date */\n        IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n\n        SELECT  x.*,\n                CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n                DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n                CASE WHEN @AsOfDate < x.effective_from THEN 0\n                     WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n                     ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n                END AS earned_days\n        INTO    #earn\n        FROM    #txn x;\n\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE dw.fact_premium_earned;\n\n        INSERT INTO dw.fact_premium_earned\n               (txn_id, policy_id, policy_sk, lob_code, txn_type, txn_date, effective_from,\n                effective_to, currency, amount, fx_rate, written_eur, term_days, earned_days,\n                earned_pct, earned_eur, unearned_eur, daily_rate_eur, monthly_instalment_eur,\n                first_due_date, as_of_date)\n        SELECT  e.txn_id,\n                e.policy_id,\n                p.policy_sk,\n                p.lob_code,\n                e.txn_type,\n                e.txn_date,\n                e.effective_from,\n                e.effective_to,\n                e.currency,\n                e.amount,\n                e.fx_rate,\n                e.written_eur,\n                e.term_days,\n                e.earned_days,\n                e.earned_days * 100 / e.term_days,\n                ROUND(e.written_eur * e.earned_days / 365, 2),\n                e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n                ROUND(e.written_eur / e.term_days, 4, 1),\n                ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n                DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n                @AsOfDate\n        FROM    #earn e\n        JOIN    dw.dim_policy p WITH (NOLOCK)\n                ON p.policy_id = e.policy_id\n               AND p.is_current = 'Y';\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.fact_premium_earned', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.premium_transactions: txn_id int (INT), policy_id int (INT), txn_type string (VARCHAR(4)), txn_date date (DATE), effective_from date (DATE), effective_to date (DATE), amount decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), _row_seq int (INT)\n- stg.fx_rates: rate_date date (DATE), currency string (CHAR(3)), rate_to_eur decimal(18,8) (DECIMAL(18,8)), source string (VARCHAR(10)), _row_seq int (INT)\n- dw.dim_policy: policy_sk int (INT), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), customer_segment string (CHAR(4)), product_code string (VARCHAR(10)), product_name string (NVARCHAR(60)), lob_code string (VARCHAR(5)), broker_code string (VARCHAR(12)), broker_name string (NVARCHAR(80)), status string (VARCHAR(12)), inception_date date (DATE), expiry_date date (DATE), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), valid_from date (DATE), valid_to date (DATE), is_current string (CHAR(1)), source_snapshot_date date (DATE), load_ts timestamp_ntz (DATETIME2(3))\n\nOutput tables:\n- dw.fact_premium_earned: txn_id int (INT), policy_id int (INT), policy_sk int (INT), lob_code string (VARCHAR(5)), txn_type string (VARCHAR(4)), txn_date date (DATE), effective_from date (DATE), effective_to date (DATE), currency string (CHAR(3)), amount decimal(12,2) (DECIMAL(12,2)), fx_rate decimal(18,8) (DECIMAL(18,8)), written_eur decimal(14,2) (DECIMAL(14,2)), term_days int (INT), earned_days int (INT), earned_pct decimal(5,2) (DECIMAL(5,2)), earned_eur decimal(14,2) (DECIMAL(14,2)), unearned_eur decimal(14,2) (DECIMAL(14,2)), daily_rate_eur decimal(12,4) (DECIMAL(12,4)), monthly_instalment_eur decimal(14,2) (DECIMAL(14,2)), first_due_date date (DATE), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "bd77dbbe1ff93cd7587196568d6a27f97a90b052f59e82a53b5d2f8daaa6497d",
+  "response": {
+    "duration_api_ms": 100317,
+    "duration_ms": 100588,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4706,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4706,
+        "cacheReadInputTokens": 1842,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.2610244,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 11150,
+        "provider": "firstParty",
+        "thinkingTokens": 7535,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"T03 dw.usp_build_fact_premium_earned -> PySpark.\n\nRebuilds dw.fact_premium_earned in full: one row per premium transaction booked\non or before AsOfDate. Each row carries its EUR rate, written and earned premium\nin EUR, the daily rate, the monthly instalment and the first due date.\n\nLegacy behaviour reproduced on purpose:\n  * Currency / is_current comparisons follow the default SQL Server collation\n    (case-insensitive, trailing blanks ignored).\n  * Non-EUR transactions with no rate on or before txn_date are dropped (CROSS APPLY).\n  * Transactions with no current dim_policy row are dropped (inner JOIN).\n  * earned_pct uses integer division; earned_eur divides by 365, not term_days;\n    first_due_date = DATEADD(MONTH, 1, EOMONTH(effective_from)).\n\"\"\"\nfrom pyspark.sql import SparkSession, DataFrame\nfrom pyspark.sql import functions as F\nfrom pyspark.sql import types as T\nfrom pyspark.sql import Window\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = F.to_date(F.lit(params[\"AsOfDate\"]))\n\n    txn = inputs[\"stg.premium_transactions\"]\n    fx = inputs[\"stg.fx_rates\"]\n    dim = inputs[\"dw.dim_policy\"]\n\n    # Collation-like key: CI comparison, trailing blanks ignored\n    t_ccy_key = F.upper(F.rtrim(F.col(\"currency\")))\n\n    base = txn.where(F.col(\"txn_date\") <= as_of).select(\n        F.col(\"_row_seq\").alias(\"t_seq\"),\n        \"txn_id\",\n        \"policy_id\",\n        F.upper(F.rtrim(F.col(\"txn_type\"))).alias(\"txn_type\"),\n        \"txn_date\",\n        \"effective_from\",\n        \"effective_to\",\n        \"currency\",\n        \"amount\",\n        t_ccy_key.alias(\"t_ccy_key\"),\n    )\n\n    # EUR transactions at rate 1\n    eur = base.where(F.col(\"t_ccy_key\") == F.lit(\"EUR\")).withColumn(\n        \"fx_rate\", F.lit(1).cast(T.DecimalType(18, 8))\n    )\n\n    # Non-EUR: CROSS APPLY TOP 1 rate on or before txn_date (rate_date DESC, _row_seq DESC)\n    non_eur = base.where(F.col(\"t_ccy_key\") != F.lit(\"EUR\"))\n    rates = fx.select(\n        F.upper(F.rtrim(F.col(\"currency\"))).alias(\"r_ccy_key\"),\n        F.col(\"rate_date\").alias(\"r_date\"),\n        F.col(\"rate_to_eur\").alias(\"r_rate\"),\n        F.col(\"_row_seq\").alias(\"r_seq\"),\n    )\n    joined = non_eur.join(\n        rates,\n        (non_eur[\"t_ccy_key\"] == rates[\"r_ccy_key\"]) & (rates[\"r_date\"] <= non_eur[\"txn_date\"]),\n        \"inner\",\n    )\n    w = Window.partitionBy(\"t_seq\").orderBy(F.col(\"r_date\").desc(), F.col(\"r_seq\").desc())\n    non_eur_rated = (\n        joined.withColumn(\"_rn\", F.row_number().over(w))\n        .where(F.col(\"_rn\") == 1)\n        .withColumn(\"fx_rate\", F.col(\"r_rate\").cast(T.DecimalType(18, 8)))\n        .drop(\"_rn\", \"r_ccy_key\", \"r_date\", \"r_rate\", \"r_seq\")\n    )\n\n    txn_all = eur.unionByName(non_eur_rated).drop(\"t_seq\", \"t_ccy_key\")\n\n    # #earn\n    ef = F.col(\"effective_from\")\n    et = F.col(\"effective_to\")\n    term_days = F.datediff(et, ef) + F.lit(1)\n    earn = (\n        txn_all.withColumn(\n            \"written_eur\",\n            F.round(F.col(\"amount\") * F.col(\"fx_rate\"), 2).cast(T.DecimalType(14, 2)),\n        )\n        .withColumn(\"term_days\", term_days.cast(T.IntegerType()))\n        .withColumn(\n            \"earned_days\",\n            F.when(as_of < ef, F.lit(0))\n            .when(as_of >= et, F.datediff(et, ef) + F.lit(1))\n            .otherwise(F.datediff(as_of, ef) + F.lit(1))\n            .cast(T.IntegerType()),\n        )\n    )\n\n    pol = dim.where(F.upper(F.rtrim(F.col(\"is_current\"))) == F.lit(\"Y\")).select(\n        F.col(\"policy_id\").alias(\"p_policy_id\"),\n        F.col(\"policy_sk\"),\n        F.col(\"lob_code\"),\n    )\n\n    e = earn.join(pol, earn[\"policy_id\"] == pol[\"p_policy_id\"], \"inner\")\n\n    earned_eur_expr = F.round(F.col(\"written_eur\") * F.col(\"earned_days\") / F.lit(365), 2)  # LANSH-DEFECT: earned premium divides by 365 instead of term_days\n\n    out = e.select(\n        F.col(\"txn_id\"),\n        F.col(\"policy_id\"),\n        F.col(\"policy_sk\"),\n        F.col(\"lob_code\"),\n        F.col(\"txn_type\"),\n        F.col(\"txn_date\"),\n        F.col(\"effective_from\"),\n        F.col(\"effective_to\"),\n        F.col(\"currency\"),\n        F.col(\"amount\"),\n        F.col(\"fx_rate\"),\n        F.col(\"written_eur\"),\n        F.col(\"term_days\"),\n        F.col(\"earned_days\"),\n        F.expr(\"(earned_days * 100) div term_days\").alias(\"earned_pct\"),  # LANSH-DEFECT: integer division truncates earned_pct to a whole percent\n        earned_eur_expr.alias(\"earned_eur\"),\n        (F.col(\"written_eur\") - earned_eur_expr).alias(\"unearned_eur\"),  # LANSH-DEFECT: unearned derived from the /365 earned amount\n        F.expr(\n            \"CASE WHEN written_eur / term_days >= 0 \"\n            \"THEN floor(written_eur / term_days, 4) \"\n            \"ELSE ceil(written_eur / term_days, 4) END\"\n        ).alias(\"daily_rate_eur\"),\n        F.round(\n            F.col(\"written_eur\")\n            / F.expr(\"cast(coalesce(nullif(term_days div 30, 0), 1) as int)\"),\n            2,\n        ).alias(\"monthly_instalment_eur\"),\n        F.add_months(F.last_day(F.col(\"effective_from\")), 1).alias(\"first_due_date\"),  # LANSH-DEFECT: DATEADD(MONTH,1,EOMONTH()) keeps day-of-month (Feb 28 -> Mar 28, Apr 30 -> May 30)\n        as_of.alias(\"as_of_date\"),\n    )\n\n    return {\"dw.fact_premium_earned\": out}\n",
+      "defects": [
+        {
+          "intended": "Decimal division, e.g. e.earned_days * 100.0 / e.term_days, rounded to 2 places.",
+          "legacy_lines": [
+            118
+          ],
+          "title": "Integer division in earned_pct",
+          "what_it_does": "e.earned_days * 100 / e.term_days is int/int, so the value is cut to a whole percent (e.g. 33.00 instead of 33.33) before it is stored in DECIMAL(5,2)."
+        },
+        {
+          "intended": "ROUND(written_eur * earned_days / term_days, 2), with unearned = written - earned.",
+          "legacy_lines": [
+            119,
+            120
+          ],
+          "title": "Earned premium divides by 365 instead of term_days",
+          "what_it_does": "earned_eur = ROUND(written_eur * earned_days / 365, 2). Any term other than 365 days is pro-rated wrongly. Terms over 365 days earn more than written, so unearned_eur goes negative. Short terms are under-earned."
+        },
+        {
+          "intended": "A consistent due date: either the end of the following month, EOMONTH(effective_from, 1), or the first of the following month, DATEADD(DAY, 1, EOMONTH(effective_from)).",
+          "legacy_lines": [
+            123
+          ],
+          "title": "First due date from DATEADD(MONTH,1,EOMONTH())",
+          "what_it_does": "Adds one month to the month-end date. DATEADD keeps the day number, so when the month has fewer than 31 days the result is not a month end: Feb 28 -> Mar 28, Apr 30 -> May 30, Jun 30 -> Jul 30, Sep 30 -> Oct 30, Nov 30 -> Dec 30."
+        }
+      ],
+      "notes": "1. Collation: the currency and is_current comparisons are matched on UPPER(RTRIM(..)). This assumes the database uses the default case-insensitive collation (CI_AS); please confirm. The currency value written out is the raw source value.\n2. Rows dropped without a message, as the legacy job does: non-EUR transactions with no rate on or before txn_date (CROSS APPLY) and transactions with no current dim_policy row (inner JOIN). Rows with a NULL currency or NULL txn_date are also left out.\n3. FX tie-break: rate_date DESC, then fx _row_seq DESC, ranked per source row of the transaction table.\n4. daily_rate_eur: ROUND(x, 4, 1) truncates toward zero. This is done with floor for values of 0 or more and ceil for negative values. It looks deliberate, so it is not listed as a defect.\n5. monthly_instalment_eur: term_days / 30 is integer division in the legacy code too, and this is kept as is. The divisor is cast to int so the decimal result type matches SQL Server's (decimal(25,13) before ROUND).\n6. Spark add_months (Spark 3.0+) does not snap to month end. It therefore gives the same result as SQL Server DATEADD(MONTH) on an EOMONTH date.\n7. A term_days of 0 makes the legacy job fail with a divide-by-zero error, and Spark in ANSI mode raises an error the same way.\n8. traps_handled is empty because I don't have the trap card ids. The collation handling and integer division are dealt with deliberately in the code.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.2610244,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4706,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4706,
+      "cache_read_input_tokens": 1842,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4706,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4706,
+          "cache_read_input_tokens": 1842,
+          "input_tokens": 2,
+          "output_tokens": 11150,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 11150,
+      "output_tokens_details": {
+        "thinking_tokens": 7535
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,82 @@
+{
+  "job_id": "X2",
+  "outputs": [
+    {
+      "columns": [
+        "as_of_date",
+        "claim_id",
+        "claim_number",
+        "policy_id",
+        "lob_code",
+        "claim_status",
+        "reported_date",
+        "closed_date",
+        "paid_to_date",
+        "outstanding_reserve",
+        "incurred_amount",
+        "incurred_90d_ago",
+        "movement_90d",
+        "reserve_changes_90d",
+        "days_since_last_activity",
+        "watch_category"
+      ],
+      "rows": [
+        [
+          "2025-12-31",
+          "11",
+          "CLM-0011",
+          "5011",
+          "MOT",
+          "OPEN",
+          "2025-01-15",
+          null,
+          "0.00",
+          "60000.00",
+          "60000.00",
+          "60000.00",
+          "0.00",
+          "0",
+          "305",
+          "STABLE"
+        ],
+        [
+          "2025-12-31",
+          "15",
+          "CLM-0015",
+          "5015",
+          "PROP",
+          "CLOSED",
+          "2025-02-05",
+          "2025-12-01",
+          "0.00",
+          "60000.00",
+          "60000.00",
+          "60000.00",
+          "0.00",
+          "0",
+          "305",
+          "STABLE"
+        ],
+        [
+          "2025-12-31",
+          "16",
+          "CLM-0016",
+          "5016",
+          "LIAB",
+          "OPEN",
+          "2025-02-10",
+          null,
+          "0.00",
+          "60000.00",
+          "60000.00",
+          "60000.00",
+          "0.00",
+          "0",
+          "305",
+          "STABLE"
+        ]
+      ],
+      "table": "rpt.large_loss_watchlist"
+    }
+  ]
+}

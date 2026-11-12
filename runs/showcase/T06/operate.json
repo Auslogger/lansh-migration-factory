@@ -1,0 +1,204 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-estate/T06/openlineage/T06.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "11a85ac5b2addf3762fda46481375a40493c6d6c5e61e239536415f29fc35792",
+      "counts": {
+        "by_partition": [],
+        "candidate": 21,
+        "legacy": 21
+      },
+      "duration_seconds": 3.053,
+      "error": null,
+      "explanation": "MATCH: all 21 rows agree record for record, compared on the keys ['accident_year', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "799c270f03073ad15f5a6e9d235490448ae9870a40ab7bed8c313c9fbd84f503",
+      "job_id": "T06",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "accident_year",
+        "lob_code"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 21,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-estate",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T02:19:04.736840Z",
+      "status": "MATCH",
+      "table": "rpt.loss_triangle_paid",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "42462",
+          "column": "accident_year",
+          "legacy": "42462",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "7882235.07",
+          "column": "dev_0",
+          "legacy": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "3393699.94",
+          "column": "dev_1",
+          "legacy": "3393699.94",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "292335.67",
+          "column": "dev_2",
+          "legacy": "292335.67",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "45795.45",
+          "column": "dev_3",
+          "legacy": "45795.45",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "9880.56",
+          "column": "dev_4",
+          "legacy": "9880.56",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "10353.73",
+          "column": "dev_5",
+          "legacy": "10353.73",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "2718.43",
+          "column": "dev_6",
+          "legacy": "2718.43",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "7882235.07",
+          "column": "cumulative_0",
+          "legacy": "7882235.07",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "7559842.22",
+          "column": "cumulative_1",
+          "legacy": "7559842.22",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "5073529.77",
+          "column": "cumulative_2",
+          "legacy": "5073529.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "3157882.77",
+          "column": "cumulative_3",
+          "legacy": "3157882.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1692178.97",
+          "column": "cumulative_4",
+          "legacy": "1692178.97",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "676988.77",
+          "column": "cumulative_5",
+          "legacy": "676988.77",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "95788.47",
+          "column": "cumulative_6",
+          "legacy": "95788.47",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 11.611,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 21,
+      "job_id": "T06",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 21,
+      "runtime_seconds": 6.742,
+      "table": "rpt.loss_triangle_paid"
+    }
+  ],
+  "status": "MATCH"
+}

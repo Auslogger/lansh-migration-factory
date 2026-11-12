@@ -1,0 +1,249 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:36:58.253081Z",
+  "request": {
+    "agent": "translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S03",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S03: premium_bands.sas (sas), legacy file estate/sas/S03_premium_bands.sas (SHA-256 c40650f2177f8a2808693aa0e79675464a0df999a505a2fcad32c4f9c4bf0132).\nEarned premium summarised by premium band.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n 1 | /******************************************************************************\n 2 |   Program  : premium_bands.sas\n 3 |   Purpose  : Written and earned premium by line of business and premium band\n 4 |              for the pricing committee. Each policy is banded once, on the\n 5 |              premium of its first transaction as loaded, and all of its\n 6 |              transactions are reported in that band.\n 7 |   Inputs   : dw.fact_premium_earned\n 8 |   Output   : rpt.premium_band_summary (rebuilt on every run)\n 9 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n10 |   Author   : RN\n11 | \n12 |   Change log\n13 |     2016-02-22  RN    Initial version\n14 |     2017-05-08  RN    Top band split: 1000 and over (CR-1077)\n15 |     2019-10-14  CB    Transactions reported in their policy's band, not their\n16 |                       own (CR-1520)\n17 |     2022-03-07  CB    Policy count per band (CR-1951)\n18 | ******************************************************************************/\n19 | \n20 | /* premium bands used by pricing since 2017 */\n21 | proc format;\n22 |   value premband\n23 |     low  -< 0    = 'NEGATIVE'\n24 |     0    -< 250  = '0-249'\n25 |     250  -< 500  = '250-499'\n26 |     500  -< 1000 = '500-999'\n27 |     1000 - high  = '1000+'\n28 |     other        = 'UNKNOWN';\n29 | run;\n30 | \n31 | /* one row per policy: its opening transaction, as loaded */\n32 | proc sort data=dw.fact_premium_earned(keep=policy_id lob_code written_eur)\n33 |           out=work.opening nodupkey;\n34 |   by policy_id;\n35 | run;\n36 | \n37 | data work.policy_band(keep=policy_id lob_code prem_band);\n38 |   set work.opening;\n39 |   length prem_band $8;\n40 |   prem_band = put(written_eur, premband.);\n41 | run;\n42 | \n43 | /* every transaction, in its policy's band */\n44 | proc sort data=dw.fact_premium_earned(keep=policy_id written_eur earned_eur)\n45 |           out=work.txn;\n46 |   by policy_id;\n47 | run;\n48 | \n49 | data work.txn_band;\n50 |   merge work.txn(in=t) work.policy_band;\n51 |   by policy_id;\n52 |   if t;\n53 | run;\n54 | \n55 | proc means data=work.txn_band noprint nway;\n56 |   class lob_code prem_band;\n57 |   var written_eur earned_eur;\n58 |   output out=work.premium_sums(drop=_type_ _freq_)\n59 |          n(written_eur)=n_transactions sum(written_eur)=written_eur\n60 |          sum(earned_eur)=earned_eur;\n61 | run;\n62 | \n63 | proc means data=work.policy_band noprint nway;\n64 |   class lob_code prem_band;\n65 |   var policy_id;\n66 |   output out=work.policy_counts(drop=_type_ _freq_) n(policy_id)=n_policies;\n67 | run;\n68 | \n69 | data rpt.premium_band_summary(keep=lob_code prem_band n_policies n_transactions\n70 |                                    written_eur earned_eur as_of_date);\n71 |   merge work.policy_counts work.premium_sums;\n72 |   by lob_code prem_band;\n73 |   format as_of_date yymmdd10.;\n74 |   as_of_date = &as_of;\n75 | run;\n\nInput tables:\n- dw.fact_premium_earned: txn_id int (INT), policy_id int (INT), policy_sk int (INT), lob_code string (VARCHAR(5)), txn_type string (VARCHAR(4)), txn_date date (DATE), effective_from date (DATE), effective_to date (DATE), currency string (CHAR(3)), amount decimal(12,2) (DECIMAL(12,2)), fx_rate decimal(18,8) (DECIMAL(18,8)), written_eur decimal(14,2) (DECIMAL(14,2)), term_days int (INT), earned_days int (INT), earned_pct decimal(5,2) (DECIMAL(5,2)), earned_eur decimal(14,2) (DECIMAL(14,2)), unearned_eur decimal(14,2) (DECIMAL(14,2)), daily_rate_eur decimal(12,4) (DECIMAL(12,4)), monthly_instalment_eur decimal(14,2) (DECIMAL(14,2)), first_due_date date (DATE), as_of_date date (DATE), _row_seq int (num 8)\n\nOutput tables (contract types, legacy types):\n- rpt.premium_band_summary (key ['lob_code', 'prem_band']): lob_code string (char 5 format=$CHAR), prem_band string (char 8), n_policies double (num 8), n_transactions double (num 8), written_eur double (num 8 format=BEST), earned_eur double (num 8 format=BEST), as_of_date date (num 8 format=YYMMDD)\n\nTrap findings in this job:\n- SAS-12 lines 23-28: Each band includes its lower bound and excludes its upper one (-<), and '1000 - high' includes 1000. LOW does not match a missing numeric, so a missing written_eur falls to OTHER and gets 'UNKNOWN'. The CASE WHEN must spell out every boundary and send NULL to 'UNKNOWN'.\n- SAS-09 lines 32-34: NODUPKEY keeps each policy's first transaction in load order (the stable sort), and that row sets the band. Spark needs a window ordered by load order (_row_seq), not dropDuplicates.\n- SAS-05 lines 50-52: A one-to-many MERGE with an IN= subset is a left join from txn to policy_band. lob_code and prem_band come only from policy_band and stay missing for unmatched keys.\n- SAS-14 lines 55-61: PROC MEANS NWAY with CLASS drops rows whose lob_code or prem_band is missing, but a Spark groupBy keeps NULL groups. Those groups must be filtered out. N() and SUM() are named by the OUTPUT statement.\n- SAS-14 lines 63-67: The second PROC MEANS NWAY counts policies per lob_code/prem_band and also excludes missing class values, which Spark's groupBy would keep.\n- SAS-05 lines 71-72: A MERGE with no IN= keeps keys from both inputs, so it acts as a full outer join on lob_code and prem_band. Columns missing on one side stay missing, and the output is ordered by the BY keys.\n- SAS-03 lines 73-74: &as_of is a SAS date number (days since 1960-01-01). In Spark it must be turned into a DATE, e.g. date_add('1960-01-01', as_of).\n\nTrap cards:\n### SAS-03 (semantic): Dates are numbers of days since 1 January 1960\nLegacy: A SAS date is a number: days since 1960-01-01. Date arithmetic is plain arithmetic (d + 30, d2 - d1, int((d2 - d1) / 365.25)); a date compared with a number compares day counts. Datetimes are seconds since 1960-01-01T00:00.\nSpark: Spark dates are a separate type; arithmetic needs date functions.\nFix: Day differences are datediff(d2, d1); d + n is date_add(d, n); keep any division of a day count as double arithmetic (int() truncates toward zero). Where a date is used as a number, use datediff(d, DATE'1960-01-01').\nExample: tenure = int((&as_of - start_date) / 365.25); -> F.floor(F.datediff(as_of, 'start_date') / 365.25) for non-negative values\n\n### SAS-05 (semantic): MERGE BY with IN= flags\nLegacy: merge a(in=x) b(in=y); by k; matches rows by key one-to-one in order within each key; in= flags say which data sets contributed; variables from b overwrite a's for the same name; a key in only one data set keeps the other's variables missing. Many-to-many merges pair rows in order rather than forming a product.\nSpark: A join forms the product of matching rows; columns don't overwrite.\nFix: Full outer join on the BY key with indicator columns for in=; apply the subsetting IF (if x; is a left join from a). For same-named variables, take b's value where b contributed, else a's (coalesce does NOT reproduce this when b's value is missing). Recode variables that the step resets when a data set did not contribute.\nExample: merge work.accounts(in=a) work.txn_summary(in=t); by account_id; if a; -> accounts.join(txn_summary, 'account_id', 'left').withColumn('t', matched)\n\n### SAS-09 (semantic): NODUPKEY keeps the first row in input order\nLegacy: proc sort nodupkey; by k; keeps the first row of each k in the input order (the sort is stable) and drops the rest; nodup compares whole rows with the previous one.\nSpark: dropDuplicates keeps an arbitrary row.\nFix: row_number() over (partition by the BY keys order by _row_seq) = 1.\nExample: proc sort data=x nodupkey; by account_id; run; -> row_number() over (partition by account_id order by _row_seq) = 1\n\n### SAS-12 (semantic): PROC FORMAT range boundaries\nLegacy: In a PROC FORMAT value statement, 'a - b' includes both ends, 'a <- b' excludes a, 'a -< b' excludes b; low and high are open ends; overlapping ranges resolve to the first match; values matching no range print as themselves (or the OTHER label). Missing values match no numeric range except '.'.\nSpark: A CASE WHEN must spell each boundary out.\nFix: Build a when() chain in the format's order with exactly the inclusive or exclusive ends; route missing values as SAS would (they match no range unless listed, so they fall to OTHER or print as '.').\nExample: value ageband low -< 18 = 'MINOR' 18 -< 65 = 'ADULT' 65 - high = 'SENIOR'; -> F.when(x < 18, 'MINOR').when(x < 65, 'ADULT').when(x >= 65, 'SENIOR')\n\n### SAS-14 (construct): PROC MEANS / SUMMARY with CLASS and NWAY\nLegacy: proc means with class variables computes statistics for every combination of class levels; NWAY keeps only the full combination (_TYPE_ highest); missing class values are excluded unless MISSING is given; output variables are named by the OUTPUT statement.\nSpark: A groupBy over the class variables, which keeps NULL groups.\nFix: groupBy(class variables) with the requested statistics; drop rows whose class values are missing unless MISSING is set; name outputs as the OUTPUT statement does; add _FREQ_ (count) if it is kept.\nExample: proc means data=x nway noprint; class region product; var sales; output out=y sum=; -> x.where(class vars not null).groupBy('region', 'product').agg(F.sum('sales'))\n\nsqlglot draft (a starting point, not trusted):\n-- lines 21-29 (proc); traps: SAS-12 (line 23)\n-- no draft: translate this proc from the code\n\n-- lines 32-35 (proc); traps: SAS-09 (line 32)\n-- no draft: translate this proc from the code\n\n-- lines 37-41 (data_step)\n-- no draft: translate this data_step from the code\n\n-- lines 44-47 (proc)\n-- no draft: translate this proc from the code\n\n-- lines 49-53 (data_step); traps: SAS-05 (line 50)\n-- no draft: translate this data_step from the code\n\n-- lines 55-61 (proc); traps: SAS-14 (line 55)\n-- no draft: translate this proc from the code\n\n-- lines 63-67 (proc); traps: SAS-14 (line 63)\n-- no draft: translate this proc from the code\n\n-- lines 69-75 (data_step); traps: SAS-03 (line 73), SAS-05 (line 71)\n-- no draft: translate this data_step from the code\n\nLineage agent's notes:\nThe only input is dw.fact_premium_earned. lob_code and prem_band come from each policy's first row. PROC SORT NODUPKEY keeps the first row it meets for each policy_id, so which row that is depends on the order the rows were loaded. I have taken that load order to be _row_seq, but the code never names that column, so this edge is an inference (confidence 0.55). For the PySpark port, rebuild the first row as ROW_NUMBER over policy_id ordered by _row_seq.\n\nThe match on policy_id with `if t` almost never drops a row, because both sides come from the same table. PROC MEANS has no MISSING option, so it drops any row where lob_code or prem_band is missing. prem_band is never missing: the format sends missing written_eur to 'UNKNOWN' (via OTHER).\n\nn_transactions counts only non-missing written_eur values. It is not a row count.\n\nThe final merge on lob_code and prem_band is a full match and drops nothing.\n\nSuspected legacy bugs found at Design (reproduce each exactly, and mark the lines that reproduce it with the marker and its id):\n- S03-D1 Policies with missing lob_code silently dropped by PROC MEANS CLASS (lines [37, 40, 50, 56, 64, 71]): Both PROC MEANS steps use CLASS lob_code prem_band without the MISSING option, so SAS discards every observation whose class variable is missing. lob_code comes from each policy's first-loaded transaction (work.policy_band), so when that row has a blank lob_code, all of that policy's transactions and the policy itself are left out of rpt.premium_band_summary. Written and earned premium are understated.\n- S03-D2 No as-of cut-off: transactions after the reporting date included (lines [32, 44, 74]): The as_of parameter is only stamped onto the output (line 74). Nothing filters dw.fact_premium_earned to transactions on or before the reporting date, so transactions dated after 2025-12-31 are counted in n_transactions, written_eur and earned_eur.\n- S03-D3 Policy band taken from first-loaded row, not the earliest (opening) transaction (lines [31, 32, 33, 34, 40]): PROC SORT NODUPKEY BY policy_id keeps whichever transaction was loaded first for each policy, and that row's written_eur (and lob_code) sets the band for all the policy's transactions. If the load order differs from transaction order, a later endorsement, cancellation or negative adjustment can set the band, and the policy moves to a different band (or line of business), possibly NEGATIVE.\n",
+    "system_prompt": "You are the translator agent of LANSH. You migrate one legacy SAS 9.4 job to PySpark 4.2, and your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module in the LANSH job template:\n- A module docstring: \"<job id> <name>: migrated from <legacy path>.\", then the lines \"Legacy SHA-256: <hash>\", \"Written by: LANSH translator (Claude)\", \"Traps handled: <ids>\" and \"Bugs reproduced on purpose (# LANSH-DEFECT): <short names, or none>\".\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Handle every trap finding you are given, following its card's fix guidance, and list the trap ids in traps_handled.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- SAS specifics: every SAS number is an 8-byte double: cast numeric inputs to double before any arithmetic and output numbers as doubles; a missing number is smaller than every number in comparisons; sum() skips missing values while + propagates them; character values are blank-padded, so trailing blanks never count and a blank value is missing (output NULL for it); a character variable's length is fixed by its first assignment; DATA steps read rows in their data set order (_row_seq for source tables).\n- Work data sets become DataFrames; macros are expanded by hand.\n"
+  },
+  "request_sha256": "9169edc224198293d79a4410d93021e2ef5000728c8a1b4e3c388a430feef252",
+  "response": {
+    "duration_api_ms": 53134,
+    "duration_ms": 53648,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5797,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5797,
+        "cacheReadInputTokens": 2189,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1715218,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 6235,
+        "provider": "firstParty",
+        "thinkingTokens": 2896,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"S03 premium_bands: migrated from estate/sas/S03_premium_bands.sas.\n\nLegacy SHA-256: c40650f2177f8a2808693aa0e79675464a0df999a505a2fcad32c4f9c4bf0132\nWritten by: LANSH translator (Claude)\nTraps handled: SAS-03, SAS-05, SAS-09, SAS-12, SAS-14\nBugs reproduced on purpose (# LANSH-DEFECT): S03-D1 missing lob_code policies dropped by PROC MEANS CLASS; S03-D2 no as-of cut-off on transactions; S03-D3 policy band taken from first-loaded row\n\"\"\"\n\nimport re\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nimport pyspark.sql.functions as F\nimport pyspark.sql.types as T\n\n\ndef _sas_char(col_name: str):\n    \"\"\"SAS character semantics: trailing blanks never count, a blank value is missing.\"\"\"\n    trimmed = F.rtrim(F.col(col_name))\n    return F.when(trimmed == \"\", F.lit(None).cast(T.StringType())).otherwise(trimmed)\n\n\ndef _as_of_date(value: str):\n    \"\"\"SAS-03: &as_of is a SAS date (days since 1960-01-01); the harness passes ISO text.\"\"\"\n    text = value.strip()\n    if re.fullmatch(r\"-?\\d+\", text):\n        return F.date_add(F.to_date(F.lit(\"1960-01-01\")), int(text))\n    return F.to_date(F.lit(text), \"yyyy-MM-dd\")\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    # LANSH-DEFECT: S03-D2 no filter on txn_date <= as_of; every transaction, including those after the reporting date, is read\n    src = inputs[\"dw.fact_premium_earned\"]\n\n    base = src.select(\n        F.col(\"policy_id\").cast(T.DoubleType()).alias(\"policy_id\"),\n        _sas_char(\"lob_code\").alias(\"lob_code\"),\n        F.col(\"written_eur\").cast(T.DoubleType()).alias(\"written_eur\"),\n        F.col(\"earned_eur\").cast(T.DoubleType()).alias(\"earned_eur\"),\n        F.col(\"_row_seq\"),\n    )\n\n    # SAS-09: PROC SORT NODUPKEY BY policy_id keeps the first row of each policy in load order.\n    w_first = Window.partitionBy(\"policy_id\").orderBy(F.col(\"_row_seq\").asc())\n    opening = (\n        base.withColumn(\"_rn\", F.row_number().over(w_first))  # LANSH-DEFECT: S03-D3 band and lob_code come from the first-loaded row, not the earliest transaction\n        .where(F.col(\"_rn\") == 1)\n        .select(\"policy_id\", \"lob_code\", \"written_eur\")\n    )\n\n    # SAS-12: PROC FORMAT premband, lower bound included, upper excluded; missing goes to OTHER.\n    we = F.col(\"written_eur\")\n    prem_band = (\n        F.when(we < 0, F.lit(\"NEGATIVE\"))\n        .when(we < 250, F.lit(\"0-249\"))\n        .when(we < 500, F.lit(\"250-499\"))\n        .when(we < 1000, F.lit(\"500-999\"))\n        .when(we >= 1000, F.lit(\"1000+\"))\n        .otherwise(F.lit(\"UNKNOWN\"))\n    )\n    policy_band = opening.select(\"policy_id\", \"lob_code\", prem_band.alias(\"prem_band\"))\n\n    # Every transaction (PROC SORT without NODUPKEY keeps all rows).\n    txn = base.select(\"policy_id\", \"written_eur\", \"earned_eur\")\n\n    # SAS-05: one-to-many MERGE with \"if t\" acts as a left join from txn; missing BY keys match each other.\n    t = txn.alias(\"t\")\n    p = policy_band.alias(\"p\")\n    txn_band = t.join(p, F.col(\"t.policy_id\").eqNullSafe(F.col(\"p.policy_id\")), \"left\").select(\n        F.col(\"t.policy_id\").alias(\"policy_id\"),\n        F.col(\"t.written_eur\").alias(\"written_eur\"),\n        F.col(\"t.earned_eur\").alias(\"earned_eur\"),\n        F.col(\"p.lob_code\").alias(\"lob_code\"),\n        F.col(\"p.prem_band\").alias(\"prem_band\"),\n    )\n\n    # SAS-14: PROC MEANS NWAY CLASS lob_code prem_band (no MISSING option) leaves out missing class values.\n    premium_sums = (\n        txn_band.where(F.col(\"lob_code\").isNotNull() & F.col(\"prem_band\").isNotNull())  # LANSH-DEFECT: S03-D1 transactions of policies with missing lob_code dropped\n        .groupBy(\"lob_code\", \"prem_band\")\n        .agg(\n            F.count(\"written_eur\").cast(T.DoubleType()).alias(\"n_transactions\"),\n            F.sum(\"written_eur\").cast(T.DoubleType()).alias(\"written_eur\"),\n            F.sum(\"earned_eur\").cast(T.DoubleType()).alias(\"earned_eur\"),\n        )\n    )\n\n    # SAS-14: second PROC MEANS NWAY, N(policy_id) per class combination, missing class values left out.\n    policy_counts = (\n        policy_band.where(F.col(\"lob_code\").isNotNull() & F.col(\"prem_band\").isNotNull())  # LANSH-DEFECT: S03-D1 policies with missing lob_code dropped\n        .groupBy(\"lob_code\", \"prem_band\")\n        .agg(F.count(\"policy_id\").cast(T.DoubleType()).alias(\"n_policies\"))\n    )\n\n    # SAS-05: MERGE without IN= is a full outer join on the BY keys.\n    merged = policy_counts.join(premium_sums, [\"lob_code\", \"prem_band\"], \"full\")\n\n    # SAS-03: as_of_date stamped from the parameter.\n    result = merged.select(\n        F.col(\"lob_code\").cast(T.StringType()).alias(\"lob_code\"),\n        F.col(\"prem_band\").cast(T.StringType()).alias(\"prem_band\"),\n        F.col(\"n_policies\").cast(T.DoubleType()).alias(\"n_policies\"),\n        F.col(\"n_transactions\").cast(T.DoubleType()).alias(\"n_transactions\"),\n        F.col(\"written_eur\").cast(T.DoubleType()).alias(\"written_eur\"),\n        F.col(\"earned_eur\").cast(T.DoubleType()).alias(\"earned_eur\"),\n        _as_of_date(params[\"AsOfDate\"]).alias(\"as_of_date\"),\n    ).orderBy(F.col(\"lob_code\").asc(), F.col(\"prem_band\").asc())\n\n    return {\"rpt.premium_band_summary\": result}\n",
+      "defects": [
+        {
+          "intended": "Report every policy and transaction, either under a missing/unknown line of business (CLASS ... / MISSING) or with lob_code taken from a non-missing row.",
+          "legacy_lines": [
+            37,
+            40,
+            50,
+            56,
+            64,
+            71
+          ],
+          "title": "S03-D1 Policies with missing lob_code silently dropped by PROC MEANS CLASS",
+          "what_it_does": "Both PROC MEANS steps use CLASS lob_code prem_band without MISSING. A policy whose first-loaded row has a blank lob_code is left out of the summary, along with all of its transactions."
+        },
+        {
+          "intended": "Keep only transactions with txn_date on or before the as-of date.",
+          "legacy_lines": [
+            32,
+            44,
+            74
+          ],
+          "title": "S03-D2 No as-of cut-off: transactions after the reporting date included",
+          "what_it_does": "as_of is only stamped onto the output. Transactions dated after the reporting date still count in n_transactions, written_eur, earned_eur and in the banding."
+        },
+        {
+          "intended": "Band each policy on its true opening transaction, i.e. sort by policy_id and txn_date/txn_id before NODUPKEY.",
+          "legacy_lines": [
+            31,
+            32,
+            33,
+            34,
+            40
+          ],
+          "title": "S03-D3 Policy band taken from first-loaded row, not the earliest transaction",
+          "what_it_does": "NODUPKEY keeps whichever row of each policy was loaded first (here by _row_seq). That row's written_eur and lob_code set the band and line of business for all of the policy's transactions, even when the row is a later endorsement or a negative adjustment."
+        }
+      ],
+      "notes": "- I take load order to be _row_seq (the lineage agent's inference, confidence 0.55). It decides which row sets each policy's band and lob_code.\n- lob_code is right-trimmed, and a blank value is treated as missing, as SAS does. The CLASS filter then drops those policies (S03-D1).\n- Missing policy_id values form one group: the window partition keeps them together and the join uses null-safe equality, as SAS BY-group matching does.\n- n_transactions is N(written_eur), the count of non-missing values, not a row count. n_policies is N(policy_id).\n- Sums are taken in double precision. Spark's summation order is not defined, so the last bits may differ slightly from SAS's sequential sum. Check that reconciliation allows a float tolerance.\n- AsOfDate is read as ISO yyyy-MM-dd text. If it is ever passed as a SAS day number, it is converted with date_add('1960-01-01', n).",
+      "traps_handled": [
+        "SAS-03",
+        "SAS-05",
+        "SAS-09",
+        "SAS-12",
+        "SAS-14"
+      ]
+    },
+    "total_cost_usd": 0.1715218,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5797,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5797,
+      "cache_read_input_tokens": 2189,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5797,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5797,
+          "cache_read_input_tokens": 2189,
+          "input_tokens": 2,
+          "output_tokens": 6235,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 6235,
+      "output_tokens_details": {
+        "thinking_tokens": 2896
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

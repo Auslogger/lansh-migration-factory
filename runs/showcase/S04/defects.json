@@ -1,0 +1,133 @@
+[
+  {
+    "confidence": 0.5,
+    "defect_id": "S04-D1",
+    "description": "The macro is called with a fixed list (MOT HOM TRV) and only those three score tables are unioned. Customer/line rows in claims_enriched with any other lob_code, including a differently cased or null code, never reach rpt.risk_scores. Their claims still count towards the line loss ratios.",
+    "evidence_lines": [
+      60,
+      62,
+      63,
+      69,
+      74,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x",
+    "intended_behaviour": "Score every line of business in the claims experience, with the list built from the data (e.g. select distinct lob_code into a macro variable) instead of hard-coded.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Hard-coded line-of-business list drops other lines"
+  },
+  {
+    "confidence": 0.55,
+    "defect_id": "S04-D2",
+    "description": "Points and score are built with + and *, which pass missing values through. If n_recoveries is missing (every claim has null n_recoveries), loss_ratio is missing (the line has no row in premium_band_summary because of the inner join in lob_ratio), or age_load/county_load are missing (the customer is not in dim_customer, through the left join), then points and score come out missing. The tier IF chain then sends a missing score to 'LOW'. The author clearly wanted a default for missing values (a missing age gets age_load 1.00 on line 25), but unmatched customers and missing components get no default.",
+    "evidence_lines": [
+      25,
+      42,
+      50,
+      55,
+      84,
+      85,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "score",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL",
+    "intended_behaviour": "Default missing components to neutral values: recoveries 0, lob_points 0, loads 1.00. Then compute a real score and tier, or flag the row explicitly instead of quietly putting it in LOW.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Missing inputs make the score missing and silently tier the row LOW"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "S04-D3",
+    "description": "work.cust takes every row of dw.dim_customer with no filter for the current version. The dimension has version_count/_row_seq columns, which suggests it keeps history. The left join on customer_id then repeats each customer/line score row once per customer version, and ages or counties can differ between versions.",
+    "evidence_lines": [
+      22,
+      23,
+      84
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d",
+    "intended_behaviour": "Join exactly one (current) customer record per customer_id, so there is one output row per customer and line.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Customer dimension join can multiply score rows"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "S04-D4",
+    "description": "Age is int((as_of - date_of_birth)/365.25). This understates the age of people whose birthday falls on or just before the reporting date (e.g. born 2000-12-31 gives 24, not 25 at 2025-12-31). That can move them across the 25 or 70 loading boundaries.",
+    "evidence_lines": [
+      24,
+      26,
+      27
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)",
+      "rows_affected": 4
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)",
+    "intended_behaviour": "Use the exact completed age at the reporting date (e.g. intck('year', date_of_birth, &as_of, 'c')). At 2025-12-31 this is 2025 - year(date_of_birth).",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Age approximated by days/365.25"
+  },
+  {
+    "confidence": 0.25,
+    "defect_id": "S04-D5",
+    "description": "as_of is used only for age. Claims, payments and recoveries are taken from claims_enriched whatever their loss or reported date, so claims after the reporting date add to counts, paid, severity and loss ratio.",
+    "evidence_lines": [
+      9,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x",
+    "intended_behaviour": "Keep only claims with loss_date (or reported_date) on or before &as_of.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Claims experience not limited to the reporting date"
+  }
+]

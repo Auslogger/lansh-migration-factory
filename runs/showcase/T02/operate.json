@@ -1,0 +1,145 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-estate/T02/openlineage/T02.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "0f417f529a1328087cb47ebd682430e510a447dd0b43354d024ef5f22811a943",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 2835,
+            "legacy": 2835,
+            "partition": "lob_code='HOM', is_current='N'"
+          },
+          {
+            "candidate": 21609,
+            "legacy": 21609,
+            "partition": "lob_code='HOM', is_current='Y'"
+          },
+          {
+            "candidate": 4024,
+            "legacy": 4024,
+            "partition": "lob_code='MOT', is_current='N'"
+          },
+          {
+            "candidate": 28731,
+            "legacy": 28731,
+            "partition": "lob_code='MOT', is_current='Y'"
+          },
+          {
+            "candidate": 949,
+            "legacy": 949,
+            "partition": "lob_code='TRV', is_current='N'"
+          },
+          {
+            "candidate": 11107,
+            "legacy": 11107,
+            "partition": "lob_code='TRV', is_current='Y'"
+          }
+        ],
+        "candidate": 69255,
+        "legacy": 69255
+      },
+      "duration_seconds": 4.624,
+      "error": null,
+      "explanation": "MATCH: all 69,255 rows agree record for record, compared on the keys ['policy_id', 'valid_from']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "job_id": "T02",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "policy_id",
+        "valid_from"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 69255,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-estate",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T02:26:13.806319Z",
+      "status": "MATCH",
+      "table": "dw.dim_policy",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "2398162140",
+          "column": "policy_sk",
+          "legacy": "2398162140",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "36758184230",
+          "column": "policy_id",
+          "legacy": "36758184230",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "7621764273",
+          "column": "customer_id",
+          "legacy": "7621764273",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "27889452.79",
+          "column": "annual_premium",
+          "legacy": "27889452.79",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "174050",
+          "column": "ncd_years",
+          "legacy": "174050",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 18.625,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 69255,
+      "job_id": "T02",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 69255,
+      "runtime_seconds": 13.168,
+      "table": "dw.dim_policy"
+    }
+  ],
+  "status": "MATCH"
+}

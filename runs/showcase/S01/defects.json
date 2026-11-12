@@ -1,0 +1,174 @@
+[
+  {
+    "confidence": 0.7,
+    "defect_id": "S01-D1",
+    "description": "For claims with no payments (not p), the merge leaves indemnity_amt, expense_amt and recovery_amt missing. The not-p block (lines 96-101) only resets n_payments, n_recoveries, total_paid and recovery_flag. gross_paid uses '+' on missing values and net_paid is sum() of only missing values, so both come out missing instead of 0.",
+    "evidence_lines": [
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      103,
+      104
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(*) AS rows_affected, CAST(0 AS DOUBLE) AS amount_affected FROM golden_dw_claims_enriched WHERE has_payment = 0 AND (indemnity_amt IS NULL OR expense_amt IS NULL OR recovery_amt IS NULL OR gross_paid IS NULL OR net_paid IS NULL)",
+      "rows_affected": 445
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, CAST(0 AS DOUBLE) AS amount_affected FROM golden_dw_claims_enriched WHERE has_payment = 0 AND (indemnity_amt IS NULL OR expense_amt IS NULL OR recovery_amt IS NULL OR gross_paid IS NULL OR net_paid IS NULL)",
+    "intended_behaviour": "CR-1873 keeps unpaid claims with explicit zeros. indemnity_amt, expense_amt and recovery_amt should be set to 0 in the not-p block, so that gross_paid and net_paid are 0.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Split amounts, gross_paid and net_paid left missing for claims with no payments"
+  },
+  {
+    "confidence": 0.5,
+    "defect_id": "S01-D2",
+    "description": "total_paid uses the sum statement, which ignores missing values. The type split uses 'indemnity_amt = indemnity_amt + amount' (and the same for expense and recovery). One missing amount therefore makes that bucket missing, and it stays missing for every later payment on the claim. gross_paid and net_paid are then wrong as well.",
+    "evidence_lines": [
+      64,
+      68,
+      69,
+      70,
+      103
+    ],
+    "impact": {
+      "amount_affected": "294434.65",
+      "amount_column": "indemnity_amt",
+      "measured_on": "golden:S01",
+      "query": "WITH p AS (SELECT cp.claim_id, upper(trim(cp.payment_type)) AS pt, cp.amount FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND cp.claim_id IN (SELECT claim_id FROM stg_claims)), b AS (SELECT claim_id, pt, SUM(amount) AS s, MAX(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS has_null FROM p WHERE pt IN ('INDEMNITY','EXPENSE','RECOVERY') GROUP BY claim_id, pt) SELECT COUNT(DISTINCT claim_id) AS rows_affected, COALESCE(SUM(ABS(COALESCE(s,0))),0) AS amount_affected FROM b WHERE has_null = 1",
+      "rows_affected": 86
+    },
+    "impact_query": "WITH p AS (SELECT cp.claim_id, upper(trim(cp.payment_type)) AS pt, cp.amount FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND cp.claim_id IN (SELECT claim_id FROM stg_claims)), b AS (SELECT claim_id, pt, SUM(amount) AS s, MAX(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS has_null FROM p WHERE pt IN ('INDEMNITY','EXPENSE','RECOVERY') GROUP BY claim_id, pt) SELECT COUNT(DISTINCT claim_id) AS rows_affected, COALESCE(SUM(ABS(COALESCE(s,0))),0) AS amount_affected FROM b WHERE has_null = 1",
+    "intended_behaviour": "Add up the split the same way as total_paid, ignoring missing amounts (sum statement or sum()), so the bucket holds the sum of the amounts that are known.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "A missing payment amount wipes out the payment-type bucket for the rest of the claim"
+  },
+  {
+    "confidence": 0.55,
+    "defect_id": "S01-D3",
+    "description": "Payments are sorted by claim_id and _row_seq (the order they were keyed). first_payment_date is the date on the first keyed row and last_payment_date is the date on the last keyed row. If payments were keyed out of date order, these are not the earliest and latest payment dates.",
+    "evidence_lines": [
+      35,
+      38,
+      60,
+      78
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "WITH m AS (SELECT claim_id, MIN(payment_date) AS mn, MAX(payment_date) AS mx, SUM(CASE WHEN payment_date IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN m ON g.claim_id = m.claim_id WHERE m.n_null = 0 AND (NOT (g.first_payment_date <=> m.mn) OR NOT (g.last_payment_date <=> m.mx))",
+      "rows_affected": 73
+    },
+    "impact_query": "WITH m AS (SELECT claim_id, MIN(payment_date) AS mn, MAX(payment_date) AS mx, SUM(CASE WHEN payment_date IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN m ON g.claim_id = m.claim_id WHERE m.n_null = 0 AND (NOT (g.first_payment_date <=> m.mn) OR NOT (g.last_payment_date <=> m.mx))",
+    "intended_behaviour": "first_payment_date = min(payment_date) and last_payment_date = max(payment_date) over the claim's payments up to the reporting date.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "First and last payment dates taken from keying order, not from the dates"
+  },
+  {
+    "confidence": 0.55,
+    "defect_id": "S01-D4",
+    "description": "In SAS a missing date is lower than any value, so where=(payment_date <= &as_of) keeps payments with no date. Undated payments are counted in n_payments and total_paid, and the type split, and can make first_payment_date or last_payment_date missing.",
+    "evidence_lines": [
+      36,
+      60,
+      63,
+      64,
+      78
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "total_paid",
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE cp.payment_date IS NULL AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE cp.payment_date IS NULL AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+    "intended_behaviour": "Keep only payments with a known date on or before the reporting date (INC-1677): add 'and not missing(payment_date)'.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Payments with a missing payment_date get past the reporting-date filter"
+  },
+  {
+    "confidence": 0.4,
+    "defect_id": "S01-D5",
+    "description": "recovery_amt is built from payment_type = 'RECOVERY', but n_recoveries and recovery_flag count every negative amount. Negative indemnity or expense corrections (reversals) are therefore counted and flagged as recoveries, and any RECOVERY row keyed with a positive amount is missed.",
+    "evidence_lines": [
+      67,
+      70,
+      72,
+      73,
+      74,
+      75
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "WITH p AS (SELECT claim_id, upper(trim(payment_type)) AS pt, amount FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL), c AS (SELECT claim_id, SUM(CASE WHEN amount < 0 THEN 1 ELSE 0 END) AS n_neg, SUM(CASE WHEN pt = 'RECOVERY' THEN 1 ELSE 0 END) AS n_rec FROM p GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN c ON g.claim_id = c.claim_id WHERE c.n_neg <> c.n_rec",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH p AS (SELECT claim_id, upper(trim(payment_type)) AS pt, amount FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL), c AS (SELECT claim_id, SUM(CASE WHEN amount < 0 THEN 1 ELSE 0 END) AS n_neg, SUM(CASE WHEN pt = 'RECOVERY' THEN 1 ELSE 0 END) AS n_rec FROM p GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN c ON g.claim_id = c.claim_id WHERE c.n_neg <> c.n_rec",
+    "intended_behaviour": "Identify a recovery the same way recovery_amt does, i.e. payment_type = 'RECOVERY', so that n_recoveries, recovery_flag and recovery_amt agree.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Recoveries identified by a negative amount, not by payment_type"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "S01-D6",
+    "description": "total_paid includes every payment. The split only recognises INDEMNITY, EXPENSE and RECOVERY. Payments with any other or missing payment_type are left out of indemnity_amt, expense_amt and recovery_amt, so gross_paid and net_paid do not add up to total_paid.",
+    "evidence_lines": [
+      67,
+      68,
+      69,
+      70,
+      103,
+      104
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "net_paid",
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND (cp.payment_type IS NULL OR upper(trim(cp.payment_type)) NOT IN ('INDEMNITY','EXPENSE','RECOVERY')) AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND (cp.payment_type IS NULL OR upper(trim(cp.payment_type)) NOT IN ('INDEMNITY','EXPENSE','RECOVERY')) AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+    "intended_behaviour": "Every payment should go to a bucket (or an 'other' bucket) so that net_paid matches total_paid, or such types should be rejected explicitly.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Payment types outside the three known values are dropped from the split and from gross/net paid"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "S01-D7",
+    "description": "stg.claims is sorted without NODUPKEY, so any claim_id that appears more than once on the register comes out more than once, each copy carrying the same payment totals. risk_scoring.sas then counts that claim's paid amounts more than once.",
+    "evidence_lines": [
+      28,
+      30,
+      31,
+      88,
+      90
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "total_paid",
+      "measured_on": "golden:S01",
+      "query": "WITH d AS (SELECT claim_id, COUNT(*) AS c, MAX(total_paid) AS tp FROM golden_dw_claims_enriched GROUP BY claim_id HAVING COUNT(*) > 1) SELECT COALESCE(SUM(c - 1),0) AS rows_affected, COALESCE(SUM((c - 1) * ABS(tp)),0) AS amount_affected FROM d",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH d AS (SELECT claim_id, COUNT(*) AS c, MAX(total_paid) AS tp FROM golden_dw_claims_enriched GROUP BY claim_id HAVING COUNT(*) > 1) SELECT COALESCE(SUM(c - 1),0) AS rows_affected, COALESCE(SUM((c - 1) * ABS(tp)),0) AS amount_affected FROM d",
+    "intended_behaviour": "One row per claim: deduplicate the register (for example keep the latest _row_seq per claim_id) before the merge.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Duplicate claim_id on the register produces repeated output rows"
+  }
+]

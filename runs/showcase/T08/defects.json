@@ -1,0 +1,114 @@
+[
+  {
+    "confidence": 0.9,
+    "defect_id": "T08-D1",
+    "description": "early_notification_flag is set when DATEDIFF(DAY, expiry_date, reported_date) is between 0 and 30, i.e. the claim was reported within 30 days AFTER the policy expired. A claim cannot normally be reported 0-30 days after expiry under live cover, so the flag almost never fires for genuine early claims and fires wrongly for claims reported just after expiry. fraud_score, fraud_band and reason_text follow from it.",
+    "evidence_lines": [
+      83,
+      107,
+      108
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.inception_date) AS inception_date FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE g.early_notification_flag <> CASE WHEN datediff(g.reported_date, p.inception_date) BETWEEN 0 AND 30 THEN 1 ELSE 0 END",
+      "rows_affected": 146
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.inception_date) AS inception_date FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE g.early_notification_flag <> CASE WHEN datediff(g.reported_date, p.inception_date) BETWEEN 0 AND 30 THEN 1 ELSE 0 END",
+    "intended_behaviour": "Per the comment 'claim notified within 30 days of the cover starting' (CR-0954): DATEDIFF(DAY, inception_date, reported_date) BETWEEN 0 AND 30.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Early notification measured from policy expiry instead of inception"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "T08-D2",
+    "description": "Every claim is joined to the one global MAX(snapshot_date) on or before the as-of date. If a claim's policy is not in that extract (lapsed or cancelled, or the extract is incomplete), the LEFT JOIN returns NULL policy_number, inception and expiry dates and vehicle_reg. The early, registration and line-of-business indicators then all evaluate to 0, because NULL comparisons are unknown, and nothing shows that the checks could not be made.",
+    "evidence_lines": [
+      66,
+      67,
+      68,
+      88,
+      89,
+      90,
+      112,
+      118
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), cur AS (SELECT DISTINCT ps.policy_id FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd), anyp AS (SELECT DISTINCT policy_id FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31') SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g JOIN anyp a ON a.policy_id = g.policy_id LEFT JOIN cur c ON c.policy_id = g.policy_id WHERE c.policy_id IS NULL",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), cur AS (SELECT DISTINCT ps.policy_id FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd), anyp AS (SELECT DISTINCT policy_id FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31') SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g JOIN anyp a ON a.policy_id = g.policy_id LEFT JOIN cur c ON c.policy_id = g.policy_id WHERE c.policy_id IS NULL",
+    "intended_behaviour": "Use each policy's latest snapshot on or before the reporting date (CR-1529), or at least flag claims whose policy details are missing, rather than scoring them as clean.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Policies missing from the single latest snapshot get blank details and silently score 0"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "T08-D3",
+    "description": "new_customer_flag uses DATEDIFF(DAY, customer_since, loss_date) < 180. Six calendar months is 181-184 days, so customers whose loss falls in the last few days of their first six months are not flagged.",
+    "evidence_lines": [
+      114,
+      115
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN dw_dim_customer dc ON dc.customer_id = g.customer_id WHERE g.new_customer_flag <> CASE WHEN g.loss_date < add_months(dc.customer_since, 6) THEN 1 ELSE 0 END",
+      "rows_affected": 3
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN dw_dim_customer dc ON dc.customer_id = g.customer_id WHERE g.new_customer_flag <> CASE WHEN g.loss_date < add_months(dc.customer_since, 6) THEN 1 ELSE 0 END",
+    "intended_behaviour": "Flag when loss_date < DATEADD(MONTH, 6, customer_since), i.e. customer for less than six calendar months at the date of loss.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Six-month new-customer window hard-coded as 180 days"
+  },
+  {
+    "confidence": 0.25,
+    "defect_id": "T08-D4",
+    "description": "SUBSTRING(policy_number, 0, 4) in T-SQL returns only the first 3 characters. Any line-of-business code longer than 3 characters (lob_code is VARCHAR(5)) can never equal its policy-number prefix, so every such claim is wrongly flagged as a mismatch.",
+    "evidence_lines": [
+      117,
+      118
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g WHERE g.policy_number IS NOT NULL AND g.lob_mismatch_flag <> CASE WHEN upper(substring_index(g.policy_number, '/', 1)) <> upper(trim(g.lob_code)) THEN 1 ELSE 0 END",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g WHERE g.policy_number IS NOT NULL AND g.lob_mismatch_flag <> CASE WHEN upper(substring_index(g.policy_number, '/', 1)) <> upper(trim(g.lob_code)) THEN 1 ELSE 0 END",
+    "intended_behaviour": "Compare the full prefix before the first '/' of the policy number (e.g. MOT in MOT/2024/500001) with the trimmed, upper-cased lob_code.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "LOB mismatch compares only the first 3 characters of the policy number"
+  },
+  {
+    "confidence": 0.25,
+    "defect_id": "T08-D5",
+    "description": "For motor claims, vehicle_reg NOT LIKE pattern is unknown when vehicle_reg is NULL, so invalid_reg_flag = 0. A missing registration is treated as valid.",
+    "evidence_lines": [
+      111,
+      112
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.vehicle_reg) AS vehicle_reg FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE upper(trim(g.lob_code)) = 'MOT' AND g.invalid_reg_flag = 0 AND p.vehicle_reg IS NULL",
+      "rows_affected": 3
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.vehicle_reg) AS vehicle_reg FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE upper(trim(g.lob_code)) = 'MOT' AND g.invalid_reg_flag = 0 AND p.vehicle_reg IS NULL",
+    "intended_behaviour": "A motor claim with no registration should count as not being in the Irish format (flag = 1).",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Motor claims with a missing registration are not flagged"
+  }
+]

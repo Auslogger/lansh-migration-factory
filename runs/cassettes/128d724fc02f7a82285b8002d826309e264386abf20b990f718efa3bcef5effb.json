@@ -1,0 +1,861 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:09:17.833788Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T02",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T02: usp_load_dim_policy (tsql), file estate/tsql/T02_usp_load_dim_policy.sql.\nPolicy dimension with type-2 history, loaded once per policy snapshot.\nParameters: SnapshotDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_policy\n  3 |   Purpose  : Policy dimension for finance, actuarial and broker reporting. One\n  4 |              row per version of a policy term, with its product, broker and\n  5 |              customer segment. A new version starts whenever the status,\n  6 |              broker, annual premium or vehicle registration changes from one\n  7 |              policy snapshot to the next (type 2 history).\n  8 |   Run by   : POL_SNAPSHOT_LOAD, once per policy snapshot, oldest first:\n  9 |              EXEC dw.usp_load_dim_policy @SnapshotDate = '<snapshot date>'\n 10 |   Output   : dw.dim_policy. Keeps history, so the procedure never truncates\n 11 |              it. Deploying this script recreates the table empty: reload every\n 12 |              snapshot in date order afterwards.\n 13 |   Author   : MOB\n 14 | \n 15 |   Change log\n 16 |     2014-02-10  MOB   Initial version, one row per policy (CR-0655)\n 17 |     2015-06-22  MOB   Broker name from the broker register (CR-0790)\n 18 |     2016-09-05  TF    Direct business reported as broker DIRECT-SALES (CR-0961)\n 19 |     2017-03-13  TF    Type 2 history with MERGE, surrogate key policy_sk\n 20 |                       (CR-1077)\n 21 |     2018-10-01  PH    Vehicle registration tracked for motor (CR-1388)\n 22 |     2019-07-15  PH    Customer segment from dw.dim_customer (CR-1610)\n 23 |     2020-02-03  TF    Refuse a snapshot older than the last one loaded\n 24 |                       (INC-2105)\n 25 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 26 | ==============================================================================*/\n 27 | SET NOCOUNT ON;\n 28 | GO\n 29 | IF OBJECT_ID(N'dw.dim_policy', N'U') IS NOT NULL\n 30 |     DROP TABLE dw.dim_policy;\n 31 | \n 32 | CREATE TABLE dw.dim_policy (\n 33 |     policy_sk             INT IDENTITY(1,1) NOT NULL,\n 34 |     policy_id             INT            NOT NULL,\n 35 |     policy_number         VARCHAR(20)    NOT NULL,\n 36 |     customer_id           INT            NOT NULL,\n 37 |     customer_segment      CHAR(4)        NULL,\n 38 |     product_code          VARCHAR(10)    NOT NULL,\n 39 |     product_name          NVARCHAR(60)   NOT NULL,\n 40 |     lob_code              VARCHAR(5)     NOT NULL,\n 41 |     broker_code           VARCHAR(12)    NOT NULL,\n 42 |     broker_name           NVARCHAR(80)   NULL,\n 43 |     status                VARCHAR(12)    NOT NULL,\n 44 |     inception_date        DATE           NOT NULL,\n 45 |     expiry_date           DATE           NOT NULL,\n 46 |     cancellation_date     DATE           NULL,\n 47 |     annual_premium        DECIMAL(12,2)  NOT NULL,\n 48 |     currency              CHAR(3)        NOT NULL,\n 49 |     vehicle_reg           VARCHAR(12)    NULL,\n 50 |     ncd_years             INT            NULL,\n 51 |     valid_from            DATE           NOT NULL,\n 52 |     valid_to              DATE           NOT NULL,   -- 9999-12-31 while current\n 53 |     is_current            CHAR(1)        NOT NULL,   -- Y / N\n 54 |     source_snapshot_date  DATE           NOT NULL,\n 55 |     load_ts               DATETIME2(3)   NOT NULL,\n 56 |     CONSTRAINT pk_dim_policy PRIMARY KEY CLUSTERED (policy_sk)\n 57 | );\n 58 | \n 59 | CREATE NONCLUSTERED INDEX ix_dim_policy_policy_id ON dw.dim_policy (policy_id, is_current);\n 60 | GO\n 61 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_policy\n 62 |     @SnapshotDate DATE\n 63 | AS\n 64 | BEGIN\n 65 |     SET NOCOUNT ON;\n 66 | \n 67 |     DECLARE @job_name     VARCHAR(128) = 'dw.usp_load_dim_policy',\n 68 |             @rows         INT,\n 69 |             @closed       INT,\n 70 |             @last_loaded  DATE,\n 71 |             @err_msg      NVARCHAR(4000),\n 72 |             @err_no       INT;\n 73 | \n 74 |     BEGIN TRY\n 75 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 76 | \n 77 |         /* Oldest snapshot first: loading an older snapshot after a newer one\n 78 |            would reopen versions that are already closed (INC-2105) */\n 79 |         SELECT  @last_loaded = MAX(d.source_snapshot_date)\n 80 |         FROM    dw.dim_policy d;\n 81 | \n 82 |         IF @SnapshotDate < @last_loaded\n 83 |             THROW 50001, 'dw.dim_policy already holds a later policy snapshot', 1;\n 84 | \n 85 |         IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n 86 | \n 87 |         /* 1. This snapshot's policies with product, broker and customer segment */\n 88 |         SELECT  p.policy_id,\n 89 |                 p.policy_number,\n 90 |                 p.customer_id,\n 91 |                 c.segment_code                          AS customer_segment,\n 92 |                 pr.product_code,\n 93 |                 pr.product_name,\n 94 |                 pr.lob_code,\n 95 |                 ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,\n 96 |                 b.broker_name,\n 97 |                 p.status,\n 98 |                 p.inception_date,\n 99 |                 p.expiry_date,\n100 |                 p.cancellation_date,\n101 |                 p.annual_premium,\n102 |                 p.currency,\n103 |                 p.vehicle_reg,\n104 |                 p.ncd_years\n105 |         INTO    #src\n106 |         FROM    stg.policy_snapshots p WITH (NOLOCK)\n107 |         JOIN    stg.products pr WITH (NOLOCK)\n108 |                 ON pr.product_code = p.product_code\n109 |         LEFT JOIN stg.brokers b WITH (NOLOCK)\n110 |                ON b.broker_code = p.broker_code\n111 |         LEFT JOIN dw.dim_customer c WITH (NOLOCK)\n112 |                ON c.customer_id = p.customer_id\n113 |         WHERE   p.snapshot_date = @SnapshotDate;\n114 | \n115 |         SET @rows = @@ROWCOUNT;\n116 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'policy snapshot', @status = 'INFO', @rows_affected = @rows;\n117 | \n118 |         IF @rows = 0\n119 |             THROW 50002, 'No policies found for this snapshot date', 1;\n120 | \n121 |         CREATE CLUSTERED INDEX ix_src_policy_id ON #src (policy_id);\n122 | \n123 |         BEGIN TRANSACTION;\n124 | \n125 |         /* 2. Close the current version of policies whose status, broker, premium\n126 |               or vehicle registration has changed since the last snapshot */\n127 |         MERGE dw.dim_policy AS tgt\n128 |         USING #src AS src\n129 |            ON tgt.policy_id = src.policy_id\n130 |           AND tgt.is_current = 'Y'\n131 |         WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n132 |                           OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')\n133 |                           OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)\n134 |                           OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))\n135 |         THEN UPDATE\n136 |              SET    tgt.valid_to   = DATEADD(DAY, -1, @SnapshotDate),\n137 |                     tgt.is_current = 'N';\n138 | \n139 |         SET @closed = @@ROWCOUNT;\n140 | \n141 |         /* 3. Open a current version for new policies and for those closed above */\n142 |         INSERT INTO dw.dim_policy\n143 |                (policy_id, policy_number, customer_id, customer_segment, product_code,\n144 |                 product_name, lob_code, broker_code, broker_name, status, inception_date,\n145 |                 expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n146 |                 ncd_years, valid_from, valid_to, is_current, source_snapshot_date, load_ts)\n147 |         SELECT  s.policy_id, s.policy_number, s.customer_id, s.customer_segment, s.product_code,\n148 |                 s.product_name, s.lob_code, s.broker_code, s.broker_name, s.status,\n149 |                 s.inception_date, s.expiry_date, s.cancellation_date, s.annual_premium,\n150 |                 s.currency, s.vehicle_reg, s.ncd_years,\n151 |                 @SnapshotDate,\n152 |                 '9999-12-31',\n153 |                 'Y',\n154 |                 @SnapshotDate,\n155 |                 SYSDATETIME()\n156 |         FROM    #src s\n157 |         WHERE   NOT EXISTS (SELECT 1\n158 |                             FROM   dw.dim_policy d\n159 |                             WHERE  d.policy_id = s.policy_id\n160 |                               AND  d.is_current = 'Y')\n161 |         ORDER BY s.policy_id;\n162 | \n163 |         SET @rows = @@ROWCOUNT;\n164 | \n165 |         COMMIT TRANSACTION;\n166 | \n167 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions closed', @status = 'INFO', @rows_affected = @closed;\n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions opened', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nInput tables:\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n- stg.brokers: broker_code CHAR(6), broker_name NVARCHAR(80), region VARCHAR(20), commission_rate DECIMAL(5,4), status VARCHAR(10), appointed_date DATE, _row_seq INT\n- stg.products: product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), term_months INT, levy_rate DECIMAL(5,4), launched_on DATE, withdrawn_on DATE, _row_seq INT\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n\nOutput tables:\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "128d724fc02f7a82285b8002d826309e264386abf20b990f718efa3bcef5effb",
+  "response": {
+    "duration_api_ms": 42367,
+    "duration_ms": 42835,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5993,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5993,
+        "cacheReadInputTokens": 1869,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.16370579999999998,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 5769,
+        "provider": "firstParty",
+        "thinkingTokens": 653,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.95,
+          "input_column": null,
+          "input_kind": "generated",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            33,
+            142
+          ],
+          "output_column": "policy_sk",
+          "output_table": "dw.dim_policy",
+          "transform": "IDENTITY(1,1) surrogate key"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            88,
+            147
+          ],
+          "output_column": "policy_id",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            89,
+            147
+          ],
+          "output_column": "policy_number",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            90,
+            147
+          ],
+          "output_column": "customer_id",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "segment_code",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "derives",
+          "lines": [
+            91,
+            111,
+            112,
+            147
+          ],
+          "output_column": "customer_segment",
+          "output_table": "dw.dim_policy",
+          "transform": "c.segment_code via LEFT JOIN on customer_id"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "product_code",
+          "input_kind": "column",
+          "input_table": "stg.products",
+          "kind": "derives",
+          "lines": [
+            92,
+            107,
+            108,
+            147
+          ],
+          "output_column": "product_code",
+          "output_table": "dw.dim_policy",
+          "transform": "pr.product_code (equal to p.product_code by inner join)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "product_name",
+          "input_kind": "column",
+          "input_table": "stg.products",
+          "kind": "derives",
+          "lines": [
+            93,
+            148
+          ],
+          "output_column": "product_name",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.products",
+          "kind": "derives",
+          "lines": [
+            94,
+            148
+          ],
+          "output_column": "lob_code",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "broker_code",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            95,
+            148
+          ],
+          "output_column": "broker_code",
+          "output_table": "dw.dim_policy",
+          "transform": "ISNULL(p.broker_code,'DIRECT-SALES')"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            95
+          ],
+          "output_column": "broker_code",
+          "output_table": "dw.dim_policy",
+          "transform": "'DIRECT-SALES' default when broker_code is NULL"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "broker_name",
+          "input_kind": "column",
+          "input_table": "stg.brokers",
+          "kind": "derives",
+          "lines": [
+            96,
+            109,
+            110,
+            148
+          ],
+          "output_column": "broker_name",
+          "output_table": "dw.dim_policy",
+          "transform": "b.broker_name via LEFT JOIN on broker_code"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            97,
+            148
+          ],
+          "output_column": "status",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "inception_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            98,
+            149
+          ],
+          "output_column": "inception_date",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "expiry_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            99,
+            149
+          ],
+          "output_column": "expiry_date",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "cancellation_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            100,
+            149
+          ],
+          "output_column": "cancellation_date",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "annual_premium",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            101,
+            149
+          ],
+          "output_column": "annual_premium",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "currency",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            102,
+            150
+          ],
+          "output_column": "currency",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            103,
+            150
+          ],
+          "output_column": "vehicle_reg",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "ncd_years",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            104,
+            150
+          ],
+          "output_column": "ncd_years",
+          "output_table": "dw.dim_policy",
+          "transform": "direct copy via #src"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@SnapshotDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            151
+          ],
+          "output_column": "valid_from",
+          "output_table": "dw.dim_policy",
+          "transform": "@SnapshotDate on new version"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            152
+          ],
+          "output_column": "valid_to",
+          "output_table": "dw.dim_policy",
+          "transform": "'9999-12-31' on new current version"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@SnapshotDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            136
+          ],
+          "output_column": "valid_to",
+          "output_table": "dw.dim_policy",
+          "transform": "DATEADD(DAY,-1,@SnapshotDate) when closing a version (MERGE UPDATE)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            137,
+            153
+          ],
+          "output_column": "is_current",
+          "output_table": "dw.dim_policy",
+          "transform": "'Y' on insert; 'N' on MERGE close"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@SnapshotDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            154
+          ],
+          "output_column": "source_snapshot_date",
+          "output_table": "dw.dim_policy",
+          "transform": "@SnapshotDate"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": null,
+          "input_kind": "generated",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            155
+          ],
+          "output_column": "load_ts",
+          "output_table": "dw.dim_policy",
+          "transform": "SYSDATETIME() load timestamp"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "snapshot_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            113
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "p.snapshot_date = @SnapshotDate"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@SnapshotDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            82,
+            113
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "p.snapshot_date = @SnapshotDate; also refuse if older than last loaded snapshot"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "product_code",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            107,
+            108
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "INNER JOIN pr.product_code = p.product_code"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "product_code",
+          "input_kind": "column",
+          "input_table": "stg.products",
+          "kind": "filters",
+          "lines": [
+            107,
+            108
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "INNER JOIN pr.product_code = p.product_code"
+        },
+        {
+          "confidence": 0.75,
+          "input_column": "broker_code",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            110,
+            132
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "LEFT JOIN b.broker_code = p.broker_code (row fan-out only); also MERGE change test"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "broker_code",
+          "input_kind": "column",
+          "input_table": "stg.brokers",
+          "kind": "filters",
+          "lines": [
+            110
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "LEFT JOIN b.broker_code = p.broker_code"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "filters",
+          "lines": [
+            112
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "LEFT JOIN c.customer_id = p.customer_id"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            112
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "LEFT JOIN c.customer_id = p.customer_id"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            129,
+            159
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            129,
+            159
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "is_current",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            130,
+            160
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "tgt.is_current = 'Y' in MERGE; d.is_current = 'Y' in NOT EXISTS"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            131
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test ISNULL(src.status,'') <> ISNULL(tgt.status,'')"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            131
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on status"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "broker_code",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            132
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on broker_code"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "annual_premium",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            133
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on annual_premium"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "annual_premium",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            133
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on annual_premium"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            134
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on vehicle_reg"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            134
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MERGE change test on vehicle_reg"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": "source_snapshot_date",
+          "input_kind": "column",
+          "input_table": "dw.dim_policy",
+          "kind": "filters",
+          "lines": [
+            79,
+            80,
+            82,
+            83
+          ],
+          "output_column": null,
+          "output_table": "dw.dim_policy",
+          "transform": "MAX(source_snapshot_date) guard: THROW if @SnapshotDate older"
+        }
+      ],
+      "notes": "dw.dim_policy is both an input and the output: the job never truncates it. The MERGE closes changed current versions by setting valid_to = @SnapshotDate - 1 and is_current = 'N'. The INSERT then opens a new version for policies that have no current row left. The change test compares the snapshot with the current row on status, broker_code (after ISNULL to 'DIRECT-SALES'), annual_premium and vehicle_reg. It is listed as filters from both sides because it decides which rows get closed and re-versioned.\n\nproduct_code comes from pr.product_code, which always equals p.product_code because of the inner join. The LEFT JOIN keys to stg.brokers and dw.dim_customer don't remove rows, but they could duplicate them, so I gave them lower confidence as filters.\n\nstg.brokers.broker_code is CHAR(6) while p.broker_code is VARCHAR(10). The join therefore matches only codes of 6 characters or fewer, because SQL Server ignores trailing spaces when comparing. Spark comparisons don't ignore trailing spaces, so the migrated join should trim or pad the codes.\n\nThe @last_loaded guard stops the whole run (THROW) instead of filtering rows. It's listed as a low-confidence filter on source_snapshot_date.\n\nThe script drops and recreates dw.dim_policy on deploy (lines 29-57). That is DDL, not part of the procedure's run.\n\nORDER BY s.policy_id on the INSERT changes only the order in which IDENTITY values are assigned to policy_sk. It doesn't decide which rows appear. To match policy_sk values, the migration must reproduce that order."
+    },
+    "total_cost_usd": 0.16370579999999998,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5993,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5993,
+      "cache_read_input_tokens": 1869,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5993,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5993,
+          "cache_read_input_tokens": 1869,
+          "input_tokens": 2,
+          "output_tokens": 5769,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 5769,
+      "output_tokens_details": {
+        "thinking_tokens": 653
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

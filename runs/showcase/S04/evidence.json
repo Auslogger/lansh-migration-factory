@@ -1,0 +1,5377 @@
+{
+  "job_id": "S04",
+  "generated_at": "2026-11-12T02:47:07.778076Z",
+  "legacy_path": "estate/sas/S04_risk_scoring.sas",
+  "legacy_sha256": "c1d72f4893edd62876d4761f52b901aa90dfef5174bbc3f8bb269afea9e46504",
+  "discovery": {
+    "job_id": "S04",
+    "status": "parsed",
+    "flags": [],
+    "blocks": [
+      {
+        "job_id": "S04",
+        "index": 0,
+        "kind": "data_step",
+        "line_start": 22,
+        "line_end": 34,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 1,
+        "kind": "proc",
+        "line_start": 37,
+        "line_end": 45,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 2,
+        "kind": "proc",
+        "line_start": 48,
+        "line_end": 57,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 3,
+        "kind": "macro",
+        "line_start": 60,
+        "line_end": 72,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 4,
+        "kind": "other",
+        "line_start": 74,
+        "line_end": 74,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 5,
+        "kind": "proc",
+        "line_start": 76,
+        "line_end": 87,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "S04",
+        "index": 6,
+        "kind": "data_step",
+        "line_start": 90,
+        "line_end": 104,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "dw.claims_enriched",
+      "dw.dim_customer",
+      "rpt.premium_band_summary"
+    ],
+    "writes": [
+      "rpt.risk_scores"
+    ]
+  },
+  "code": {
+    "job_id": "S04",
+    "module_path": "runs/showcase/S04/jobs/s04.py",
+    "code_sha256": "29cd1747fbf6fdb50c379baca60519398d4aaa1b3f9c66e0e70c6e64afb0b2a5",
+    "legacy_path": "estate/sas/S04_risk_scoring.sas",
+    "legacy_sha256": "c1d72f4893edd62876d4761f52b901aa90dfef5174bbc3f8bb269afea9e46504",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "SAS-03",
+      "SAS-10",
+      "SAS-11",
+      "SAS-13",
+      "SAS-15"
+    ],
+    "defects_reproduced": [
+      "S04-M1",
+      "S04-M2",
+      "S04-M3",
+      "S04-M4",
+      "S04-M5",
+      "S04-M6",
+      "S04-M7",
+      "S04-M8",
+      "S04-M9",
+      "S04-M10",
+      "S04-M11",
+      "S04-M12",
+      "S04-M13",
+      "S04-M14",
+      "S04-M15"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "",
+        "line": 17,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 23,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "365.25",
+        "line": 31,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 33,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.0",
+        "line": 41,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.4",
+        "line": 42,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "25",
+        "line": 42,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.25",
+        "line": 43,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "70",
+        "line": 43,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.0",
+        "line": 44,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.15",
+        "line": 49,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "DUBLIN",
+        "line": 49,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.05",
+        "line": 50,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "CORK",
+        "line": 50,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "GALWAY",
+        "line": 50,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "LIMERICK",
+        "line": 50,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1.0",
+        "line": 51,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 62,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "HOM",
+        "line": 86,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "MOT",
+        "line": 86,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "TRV",
+        "line": 86,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "10.0",
+        "line": 106,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2",
+        "line": 106,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 107,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "5.0",
+        "line": 107,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0.0",
+        "line": 108,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0.5",
+        "line": 110,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "2.5",
+        "line": 110,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "12.5",
+        "line": 114,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4.0",
+        "line": 114,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "7.5",
+        "line": 115,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0.01",
+        "line": 121,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "35",
+        "line": 126,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "HIGH",
+        "line": 126,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "22",
+        "line": 127,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "MEDIUM",
+        "line": 127,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "LOW",
+        "line": 128,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 129,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 129,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T02:47:08.784292Z"
+  },
+  "lineage": [
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "customer_id",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "group key, passed through the per-line score tables and the union",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        39,
+        44,
+        66,
+        78,
+        79,
+        92
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "group key, passed through",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        39,
+        44,
+        66,
+        78,
+        92
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "n_claims",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "COUNT(*) of claim rows per customer_id, lob_code",
+      "source": "llm",
+      "confidence": 0.5,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        40,
+        44,
+        66
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "paid",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "SUM(total_paid) per customer and line",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        41,
+        66
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "n_recoveries",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "n_recoveries",
+      "kind": "derives",
+      "transform": "SUM(n_recoveries) per customer and line",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        42,
+        66
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "severity",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "paid / MEAN(paid) remerged over the line's rows",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        41,
+        67,
+        68,
+        69
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "severity",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "which line's rows the mean is taken over (one table per line)",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        67,
+        69
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "age",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "int((&as_of - date_of_birth)/365.25)",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        78
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "age",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "&as_of minus date_of_birth",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "age_load",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "age banding: <25 gives 1.40, >=70 gives 1.25, else 1.00",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        78
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "age_load",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "through age",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        25,
+        26,
+        27,
+        28
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "age_load",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "literal loadings 1.40/1.25/1.00",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        25,
+        26,
+        27,
+        28
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "county_load",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "county",
+      "kind": "derives",
+      "transform": "SELECT on UPCASE(STRIP(county)): DUBLIN 1.15; CORK/LIMERICK/GALWAY 1.05; else 1.00",
+      "source": "llm",
+      "confidence": 0.96,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        29,
+        30,
+        31,
+        32,
+        78
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "county_load",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "literal loadings 1.15/1.05/1.00",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        30,
+        31,
+        32
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "loss_ratio",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "SUM(paid) per line / earned",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        41,
+        50,
+        78
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "loss_ratio",
+      "input_kind": "column",
+      "input_table": "rpt.premium_band_summary",
+      "input_column": "earned_eur",
+      "kind": "derives",
+      "transform": "denominator SUM(earned_eur) per lob_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        50,
+        52,
+        53,
+        54
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "points",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "12.5*min(n_claims,4), where n_claims = COUNT(*)",
+      "source": "llm",
+      "confidence": 0.5,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        40,
+        97
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "points",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "n_recoveries",
+      "kind": "derives",
+      "transform": "7.5*n_recoveries",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        42,
+        97
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "points",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "sev_points from severity bands, plus lob_points from loss_ratio",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        67,
+        93,
+        94,
+        95,
+        96,
+        97
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "points",
+      "input_kind": "column",
+      "input_table": "rpt.premium_band_summary",
+      "input_column": "earned_eur",
+      "kind": "derives",
+      "transform": "lob_points=round(2.5*loss_ratio,0.5)",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        50,
+        96,
+        97
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "points",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "weights 12.5, 7.5, 2.5, cap 4, sev points 10/5/0",
+      "source": "llm",
+      "confidence": 0.85,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        93,
+        94,
+        95,
+        96,
+        97
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "through points (n_claims count)",
+      "source": "llm",
+      "confidence": 0.5,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        97,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "n_recoveries",
+      "kind": "derives",
+      "transform": "through points",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        97,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "through points (severity, loss_ratio)",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        94,
+        96,
+        97,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "rpt.premium_band_summary",
+      "input_column": "earned_eur",
+      "kind": "derives",
+      "transform": "through points (loss_ratio)",
+      "source": "llm",
+      "confidence": 0.92,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        96,
+        97,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "round(points*age_load*county_load,0.01)",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "through age_load",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "score",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "county",
+      "kind": "derives",
+      "transform": "through county_load",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        29,
+        98
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "score bands, through n_claims count",
+      "source": "llm",
+      "confidence": 0.5,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "n_recoveries",
+      "kind": "derives",
+      "transform": "score>=35 HIGH, >=22 MEDIUM, else LOW",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        97,
+        98,
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "total_paid",
+      "kind": "derives",
+      "transform": "through score",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        98,
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "rpt.premium_band_summary",
+      "input_column": "earned_eur",
+      "kind": "derives",
+      "transform": "through score",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        98,
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "date_of_birth",
+      "kind": "derives",
+      "transform": "through score",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        98,
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "through age_load and score",
+      "source": "llm",
+      "confidence": 0.88,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        24,
+        98,
+        99
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "county",
+      "kind": "derives",
+      "transform": "through score",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        98,
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "tier",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "literals 'HIGH'/'MEDIUM'/'LOW'",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        99,
+        100,
+        101
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": "as_of_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@AsOfDate",
+      "kind": "derives",
+      "transform": "as_of_date = &as_of",
+      "source": "llm",
+      "confidence": 0.98,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        103
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "lob_code",
+      "kind": "filters",
+      "transform": "lob_code = \"&lob\" for MOT, HOM, TRV only",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        69,
+        74,
+        79,
+        81,
+        83
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": null,
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "filters",
+      "transform": "macro list MOT HOM TRV",
+      "source": "llm",
+      "confidence": 0.8,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        74
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "customer_id",
+      "kind": "filters",
+      "transform": "LEFT JOIN cust ON customer_id",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.claims_enriched",
+      "input_column": "customer_id",
+      "kind": "filters",
+      "transform": "LEFT JOIN key s.customer_id",
+      "source": "llm",
+      "confidence": 0.65,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        84
+      ]
+    },
+    {
+      "job_id": "S04",
+      "output_table": "rpt.risk_scores",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "rpt.premium_band_summary",
+      "input_column": "lob_code",
+      "kind": "filters",
+      "transform": "inner join e.lob_code=p.lob_code into lob_ratio, then LEFT JOIN on lob_code",
+      "source": "llm",
+      "confidence": 0.65,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        55,
+        85
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-03",
+      "line_start": 24,
+      "line_end": 24,
+      "snippet": "age = int((&as_of - date_of_birth) / 365.25);",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "Age comes from plain arithmetic on SAS day counts (&as_of minus date_of_birth, divided by 365.25). In Spark, date_of_birth is a DATE and as_of must be turned into a date, so this needs datediff or date functions."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-13",
+      "line_start": 60,
+      "line_end": 74,
+      "snippet": "%macro score_lines(lobs);\n  %local i lob;\n  %do i = 1 %to %sysfunc(countw(&lobs));\n    %let lob = %scan(&lobs, &i);\n    proc sql;\n      create table work.score_&lob as\n      select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n             x.paid / mean(x.paid) as severity\n      fr…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The %do loop writes one PROC SQL per line of business (MOT, HOM, TRV), and lines 79-83 union the results. In Spark this becomes a Python loop or a single query grouped by line of business, filtered to those three codes."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-10",
+      "line_start": 66,
+      "line_end": 69,
+      "snippet": "select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n             x.paid / mean(x.paid) as severity\n      from   work.experience x\n      where  x.lob_code = \"&lob\";",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "mean(x.paid) is mixed with ungrouped columns, so SAS remerges the mean over the rows the WHERE keeps (one line of business) back onto every row. Spark needs a window or a join to the per-line average of paid."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-15",
+      "line_start": 96,
+      "line_end": 96,
+      "snippet": "lob_points = round(2.5 * loss_ratio, 0.5);",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "round(2.5*loss_ratio, 0.5) rounds to the nearest half, half away from zero, with fuzz. F.round takes decimal places, so this needs something like floor(x*2+0.5)/2 plus fuzz handling."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-15",
+      "line_start": 98,
+      "line_end": 98,
+      "snippet": "score  = round(points * age_load * county_load, 0.01);",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "round(points*age_load*county_load, 0.01) is applied to a computed double. SAS's fuzz rounds near-half values up, but Spark's F.round on the binary value can round them down."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-11",
+      "line_start": 99,
+      "line_end": 100,
+      "snippet": "if score >= 35 then tier = 'HIGH';\n  else if score >= 22 then tier = 'MEDIUM';",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "The first assignment, 'HIGH', fixes tier at length 4, so 'MEDIUM' is silently cut to 'MEDI' (the output schema has tier as char 4). Spark must reproduce 'MEDI' on purpose."
+    },
+    {
+      "job_id": "S04",
+      "trap_id": "SAS-03",
+      "line_start": 102,
+      "line_end": 103,
+      "snippet": "format as_of_date yymmdd10.;\n  as_of_date = &as_of;",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "as_of_date is the number &as_of (a SAS day count) shown with yymmdd10. In Spark it must be converted from days since 1960-01-01 to a date."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "S04",
+      "table": "gold.risk_scores",
+      "legacy_table": "rpt.risk_scores",
+      "layer": "gold",
+      "grain": "One row per customer and line of business (MOT, HOM, TRV) that has claims in dw.claims_enriched, scored as of the reporting date.",
+      "keys": [
+        "customer_id",
+        "lob_code"
+      ],
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "double",
+          "legacy_type": "num 8 format=BEST",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "char 5 format=$CHAR",
+          "nullable": true,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "blank_is_null",
+            "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "n_claims",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "paid",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "n_recoveries",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "severity",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Customer's paid amount divided by the mean paid across all customers in the same line (SAS remerges the summary statistic).",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "age",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": "Whole years from date_of_birth to as_of. NULL when the birth date is missing or the customer is not in dim_customer (left join).",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "age_load",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": "1.40 if age < 25, 1.25 if age >= 70, otherwise 1.00 (also 1.00 when age is missing in dim_customer). It can be NULL if the customer is not in dim_customer.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "county_load",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "protected"
+          ],
+          "description": null,
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "loss_ratio",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Line-level total paid on the claims book divided by the line's earned premium from rpt.premium_band_summary. It is the same for every row in a line.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "points",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "12.5*min(n_claims,4) + 7.5*n_recoveries + severity points (0/5/10) + round(2.5*loss_ratio, 0.5).",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "score",
+          "data_type": "double",
+          "legacy_type": "num 8",
+          "nullable": true,
+          "max_length": null,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": "points * age_load * county_load, rounded to 0.01.",
+          "policy": {
+            "kind": "float_rel",
+            "reason": "SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+            "rel_tolerance": 1e-9,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "tier",
+          "data_type": "string",
+          "legacy_type": "char 4",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [
+            "pii",
+            "protected"
+          ],
+          "description": "HIGH if score >= 35, MEDIUM if score >= 22, otherwise LOW.",
+          "policy": {
+            "kind": "blank_is_null",
+            "reason": "SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "legacy_type": "num 8 format=YYMMDD",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": "Reporting date parameter, the same on every row.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "tier"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 2645,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "S04-D1",
+      "job_id": "S04",
+      "title": "Hard-coded line-of-business list drops other lines",
+      "description": "The macro is called with a fixed list (MOT HOM TRV) and only those three score tables are unioned. Customer/line rows in claims_enriched with any other lob_code, including a differently cased or null code, never reach rpt.risk_scores. Their claims still count towards the line loss ratios.",
+      "intended_behaviour": "Score every line of business in the claims experience, with the list built from the data (e.g. select distinct lob_code into a macro variable) instead of hard-coded.",
+      "evidence_lines": [
+        60,
+        62,
+        63,
+        69,
+        74,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "paid",
+        "measured_on": "golden:S04",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x"
+      },
+      "source": "llm",
+      "confidence": 0.5
+    },
+    {
+      "defect_id": "S04-D2",
+      "job_id": "S04",
+      "title": "Missing inputs make the score missing and silently tier the row LOW",
+      "description": "Points and score are built with + and *, which pass missing values through. If n_recoveries is missing (every claim has null n_recoveries), loss_ratio is missing (the line has no row in premium_band_summary because of the inner join in lob_ratio), or age_load/county_load are missing (the customer is not in dim_customer, through the left join), then points and score come out missing. The tier IF chain then sends a missing score to 'LOW'. The author clearly wanted a default for missing values (a missing age gets age_load 1.00 on line 25), but unmatched customers and missing components get no default.",
+      "intended_behaviour": "Default missing components to neutral values: recoveries 0, lob_points 0, loads 1.00. Then compute a real score and tier, or flag the row explicitly instead of quietly putting it in LOW.",
+      "evidence_lines": [
+        25,
+        42,
+        50,
+        55,
+        84,
+        85,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "score",
+        "measured_on": "golden:S04",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL"
+      },
+      "source": "llm",
+      "confidence": 0.55
+    },
+    {
+      "defect_id": "S04-D3",
+      "job_id": "S04",
+      "title": "Customer dimension join can multiply score rows",
+      "description": "work.cust takes every row of dw.dim_customer with no filter for the current version. The dimension has version_count/_row_seq columns, which suggests it keeps history. The left join on customer_id then repeats each customer/line score row once per customer version, and ages or counties can differ between versions.",
+      "intended_behaviour": "Join exactly one (current) customer record per customer_id, so there is one output row per customer and line.",
+      "evidence_lines": [
+        22,
+        23,
+        84
+      ],
+      "impact_query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "paid",
+        "measured_on": "golden:S04",
+        "query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d"
+      },
+      "source": "llm",
+      "confidence": 0.35
+    },
+    {
+      "defect_id": "S04-D4",
+      "job_id": "S04",
+      "title": "Age approximated by days/365.25",
+      "description": "Age is int((as_of - date_of_birth)/365.25). This understates the age of people whose birthday falls on or just before the reporting date (e.g. born 2000-12-31 gives 24, not 25 at 2025-12-31). That can move them across the 25 or 70 loading boundaries.",
+      "intended_behaviour": "Use the exact completed age at the reporting date (e.g. intck('year', date_of_birth, &as_of, 'c')). At 2025-12-31 this is 2025 - year(date_of_birth).",
+      "evidence_lines": [
+        24,
+        26,
+        27
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)",
+      "impact": {
+        "rows_affected": 4,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:S04",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)"
+      },
+      "source": "llm",
+      "confidence": 0.3
+    },
+    {
+      "defect_id": "S04-D5",
+      "job_id": "S04",
+      "title": "Claims experience not limited to the reporting date",
+      "description": "as_of is used only for age. Claims, payments and recoveries are taken from claims_enriched whatever their loss or reported date, so claims after the reporting date add to counts, paid, severity and loss ratio.",
+      "intended_behaviour": "Keep only claims with loss_date (or reported_date) on or before &as_of.",
+      "evidence_lines": [
+        9,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "paid",
+        "measured_on": "golden:S04",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x"
+      },
+      "source": "llm",
+      "confidence": 0.25
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "S04-D1",
+      "job_id": "S04",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.791042Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "S04-D2",
+      "job_id": "S04",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.792332Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "S04-D3",
+      "job_id": "S04",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.793415Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "S04-D4",
+      "job_id": "S04",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.794485Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "S04-D5",
+      "job_id": "S04",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.795613Z",
+      "gate": "H2"
+    }
+  ],
+  "flows": [
+    {
+      "flow_id": "F-fccb8ff930-pii",
+      "tag": "pii",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "age"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "age"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-fccb8ff930-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "age"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "age"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-8a8d7d7d83-pii",
+      "tag": "pii",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "age_load"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "age_load"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-8a8d7d7d83-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "age_load"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "age_load"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-2b0452072a-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "county"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "county_load"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "county"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "county_load"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-63be2b82be-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "county"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "score"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "county"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "score"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-77a9b3473b-pii",
+      "tag": "pii",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "score"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "score"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-77a9b3473b-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "score"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "score"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-8357198716-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "county"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "tier"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "county"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "tier"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-df22d7df1e-pii",
+      "tag": "pii",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "tier"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "tier"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    },
+    {
+      "flow_id": "F-df22d7df1e-protected",
+      "tag": "protected",
+      "source": {
+        "table": "dw.dim_customer",
+        "column": "date_of_birth"
+      },
+      "output": {
+        "table": "rpt.risk_scores",
+        "column": "tier"
+      },
+      "path": [
+        {
+          "table": "dw.dim_customer",
+          "column": "date_of_birth"
+        },
+        {
+          "table": "rpt.risk_scores",
+          "column": "tier"
+        }
+      ],
+      "job_ids": [
+        "S04"
+      ]
+    }
+  ],
+  "flow_decisions": [
+    {
+      "flow_id": "F-fccb8ff930-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.797713Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-fccb8ff930-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.798895Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-8a8d7d7d83-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.800036Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-8a8d7d7d83-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.801082Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-2b0452072a-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.802148Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-63be2b82be-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.803175Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-77a9b3473b-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.804205Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-77a9b3473b-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.805236Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-8357198716-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.806279Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-df22d7df1e-pii",
+      "decision": "reproduce_accepted",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.807310Z",
+      "gate": "H2"
+    },
+    {
+      "flow_id": "F-df22d7df1e-protected",
+      "decision": "reproduce_flagged",
+      "reason": "development run default: reproduce as-is; a protected attribute is flagged for a bias review after cut-over",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:41:01.808715Z",
+      "gate": "H2"
+    }
+  ],
+  "recon": [
+    {
+      "job_id": "S04",
+      "table": "rpt.risk_scores",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "29cd1747fbf6fdb50c379baca60519398d4aaa1b3f9c66e0e70c6e64afb0b2a5",
+      "keys": [
+        "customer_id",
+        "lob_code"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 2645,
+        "candidate": 2645,
+        "by_partition": [
+          {
+            "partition": "tier='HIGH'",
+            "legacy": 160,
+            "candidate": 160
+          },
+          {
+            "partition": "tier='LOW'",
+            "legacy": 1831,
+            "candidate": 1831
+          },
+          {
+            "partition": "tier='MEDI'",
+            "legacy": 654,
+            "candidate": 654
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "customer_id",
+          "legacy": "291480785.0",
+          "candidate": "291480785.0",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_claims",
+          "legacy": "2911.0",
+          "candidate": "2911.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "paid",
+          "legacy": "12027486.519999988",
+          "candidate": "12027486.519999987",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_recoveries",
+          "legacy": "218.0",
+          "candidate": "218.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "severity",
+          "legacy": "2644.999999999999",
+          "candidate": "2645.000000000001",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age",
+          "legacy": "140368.0",
+          "candidate": "140368.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age_load",
+          "legacy": "2881.2000000000103",
+          "candidate": "2881.20000000001",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "county_load",
+          "legacy": "2780.0500000000507",
+          "candidate": "2780.0500000000475",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "loss_ratio",
+          "legacy": "1706.2735739276122",
+          "candidate": "1706.273573927684",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "points",
+          "legacy": "48141.5",
+          "candidate": "48141.5",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "score",
+          "legacy": "55003.30999999925",
+          "candidate": "55003.30999999939",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 2645,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 2,645 rows agree record for record, compared on the keys ['customer_id', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "782e914649f237d0d2490f2875f04950c9adb653fcfa33f38514f2f68d626437",
+      "golden_sha256": "71253df912139772cc0b108ce5fab25a10cc5afdaf1f4e2ce22d26d7023e0513",
+      "candidate_sha256": "8e6b9e55ce0dcabd0445e3b4fe01f2b8ff6e7b1001d1dd176d0bfbfa70b1cf2d",
+      "started_at": "2026-11-12T02:47:28.800132Z",
+      "duration_seconds": 1.332,
+      "error": null
+    },
+    {
+      "job_id": "S04",
+      "table": "rpt.risk_scores",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "customer_id",
+        "lob_code"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 2645,
+        "candidate": 2645,
+        "by_partition": [
+          {
+            "partition": "tier='HIGH'",
+            "legacy": 160,
+            "candidate": 160
+          },
+          {
+            "partition": "tier='LOW'",
+            "legacy": 1831,
+            "candidate": 1831
+          },
+          {
+            "partition": "tier='MEDI'",
+            "legacy": 654,
+            "candidate": 654
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "customer_id",
+          "legacy": "291480785.0",
+          "candidate": "291480785.0",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_claims",
+          "legacy": "2911.0",
+          "candidate": "2911.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "paid",
+          "legacy": "12027486.519999988",
+          "candidate": "12027486.519999987",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "n_recoveries",
+          "legacy": "218.0",
+          "candidate": "218.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "severity",
+          "legacy": "2644.999999999999",
+          "candidate": "2645.000000000001",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age",
+          "legacy": "140368.0",
+          "candidate": "140368.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "age_load",
+          "legacy": "2881.2000000000103",
+          "candidate": "2881.20000000001",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "county_load",
+          "legacy": "2780.0500000000507",
+          "candidate": "2780.0500000000475",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "loss_ratio",
+          "legacy": "1706.2735739276122",
+          "candidate": "1706.273573927684",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "points",
+          "legacy": "48141.5",
+          "candidate": "48141.5",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        },
+        {
+          "column": "score",
+          "legacy": "55003.30999999925",
+          "candidate": "55003.30999999939",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-9,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 2645,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 2,645 rows agree record for record, compared on the keys ['customer_id', 'lob_code']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "782e914649f237d0d2490f2875f04950c9adb653fcfa33f38514f2f68d626437",
+      "golden_sha256": "71253df912139772cc0b108ce5fab25a10cc5afdaf1f4e2ce22d26d7023e0513",
+      "candidate_sha256": "8e6b9e55ce0dcabd0445e3b4fe01f2b8ff6e7b1001d1dd176d0bfbfa70b1cf2d",
+      "started_at": "2026-11-12T02:47:50.564243Z",
+      "duration_seconds": 4.139,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "S04-SAS-03-1",
+      "job_id": "S04",
+      "trap_id": "SAS-03",
+      "description": "Line 24: dates of birth near the 25 and 70 boundaries at AsOfDate 2025-12-31. SAS divides the day count by 365.25 and truncates, so DOB 2000-12-31 (25 by the calendar) gets age 24 and the 1.40 load. DOB 1955-12-31 gives age 70. A month- or year-based translation (months_between, year difference) gets 25 for 2000-12-31 and changes age_load. Also includes a null DOB (load 1.00) and ordinary ages.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "1",
+              "Aoife",
+              "Byrne",
+              "Aoife Byrne",
+              "AB",
+              null,
+              "0",
+              "2000-12-31",
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2020-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "2",
+              "Brian",
+              "Walsh",
+              "Brian Walsh",
+              "BW",
+              null,
+              "0",
+              "2001-01-01",
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2020-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "3",
+              "Ciara",
+              "Ryan",
+              "Ciara Ryan",
+              "CR",
+              null,
+              "0",
+              "1955-12-31",
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2010-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "4",
+              "Declan",
+              "Kelly",
+              "Declan Kelly",
+              "DK",
+              null,
+              "0",
+              "1956-01-01",
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2010-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "5",
+              "Eimear",
+              "Doyle",
+              "Eimear Doyle",
+              "ED",
+              null,
+              "0",
+              "1985-06-15",
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ],
+            [
+              "6",
+              "Fionn",
+              "Nolan",
+              "Fionn Nolan",
+              "FN",
+              null,
+              "0",
+              null,
+              null,
+              null,
+              null,
+              "Kerry",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "101.0",
+              "CL101",
+              null,
+              "1.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "102.0",
+              "CL102",
+              null,
+              "2.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "103.0",
+              "CL103",
+              null,
+              "3.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "104.0",
+              "CL104",
+              null,
+              "4.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "105.0",
+              "CL105",
+              null,
+              "5.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "106.0",
+              "CL106",
+              null,
+              "6.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "4000.0",
+              "4000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "4000.0",
+              "4000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "C",
+              "10.0",
+              "10.0",
+              "4000.0",
+              "4000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "D",
+              "10.0",
+              "10.0",
+              "4000.0",
+              "4000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "E",
+              "10.0",
+              "10.0",
+              "4000.0",
+              "4000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "S04-SAS-10-2",
+      "job_id": "S04",
+      "trap_id": "SAS-10",
+      "description": "Lines 66-69: severity is paid divided by the remerged mean of paid within one line. MOT customers paid 100, 300 and 800 (line mean 400, so severity 0.25, 0.75 and 2.0). HOM customers paid 2000 and 1000 (mean 1500). One TRV customer has severity 1. A naive translation that uses the overall mean, or no remerge (paid/paid = 1), gets different severity and sev_points.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "11",
+              "Gav",
+              "Lynch",
+              "Gav Lynch",
+              "GL",
+              null,
+              "0",
+              "1980-03-10",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "12",
+              "Hugh",
+              "Burke",
+              "Hugh Burke",
+              "HB",
+              null,
+              "0",
+              "1975-07-20",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "13",
+              "Isla",
+              "Quinn",
+              "Isla Quinn",
+              "IQ",
+              null,
+              "0",
+              "1990-01-05",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "14",
+              "Jack",
+              "Moore",
+              "Jack Moore",
+              "JM",
+              null,
+              "0",
+              "1965-11-11",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "15",
+              "Kate",
+              "Power",
+              "Kate Power",
+              "KP",
+              null,
+              "0",
+              "1988-04-04",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ],
+            [
+              "16",
+              "Liam",
+              "Hayes",
+              "Liam Hayes",
+              "LH",
+              null,
+              "0",
+              "1970-09-09",
+              null,
+              null,
+              null,
+              "Mayo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "201.0",
+              "CL201",
+              null,
+              "11.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "202.0",
+              "CL202",
+              null,
+              "12.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "300.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "203.0",
+              "CL203",
+              null,
+              "13.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "500.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "204.0",
+              "CL204",
+              null,
+              "13.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "300.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "205.0",
+              "CL205",
+              null,
+              "14.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "1.0",
+              "2000.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "206.0",
+              "CL206",
+              null,
+              "15.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "1000.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "207.0",
+              "CL207",
+              null,
+              "16.0",
+              "TRV",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "50.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "5000.0",
+              "5000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "5000.0",
+              "5000.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "A",
+              "10.0",
+              "10.0",
+              "6000.0",
+              "6000.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "B",
+              "10.0",
+              "10.0",
+              "6000.0",
+              "6000.0",
+              "2025-12-31"
+            ],
+            [
+              "TRV",
+              "A",
+              "10.0",
+              "10.0",
+              "1000.0",
+              "1000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "S04-SAS-15-3",
+      "job_id": "S04",
+      "trap_id": "SAS-15",
+      "description": "Line 96: the line loss ratios put 2.5*loss_ratio exactly on a half-unit boundary (MOT about 0.3 → 0.75, HOM 0.1 → 0.25, TRV 0.7 → 1.75), with decimal paid sums that carry binary error. SAS round(x, 0.5) rounds halves away from zero with fuzz (0.75 → 1.0, 0.25 → 0.5, 1.75 → 2.0). A naive F.round(x, 0.5)/bround, or a floor without fuzz, gets a different lob_points.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "41",
+              "Mary",
+              "Daly",
+              "Mary Daly",
+              "MD",
+              null,
+              "0",
+              "1980-01-01",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "42",
+              "Niall",
+              "Shea",
+              "Niall Shea",
+              "NS",
+              null,
+              "0",
+              "1981-02-02",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "43",
+              "Orla",
+              "Healy",
+              "Orla Healy",
+              "OH",
+              null,
+              "0",
+              "1982-03-03",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "44",
+              "Paul",
+              "Foley",
+              "Paul Foley",
+              "PF",
+              null,
+              "0",
+              "1983-04-04",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "45",
+              "Rose",
+              "Casey",
+              "Rose Casey",
+              "RC",
+              null,
+              "0",
+              "1984-05-05",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ],
+            [
+              "46",
+              "Sean",
+              "Tobin",
+              "Sean Tobin",
+              "ST",
+              null,
+              "0",
+              "1985-06-06",
+              null,
+              null,
+              null,
+              "Sligo",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "6"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "401.0",
+              "CL401",
+              null,
+              "41.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.1",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "402.0",
+              "CL402",
+              null,
+              "42.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "99.9",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "403.0",
+              "CL403",
+              null,
+              "43.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "404.0",
+              "CL404",
+              null,
+              "44.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "0.1",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "405.0",
+              "CL405",
+              null,
+              "44.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "0.2",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "406.0",
+              "CL406",
+              null,
+              "45.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "99.7",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "407.0",
+              "CL407",
+              null,
+              "46.0",
+              "TRV",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "700.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "400.0",
+              "400.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "600.0",
+              "600.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "A",
+              "10.0",
+              "10.0",
+              "300.0",
+              "300.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "B",
+              "10.0",
+              "10.0",
+              "700.0",
+              "700.0",
+              "2025-12-31"
+            ],
+            [
+              "TRV",
+              "A",
+              "10.0",
+              "10.0",
+              "1000.0",
+              "1000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "S04-SAS-15-4",
+      "job_id": "S04",
+      "trap_id": "SAS-15",
+      "description": "Line 98: points multiplied by binary loads land on half-cents. Young Dublin customers give 12.5*1.4*1.15 = 20.125 and 17.5*1.4*1.15 = 28.175. A Dublin customer aged 40 gives 12.5*1.15 = 14.375 and 37.5*1.15 = 43.125. The binary products sit just below the half, so Spark F.round goes down where SAS's fuzzed round goes up. A Galway customer over 70 gives 45.9375 as a control. The line loss ratio is small, so lob_points is 0.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "21",
+              "Tara",
+              "Kane",
+              "Tara Kane",
+              "TK",
+              null,
+              "0",
+              "2003-05-05",
+              null,
+              null,
+              null,
+              "Dublin",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2022-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "22",
+              "Ugo",
+              "Reid",
+              "Ugo Reid",
+              "UR",
+              null,
+              "0",
+              "1985-05-05",
+              null,
+              null,
+              null,
+              "Dublin",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "23",
+              "Vera",
+              "Carr",
+              "Vera Carr",
+              "VC",
+              null,
+              "0",
+              "2004-08-08",
+              null,
+              null,
+              null,
+              " dublin ",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2023-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "24",
+              "Will",
+              "Egan",
+              "Will Egan",
+              "WE",
+              null,
+              "0",
+              "1950-02-02",
+              null,
+              null,
+              null,
+              "Galway",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2000-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "25",
+              "Zoe",
+              "Flynn",
+              "Zoe Flynn",
+              "ZF",
+              null,
+              "0",
+              "1985-09-09",
+              null,
+              null,
+              null,
+              "DUBLIN",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "301.0",
+              "CL301",
+              null,
+              "21.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "302.0",
+              "CL302",
+              null,
+              "22.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "303.0",
+              "CL303",
+              null,
+              "23.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "400.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "304.0",
+              "CL304",
+              null,
+              "24.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "600.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "305.0",
+              "CL305",
+              null,
+              "24.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "400.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "306.0",
+              "CL306",
+              null,
+              "25.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "1.0",
+              "200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "307.0",
+              "CL307",
+              null,
+              "25.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "C",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "D",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "E",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "S04-SAS-11-5",
+      "job_id": "S04",
+      "trap_id": "SAS-11",
+      "description": "Lines 99-100: scores fall in all three tiers. One customer is LOW (12.5), three are MEDIUM (25, 23 for a Dublin customer with a recovery, 25) and one is HIGH (60). SAS fixes tier at length 4 from 'HIGH', so the medium rows come out as 'MEDI'. A naive translation writes 'MEDIUM'.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "31",
+              "Amy",
+              "Roche",
+              "Amy Roche",
+              "AR",
+              null,
+              "0",
+              "1980-01-15",
+              null,
+              null,
+              null,
+              "Louth",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "32",
+              "Ben",
+              "Duffy",
+              "Ben Duffy",
+              "BD",
+              null,
+              "0",
+              "1979-02-15",
+              null,
+              null,
+              null,
+              "Louth",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "33",
+              "Cian",
+              "Gill",
+              "Cian Gill",
+              "CG",
+              null,
+              "0",
+              "1978-03-15",
+              null,
+              null,
+              null,
+              "Louth",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "34",
+              "Dara",
+              "Hogan",
+              "Dara Hogan",
+              "DH",
+              null,
+              "0",
+              "1977-04-15",
+              null,
+              null,
+              null,
+              "Dublin",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "35",
+              "Emma",
+              "Joyce",
+              "Emma Joyce",
+              "EJ",
+              null,
+              "0",
+              "1976-05-15",
+              null,
+              null,
+              null,
+              "Louth",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "501.0",
+              "CL501",
+              null,
+              "31.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "100.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "502.0",
+              "CL502",
+              null,
+              "32.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "503.0",
+              "CL503",
+              null,
+              "32.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "504.0",
+              "CL504",
+              null,
+              "33.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "375.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "505.0",
+              "CL505",
+              null,
+              "33.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "375.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "506.0",
+              "CL506",
+              null,
+              "33.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "375.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "507.0",
+              "CL507",
+              null,
+              "33.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "375.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "508.0",
+              "CL508",
+              null,
+              "34.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "1.0",
+              "200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "509.0",
+              "CL509",
+              null,
+              "35.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "150.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "510.0",
+              "CL510",
+              null,
+              "35.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "150.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "C",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "D",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "E",
+              "10.0",
+              "10.0",
+              "20000.0",
+              "20000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "S04-SAS-03-6",
+      "job_id": "S04",
+      "trap_id": "SAS-03",
+      "description": "Lines 102-103: as_of_date is the SAS day count for 2025-12-31 (23740) shown with yymmdd10. Every output row carries it. A naive translation that writes the raw number, or counts days from the 1970 epoch, gives a wrong date. The rows use several lines and customers, including one with no customer match (customer 99 is absent from dim_customer), so the left join still produces rows.",
+      "inputs": [
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "51",
+              "Fay",
+              "Kehoe",
+              "Fay Kehoe",
+              "FK",
+              null,
+              "0",
+              "1960-01-01",
+              null,
+              null,
+              null,
+              "Cork",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "1"
+            ],
+            [
+              "52",
+              "Gus",
+              "Lane",
+              "Gus Lane",
+              "GL",
+              null,
+              "0",
+              "1970-01-01",
+              null,
+              null,
+              null,
+              "Limerick",
+              "MUNSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "2"
+            ],
+            [
+              "53",
+              "Ivy",
+              "Mann",
+              "Ivy Mann",
+              "IM",
+              null,
+              "0",
+              "1995-12-31",
+              null,
+              null,
+              null,
+              null,
+              "MUNSTER",
+              null,
+              "N",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "3"
+            ],
+            [
+              "54",
+              "Jon",
+              "Nash",
+              "Jon Nash",
+              "JN",
+              null,
+              "0",
+              null,
+              null,
+              null,
+              null,
+              "Galway",
+              "CONNACHT",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "4"
+            ],
+            [
+              "55",
+              "Kim",
+              "Owens",
+              "Kim Owens",
+              "KO",
+              null,
+              "0",
+              "1988-07-07",
+              null,
+              null,
+              null,
+              "Wexford",
+              "LEINSTER",
+              null,
+              "Y",
+              null,
+              "Y",
+              "N",
+              "2015-01-01",
+              "CRM",
+              "1",
+              "2025-12-01T00:00:00",
+              "2025-12-31",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.claims_enriched",
+          "columns": [
+            "claim_id",
+            "claim_number",
+            "policy_id",
+            "customer_id",
+            "lob_code",
+            "loss_date",
+            "reported_date",
+            "status",
+            "n_payments",
+            "n_recoveries",
+            "total_paid",
+            "indemnity_amt",
+            "expense_amt",
+            "recovery_amt",
+            "first_payment_date",
+            "last_payment_date",
+            "recovery_flag",
+            "has_payment",
+            "gross_paid",
+            "net_paid"
+          ],
+          "rows": [
+            [
+              "601.0",
+              "CL601",
+              null,
+              "51.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "250.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "602.0",
+              "CL602",
+              null,
+              "52.0",
+              "MOT",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "750.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "603.0",
+              "CL603",
+              null,
+              "53.0",
+              "HOM",
+              null,
+              null,
+              "OPEN",
+              "1.0",
+              "0.0",
+              "1200.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "604.0",
+              "CL604",
+              null,
+              "54.0",
+              "HOM",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "1.0",
+              "800.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "605.0",
+              "CL605",
+              null,
+              "55.0",
+              "TRV",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "90.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              "606.0",
+              "CL606",
+              null,
+              "99.0",
+              "TRV",
+              null,
+              null,
+              "CLOSED",
+              "1.0",
+              "0.0",
+              "110.0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          ]
+        },
+        {
+          "table": "rpt.premium_band_summary",
+          "columns": [
+            "lob_code",
+            "prem_band",
+            "n_policies",
+            "n_transactions",
+            "written_eur",
+            "earned_eur",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "MOT",
+              "A",
+              "10.0",
+              "10.0",
+              "5000.0",
+              "5000.0",
+              "2025-12-31"
+            ],
+            [
+              "MOT",
+              "B",
+              "10.0",
+              "10.0",
+              "5000.0",
+              "5000.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "A",
+              "10.0",
+              "10.0",
+              "8000.0",
+              "8000.0",
+              "2025-12-31"
+            ],
+            [
+              "HOM",
+              "B",
+              "10.0",
+              "10.0",
+              "8000.0",
+              "8000.0",
+              "2025-12-31"
+            ],
+            [
+              "TRV",
+              "A",
+              "10.0",
+              "10.0",
+              "2000.0",
+              "2000.0",
+              "2025-12-31"
+            ]
+          ]
+        }
+      ],
+      "expected": null,
+      "expected_source": "contract",
+      "path": "test_s04.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "5fd4c9bda11f4b348bc6f07fc2602633",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "S04",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "bf203a1184ab627db385931343474a459ea235987c250def0918caff9c1ecbf4",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 2097,
+      "cache_read_tokens": 1302,
+      "cache_creation_tokens": 6380,
+      "duration_ms": 21876,
+      "cost_usd_equivalent": 0.09324840000000001,
+      "replayed": true
+    },
+    {
+      "call_id": "a48781b38b4543aa9cefd4dc6e7e3a66",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "S04",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "a215f35de6a6f51bdc17526616b42a01955b64b6363ce079638c86e45ff68530",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5854,
+      "cache_read_tokens": 1862,
+      "cache_creation_tokens": 3495,
+      "duration_ms": 47562,
+      "cost_usd_equivalent": 0.14542039999999998,
+      "replayed": true
+    },
+    {
+      "call_id": "20d224c959774edfb332ddf7b03a3082",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "S04",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "787cabe94a9b96265416d5b2edc0780c94e5452502d2556ce64b7f1674130aa8",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 561,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 2641,
+      "duration_ms": 6563,
+      "cost_usd_equivalent": 0.032535800000000004,
+      "replayed": true
+    },
+    {
+      "call_id": "ebbbfaae47f544d3a808775275969959",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "S04",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "acf7151bccf8272f1db42f4fea7bd1204a9edb85921b109805a940f96097b4db",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 6245,
+      "cache_read_tokens": 1364,
+      "cache_creation_tokens": 3212,
+      "duration_ms": 62721,
+      "cost_usd_equivalent": 0.15087679999999998,
+      "replayed": true
+    },
+    {
+      "call_id": "2e925f06ac894adfa76cedf45b8e4d8f",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "S04",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "c7b5b30e50c8b632b42f9085c352f16acbe94bc9d63a3be124f8ba426bd93e0c",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 9179,
+      "cache_read_tokens": 2189,
+      "cache_creation_tokens": 8029,
+      "duration_ms": 78918,
+      "cost_usd_equivalent": 0.24825779999999997,
+      "replayed": true
+    },
+    {
+      "call_id": "9acebf39aa8248fa9f15ee64d35b33e8",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "S04",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "1c0257528c280e3cd298206e5071092ac4a6f0c43f4ec32ccb1a896792bfeae8",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 18348,
+      "cache_read_tokens": 1416,
+      "cache_creation_tokens": 4085,
+      "duration_ms": 141901,
+      "cost_usd_equivalent": 0.3999312,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "ef8e10c766fa",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "S04"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: lineage agent notes: - n_claims is COUNT(*). No input column feeds its value, so I recorded it as coming from dw.claims_enriched.customer_id (a grouping key) at",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/S04/discovery.json",
+          "sha256": "79f3bbc7aa89295faf9e9811d91d304bf0a906f10f26985ea14143b5e5132c7f"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/S04/lineage.json",
+          "sha256": "35f557ec61e4dcfaf8761f79c3ed7f279b7793864499ddeaec6c4ba6849a46ab"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/S04/traps.json",
+          "sha256": "3cd3ee4e48349e1a862c35ab405f687b7be09e0e1152a11f7a0ba52a933d5097"
+        }
+      ],
+      "warnings": [
+        "lineage agent notes: - n_claims is COUNT(*). No input column feeds its value, so I recorded it as coming from dw.claims_enriched.customer_id (a grouping key) at low confidence. The same applies to points, score and tier through n_claims.\n- severity divides paid by MEAN(paid) without a GROUP BY. SAS fills that mean in across every row of each per-line table, so it is the average over that line's customers. PySpark needs a window over lob_code to match.\n- Only lines MOT, HOM and TRV survive (lines 69 and 74). Rows match lob_code exactly; trailing blanks in char 5 are ignored when SAS compares strings.\n- Both joins on lines 84–85 are LEFT joins, so they keep every row. They could still duplicate rows if dw.dim_customer has more than one row per customer_id. dim_customer has version_count and _row_seq, which suggests it may keep history. The scoring step does not dedup.\n- loss_ratio comes from an inner join with rpt.premium_band_summary (line 55). A line with no premium rows gets a missing loss_ratio. That makes lob_points, points, score and tier missing too, and a missing score falls to tier 'LOW'.\n- If date_of_birth is missing, age is missing and age_load is 1.00.\n- The ORDER BY on line 86 only sorts the rows. It decides no row survival, so I recorded no ranks edges."
+      ],
+      "shown_at": "2026-11-12T02:39:50.457176Z",
+      "decided_at": "2026-11-12T02:39:50.457195Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "d5badc22a49faf8f1ee9f2588e034cef189b821bc707a8f57974d1f01fa02ff8"
+    },
+    {
+      "decision_id": "1cfe63b8673e",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "S04"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: blank_is_null on rpt.risk_scores.lob_code: SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is m; float_rel on rpt.risk_scores.n_claims: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last ; float_rel on rpt.risk_scores.paid: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits; float_rel on rpt.risk_scores.n_recoveries: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the l; float_rel on rpt.risk_scores.severity: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last ; float_rel on rpt.risk_scores.age: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits,; float_rel on rpt.risk_scores.age_load: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last ; float_rel on rpt.risk_scores.county_load: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the la; float_rel on rpt.risk_scores.loss_ratio: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the las; float_rel on rpt.risk_scores.points: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bi; float_rel on rpt.risk_scores.score: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bit; blank_is_null on rpt.risk_scores.tier: SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missi",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/S04/contracts/rpt.risk_scores.json",
+          "sha256": "50f226be8182d9452061f368faa8c164757f87a5531f1072be2d53721909573f"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/S04/defects.json",
+          "sha256": "7482a49c65c6ebe6ca68d8392beccc9b3797659d8fb05b7ec5818d5a5f4636be"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/S04/flows.json",
+          "sha256": "4e1d077844193c94603d4b7bc6a11c43eba9d841b3a7d7780d3873eb06bb4f46"
+        }
+      ],
+      "warnings": [
+        "blank_is_null on rpt.risk_scores.lob_code: SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "float_rel on rpt.risk_scores.n_claims: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.paid: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.n_recoveries: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.severity: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.age: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.age_load: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.county_load: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.loss_ratio: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.points: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "float_rel on rpt.risk_scores.score: SAS stores every number as an 8-byte double and adds them in input order; a migrated sum or ratio may differ in the last bits, so values agree within a relative 1e-9",
+        "blank_is_null on rpt.risk_scores.tier: SAS character values are blank-padded and SAS has no empty string: trailing blanks are padding and a blank value is missing, so blank and NULL are the same value",
+        "S04-D1 suspected defect: Hard-coded line-of-business list drops other lines (0 rows)",
+        "S04-D2 suspected defect: Missing inputs make the score missing and silently tier the row LOW (0 rows)",
+        "S04-D3 suspected defect: Customer dimension join can multiply score rows (0 rows)",
+        "S04-D4 suspected defect: Age approximated by days/365.25 (4 rows)",
+        "S04-D5 suspected defect: Claims experience not limited to the reporting date (0 rows)",
+        "pii column dw.dim_customer.date_of_birth flows into rpt.risk_scores.age",
+        "protected column dw.dim_customer.date_of_birth flows into rpt.risk_scores.age",
+        "pii column dw.dim_customer.date_of_birth flows into rpt.risk_scores.age_load",
+        "protected column dw.dim_customer.date_of_birth flows into rpt.risk_scores.age_load",
+        "protected column dw.dim_customer.county flows into rpt.risk_scores.county_load",
+        "protected column dw.dim_customer.county flows into rpt.risk_scores.score",
+        "pii column dw.dim_customer.date_of_birth flows into rpt.risk_scores.score",
+        "protected column dw.dim_customer.date_of_birth flows into rpt.risk_scores.score",
+        "protected column dw.dim_customer.county flows into rpt.risk_scores.tier",
+        "pii column dw.dim_customer.date_of_birth flows into rpt.risk_scores.tier",
+        "protected column dw.dim_customer.date_of_birth flows into rpt.risk_scores.tier"
+      ],
+      "shown_at": "2026-11-12T02:41:01.811935Z",
+      "decided_at": "2026-11-12T02:41:01.813053Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "3e52a76295920d805c2bfd4a67bc4d2cd1887ee9446599d82490f59e729b36df"
+    },
+    {
+      "decision_id": "1385091fcea3",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "S04"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: as_of_date: built from the text parameter with to_date instead of a SAS day count; the value is the same. Joins: SAS PROC SQL joins treat miss",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/S04/jobs/s04.py",
+          "sha256": "29cd1747fbf6fdb50c379baca60519398d4aaa1b3f9c66e0e70c6e64afb0b2a5"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/S04/guardrails.json",
+          "sha256": "c76d05d54bbdc12af0108a94ce25d5b9999e23ecf2f87bc369b22813e1d71b82"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/S04/tests.json",
+          "sha256": "dbbdfdd5077323716071333acd9efa8ceeba4b6e8fff4aceeedf3f0857d6663e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/S04/tests/cases/s04.json",
+          "sha256": "0b1fcce1159ae5ba4d6a6b48f734701a455466bd034c504fdd4b22f3a5d95cab"
+        }
+      ],
+      "warnings": [
+        "translator notes: as_of_date: built from the text parameter with to_date instead of a SAS day count; the value is the same. Joins: SAS PROC SQL joins treat missing keys as equal, so the lob_ratio and scoring joins use eqNullSafe; this only matters for rows with a missing customer_id. lob_code: trailing blanks are trimmed and a blank becomes null before grouping and filtering, to match SAS char comparison. Division by zero: severity and loss_ratio use try_divide, so dividing by zero gives a missing value as in SAS. lob_ratio: joined first, then grouped by (lob_code, earned), in the legacy order. Rounding: round(x, unit) uses the SAS-15 decimal method. For the 0.5 unit the intermediate decimal keeps 9 places, which only changes values within 1e-9 of a half and there acts like SAS's fuzz. Row order: the output does not depend on row order, because the ORDER BY only sorts and the final DATA step has no RETAIN or LAG."
+      ],
+      "shown_at": "2026-11-12T02:44:56.215780Z",
+      "decided_at": "2026-11-12T02:44:56.217011Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "8a6a34cf54ae45694397bc56d3b0c1447e4596352765f2f89c45a88cca28c258"
+    },
+    {
+      "decision_id": "7961bfb35b1c",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "S04"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/S04/recon/rpt.risk_scores.json",
+          "sha256": "5696f6eed63138714e7ef1c88d1a8405ff5374f7b2c94d419511de6fe3dd606f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/S04/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:45:06.529998Z",
+      "decided_at": "2026-11-12T02:45:06.531074Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "ab4978ab5fc9d1904ea45756214db7e7544ecc0c89fdb9a14fd44364fa1a120f"
+    },
+    {
+      "decision_id": "2fdda78898e0",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "S04"
+      ],
+      "wave": 5,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/S04/operate.json",
+          "sha256": "258b1e9933f6efb060d27e0c3de6cbc2b6107b4d7c128686c804f49de3262c52"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:47:55.110240Z",
+      "decided_at": "2026-11-12T02:47:55.111399Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "601eebba6dc50f79b2edca2b34b0122e4cc0a60a131527e0e443b33255aba4fd"
+    }
+  ]
+}

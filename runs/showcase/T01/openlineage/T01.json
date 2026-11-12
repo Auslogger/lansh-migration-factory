@@ -1,0 +1,595 @@
+{
+  "eventTime": "2026-11-12T02:18:14.017007+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "string"
+            },
+            {
+              "name": "last_name",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "date_of_birth",
+              "type": "date"
+            },
+            {
+              "name": "address_line1",
+              "type": "string"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "county",
+              "type": "string"
+            },
+            {
+              "name": "eircode",
+              "type": "string"
+            },
+            {
+              "name": "segment_code",
+              "type": "string"
+            },
+            {
+              "name": "marketing_opt_in",
+              "type": "string"
+            },
+            {
+              "name": "customer_since",
+              "type": "date"
+            },
+            {
+              "name": "source_system",
+              "type": "string"
+            },
+            {
+              "name": "updated_at",
+              "type": "timestamp_ntz"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.customers",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T01.usp_load_dim_customer",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "address_line1": {
+              "inputFields": [
+                {
+                  "field": "address_line1",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "age_at_join": {
+              "inputFields": [
+                {
+                  "field": "date_of_birth",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(YEAR, date_of_birth, customer_since) (year-boundary count)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "customer_since",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(YEAR, date_of_birth, customer_since)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "county": {
+              "inputFields": [
+                {
+                  "field": "county",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_id": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_since": {
+              "inputFields": [
+                {
+                  "field": "customer_since",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "date_of_birth": {
+              "inputFields": [
+                {
+                  "field": "date_of_birth",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "eircode": {
+              "inputFields": [
+                {
+                  "field": "eircode",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "eircode_valid": {
+              "inputFields": [
+                {
+                  "field": "eircode",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE LEN(eircode)=7 -> Y; LEN=8 AND 4th char ' ' -> Y; ELSE N",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "email": {
+              "inputFields": [
+                {
+                  "field": "email",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "email_shared_count": {
+              "inputFields": [
+                {
+                  "field": "email",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN email IS NULL THEN 0 ELSE COUNT(*) OVER (PARTITION BY email) over surviving rows",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "first_name": {
+              "inputFields": [
+                {
+                  "field": "first_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "RTRIM(first_name)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "full_name": {
+              "inputFields": [
+                {
+                  "field": "first_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "last_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "initials": {
+              "inputFields": [
+                {
+                  "field": "first_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(SUBSTRING(first_name,0,2) + ...) - SUBSTRING from 0 yields first char only",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "last_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(... + SUBSTRING(last_name,0,2)) - first char only",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "is_standard_segment": {
+              "inputFields": [
+                {
+                  "field": "segment_code",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN segment_code = 'STD' THEN 'Y' ELSE 'N'",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "last_name": {
+              "inputFields": [
+                {
+                  "field": "last_name",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct (not trimmed)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "marketing_opt_in": {
+              "inputFields": [
+                {
+                  "field": "marketing_opt_in",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ISNULL(marketing_opt_in, 'N')",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "record_updated_at": {
+              "inputFields": [
+                {
+                  "field": "updated_at",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct (updated_at of surviving version)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "region": {
+              "inputFields": [
+                {
+                  "field": "county",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE county IN (...) -> EAST/SOUTH/WEST/NORTH-WEST/MIDLANDS ELSE UNKNOWN",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "segment_code": {
+              "inputFields": [
+                {
+                  "field": "segment_code",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "source_system": {
+              "inputFields": [
+                {
+                  "field": "source_system",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(RTRIM(source_system))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "town": {
+              "inputFields": [
+                {
+                  "field": "town",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "version_count": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "bronze.customers",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "COUNT(*) OVER (PARTITION BY customer_id) over versions with updated_at <= @AsOfDate",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "string"
+            },
+            {
+              "name": "last_name",
+              "type": "string"
+            },
+            {
+              "name": "full_name",
+              "type": "string"
+            },
+            {
+              "name": "initials",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "email_shared_count",
+              "type": "int"
+            },
+            {
+              "name": "date_of_birth",
+              "type": "date"
+            },
+            {
+              "name": "age_at_join",
+              "type": "int"
+            },
+            {
+              "name": "address_line1",
+              "type": "string"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "county",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "eircode",
+              "type": "string"
+            },
+            {
+              "name": "eircode_valid",
+              "type": "string"
+            },
+            {
+              "name": "segment_code",
+              "type": "string"
+            },
+            {
+              "name": "is_standard_segment",
+              "type": "string"
+            },
+            {
+              "name": "marketing_opt_in",
+              "type": "string"
+            },
+            {
+              "name": "customer_since",
+              "type": "date"
+            },
+            {
+              "name": "source_system",
+              "type": "string"
+            },
+            {
+              "name": "version_count",
+              "type": "int"
+            },
+            {
+              "name": "record_updated_at",
+              "type": "timestamp_ntz"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_customer",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:18:14.017007+00:00",
+        "nominalStartTime": "2026-11-12T02:17:53.352615+00:00"
+      }
+    },
+    "runId": "971d3c1c-39e0-55ce-b679-f75fcbe46a0a"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

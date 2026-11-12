@@ -1,0 +1,1537 @@
+[
+  {
+    "confidence": 0.7,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.474732Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D1",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D1",
+    "description": "For claims with no payments (not p), the merge leaves indemnity_amt, expense_amt and recovery_amt missing. The not-p block (lines 96-101) only resets n_payments, n_recoveries, total_paid and recovery_flag. gross_paid uses '+' on missing values and net_paid is sum() of only missing values, so both come out missing instead of 0.",
+    "evidence_lines": [
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      103,
+      104
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(*) AS rows_affected, CAST(0 AS DOUBLE) AS amount_affected FROM golden_dw_claims_enriched WHERE has_payment = 0 AND (indemnity_amt IS NULL OR expense_amt IS NULL OR recovery_amt IS NULL OR gross_paid IS NULL OR net_paid IS NULL)",
+      "rows_affected": 445
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, CAST(0 AS DOUBLE) AS amount_affected FROM golden_dw_claims_enriched WHERE has_payment = 0 AND (indemnity_amt IS NULL OR expense_amt IS NULL OR recovery_amt IS NULL OR gross_paid IS NULL OR net_paid IS NULL)",
+    "intended_behaviour": "CR-1873 keeps unpaid claims with explicit zeros. indemnity_amt, expense_amt and recovery_amt should be set to 0 in the not-p block, so that gross_paid and net_paid are 0.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Split amounts, gross_paid and net_paid left missing for claims with no payments"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.474909Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D2",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D2",
+    "description": "total_paid uses the sum statement, which ignores missing values. The type split uses 'indemnity_amt = indemnity_amt + amount' (and the same for expense and recovery). One missing amount therefore makes that bucket missing, and it stays missing for every later payment on the claim. gross_paid and net_paid are then wrong as well.",
+    "evidence_lines": [
+      64,
+      68,
+      69,
+      70,
+      103
+    ],
+    "impact": {
+      "amount_affected": "294434.65",
+      "amount_column": "indemnity_amt",
+      "measured_on": "golden:S01",
+      "query": "WITH p AS (SELECT cp.claim_id, upper(trim(cp.payment_type)) AS pt, cp.amount FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND cp.claim_id IN (SELECT claim_id FROM stg_claims)), b AS (SELECT claim_id, pt, SUM(amount) AS s, MAX(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS has_null FROM p WHERE pt IN ('INDEMNITY','EXPENSE','RECOVERY') GROUP BY claim_id, pt) SELECT COUNT(DISTINCT claim_id) AS rows_affected, COALESCE(SUM(ABS(COALESCE(s,0))),0) AS amount_affected FROM b WHERE has_null = 1",
+      "rows_affected": 86
+    },
+    "impact_query": "WITH p AS (SELECT cp.claim_id, upper(trim(cp.payment_type)) AS pt, cp.amount FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND cp.claim_id IN (SELECT claim_id FROM stg_claims)), b AS (SELECT claim_id, pt, SUM(amount) AS s, MAX(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS has_null FROM p WHERE pt IN ('INDEMNITY','EXPENSE','RECOVERY') GROUP BY claim_id, pt) SELECT COUNT(DISTINCT claim_id) AS rows_affected, COALESCE(SUM(ABS(COALESCE(s,0))),0) AS amount_affected FROM b WHERE has_null = 1",
+    "intended_behaviour": "Add up the split the same way as total_paid, ignoring missing amounts (sum statement or sum()), so the bucket holds the sum of the amounts that are known.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "A missing payment amount wipes out the payment-type bucket for the rest of the claim"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.475039Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D3",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D3",
+    "description": "Payments are sorted by claim_id and _row_seq (the order they were keyed). first_payment_date is the date on the first keyed row and last_payment_date is the date on the last keyed row. If payments were keyed out of date order, these are not the earliest and latest payment dates.",
+    "evidence_lines": [
+      35,
+      38,
+      60,
+      78
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "WITH m AS (SELECT claim_id, MIN(payment_date) AS mn, MAX(payment_date) AS mx, SUM(CASE WHEN payment_date IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN m ON g.claim_id = m.claim_id WHERE m.n_null = 0 AND (NOT (g.first_payment_date <=> m.mn) OR NOT (g.last_payment_date <=> m.mx))",
+      "rows_affected": 73
+    },
+    "impact_query": "WITH m AS (SELECT claim_id, MIN(payment_date) AS mn, MAX(payment_date) AS mx, SUM(CASE WHEN payment_date IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN m ON g.claim_id = m.claim_id WHERE m.n_null = 0 AND (NOT (g.first_payment_date <=> m.mn) OR NOT (g.last_payment_date <=> m.mx))",
+    "intended_behaviour": "first_payment_date = min(payment_date) and last_payment_date = max(payment_date) over the claim's payments up to the reporting date.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "First and last payment dates taken from keying order, not from the dates"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.475157Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D4",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D4",
+    "description": "In SAS a missing date is lower than any value, so where=(payment_date <= &as_of) keeps payments with no date. Undated payments are counted in n_payments and total_paid, and the type split, and can make first_payment_date or last_payment_date missing.",
+    "evidence_lines": [
+      36,
+      60,
+      63,
+      64,
+      78
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "total_paid",
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE cp.payment_date IS NULL AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE cp.payment_date IS NULL AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+    "intended_behaviour": "Keep only payments with a known date on or before the reporting date (INC-1677): add 'and not missing(payment_date)'.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Payments with a missing payment_date get past the reporting-date filter"
+  },
+  {
+    "confidence": 0.4,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.475270Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D5",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D5",
+    "description": "recovery_amt is built from payment_type = 'RECOVERY', but n_recoveries and recovery_flag count every negative amount. Negative indemnity or expense corrections (reversals) are therefore counted and flagged as recoveries, and any RECOVERY row keyed with a positive amount is missed.",
+    "evidence_lines": [
+      67,
+      70,
+      72,
+      73,
+      74,
+      75
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S01",
+      "query": "WITH p AS (SELECT claim_id, upper(trim(payment_type)) AS pt, amount FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL), c AS (SELECT claim_id, SUM(CASE WHEN amount < 0 THEN 1 ELSE 0 END) AS n_neg, SUM(CASE WHEN pt = 'RECOVERY' THEN 1 ELSE 0 END) AS n_rec FROM p GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN c ON g.claim_id = c.claim_id WHERE c.n_neg <> c.n_rec",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH p AS (SELECT claim_id, upper(trim(payment_type)) AS pt, amount FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' OR payment_date IS NULL), c AS (SELECT claim_id, SUM(CASE WHEN amount < 0 THEN 1 ELSE 0 END) AS n_neg, SUM(CASE WHEN pt = 'RECOVERY' THEN 1 ELSE 0 END) AS n_rec FROM p GROUP BY claim_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_claims_enriched g JOIN c ON g.claim_id = c.claim_id WHERE c.n_neg <> c.n_rec",
+    "intended_behaviour": "Identify a recovery the same way recovery_amt does, i.e. payment_type = 'RECOVERY', so that n_recoveries, recovery_flag and recovery_amt agree.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Recoveries identified by a negative amount, not by payment_type"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.475383Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D6",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D6",
+    "description": "total_paid includes every payment. The split only recognises INDEMNITY, EXPENSE and RECOVERY. Payments with any other or missing payment_type are left out of indemnity_amt, expense_amt and recovery_amt, so gross_paid and net_paid do not add up to total_paid.",
+    "evidence_lines": [
+      67,
+      68,
+      69,
+      70,
+      103,
+      104
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "net_paid",
+      "measured_on": "golden:S01",
+      "query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND (cp.payment_type IS NULL OR upper(trim(cp.payment_type)) NOT IN ('INDEMNITY','EXPENSE','RECOVERY')) AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(DISTINCT cp.claim_id) AS rows_affected, COALESCE(SUM(ABS(cp.amount)),0) AS amount_affected FROM stg_claim_payments cp WHERE (cp.payment_date <= DATE'2025-12-31' OR cp.payment_date IS NULL) AND (cp.payment_type IS NULL OR upper(trim(cp.payment_type)) NOT IN ('INDEMNITY','EXPENSE','RECOVERY')) AND cp.claim_id IN (SELECT claim_id FROM golden_dw_claims_enriched)",
+    "intended_behaviour": "Every payment should go to a bucket (or an 'other' bucket) so that net_paid matches total_paid, or such types should be rejected explicitly.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Payment types outside the three known values are dropped from the split and from gross/net paid"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T01:51:52.475527Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S01-D7",
+      "gate": "H2",
+      "job_id": "S01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S01-D7",
+    "description": "stg.claims is sorted without NODUPKEY, so any claim_id that appears more than once on the register comes out more than once, each copy carrying the same payment totals. risk_scoring.sas then counts that claim's paid amounts more than once.",
+    "evidence_lines": [
+      28,
+      30,
+      31,
+      88,
+      90
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "total_paid",
+      "measured_on": "golden:S01",
+      "query": "WITH d AS (SELECT claim_id, COUNT(*) AS c, MAX(total_paid) AS tp FROM golden_dw_claims_enriched GROUP BY claim_id HAVING COUNT(*) > 1) SELECT COALESCE(SUM(c - 1),0) AS rows_affected, COALESCE(SUM((c - 1) * ABS(tp)),0) AS amount_affected FROM d",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH d AS (SELECT claim_id, COUNT(*) AS c, MAX(total_paid) AS tp FROM golden_dw_claims_enriched GROUP BY claim_id HAVING COUNT(*) > 1) SELECT COALESCE(SUM(c - 1),0) AS rows_affected, COALESCE(SUM((c - 1) * ABS(tp)),0) AS amount_affected FROM d",
+    "intended_behaviour": "One row per claim: deduplicate the register (for example keep the latest _row_seq per claim_id) before the merge.",
+    "job_id": "S01",
+    "source": "llm",
+    "title": "Duplicate claim_id on the register produces repeated output rows"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T02:36:03.958750Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S03-D1",
+      "gate": "H2",
+      "job_id": "S03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S03-D1",
+    "description": "Both PROC MEANS steps use CLASS lob_code prem_band without the MISSING option, so SAS discards every observation whose class variable is missing. lob_code comes from each policy's first-loaded transaction (work.policy_band), so when that row has a blank lob_code, all of that policy's transactions and the policy itself are left out of rpt.premium_band_summary. Written and earned premium are understated.",
+    "evidence_lines": [
+      37,
+      40,
+      50,
+      56,
+      64,
+      71
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE pb.lob_code IS NULL OR TRIM(pb.lob_code) = ''",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE pb.lob_code IS NULL OR TRIM(pb.lob_code) = ''",
+    "intended_behaviour": "Every transaction should be reported. Policies with a missing line of business should appear in their own (blank or UNKNOWN) lob_code group, for example via the CLASS ... / MISSING option, rather than being dropped.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "Policies with missing lob_code silently dropped by PROC MEANS CLASS"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T02:36:03.959802Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S03-D2",
+      "gate": "H2",
+      "job_id": "S03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S03-D2",
+    "description": "The as_of parameter is only stamped onto the output (line 74). Nothing filters dw.fact_premium_earned to transactions on or before the reporting date, so transactions dated after 2025-12-31 are counted in n_transactions, written_eur and earned_eur.",
+    "evidence_lines": [
+      32,
+      44,
+      74
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.lob_code, pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE t.txn_date > DATE'2025-12-31' AND pb.lob_code IS NOT NULL AND TRIM(pb.lob_code) <> ''",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.lob_code, pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE t.txn_date > DATE'2025-12-31' AND pb.lob_code IS NOT NULL AND TRIM(pb.lob_code) <> ''",
+    "intended_behaviour": "Only transactions with txn_date on or before &as_of (2025-12-31) should be included in the report as at that date.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "No as-of cut-off: transactions after the reporting date included"
+  },
+  {
+    "confidence": 0.25,
+    "decision": {
+      "decided_at": "2026-11-12T02:36:03.960846Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S03-D3",
+      "gate": "H2",
+      "job_id": "S03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S03-D3",
+    "description": "PROC SORT NODUPKEY BY policy_id keeps whichever transaction was loaded first for each policy, and that row's written_eur (and lob_code) sets the band for all the policy's transactions. If the load order differs from transaction order, a later endorsement, cancellation or negative adjustment can set the band, and the policy moves to a different band (or line of business), possibly NEGATIVE.",
+    "evidence_lines": [
+      31,
+      32,
+      33,
+      34,
+      40
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH r AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn_load, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY txn_date ASC NULLS LAST, _row_seq) AS rn_date FROM dw_fact_premium_earned), b AS (SELECT policy_id, rn_load, rn_date, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS band FROM r WHERE rn_load = 1 OR rn_date = 1), p AS (SELECT policy_id, MAX(CASE WHEN rn_load = 1 THEN lob_code END) AS l_lob, MAX(CASE WHEN rn_load = 1 THEN band END) AS l_band, MAX(CASE WHEN rn_date = 1 THEN lob_code END) AS i_lob, MAX(CASE WHEN rn_date = 1 THEN band END) AS i_band FROM b GROUP BY policy_id), d AS (SELECT * FROM p WHERE NOT (l_lob <=> i_lob AND l_band <=> i_band)), g AS (SELECT l_lob AS lob, l_band AS band FROM d WHERE l_lob IS NOT NULL AND TRIM(l_lob) <> '' UNION SELECT i_lob, i_band FROM d WHERE i_lob IS NOT NULL AND TRIM(i_lob) <> '') SELECT (SELECT COUNT(*) FROM g) AS rows_affected, COALESCE((SELECT SUM(ABS(t.written_eur)) FROM dw_fact_premium_earned t JOIN d ON t.policy_id = d.policy_id), 0) AS amount_affected",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH r AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn_load, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY txn_date ASC NULLS LAST, _row_seq) AS rn_date FROM dw_fact_premium_earned), b AS (SELECT policy_id, rn_load, rn_date, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS band FROM r WHERE rn_load = 1 OR rn_date = 1), p AS (SELECT policy_id, MAX(CASE WHEN rn_load = 1 THEN lob_code END) AS l_lob, MAX(CASE WHEN rn_load = 1 THEN band END) AS l_band, MAX(CASE WHEN rn_date = 1 THEN lob_code END) AS i_lob, MAX(CASE WHEN rn_date = 1 THEN band END) AS i_band FROM b GROUP BY policy_id), d AS (SELECT * FROM p WHERE NOT (l_lob <=> i_lob AND l_band <=> i_band)), g AS (SELECT l_lob AS lob, l_band AS band FROM d WHERE l_lob IS NOT NULL AND TRIM(l_lob) <> '' UNION SELECT i_lob, i_band FROM d WHERE i_lob IS NOT NULL AND TRIM(i_lob) <> '') SELECT (SELECT COUNT(*) FROM g) AS rows_affected, COALESCE((SELECT SUM(ABS(t.written_eur)) FROM dw_fact_premium_earned t JOIN d ON t.policy_id = d.policy_id), 0) AS amount_affected",
+    "intended_behaviour": "Band each policy on its true opening transaction: the earliest txn_date, with load order breaking ties.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "Policy band taken from first-loaded row, not the earliest (opening) transaction"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T02:41:01.791042Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S04-D1",
+      "gate": "H2",
+      "job_id": "S04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S04-D1",
+    "description": "The macro is called with a fixed list (MOT HOM TRV) and only those three score tables are unioned. Customer/line rows in claims_enriched with any other lob_code, including a differently cased or null code, never reach rpt.risk_scores. Their claims still count towards the line loss ratios.",
+    "evidence_lines": [
+      60,
+      62,
+      63,
+      69,
+      74,
+      79,
+      80,
+      81,
+      82,
+      83
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IS NULL OR lob_code NOT IN ('MOT','HOM','TRV') GROUP BY customer_id, lob_code) x",
+    "intended_behaviour": "Score every line of business in the claims experience, with the list built from the data (e.g. select distinct lob_code into a macro variable) instead of hard-coded.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Hard-coded line-of-business list drops other lines"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T02:41:01.792332Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S04-D2",
+      "gate": "H2",
+      "job_id": "S04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S04-D2",
+    "description": "Points and score are built with + and *, which pass missing values through. If n_recoveries is missing (every claim has null n_recoveries), loss_ratio is missing (the line has no row in premium_band_summary because of the inner join in lob_ratio), or age_load/county_load are missing (the customer is not in dim_customer, through the left join), then points and score come out missing. The tier IF chain then sends a missing score to 'LOW'. The author clearly wanted a default for missing values (a missing age gets age_load 1.00 on line 25), but unmatched customers and missing components get no default.",
+    "evidence_lines": [
+      25,
+      42,
+      50,
+      55,
+      84,
+      85,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "score",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ROUND((12.5*LEAST(n_claims,4) + 7.5*COALESCE(n_recoveries,0) + CASE WHEN severity >= 2 THEN 10 WHEN severity >= 1 THEN 5 ELSE 0 END + COALESCE(ROUND(5*loss_ratio)/2,0)) * COALESCE(age_load,1) * COALESCE(county_load,1), 2)),0) AS amount_affected FROM golden_rpt_risk_scores WHERE score IS NULL",
+    "intended_behaviour": "Default missing components to neutral values: recoveries 0, lob_points 0, loads 1.00. Then compute a real score and tier, or flag the row explicitly instead of quietly putting it in LOW.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Missing inputs make the score missing and silently tier the row LOW"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T02:41:01.793415Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S04-D3",
+      "gate": "H2",
+      "job_id": "S04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S04-D3",
+    "description": "work.cust takes every row of dw.dim_customer with no filter for the current version. The dimension has version_count/_row_seq columns, which suggests it keeps history. The left join on customer_id then repeats each customer/line score row once per customer version, and ages or counties can differ between versions.",
+    "evidence_lines": [
+      22,
+      23,
+      84
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COALESCE(SUM(n-1),0) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))*(n-1)),0) AS amount_affected FROM (SELECT customer_id, lob_code, COUNT(*) AS n, MAX(paid) AS paid FROM golden_rpt_risk_scores GROUP BY customer_id, lob_code HAVING COUNT(*) > 1) d",
+    "intended_behaviour": "Join exactly one (current) customer record per customer_id, so there is one output row per customer and line.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Customer dimension join can multiply score rows"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:41:01.794485Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S04-D4",
+      "gate": "H2",
+      "job_id": "S04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S04-D4",
+    "description": "Age is int((as_of - date_of_birth)/365.25). This understates the age of people whose birthday falls on or just before the reporting date (e.g. born 2000-12-31 gives 24, not 25 at 2025-12-31). That can move them across the 25 or 70 loading boundaries.",
+    "evidence_lines": [
+      24,
+      26,
+      27
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)",
+      "rows_affected": 4
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_risk_scores g WHERE EXISTS (SELECT 1 FROM dw_dim_customer c WHERE CAST(c.customer_id AS DOUBLE) = g.customer_id AND c.date_of_birth IS NOT NULL AND (2025 - YEAR(c.date_of_birth)) <> g.age)",
+    "intended_behaviour": "Use the exact completed age at the reporting date (e.g. intck('year', date_of_birth, &as_of, 'c')). At 2025-12-31 this is 2025 - year(date_of_birth).",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Age approximated by days/365.25"
+  },
+  {
+    "confidence": 0.25,
+    "decision": {
+      "decided_at": "2026-11-12T02:41:01.795613Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "S04-D5",
+      "gate": "H2",
+      "job_id": "S04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "S04-D5",
+    "description": "as_of is used only for age. Claims, payments and recoveries are taken from claims_enriched whatever their loss or reported date, so claims after the reporting date add to counts, paid, severity and loss ratio.",
+    "evidence_lines": [
+      9,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "paid",
+      "measured_on": "golden:S04",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(paid,0))),0) AS amount_affected FROM (SELECT customer_id, lob_code, SUM(total_paid) AS paid FROM dw_claims_enriched WHERE lob_code IN ('MOT','HOM','TRV') AND (loss_date > DATE'2025-12-31' OR reported_date > DATE'2025-12-31') GROUP BY customer_id, lob_code) x",
+    "intended_behaviour": "Keep only claims with loss_date (or reported_date) on or before &as_of.",
+    "job_id": "S04",
+    "source": "llm",
+    "title": "Claims experience not limited to the reporting date"
+  },
+  {
+    "confidence": 0.93,
+    "decision": {
+      "decided_at": "2026-11-12T01:57:02.245344Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T01-D1",
+      "gate": "H2",
+      "job_id": "T01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T01-D1",
+    "description": "Step 2 numbers each customer's versions with ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at, _row_seq) and keeps version_no = 1. The sort is ascending, so row 1 is the first version ever saved. Every customer with more than one version gets their original details (name, email, address, county, segment, opt-in, record_updated_at) instead of their current ones.",
+    "evidence_lines": [
+      97,
+      101,
+      102,
+      104
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+      "rows_affected": 3224
+    },
+    "impact_query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+    "intended_behaviour": "Keep the latest version saved up to @AsOfDate, i.e. ORDER BY updated_at DESC, _row_seq DESC, as the header (CR-1702) and the step comment say.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "Keeps the oldest CRM version instead of the current one"
+  },
+  {
+    "confidence": 0.8,
+    "decision": {
+      "decided_at": "2026-11-12T01:57:02.245594Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T01-D2",
+      "gate": "H2",
+      "job_id": "T01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T01-D2",
+    "description": "age_at_join = DATEDIFF(YEAR, date_of_birth, customer_since) only subtracts the years. If the customer joined before their birthday that year, the age comes out one year too high.",
+    "evidence_lines": [
+      129
+    ],
+    "impact": {
+      "amount_affected": "8436.00",
+      "amount_column": "age_at_join",
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+      "rows_affected": 8436
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+    "intended_behaviour": "Age in completed years at the join date: subtract 1 when the month/day of customer_since is before the month/day of date_of_birth.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "age_at_join counts calendar-year boundaries, not completed years"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T01:57:02.245820Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T01-D3",
+      "gate": "H2",
+      "job_id": "T01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T01-D3",
+    "description": "eircode_valid is 'Y' whenever LEN(eircode) = 7, whatever the characters are. A 7-character value that has a space in it (really a 6-character code with a space, e.g. 'D02 X28') or contains punctuation passes. LEN also ignores trailing spaces. Only the 8-character form checks where the space is.",
+    "evidence_lines": [
+      142,
+      143,
+      144,
+      145
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+    "intended_behaviour": "Per the comment (3-character routing key plus 4-character unique identifier, with or without the space), valid means 7 alphanumeric characters with no space, or 3 alphanumerics, a space, then 4 alphanumerics.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "Eircode check accepts any 7-character value, including ones with a misplaced space"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T01:57:02.246031Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T01-D4",
+      "gate": "H2",
+      "job_id": "T01",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T01-D4",
+    "description": "The region CASE matches only the exact county names (for example 'Dublin'). A populated county written another way, such as 'Co. Dublin', 'County Cork', 'Tipperary North' or 'Laoighis', is mapped to 'UNKNOWN' even though it belongs to a known sales region.",
+    "evidence_lines": [
+      134,
+      135,
+      136,
+      137,
+      138,
+      139
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+    "intended_behaviour": "Normalise the county (strip 'Co.'/'County' prefixes and known variants) before mapping, so every real county gets its region and UNKNOWN is left for missing or unrecognisable values.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "County spelling variants fall into region UNKNOWN"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T02:10:17.225070Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T02-D1",
+      "gate": "H2",
+      "job_id": "T02",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T02-D1",
+    "description": "#src is built from stg.policy_snapshots joined to stg.products, stg.brokers and dw.dim_customer, and nothing makes it unique per policy_id. If a staging table has a duplicate key (the _row_seq column suggests re-staged rows), or a policy appears twice in one snapshot, #src gets several rows for the policy. The INSERT's NOT EXISTS check only looks at rows already in the table, so every duplicate is opened as another current version (is_current='Y'), which counts its annual_premium twice. On a later snapshot those duplicates can also make the MERGE fail because it tries to update the same target row more than once.",
+    "evidence_lines": [
+      88,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      142,
+      156,
+      157,
+      158,
+      159,
+      160
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "annual_premium",
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+    "intended_behaviour": "Exactly one current version per policy_id per snapshot: each lookup returns at most one row per key, and the snapshot is reduced to one row per policy_id (for example the latest _row_seq) before the MERGE/INSERT.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Row-multiplying joins / duplicate snapshot rows create duplicate current versions"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T02:10:17.225907Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T02-D2",
+      "gate": "H2",
+      "job_id": "T02",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T02-D2",
+    "description": "The MERGE only has a WHEN MATCHED branch. A policy that is in dim_policy but missing from the new snapshot (lapsed, purged or moved out) keeps is_current='Y' and valid_to=9999-12-31 for ever, so it is still reported as a live current policy.",
+    "evidence_lines": [
+      127,
+      128,
+      129,
+      130,
+      131,
+      135,
+      136,
+      137
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": null,
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+    "intended_behaviour": "Close the current version (valid_to = snapshot date - 1, is_current = 'N') when a policy no longer appears in the snapshot, for example with WHEN NOT MATCHED BY SOURCE AND tgt.is_current = 'Y'.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Policies missing from a later snapshot are never closed"
+  },
+  {
+    "confidence": 0.4,
+    "decision": {
+      "decided_at": "2026-11-12T02:10:17.226599Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T02-D3",
+      "gate": "H2",
+      "job_id": "T02",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T02-D3",
+    "description": "stg.products is joined with an INNER JOIN. Any policy whose product_code is missing from the product register is left out of #src with no warning, so it never gets a dimension row, or is never versioned if it already has one.",
+    "evidence_lines": [
+      106,
+      107,
+      108
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "annual_premium",
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+    "intended_behaviour": "Keep every policy in the snapshot (LEFT JOIN with a default or unknown product) or reject/log the unmatched rows. The dimension is meant to hold every policy term.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Inner join to stg.products silently drops policies with an unknown product"
+  },
+  {
+    "confidence": 0.25,
+    "decision": {
+      "decided_at": "2026-11-12T02:10:17.227367Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T02-D4",
+      "gate": "H2",
+      "job_id": "T02",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T02-D4",
+    "description": "A NULL broker_code is replaced with 'DIRECT-SALES' in the output (line 95), but the broker lookup joins on the original p.broker_code (NULL), so broker_name is always NULL for direct business, even when the broker register has a DIRECT-SALES entry.",
+    "evidence_lines": [
+      95,
+      96,
+      109,
+      110
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T02",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+    "intended_behaviour": "Join stg.brokers on ISNULL(p.broker_code, 'DIRECT-SALES') so direct business gets the DIRECT-SALES broker name.",
+    "job_id": "T02",
+    "source": "llm",
+    "title": "Direct business never gets a broker name"
+  },
+  {
+    "confidence": 0.6,
+    "decision": {
+      "decided_at": "2026-11-12T02:19:43.864673Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T02-M5",
+      "gate": "H4",
+      "job_id": "T02",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T02-M5",
+    "description": "Marked # LANSH-DEFECT in the migrated code: ISNULL takes VARCHAR(10) of p.broker_code, so 'DIRECT-SALES' becomes 'DIRECT-SAL'",
+    "evidence_lines": [],
+    "impact": null,
+    "impact_query": null,
+    "intended_behaviour": null,
+    "job_id": "T02",
+    "source": "marker",
+    "title": "ISNULL takes VARCHAR(10) of p.broker_code, so 'DIRECT-SALES' becomes 'DIRECT-SAL'"
+  },
+  {
+    "confidence": 0.8,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.130453Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D1",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D1",
+    "description": "earned_eur = ROUND(written_eur * earned_days / 365, 2) and unearned_eur = written_eur - that. The denominator is hard-coded at 365 while term_days is computed right above. Leap-year terms (366 days), short-term policies and terms over a year are earned wrongly; a fully earned 366-day policy shows earned > written and negative unearned.",
+    "evidence_lines": [
+      93,
+      125,
+      126
+    ],
+    "impact": {
+      "amount_affected": "307279.59",
+      "amount_column": "earned_eur",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+      "rows_affected": 21145
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+    "intended_behaviour": "earned_eur = ROUND(written_eur * earned_days / term_days, 2), so a fully earned policy earns exactly written_eur; unearned_eur = written_eur - earned_eur.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Earned premium pro-rated over a fixed 365 days instead of the policy term"
+  },
+  {
+    "confidence": 0.75,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.131382Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D2",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D2",
+    "description": "earned_pct = e.earned_days * 100 / e.term_days, where every operand is INT, so SQL Server does integer division and drops the fraction (e.g. 182*100/365 = 49 instead of 49.86) before storing into DECIMAL(5,2).",
+    "evidence_lines": [
+      36,
+      124
+    ],
+    "impact": {
+      "amount_affected": "12045.22",
+      "amount_column": "earned_pct",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+      "rows_affected": 24201
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+    "intended_behaviour": "earned_pct = ROUND(earned_days * 100.0 / term_days, 2), keeping two decimals.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Earned percentage truncated by integer division"
+  },
+  {
+    "confidence": 0.45,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.132232Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D3",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D3",
+    "description": "first_due_date = DATEADD(MONTH, 1, EOMONTH(effective_from)). This takes the last day of the effective month and adds a month, giving the end of next month sometimes (31 Jan -> 29 Feb) and not other times (28 Feb -> 28 Mar, 30 Apr -> 30 May). It is neither the 1st of the next month nor reliably the end of next month.",
+    "evidence_lines": [
+      129
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+      "rows_affected": 67879
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+    "intended_behaviour": "Most likely the first day of the month after the effective month: DATEADD(DAY, 1, EOMONTH(effective_from)), or else EOMONTH(effective_from, 1).",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "First instalment due date: month added to month-end gives an inconsistent date"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.133061Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D4",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D4",
+    "description": "The non-EUR branch uses CROSS APPLY to the latest rate with rate_date <= txn_date. A transaction whose currency has no rate on or before its booking date (or has a NULL currency, which fails both = 'EUR' and <> 'EUR') produces no row at all, so the written premium disappears from the fact table without any error or log.",
+    "evidence_lines": [
+      69,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+      "rows_affected": 7
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+    "intended_behaviour": "Every transaction should be in the fact (full premium population). A missing rate should fall back (e.g. the earliest available rate) or fail/log the job rather than drop the premium.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Non-EUR transactions without an FX rate on/before booking date silently dropped"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.133882Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D5",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D5",
+    "description": "The final INSERT inner-joins to dw.dim_policy on is_current = 'Y'. Transactions for policies with no current version (not yet loaded, or the version-closing logic left none current) are silently excluded from the premium fact.",
+    "evidence_lines": [
+      132,
+      133,
+      134
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+    "intended_behaviour": "All premium transactions up to the as-of date should be reported; a missing policy should map to an unknown member or be logged, not dropped.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Transactions dropped when the policy has no current dim_policy row"
+  },
+  {
+    "confidence": 0.2,
+    "decision": {
+      "decided_at": "2026-11-12T02:29:05.134697Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T03-D6",
+      "gate": "H2",
+      "job_id": "T03",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T03-D6",
+    "description": "daily_rate_eur = ROUND(written_eur / term_days, 4, 1); the third argument 1 truncates rather than rounds, unlike every other amount in the job, so the daily rate is consistently understated.",
+    "evidence_lines": [
+      127
+    ],
+    "impact": {
+      "amount_affected": "3.28",
+      "amount_column": "daily_rate_eur",
+      "measured_on": "golden:T03",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+      "rows_affected": 32841
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+    "intended_behaviour": "ROUND(written_eur / term_days, 4) with normal rounding.",
+    "job_id": "T03",
+    "source": "llm",
+    "title": "Daily rate truncated instead of rounded"
+  },
+  {
+    "confidence": 0.85,
+    "decision": {
+      "decided_at": "2026-11-12T01:59:18.062748Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T04-D1",
+      "gate": "H2",
+      "job_id": "T04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T04-D1",
+    "description": "#money LEFT JOINs stg.claim_payments and #reserve to #open_claims in one statement before GROUP BY. #reserve has up to one row per reserve type (INDEMNITY, EXPENSE), so every payment row is repeated once per reserve row and SUM(p.amount) is multiplied (typically doubled). COUNT(DISTINCT payment_id) and MAX(reserve) hide the fan-out, but total_paid, and therefore incurred (total_paid + reserves), are overstated.",
+    "evidence_lines": [
+      103,
+      105,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      152
+    ],
+    "impact": {
+      "amount_affected": "1288029.36",
+      "amount_column": "total_paid",
+      "measured_on": "golden:T04",
+      "query": "WITH p AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.total_paid - COALESCE(p.paid, 0))), 0) AS amount_affected FROM golden_rpt_claims_summary g LEFT JOIN p ON p.claim_id = g.claim_id WHERE g.total_paid <> COALESCE(p.paid, 0)",
+      "rows_affected": 289
+    },
+    "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.total_paid - COALESCE(p.paid, 0))), 0) AS amount_affected FROM golden_rpt_claims_summary g LEFT JOIN p ON p.claim_id = g.claim_id WHERE g.total_paid <> COALESCE(p.paid, 0)",
+    "intended_behaviour": "total_paid should be the plain sum of payments on or before @AsOfDate per claim, aggregated separately from the reserves (or pre-aggregated before joining).",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Payment/reserve join fan-out inflates total_paid and incurred"
+  },
+  {
+    "confidence": 0.55,
+    "decision": {
+      "decided_at": "2026-11-12T01:59:18.063217Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T04-D2",
+      "gate": "H2",
+      "job_id": "T04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T04-D2",
+    "description": "claim_ref is built as lob_code + '/' + claim_number + '/' + handler_code. With SQL Server's default CONCAT_NULL_YIELDS_NULL, a NULL handler_code (an allowed value) makes the whole reference NULL, so the claim drops off the handler worklist reference.",
+    "evidence_lines": [
+      24,
+      29,
+      136
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.claim_ref IS NULL AND g.handler_code IS NULL",
+      "rows_affected": 109
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.claim_ref IS NULL AND g.handler_code IS NULL",
+    "intended_behaviour": "Build the reference with the handler part blank or defaulted (e.g. CONCAT or ISNULL(handler_code,'')), so LOB and claim number still appear.",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "claim_ref becomes NULL when handler_code is NULL"
+  },
+  {
+    "confidence": 0.4,
+    "decision": {
+      "decided_at": "2026-11-12T01:59:18.063637Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T04-D3",
+      "gate": "H2",
+      "job_id": "T04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T04-D3",
+    "description": "Claims are selected on today's status IN ('OPEN','REOPENED'), not on whether they were open at @AsOfDate. A claim notified by the reporting date but closed after it (closed_date > @AsOfDate) is left out of the as-of open book, along with its paid and reserves.",
+    "evidence_lines": [
+      60,
+      73,
+      74
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred",
+      "measured_on": "golden:T04",
+      "query": "WITH miss AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (status IS NULL OR UPPER(TRIM(status)) NOT IN ('OPEN','REOPENED')) AND closed_date > DATE'2025-12-31'), pay AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id), res AS (SELECT claim_id, reserve_type, reserve_amount, ROW_NUMBER() OVER (PARTITION BY claim_id, reserve_type ORDER BY reserve_date DESC, reserve_id DESC) AS rn FROM stg_claim_reserves WHERE reserve_date <= DATE'2025-12-31'), r AS (SELECT claim_id, SUM(CASE WHEN UPPER(TRIM(reserve_type)) IN ('INDEMNITY','EXPENSE') THEN reserve_amount ELSE 0 END) AS resv FROM res WHERE rn = 1 GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(pay.paid, 0) + COALESCE(r.resv, 0))), 0) AS amount_affected FROM miss LEFT JOIN pay ON pay.claim_id = miss.claim_id LEFT JOIN r ON r.claim_id = miss.claim_id",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH miss AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (status IS NULL OR UPPER(TRIM(status)) NOT IN ('OPEN','REOPENED')) AND closed_date > DATE'2025-12-31'), pay AS (SELECT claim_id, SUM(amount) AS paid FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id), res AS (SELECT claim_id, reserve_type, reserve_amount, ROW_NUMBER() OVER (PARTITION BY claim_id, reserve_type ORDER BY reserve_date DESC, reserve_id DESC) AS rn FROM stg_claim_reserves WHERE reserve_date <= DATE'2025-12-31'), r AS (SELECT claim_id, SUM(CASE WHEN UPPER(TRIM(reserve_type)) IN ('INDEMNITY','EXPENSE') THEN reserve_amount ELSE 0 END) AS resv FROM res WHERE rn = 1 GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(pay.paid, 0) + COALESCE(r.resv, 0))), 0) AS amount_affected FROM miss LEFT JOIN pay ON pay.claim_id = miss.claim_id LEFT JOIN r ON r.claim_id = miss.claim_id",
+    "intended_behaviour": "Include claims open at @AsOfDate, i.e. reported on or before @AsOfDate and not closed by then (closed_date IS NULL OR closed_date > @AsOfDate).",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Open book uses current status instead of status at the reporting date"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T01:59:18.064044Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T04-D4",
+      "gate": "H2",
+      "job_id": "T04",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T04-D4",
+    "description": "@snapshot_date is the latest snapshot date across all policies, and the policy join matches that exact date. A policy missing from that one snapshot (e.g. lapsed or not extracted that day) gets a NULL policy_number, even though an earlier snapshot on or before @AsOfDate holds it.",
+    "evidence_lines": [
+      120,
+      121,
+      122,
+      123,
+      157,
+      158,
+      159
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T04",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.policy_number IS NULL AND EXISTS (SELECT 1 FROM stg_policy_snapshots ps WHERE ps.policy_id = g.policy_id AND ps.snapshot_date <= DATE'2025-12-31' AND ps.policy_number IS NOT NULL)",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claims_summary g WHERE g.policy_number IS NULL AND EXISTS (SELECT 1 FROM stg_policy_snapshots ps WHERE ps.policy_id = g.policy_id AND ps.snapshot_date <= DATE'2025-12-31' AND ps.policy_number IS NOT NULL)",
+    "intended_behaviour": "Use each policy's own latest snapshot on or before @AsOfDate to get the policy number.",
+    "job_id": "T04",
+    "source": "llm",
+    "title": "Policy number taken from a single global snapshot date"
+  },
+  {
+    "confidence": 0.85,
+    "decision": {
+      "decided_at": "2026-11-12T02:01:35.240693Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T05-D1",
+      "gate": "H2",
+      "job_id": "T05",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T05-D1",
+    "description": "The band CASE uses @days < 30 for '0-29' and BETWEEN 31 AND 60 for '31-60'. A claim with exactly 30 days since last activity matches neither and gets 'UNKNOWN'. days_since_activity is never negative (reported_date <= AsOfDate and payment_date <= AsOfDate), so 30 is the only value that reaches UNKNOWN.",
+    "evidence_lines": [
+      145,
+      146,
+      147,
+      148
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T05",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_aging WHERE days_since_activity = 30 OR aging_band = 'UNKNOWN'",
+      "rows_affected": 31
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_aging WHERE days_since_activity = 30 OR aging_band = 'UNKNOWN'",
+    "intended_behaviour": "The bands should cover every value with no gaps: 0-29, 30-60, 61+ (or 0-30, 31-60, 61+). Day 30 should get a real band, not UNKNOWN.",
+    "job_id": "T05",
+    "source": "llm",
+    "title": "Ageing band gap: 30 days falls into UNKNOWN"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T02:01:35.241227Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T05-D2",
+      "gate": "H2",
+      "job_id": "T05",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T05-D2",
+    "description": "weeks_open = DATEDIFF(WEEK, @reported, @AsOfDate). This counts the Sunday week boundaries crossed, not completed 7-day weeks, so a claim reported on a Saturday shows 1 week open the next day and the result can be one week off from the real elapsed weeks.",
+    "evidence_lines": [
+      142
+    ],
+    "impact": {
+      "amount_affected": "361.00",
+      "amount_column": "weeks_open",
+      "measured_on": "golden:T05",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(weeks_open - CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT))), 0) AS amount_affected FROM golden_rpt_claim_aging WHERE weeks_open <> CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT)",
+      "rows_affected": 361
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(weeks_open - CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT))), 0) AS amount_affected FROM golden_rpt_claim_aging WHERE weeks_open <> CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT)",
+    "intended_behaviour": "Whole weeks the claim has been open, i.e. FLOOR(DATEDIFF(DAY, reported_date, AsOfDate) / 7).",
+    "job_id": "T05",
+    "source": "llm",
+    "title": "weeks_open counts week boundaries, not elapsed weeks"
+  },
+  {
+    "confidence": 0.45,
+    "decision": {
+      "decided_at": "2026-11-12T02:01:35.241729Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T05-D3",
+      "gate": "H2",
+      "job_id": "T05",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T05-D3",
+    "description": "The cursor builds the total with SET @total = @total + @amount. If any payment up to the reporting date has a NULL amount, the running total becomes NULL and stays NULL, so total_paid is NULL for the whole claim even though its other payments have amounts. The NULL-amount payment is still counted in n_payments.",
+    "evidence_lines": [
+      28,
+      95,
+      115,
+      130
+    ],
+    "impact": {
+      "amount_affected": "74884.99",
+      "amount_column": "total_paid",
+      "measured_on": "golden:T05",
+      "query": "WITH p AS (SELECT claim_id, SUM(amount) AS amt, SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(p.amt, 0))), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN p ON p.claim_id = g.claim_id WHERE p.n_null > 0",
+      "rows_affected": 23
+    },
+    "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS amt, SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(p.amt, 0))), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN p ON p.claim_id = g.claim_id WHERE p.n_null > 0",
+    "intended_behaviour": "NULL amounts should be ignored (as SUM does), so total_paid is the sum of the known payment amounts.",
+    "job_id": "T05",
+    "source": "llm",
+    "title": "A NULL payment amount makes total_paid NULL"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:01:35.242217Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T05-D4",
+      "gate": "H2",
+      "job_id": "T05",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T05-D4",
+    "description": "Payments are copied from stg.claim_payments without removing duplicates (staging has a _row_seq column, which suggests a payment can be loaded more than once). If a payment_id appears more than once for a claim, every copy is added to n_payments and total_paid.",
+    "evidence_lines": [
+      81,
+      82,
+      83,
+      84,
+      85,
+      129,
+      130
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "total_paid",
+      "measured_on": "golden:T05",
+      "query": "WITH d AS (SELECT claim_id, payment_id, COUNT(*) AS c, MAX(amount) AS amt FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id, payment_id HAVING COUNT(*) > 1), per AS (SELECT claim_id, SUM((c - 1) * COALESCE(amt, 0)) AS extra FROM d GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(per.extra)), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN per ON per.claim_id = g.claim_id",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH d AS (SELECT claim_id, payment_id, COUNT(*) AS c, MAX(amount) AS amt FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id, payment_id HAVING COUNT(*) > 1), per AS (SELECT claim_id, SUM((c - 1) * COALESCE(amt, 0)) AS extra FROM d GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(per.extra)), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN per ON per.claim_id = g.claim_id",
+    "intended_behaviour": "Each payment (claim_id, payment_id) should be counted once.",
+    "job_id": "T05",
+    "source": "llm",
+    "title": "Duplicate staged payment rows are double-counted"
+  },
+  {
+    "confidence": 0.8,
+    "decision": {
+      "decided_at": "2026-11-12T02:05:42.437827Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T06-D1",
+      "gate": "H2",
+      "job_id": "T06",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T06-D1",
+    "description": "The INC-2318 filter keeps only payments where p.payment_date > cl.loss_date. Any payment dated on the loss date itself is treated as a keying error and dropped. These payments would all land in dev_0, so dev_0 and every cumulative_n are understated. If all of a group's payments are same-day, the accident-year/LOB row is missing from the output entirely.",
+    "evidence_lines": [
+      13,
+      14,
+      93
+    ],
+    "impact": {
+      "amount_affected": "390467.67",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+      "rows_affected": 19
+    },
+    "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+    "intended_behaviour": "The comment and change log say only payments dated BEFORE the loss are keying errors, so the filter should be p.payment_date >= cl.loss_date. That keeps same-day payments in dev_0.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Same-day payments (payment_date = loss_date) dropped"
+  },
+  {
+    "confidence": 0.45,
+    "decision": {
+      "decided_at": "2026-11-12T02:05:42.438446Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T06-D2",
+      "gate": "H2",
+      "job_id": "T06",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T06-D2",
+    "description": "Line 67 uses UPPER(RTRIM(lob_code)), which removes trailing spaces only. A lob_code with leading spaces (e.g. ' MOT') makes its own row in the triangle, separate from the clean code, so that LOB's paid amounts are split across two rows.",
+    "evidence_lines": [
+      18,
+      19,
+      67
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+    "intended_behaviour": "INC-2851 says lob_code is to be trimmed before grouping, so it should be UPPER(LTRIM(RTRIM(lob_code))) (TRIM) and each LOB should have one row per accident year.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "lob_code only right-trimmed; leading spaces split LOB groups"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:05:42.439001Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T06-D3",
+      "gate": "H2",
+      "job_id": "T06",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T06-D3",
+    "description": "#claims takes every row of stg.claims and does not deduplicate by claim_id (the staging table has a _row_seq column, which suggests one claim can be loaded more than once). Each payment is then joined to every copy of its claim, so its amount is counted twice or more in the dev and cumulative cells.",
+    "evidence_lines": [
+      64,
+      69,
+      89,
+      90,
+      91
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+    "intended_behaviour": "Each claim should appear once, for example by keeping only the latest _row_seq per claim_id, so that every payment is counted exactly once.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Duplicate claim rows in staging multiply payments"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:05:42.439544Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T06-D4",
+      "gate": "H2",
+      "job_id": "T06",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T06-D4",
+    "description": "The triangle is built by pivoting #paid only. An accident year/LOB that has claims in scope but no qualifying payments gets no row, even though the step-4 comment says 'Nothing paid yet = 0'. The chain-ladder workbook ends up missing those rows instead of getting zero-filled rows.",
+    "evidence_lines": [
+      105,
+      110,
+      111,
+      112,
+      119,
+      120,
+      137
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+    "intended_behaviour": "Drive the triangle from the distinct accident-year/LOB pairs in #claims and LEFT JOIN the pivoted payments, so pairs with nothing paid show 0 in the elapsed cells and NULL after the as-at date.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Accident year / LOB with claims but no payments missing from triangle"
+  },
+  {
+    "confidence": 0.9,
+    "decision": {
+      "decided_at": "2026-11-12T02:21:39.241321Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T08-D1",
+      "gate": "H2",
+      "job_id": "T08",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T08-D1",
+    "description": "early_notification_flag is set when DATEDIFF(DAY, expiry_date, reported_date) is between 0 and 30, i.e. the claim was reported within 30 days AFTER the policy expired. A claim cannot normally be reported 0-30 days after expiry under live cover, so the flag almost never fires for genuine early claims and fires wrongly for claims reported just after expiry. fraud_score, fraud_band and reason_text follow from it.",
+    "evidence_lines": [
+      83,
+      107,
+      108
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.inception_date) AS inception_date FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE g.early_notification_flag <> CASE WHEN datediff(g.reported_date, p.inception_date) BETWEEN 0 AND 30 THEN 1 ELSE 0 END",
+      "rows_affected": 146
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.inception_date) AS inception_date FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE g.early_notification_flag <> CASE WHEN datediff(g.reported_date, p.inception_date) BETWEEN 0 AND 30 THEN 1 ELSE 0 END",
+    "intended_behaviour": "Per the comment 'claim notified within 30 days of the cover starting' (CR-0954): DATEDIFF(DAY, inception_date, reported_date) BETWEEN 0 AND 30.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Early notification measured from policy expiry instead of inception"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T02:21:39.242459Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T08-D2",
+      "gate": "H2",
+      "job_id": "T08",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T08-D2",
+    "description": "Every claim is joined to the one global MAX(snapshot_date) on or before the as-of date. If a claim's policy is not in that extract (lapsed or cancelled, or the extract is incomplete), the LEFT JOIN returns NULL policy_number, inception and expiry dates and vehicle_reg. The early, registration and line-of-business indicators then all evaluate to 0, because NULL comparisons are unknown, and nothing shows that the checks could not be made.",
+    "evidence_lines": [
+      66,
+      67,
+      68,
+      88,
+      89,
+      90,
+      112,
+      118
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), cur AS (SELECT DISTINCT ps.policy_id FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd), anyp AS (SELECT DISTINCT policy_id FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31') SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g JOIN anyp a ON a.policy_id = g.policy_id LEFT JOIN cur c ON c.policy_id = g.policy_id WHERE c.policy_id IS NULL",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), cur AS (SELECT DISTINCT ps.policy_id FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd), anyp AS (SELECT DISTINCT policy_id FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31') SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g JOIN anyp a ON a.policy_id = g.policy_id LEFT JOIN cur c ON c.policy_id = g.policy_id WHERE c.policy_id IS NULL",
+    "intended_behaviour": "Use each policy's latest snapshot on or before the reporting date (CR-1529), or at least flag claims whose policy details are missing, rather than scoring them as clean.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Policies missing from the single latest snapshot get blank details and silently score 0"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T02:21:39.243200Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T08-D3",
+      "gate": "H2",
+      "job_id": "T08",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T08-D3",
+    "description": "new_customer_flag uses DATEDIFF(DAY, customer_since, loss_date) < 180. Six calendar months is 181-184 days, so customers whose loss falls in the last few days of their first six months are not flagged.",
+    "evidence_lines": [
+      114,
+      115
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN dw_dim_customer dc ON dc.customer_id = g.customer_id WHERE g.new_customer_flag <> CASE WHEN g.loss_date < add_months(dc.customer_since, 6) THEN 1 ELSE 0 END",
+      "rows_affected": 3
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN dw_dim_customer dc ON dc.customer_id = g.customer_id WHERE g.new_customer_flag <> CASE WHEN g.loss_date < add_months(dc.customer_since, 6) THEN 1 ELSE 0 END",
+    "intended_behaviour": "Flag when loss_date < DATEADD(MONTH, 6, customer_since), i.e. customer for less than six calendar months at the date of loss.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Six-month new-customer window hard-coded as 180 days"
+  },
+  {
+    "confidence": 0.25,
+    "decision": {
+      "decided_at": "2026-11-12T02:21:39.243916Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T08-D4",
+      "gate": "H2",
+      "job_id": "T08",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T08-D4",
+    "description": "SUBSTRING(policy_number, 0, 4) in T-SQL returns only the first 3 characters. Any line-of-business code longer than 3 characters (lob_code is VARCHAR(5)) can never equal its policy-number prefix, so every such claim is wrongly flagged as a mismatch.",
+    "evidence_lines": [
+      117,
+      118
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g WHERE g.policy_number IS NOT NULL AND g.lob_mismatch_flag <> CASE WHEN upper(substring_index(g.policy_number, '/', 1)) <> upper(trim(g.lob_code)) THEN 1 ELSE 0 END",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g WHERE g.policy_number IS NOT NULL AND g.lob_mismatch_flag <> CASE WHEN upper(substring_index(g.policy_number, '/', 1)) <> upper(trim(g.lob_code)) THEN 1 ELSE 0 END",
+    "intended_behaviour": "Compare the full prefix before the first '/' of the policy number (e.g. MOT in MOT/2024/500001) with the trimmed, upper-cased lob_code.",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "LOB mismatch compares only the first 3 characters of the policy number"
+  },
+  {
+    "confidence": 0.25,
+    "decision": {
+      "decided_at": "2026-11-12T02:21:39.244630Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "T08-D5",
+      "gate": "H2",
+      "job_id": "T08",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "T08-D5",
+    "description": "For motor claims, vehicle_reg NOT LIKE pattern is unknown when vehicle_reg is NULL, so invalid_reg_flag = 0. A missing registration is treated as valid.",
+    "evidence_lines": [
+      111,
+      112
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T08",
+      "query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.vehicle_reg) AS vehicle_reg FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE upper(trim(g.lob_code)) = 'MOT' AND g.invalid_reg_flag = 0 AND p.vehicle_reg IS NULL",
+      "rows_affected": 3
+    },
+    "impact_query": "WITH snap AS (SELECT MAX(snapshot_date) AS sd FROM stg_policy_snapshots WHERE snapshot_date <= DATE'2025-12-31'), p AS (SELECT ps.policy_id, MAX(ps.vehicle_reg) AS vehicle_reg FROM stg_policy_snapshots ps JOIN snap ON ps.snapshot_date = snap.sd GROUP BY ps.policy_id) SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_fraud_flags g LEFT JOIN p ON p.policy_id = g.policy_id WHERE upper(trim(g.lob_code)) = 'MOT' AND g.invalid_reg_flag = 0 AND p.vehicle_reg IS NULL",
+    "intended_behaviour": "A motor claim with no registration should count as not being in the Irish format (flag = 1).",
+    "job_id": "T08",
+    "source": "llm",
+    "title": "Motor claims with a missing registration are not flagged"
+  }
+]

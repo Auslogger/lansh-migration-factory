@@ -1,0 +1,292 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T00:59:05.751058Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "$defs": {
+        "TrapFindingAnswer": {
+          "additionalProperties": false,
+          "description": "One place where a known engine difference (a trap card) affects this job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "Why the trap matters at these lines, in one or two sentences.",
+              "title": "Note",
+              "type": "string"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "line_start",
+            "line_end",
+            "confidence",
+            "note"
+          ],
+          "title": "TrapFindingAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The traps a careful reviewer finds in the job, beyond those the rules already found.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/TrapFindingAnswer"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScanAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary (tsql), file estate/tsql/T04_usp_build_claims_summary.sql.\nOpen claims with paid, reserve and incurred to date.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_build_claims_summary\n  3 |   Purpose   Open claims summary for the claims MI pack: one row per claim that\n  4 |             is open or reopened at the reporting date, with paid, case reserve\n  5 |             and incurred to date.\n  6 |   Author    JMcK\n  7 |   Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  8 |   Output    rpt.claims_summary (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2014-09-03  JMcK  Initial version (CR-0871)\n 12 |     2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n 13 |     2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n 14 |     2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n 15 |     2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n 16 |     2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\n 21 | CREATE TABLE rpt.claims_summary (\n 22 |     claim_id           INT            NOT NULL,\n 23 |     claim_number       VARCHAR(20)    NOT NULL,\n 24 |     claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n 25 |     policy_id          INT            NOT NULL,\n 26 |     policy_number      VARCHAR(20)    NULL,\n 27 |     lob_code           VARCHAR(5)     NOT NULL,\n 28 |     status             VARCHAR(12)    NOT NULL,\n 29 |     handler_code       VARCHAR(8)     NULL,\n 30 |     loss_date          DATE           NOT NULL,\n 31 |     loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n 32 |     reported_date      DATE           NOT NULL,\n 33 |     reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n 34 |     days_open          INT            NOT NULL,\n 35 |     n_payments         INT            NOT NULL,\n 36 |     total_paid         DECIMAL(14,2)  NOT NULL,\n 37 |     indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n 38 |     expense_reserve    DECIMAL(14,2)  NOT NULL,\n 39 |     current_reserve    DECIMAL(14,2)  NOT NULL,\n 40 |     incurred           DECIMAL(14,2)  NOT NULL,\n 41 |     as_of_date         DATE           NOT NULL,\n 42 |     CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n 52 |             @rows           INT,\n 53 |             @snapshot_date  DATE,\n 54 |             @err_msg        NVARCHAR(4000),\n 55 |             @err_no         INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Open book: claims open or reopened and notified by the reporting date */\n 61 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 62 | \n 63 |         SELECT  c.claim_id,\n 64 |                 c.claim_number,\n 65 |                 c.policy_id,\n 66 |                 UPPER(RTRIM(c.lob_code))    AS lob_code,\n 67 |                 c.status,\n 68 |                 c.handler_code,\n 69 |                 c.loss_date,\n 70 |                 c.reported_date\n 71 |         INTO    #open_claims\n 72 |         FROM    stg.claims c WITH (NOLOCK)\n 73 |         WHERE   c.status IN ('OPEN', 'REOPENED')\n 74 |           AND   c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n 78 | \n 79 |         /* Case reserve per claim and reserve type: the latest entry on or before\n 80 |            the reporting date (a second entry on the same day is a correction) */\n 81 |         IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n 82 | \n 83 |         SELECT  x.claim_id,\n 84 |                 x.reserve_type,\n 85 |                 x.reserve_amount\n 86 |         INTO    #reserve\n 87 |         FROM   (SELECT  r.claim_id,\n 88 |                         r.reserve_type,\n 89 |                         r.reserve_amount,\n 90 |                         ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n 91 |                                            ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 92 |                 FROM    stg.claim_reserves r WITH (NOLOCK)\n 93 |                 JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n 94 |                 WHERE   r.reserve_date <= @AsOfDate) x\n 95 |         WHERE   x.rn = 1;\n 96 | \n 97 |         SET @rows = @@ROWCOUNT;\n 98 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         /* Paid to date and case reserves per claim */\n101 |         IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n102 | \n103 |         SELECT  oc.claim_id,\n104 |                 COUNT(DISTINCT p.payment_id)    AS n_payments,\n105 |                 ISNULL(SUM(p.amount), 0)        AS total_paid,\n106 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n107 |                 ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n108 |         INTO    #money\n109 |         FROM    #open_claims oc\n110 |         LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n111 |                ON p.claim_id = oc.claim_id\n112 |               AND p.payment_date <= @AsOfDate\n113 |         LEFT JOIN #reserve r\n114 |                ON r.claim_id = oc.claim_id\n115 |         GROUP BY oc.claim_id;\n116 | \n117 |         SET @rows = @@ROWCOUNT;\n118 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n119 | \n120 |         /* Policy number from the latest policy extract on or before the reporting date */\n121 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n122 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n123 |         WHERE   ps.snapshot_date <= @AsOfDate;\n124 | \n125 |         BEGIN TRANSACTION;\n126 | \n127 |         TRUNCATE TABLE rpt.claims_summary;\n128 | \n129 |         INSERT INTO rpt.claims_summary\n130 |                (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n131 |                 status, handler_code, loss_date, loss_date_text, reported_date,\n132 |                 reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n133 |                 expense_reserve, current_reserve, incurred, as_of_date)\n134 |         SELECT  oc.claim_id,\n135 |                 oc.claim_number,\n136 |                 oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n137 |                 oc.policy_id,\n138 |                 ps.policy_number,\n139 |                 oc.lob_code,\n140 |                 oc.status,\n141 |                 oc.handler_code,\n142 |                 oc.loss_date,\n143 |                 CONVERT(VARCHAR(10), oc.loss_date, 103),\n144 |                 oc.reported_date,\n145 |                 CONVERT(CHAR(6), oc.reported_date, 112),\n146 |                 DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n147 |                 m.n_payments,\n148 |                 m.total_paid,\n149 |                 m.indemnity_reserve,\n150 |                 m.expense_reserve,\n151 |                 m.indemnity_reserve + m.expense_reserve,\n152 |                 m.total_paid + m.indemnity_reserve + m.expense_reserve,\n153 |                 @AsOfDate\n154 |         FROM    #open_claims oc\n155 |         JOIN    #money m\n156 |                 ON m.claim_id = oc.claim_id\n157 |         LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n158 |                ON ps.policy_id = oc.policy_id\n159 |               AND ps.snapshot_date = @snapshot_date;\n160 | \n161 |         SET @rows = @@ROWCOUNT;\n162 | \n163 |         COMMIT TRANSACTION;\n164 | \n165 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n166 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n167 |     END TRY\n168 |     BEGIN CATCH\n169 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n170 | \n171 |         SELECT  @err_msg = ERROR_MESSAGE(),\n172 |                 @err_no  = ERROR_NUMBER();\n173 | \n174 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n175 |              @message = @err_msg, @error_number = @err_no;\n176 |         THROW;\n177 |     END CATCH\n178 | END;\n179 | GO\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.claim_payments: payment_id INT, claim_id INT, payment_date DATE, amount DECIMAL(12,2), payment_type VARCHAR(12), payee_type VARCHAR(12), _row_seq INT\n- stg.claim_reserves: reserve_id INT, claim_id INT, reserve_date DATE, reserve_type VARCHAR(12), reserve_amount DECIMAL(12,2), _row_seq INT\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n\nOutput tables:\n- rpt.claims_summary: claim_id INT, claim_number VARCHAR(20), claim_ref VARCHAR(40), policy_id INT, policy_number VARCHAR(20), lob_code VARCHAR(5), status VARCHAR(12), handler_code VARCHAR(8), loss_date DATE, loss_date_text VARCHAR(10), reported_date DATE, reported_period CHAR(6), days_open INT, n_payments INT, total_paid DECIMAL(14,2), indemnity_reserve DECIMAL(14,2), expense_reserve DECIMAL(14,2), current_reserve DECIMAL(14,2), incurred DECIMAL(14,2), as_of_date DATE\n\nTrap cards:\n- TSQL-01 (semantic) Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins. Legacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged. Spark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\n- TSQL-02 (semantic) Comparisons ignore trailing spaces; CHAR(n) pads with spaces. Legacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count. Spark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\n- TSQL-03 (semantic) Integer division truncates. Legacy: INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3. The result type follows the operands, so the fraction is lost before any later cast, e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b. Spark: Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.\n- TSQL-04 (semantic) DATEDIFF counts boundaries crossed, not elapsed periods. Legacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference. Spark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\n- TSQL-05 (semantic) + concatenation with NULL yields NULL. Legacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty. Spark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\n- TSQL-06 (semantic) ISNULL takes the type of its first argument; NULL treated as equal in change checks. Legacy: ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead. Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and '' as the same value. Spark: coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it never truncates.\n- TSQL-07 (semantic) DECIMAL precision and scale, and ROUND on computed values. Legacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds. Spark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\n- TSQL-08 (semantic) TOP and TOP WITH TIES. Legacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one. Spark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\n- TSQL-09 (construct) CROSS APPLY / OUTER APPLY with TOP 1. Legacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs. Spark: Spark has no APPLY; a lateral subquery or a window replaces it.\n- TSQL-10 (construct) UPDATE ... FROM. Legacy: UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source row; with several matches, which one wins is undefined. Spark: DataFrames are immutable; an update becomes a join plus a select.\n- TSQL-11 (construct) MERGE and type-2 history. Legacy: MERGE matches target and source rows and updates, inserts or deletes in one statement. Type-2 history closes the current version (valid_to, is_current) of changed rows and inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY order, continuing from the table's highest value. Spark: Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute the new state as a whole table from the previous state and the batch.\n- TSQL-12 (construct) Cursors and WHILE loops. Legacy: A cursor processes rows one at a time in its ORDER BY order; variables carry state between rows (running totals, last values). NULL arithmetic inside the loop propagates: SET @total = @total + NULL makes @total NULL for the rest of the loop. Spark: Spark is set-based; loops become aggregations or ordered windows.\n- TSQL-13 (construct) Temp tables. Legacy: #temp tables hold intermediate results for the session. Spark: Intermediate results are DataFrames or temporary views.\n- TSQL-14 (semantic) LIKE character classes. Legacy: T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual. Spark: Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.\n- TSQL-15 (semantic) LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT. Legacy: LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters. Spark: length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and returns n characters.\n- TSQL-16 (semantic) CONVERT style codes. Legacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm. Spark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\n- TSQL-17 (construct) PIVOT. Legacy: PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the source and turns listed values into columns; values not listed are dropped; missing combinations give NULL. Spark: groupBy(...).pivot(col, values).agg(...) does the same when the values are listed; the grouping columns must be stated explicitly.\n- TSQL-18 (semantic) EOMONTH and DATEADD at month-end. Legacy: DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1, '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a month-end. EOMONTH(d, n) returns the last day of the month n months away. Spark: add_months clamps the same way but also moves a last-day-of-month input to the target month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.\n- TSQL-19 (semantic) Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings. Legacy: Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order. Spark: Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.\n\nRule candidates:\n- TSQL-02 line 33: reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n- TSQL-07 line 36: total_paid         DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 37: indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 38: expense_reserve    DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 39: current_reserve    DECIMAL(14,2)  NOT NULL,\n- TSQL-07 line 40: incurred           DECIMAL(14,2)  NOT NULL,\n- TSQL-01 line 73: WHERE   c.status IN ('OPEN', 'REOPENED')\n- TSQL-02 line 73: WHERE   c.status IN ('OPEN', 'REOPENED')\n- TSQL-01 line 90: ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n- TSQL-01 line 104: COUNT(DISTINCT p.payment_id)    AS n_payments,\n- TSQL-06 line 105: ISNULL(SUM(p.amount), 0)        AS total_paid,\n- TSQL-01 line 106: ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n- TSQL-02 line 106: ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n- TSQL-06 line 106: ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n- TSQL-19 line 106: ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n- TSQL-01 line 107: ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n- TSQL-02 line 107: ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n- TSQL-06 line 107: ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n- TSQL-19 line 107: ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n- TSQL-01 line 115: GROUP BY oc.claim_id;\n- TSQL-19 line 121: SELECT  @snapshot_date = MAX(ps.snapshot_date)\n- TSQL-05 line 136: oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n- TSQL-16 line 143: CONVERT(VARCHAR(10), oc.loss_date, 103),\n- TSQL-02 line 145: CONVERT(CHAR(6), oc.reported_date, 112),\n- TSQL-16 line 145: CONVERT(CHAR(6), oc.reported_date, 112),\n- TSQL-04 line 146: DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n",
+    "system_prompt": "You are the trap-scan agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark 4.2 and must reproduce every legacy output exactly, bugs included.\n\nA trap is a place where the legacy engine and Spark behave differently. A semantic trap changes the result if the code is translated naively (a case-insensitive text comparison, integer division, a NULL concatenation). A construct trap is a construct Spark lacks (a cursor, a temp table, a MERGE, a macro loop) that changes only the shape of the code.\n\nYou get the job's code with line numbers, the schemas of its inputs and output, the trap cards (the known engine differences) and candidate findings from deterministic rules.\n\nReturn every trap occurrence in this job that a translator must handle:\n- confirm the candidates that are real, using the schemas: a comparison arms a text trap only if the column is text; integer division only if both operands are integers;\n- leave out candidates that are not real (they are dropped);\n- add occurrences the rules missed, such as joins on text columns, NULL propagation in loops, or variables whose length a first assignment fixes;\n- report each occurrence at the narrowest line range that shows it, and the same trap at different places separately; include latent occurrences that today's data may not trigger;\n- use only trap ids from the cards; set confidence to how sure you are that it is real.\n"
+  },
+  "request_sha256": "c634d44bbfd10a1dfdfa0194e985a6d56bd18301836db6138dff03deb3d43900",
+  "response": {
+    "duration_api_ms": 28435,
+    "duration_ms": 28714,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 11612,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 11612,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.156524,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 3181,
+        "provider": "firstParty",
+        "thinkingTokens": 962,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.9,
+          "line_end": 73,
+          "line_start": 73,
+          "note": "status is VARCHAR; IN ('OPEN','REOPENED') matches case variants under CI collation, Spark binary compare drops them.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 73,
+          "line_start": 73,
+          "note": "status VARCHAR values with trailing spaces ('OPEN ') still match in SQL Server, not in Spark.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 91,
+          "line_start": 90,
+          "note": "PARTITION BY reserve_type (VARCHAR) groups case variants together for the latest-reserve pick; Spark would split them.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 91,
+          "line_start": 90,
+          "note": "PARTITION BY reserve_type ignores trailing spaces in SQL Server; Spark partitions 'EXPENSE ' separately.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 106,
+          "line_start": 106,
+          "note": "reserve_type = 'INDEMNITY' on VARCHAR matches 'Indemnity' under CI collation; Spark would not.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 106,
+          "line_start": 106,
+          "note": "reserve_type = 'INDEMNITY' ignores trailing spaces in SQL Server.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 107,
+          "line_start": 107,
+          "note": "reserve_type = 'EXPENSE' on VARCHAR is case-insensitive in legacy.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 107,
+          "line_start": 107,
+          "note": "reserve_type = 'EXPENSE' ignores trailing spaces in SQL Server.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 136,
+          "line_start": 136,
+          "note": "handler_code is nullable; '+' concatenation makes claim_ref NULL when handler_code is NULL; must use concat (not concat_ws).",
+          "trap_id": "TSQL-05"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 143,
+          "line_start": 143,
+          "note": "CONVERT style 103 gives dd/mm/yyyy; Spark needs date_format 'dd/MM/yyyy'.",
+          "trap_id": "TSQL-16"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 145,
+          "line_start": 145,
+          "note": "CONVERT(CHAR(6), d, 112) truncates yyyymmdd to yyyymm; Spark needs date_format 'yyyyMM'.",
+          "trap_id": "TSQL-16"
+        },
+        {
+          "confidence": 0.5,
+          "line_end": 146,
+          "line_start": 146,
+          "note": "DATEDIFF(DAY) on DATE equals day difference, but Spark datediff(end,start) reverses argument order; naive translation flips the sign.",
+          "trap_id": "TSQL-04"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 71,
+          "line_start": 61,
+          "note": "#open_claims temp table becomes a DataFrame.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 86,
+          "line_start": 81,
+          "note": "#reserve temp table becomes a DataFrame.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 108,
+          "line_start": 101,
+          "note": "#money temp table becomes a DataFrame.",
+          "trap_id": "TSQL-13"
+        }
+      ]
+    },
+    "total_cost_usd": 0.156524,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 11612,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 11612,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 11612,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 11612,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 3181,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3181,
+      "output_tokens_details": {
+        "thinking_tokens": 962
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

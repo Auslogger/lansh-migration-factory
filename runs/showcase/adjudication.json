@@ -1,0 +1,10 @@
+{
+  "BUG-01": {"defect_id": "T01-D1", "genuine": true, "note": "Keeps the oldest CRM version: the planted bug, diagnosed as planted."},
+  "BUG-02": {"defect_id": "T03-D1", "genuine": true, "note": "Earned over a fixed 365 days instead of the term: as planted; impact 21,145 rows, the key's own count."},
+  "BUG-03": {"defect_id": "T04-D1", "genuine": true, "note": "Payments counted once per reserve row: as planted; impact 289 rows and EUR 1,288,029.36, the key's own figures."},
+  "BUG-04": {"defect_id": "T05-D1", "genuine": true, "note": "Exactly 30 days falls in no band: as planted; impact 31 rows, the key's own count."},
+  "BUG-05": {"defect_id": "T06-D1", "genuine": true, "note": "Payments on the loss date dropped: as planted; impact EUR 390,467.67, the key's own amount."},
+  "BUG-07": {"defect_id": "T08-D1", "genuine": true, "note": "Early notification measured from expiry, not inception: as planted; impact 146 rows, the key's own count."},
+  "BUG-08": {"defect_id": "S01-D5", "genuine": false, "note": "S01-D5 flags the same line (if amount < 0) as the wrong way to identify recoveries, but for negative corrections, not for missing amounts; it measures 0 rows where the planted bug affects 86. Not the planted diagnosis."},
+  "BUG-10": {"defect_id": "S04-D2", "genuine": false, "note": "S04-D2 cites the tier lines but describes missing inputs falling to LOW; the 'MEDI' length truncation (654 rows) was reproduced exactly but not flagged as a bug."}
+}

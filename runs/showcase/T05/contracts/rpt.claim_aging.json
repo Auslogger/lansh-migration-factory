@@ -1,0 +1,214 @@
+{
+  "job_id": "T05",
+  "table": "gold.claim_aging",
+  "legacy_table": "rpt.claim_aging",
+  "layer": "gold",
+  "grain": "One row per open or re-opened claim notified on or before the reporting date (@AsOfDate), aged on the days since its last payment up to that date, or since its reported date if nothing has been paid.",
+  "keys": [
+    "claim_id"
+  ],
+  "columns": [
+    {
+      "name": "claim_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": false,
+      "max_length": 20,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": "UPPER(RTRIM(stg.claims.lob_code)).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "n_payments",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Count of payments dated on or before @AsOfDate; 0 when there are none.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "total_paid",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Running sum that starts at 0, so it is 0 (not NULL) when there are no payments. If any payment amount is NULL the sum becomes NULL, which explains the 23 NULLs.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "last_payment_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Date of the last payment on or before @AsOfDate, taken from the last row when payments are ordered by payment_date then payment_id. NULL when there are no payments.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "last_activity_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "ISNULL(last_payment_date, reported_date).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "days_since_activity",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "DATEDIFF(DAY, last_activity_date, as_of_date).",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "weeks_open",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "T-SQL DATEDIFF(WEEK, reported_date, as_of_date): counts how many week boundaries (Sundays) fall between the two dates, not days divided by 7.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "aging_band",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(10)",
+      "nullable": false,
+      "max_length": 10,
+      "tags": [],
+      "description": "'0-29' when days < 30, '31-60' for 31-60, '61+' when days > 60. Because of a legacy gap, days = 30 falls through to 'UNKNOWN'.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The @AsOfDate parameter of the run. It is the same on every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "lob_code",
+    "aging_band"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 823,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

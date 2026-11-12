@@ -1,0 +1,216 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:17:09.304465Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T06",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T06: usp_loss_triangle (tsql), legacy file estate/tsql/T06_usp_loss_triangle.sql (SHA-256 cee60f041de5a268d53d966f273fdde67f2a7710f57427e91412a791d568b613).\nPaid loss development triangle by accident year and line of business.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job      : rpt.usp_loss_triangle\n  Purpose  : Paid loss development triangle for the actuarial reserving team.\n             One row per accident year and line of business, with the amount\n             paid in each development year (dev_0 .. dev_6) and the cumulative\n             paid to date (cumulative_0 .. cumulative_6) as at @AsOfDate. Feeds\n             the chain-ladder workbook for the quarterly reserving review.\n  Author   : CNM\n\n  Change log\n    2019-04-08  CNM   Initial version (CR-0862)\n    2019-10-21  CNM   Travel added to the triangle (CR-0947)\n    2020-09-14  PD    Payments keyed with a date before the loss left out\n                      (INC-2318)\n    2021-02-01  PD    Unkeyed payments (NULL amount) left out\n    2022-01-17  EOS   Seven accident years. Cells after the as-at date now NULL\n                      instead of 0, as the workbook expects (CR-1405)\n    2023-06-26  EOS   lob_code trimmed and upper-cased before grouping\n                      (INC-2851)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.loss_triangle_paid', N'U') IS NULL\nCREATE TABLE rpt.loss_triangle_paid (\n    accident_year  INT            NOT NULL,\n    lob_code       VARCHAR(5)     NOT NULL,\n    dev_0          DECIMAL(14,2)  NULL,\n    dev_1          DECIMAL(14,2)  NULL,\n    dev_2          DECIMAL(14,2)  NULL,\n    dev_3          DECIMAL(14,2)  NULL,\n    dev_4          DECIMAL(14,2)  NULL,\n    dev_5          DECIMAL(14,2)  NULL,\n    dev_6          DECIMAL(14,2)  NULL,\n    cumulative_0   DECIMAL(14,2)  NULL,\n    cumulative_1   DECIMAL(14,2)  NULL,\n    cumulative_2   DECIMAL(14,2)  NULL,\n    cumulative_3   DECIMAL(14,2)  NULL,\n    cumulative_4   DECIMAL(14,2)  NULL,\n    cumulative_5   DECIMAL(14,2)  NULL,\n    cumulative_6   DECIMAL(14,2)  NULL,\n    as_of_date     DATE           NOT NULL,\n    CONSTRAINT pk_loss_triangle_paid PRIMARY KEY (accident_year, lob_code)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_loss_triangle\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name VARCHAR(128) = 'rpt.usp_loss_triangle',\n            @as_at_yr INT          = YEAR(@AsOfDate),\n            @rows     INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Start',\n             @status = 'STARTED';\n\n        ------------------------------------------------------------------\n        -- 1. Claims with a loss in the last seven accident years\n        ------------------------------------------------------------------\n        IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT c.claim_id,\n               c.loss_date,\n               YEAR(c.loss_date)        AS accident_year,\n               UPPER(RTRIM(c.lob_code)) AS lob_code\n        INTO   #claims\n        FROM   stg.claims AS c WITH (NOLOCK)\n        WHERE  YEAR(c.loss_date) BETWEEN @as_at_yr - 6 AND @as_at_yr\n          AND  c.loss_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Load #claims',\n             @status = 'INFO', @rows_affected = @rows;\n\n        ------------------------------------------------------------------\n        -- 2. Payments to the as-at date, with their development year\n        ------------------------------------------------------------------\n        IF OBJECT_ID('tempdb..#paid') IS NOT NULL DROP TABLE #paid;\n\n        SELECT cl.claim_id,\n               p.payment_id,\n               cl.accident_year,\n               cl.lob_code,\n               DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,\n               p.amount\n        INTO   #paid\n        FROM   #claims AS cl\n        INNER JOIN stg.claim_payments AS p WITH (NOLOCK)\n                ON p.claim_id = cl.claim_id\n        WHERE  p.payment_date <= @AsOfDate\n          AND  p.payment_date >  cl.loss_date   -- dated before the loss = keying error\n          AND  p.amount IS NOT NULL;            -- not keyed yet\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Load #paid',\n             @status = 'INFO', @rows_affected = @rows;\n\n        ------------------------------------------------------------------\n        -- 3. One column per development year\n        ------------------------------------------------------------------\n        IF OBJECT_ID('tempdb..#tri') IS NOT NULL DROP TABLE #tri;\n\n        SELECT pv.accident_year,\n               pv.lob_code,\n               pv.[0] AS d0, pv.[1] AS d1, pv.[2] AS d2, pv.[3] AS d3,\n               pv.[4] AS d4, pv.[5] AS d5, pv.[6] AS d6\n        INTO   #tri\n        FROM  (SELECT accident_year, lob_code, dev_year, amount\n               FROM   #paid) AS src\n        PIVOT (SUM(amount) FOR dev_year IN ([0], [1], [2], [3], [4], [5], [6])) AS pv;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Pivot #tri',\n             @status = 'INFO', @rows_affected = @rows;\n\n        ------------------------------------------------------------------\n        -- 4. Reload the triangle. Nothing paid yet = 0; a cell after the\n        --    as-at date stays NULL.\n        ------------------------------------------------------------------\n        TRUNCATE TABLE rpt.loss_triangle_paid;\n\n        INSERT INTO rpt.loss_triangle_paid\n               (accident_year, lob_code, dev_0, dev_1, dev_2, dev_3, dev_4, dev_5, dev_6,\n                as_of_date)\n        SELECT t.accident_year,\n               t.lob_code,\n               ISNULL(t.d0, 0),\n               CASE WHEN t.accident_year + 1 <= @as_at_yr THEN ISNULL(t.d1, 0) END,\n               CASE WHEN t.accident_year + 2 <= @as_at_yr THEN ISNULL(t.d2, 0) END,\n               CASE WHEN t.accident_year + 3 <= @as_at_yr THEN ISNULL(t.d3, 0) END,\n               CASE WHEN t.accident_year + 4 <= @as_at_yr THEN ISNULL(t.d4, 0) END,\n               CASE WHEN t.accident_year + 5 <= @as_at_yr THEN ISNULL(t.d5, 0) END,\n               CASE WHEN t.accident_year + 6 <= @as_at_yr THEN ISNULL(t.d6, 0) END,\n               @AsOfDate\n        FROM   #tri AS t;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Insert rpt.loss_triangle_paid',\n             @status = 'INFO', @rows_affected = @rows;\n\n        -- cumulative paid (NULL after the as-at date, same as dev_n)\n        UPDATE rpt.loss_triangle_paid\n           SET cumulative_0 = dev_0,\n               cumulative_1 = dev_0 + dev_1,\n               cumulative_2 = dev_0 + dev_1 + dev_2,\n               cumulative_3 = dev_0 + dev_1 + dev_2 + dev_3,\n               cumulative_4 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4,\n               cumulative_5 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4 + dev_5,\n               cumulative_6 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4 + dev_5 + dev_6;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Cumulative paid',\n             @status = 'INFO', @rows_affected = @rows;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'End',\n             @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        DECLARE @err_msg NVARCHAR(4000) = ERROR_MESSAGE(),\n                @err_no  INT            = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Error',\n             @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH;\nEND;\nGO\n\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n\nOutput tables:\n- rpt.loss_triangle_paid: accident_year int (INT), lob_code string (VARCHAR(5)), dev_0 decimal(14,2) (DECIMAL(14,2)), dev_1 decimal(14,2) (DECIMAL(14,2)), dev_2 decimal(14,2) (DECIMAL(14,2)), dev_3 decimal(14,2) (DECIMAL(14,2)), dev_4 decimal(14,2) (DECIMAL(14,2)), dev_5 decimal(14,2) (DECIMAL(14,2)), dev_6 decimal(14,2) (DECIMAL(14,2)), cumulative_0 decimal(14,2) (DECIMAL(14,2)), cumulative_1 decimal(14,2) (DECIMAL(14,2)), cumulative_2 decimal(14,2) (DECIMAL(14,2)), cumulative_3 decimal(14,2) (DECIMAL(14,2)), cumulative_4 decimal(14,2) (DECIMAL(14,2)), cumulative_5 decimal(14,2) (DECIMAL(14,2)), cumulative_6 decimal(14,2) (DECIMAL(14,2)), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "9551a3c9f6a15da33fe9584d404093d0a2fb0ca9a6c46344b68246608f224ac7",
+  "response": {
+    "duration_api_ms": 43477,
+    "duration_ms": 43776,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4850,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4850,
+        "cacheReadInputTokens": 1842,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.13729639999999999,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4906,
+        "provider": "firstParty",
+        "thinkingTokens": 2484,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"T06 rpt.usp_loss_triangle -> PySpark.\n\nPaid loss development triangle by accident year and line of business, as at\nparams[\"AsOfDate\"]. This reproduces the legacy T-SQL procedure exactly, legacy\ndefects included.\n\"\"\"\nimport datetime\nfrom functools import reduce\n\nfrom pyspark.sql import SparkSession, DataFrame\nimport pyspark.sql.functions as F\nimport pyspark.sql.types as T\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = datetime.date.fromisoformat(params[\"AsOfDate\"].strip()[:10])\n    as_at_yr = as_of.year\n    as_of_lit = F.lit(as_of)\n\n    claims = inputs[\"stg.claims\"]\n    payments = inputs[\"stg.claim_payments\"]\n\n    # 1. Claims with a loss in the last seven accident years\n    cl = (\n        claims\n        .where(\n            F.year(\"loss_date\").between(as_at_yr - 6, as_at_yr)\n            & (F.col(\"loss_date\") <= as_of_lit)\n        )\n        .select(\n            F.col(\"claim_id\"),\n            F.col(\"loss_date\"),\n            F.year(\"loss_date\").alias(\"accident_year\"),\n            # T-SQL RTRIM strips trailing spaces only; leading spaces are kept\n            F.upper(F.rtrim(F.col(\"lob_code\"))).alias(\"lob_code\"),\n        )\n    )\n\n    # 2. Payments to the as-at date, with their development year\n    p = payments.select(\n        F.col(\"claim_id\").alias(\"p_claim_id\"),\n        F.col(\"payment_id\"),\n        F.col(\"payment_date\"),\n        F.col(\"amount\"),\n    )\n    paid = (\n        cl.join(p, p[\"p_claim_id\"] == cl[\"claim_id\"], \"inner\")\n        .where(\n            (F.col(\"payment_date\") <= as_of_lit)\n            & (F.col(\"payment_date\") > F.col(\"loss_date\"))  # LANSH-DEFECT: strict '>' drops payments made on the loss date itself, not only the ones dated before the loss\n            & F.col(\"amount\").isNotNull()\n        )\n        .select(\n            F.col(\"accident_year\"),\n            F.col(\"lob_code\"),\n            # DATEDIFF(YEAR, a, b) counts calendar-year boundaries crossed\n            (F.year(\"payment_date\") - F.year(\"loss_date\")).alias(\"dev_year\"),\n            F.col(\"amount\"),\n        )\n    )\n\n    # 3. PIVOT SUM(amount) FOR dev_year IN ([0]..[6]), grouped by accident_year, lob_code\n    aggs = [\n        F.sum(F.when(F.col(\"dev_year\") == k, F.col(\"amount\"))).alias(\"d%d\" % k)\n        for k in range(7)\n    ]\n    tri = paid.groupBy(\"accident_year\", \"lob_code\").agg(*aggs)\n\n    # 4. Insert: nothing paid yet = 0; a cell after the as-at year stays NULL\n    dec = T.DecimalType(14, 2)\n    zero = F.lit(0).cast(dec)\n\n    def dev_cell(k: int):\n        filled = F.coalesce(F.col(\"d%d\" % k).cast(dec), zero)\n        if k == 0:\n            return filled\n        return F.when(F.col(\"accident_year\") + F.lit(k) <= F.lit(as_at_yr), filled)\n\n    # lob_code is NOT NULL in the target: a NULL lob_code group makes the legacy INSERT fail\n    lob_checked = F.when(\n        F.col(\"lob_code\").isNull(),\n        F.raise_error(F.lit(\"Cannot insert the value NULL into column 'lob_code', table 'rpt.loss_triangle_paid'\")),\n    ).otherwise(F.col(\"lob_code\"))\n\n    ins = tri.select(\n        F.col(\"accident_year\").cast(T.IntegerType()).alias(\"accident_year\"),\n        lob_checked.alias(\"lob_code\"),\n        *[dev_cell(k).cast(dec).alias(\"dev_%d\" % k) for k in range(7)],\n    )\n\n    # cumulative paid (NULL propagates after the as-at year, same as dev_n)\n    cum_cols = []\n    for k in range(7):\n        expr = reduce(lambda a, b: a + b, [F.col(\"dev_%d\" % i) for i in range(k + 1)])\n        cum_cols.append(expr.alias(\"cumulative_%d\" % k))\n\n    out = ins.select(\n        F.col(\"accident_year\"),\n        F.col(\"lob_code\"),\n        *[F.col(\"dev_%d\" % k) for k in range(7)],\n        *cum_cols,\n        as_of_lit.alias(\"as_of_date\"),\n    )\n\n    return {\"rpt.loss_triangle_paid\": out}\n",
+      "defects": [
+        {
+          "intended": "Leave out only payments dated before the loss (the keying error from INC-2318), which would be payment_date >= loss_date. Payments on the loss date belong in dev_0.",
+          "legacy_lines": [
+            97
+          ],
+          "title": "Payments made on the loss date are dropped",
+          "what_it_does": "The filter p.payment_date > cl.loss_date leaves out every payment made on the loss date itself, along with the ones dated before the loss."
+        }
+      ],
+      "notes": "I didn't know the trap-card ids for this job, so traps_handled is empty. These behaviours are handled in the code:\n(1) DATEDIFF(YEAR, loss_date, payment_date) counts calendar-year boundaries, so the code uses year(payment_date) - year(loss_date), not elapsed full years.\n(2) T-SQL RTRIM removes trailing spaces only, so leading spaces in lob_code stay. Spark's rtrim matches this. Upper-casing should match for ASCII codes, but Java's toUpperCase can differ from SQL Server UPPER for some non-ASCII characters (for example 'ß').\n(3) PIVOT is done as a groupBy on accident_year and lob_code with a conditional SUM per dev year. Only accident year and line of business pairs with at least one qualifying payment get a row, as in the legacy. Claims with no payments produce no row.\n(4) Dev cells are stored as decimal(14,2) before the cumulative columns are added, because the legacy UPDATE works on the stored columns. NULLs carry through the sums the same way.\n(5) A claim with a NULL lob_code that has qualifying payments makes the legacy INSERT fail on the NOT NULL column, after the TRUNCATE has already run. The code reproduces this with raise_error on that row. Please check that this guard is acceptable.\n(6) dev_year can never fall outside 0..6, because of the accident-year window and the as-at date filter.\n(7) Each pair is grouped once, so the primary key holds.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.13729639999999999,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4850,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4850,
+      "cache_read_input_tokens": 1842,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4850,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4850,
+          "cache_read_input_tokens": 1842,
+          "input_tokens": 2,
+          "output_tokens": 4906,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4906,
+      "output_tokens_details": {
+        "thinking_tokens": 2484
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

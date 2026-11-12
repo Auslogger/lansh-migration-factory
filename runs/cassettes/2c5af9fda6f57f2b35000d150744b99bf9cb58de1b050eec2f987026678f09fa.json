@@ -1,0 +1,653 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:58:49.826127Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_customer\n  3 |   Purpose  : Customer dimension for the marketing and pricing teams. One row\n  4 |              per CRM customer with the customer's current details from the\n  5 |              CRM extract, plus sales region, Eircode check, initials and\n  6 |              segment flags for campaigns and the pricing models.\n  7 |   Output   : dw.dim_customer (truncated and reloaded on every run)\n  8 |   Author   : DOC\n  9 | \n 10 |   Change log\n 11 |     2013-05-20  DOC   Initial version\n 12 |     2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n 13 |     2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n 14 |     2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n 15 |     2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n 16 |                       (CR-1190)\n 17 |     2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n 18 |                       (GDPR, CR-1342)\n 19 |     2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n 20 |     2019-11-04  KB    CRM extract is now change data capture: one row per\n 21 |                       saved version, keep the current one (CR-1702)\n 22 |     2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n 23 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 24 | ==============================================================================*/\n 25 | SET NOCOUNT ON;\n 26 | GO\n 27 | IF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\n 28 | CREATE TABLE dw.dim_customer (\n 29 |     customer_id          INT            NOT NULL,\n 30 |     first_name           NVARCHAR(40)   NOT NULL,\n 31 |     last_name            NVARCHAR(60)   NOT NULL,\n 32 |     full_name            NVARCHAR(101)  NOT NULL,\n 33 |     initials             NVARCHAR(2)    NOT NULL,\n 34 |     email                VARCHAR(120)   NULL,\n 35 |     email_shared_count   INT            NOT NULL,\n 36 |     date_of_birth        DATE           NULL,\n 37 |     age_at_join          INT            NULL,\n 38 |     address_line1        NVARCHAR(100)  NULL,\n 39 |     town                 NVARCHAR(50)   NULL,\n 40 |     county               VARCHAR(30)    NULL,\n 41 |     region               VARCHAR(12)    NOT NULL,\n 42 |     eircode              VARCHAR(10)    NULL,\n 43 |     eircode_valid        CHAR(1)        NOT NULL,\n 44 |     segment_code         CHAR(4)        NULL,\n 45 |     is_standard_segment  CHAR(1)        NOT NULL,\n 46 |     marketing_opt_in     CHAR(1)        NOT NULL,\n 47 |     customer_since       DATE           NOT NULL,\n 48 |     source_system        VARCHAR(10)    NOT NULL,\n 49 |     version_count        INT            NOT NULL,\n 50 |     record_updated_at    DATETIME2(0)   NOT NULL,\n 51 |     as_of_date           DATE           NOT NULL,\n 52 |     CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n 53 | );\n 54 | GO\n 55 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n 56 |     @AsOfDate DATE\n 57 | AS\n 58 | BEGIN\n 59 |     SET NOCOUNT ON;\n 60 | \n 61 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n 62 |             @rows      INT,\n 63 |             @err_msg   NVARCHAR(4000),\n 64 |             @err_no    INT;\n 65 | \n 66 |     BEGIN TRY\n 67 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 68 | \n 69 |         IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n 70 |         IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n 71 | \n 72 |         /* 1. Customer versions saved up to the reporting date. The CRM extract\n 73 |               writes a new row every time a record is saved. */\n 74 |         SELECT  c.customer_id,\n 75 |                 c.first_name,\n 76 |                 c.last_name,\n 77 |                 c.email,\n 78 |                 c.date_of_birth,\n 79 |                 c.address_line1,\n 80 |                 c.town,\n 81 |                 c.county,\n 82 |                 c.eircode,\n 83 |                 c.segment_code,\n 84 |                 c.marketing_opt_in,\n 85 |                 c.customer_since,\n 86 |                 c.source_system,\n 87 |                 c.updated_at,\n 88 |                 c._row_seq,\n 89 |                 COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n 90 |         INTO    #customer_versions\n 91 |         FROM    stg.customers c WITH (NOLOCK)\n 92 |         WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n 93 | \n 94 |         SET @rows = @@ROWCOUNT;\n 95 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n 96 | \n 97 |         /* 2. Keep the current version of each customer */\n 98 |         SELECT  v.*\n 99 |         INTO    #customer\n100 |         FROM   (SELECT  cv.*,\n101 |                         ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n102 |                                            ORDER BY cv.updated_at, cv._row_seq) AS version_no\n103 |                 FROM    #customer_versions cv) v\n104 |         WHERE   v.version_no = 1;\n105 | \n106 |         SET @rows = @@ROWCOUNT;\n107 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n108 | \n109 |         /* 3. Reload the dimension */\n110 |         BEGIN TRANSACTION;\n111 | \n112 |         TRUNCATE TABLE dw.dim_customer;\n113 | \n114 |         INSERT INTO dw.dim_customer\n115 |                (customer_id, first_name, last_name, full_name, initials, email,\n116 |                 email_shared_count, date_of_birth, age_at_join, address_line1, town,\n117 |                 county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n118 |                 marketing_opt_in, customer_since, source_system, version_count,\n119 |                 record_updated_at, as_of_date)\n120 |         SELECT  k.customer_id,\n121 |                 RTRIM(k.first_name),\n122 |                 k.last_name,\n123 |                 RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n124 |                 UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n125 |                 k.email,\n126 |                 CASE WHEN k.email IS NULL THEN 0\n127 |                      ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n128 |                 k.date_of_birth,\n129 |                 DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n130 |                 k.address_line1,\n131 |                 k.town,\n132 |                 k.county,\n133 |                 -- sales regions as agreed with distribution (CR-0412)\n134 |                 CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n135 |                      WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n136 |                      WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n137 |                      WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n138 |                      WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n139 |                      ELSE 'UNKNOWN'\n140 |                 END,\n141 |                 k.eircode,\n142 |                 -- routing key (3) and unique identifier (4), keyed with or without the space\n143 |                 CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n144 |                      WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n145 |                      ELSE 'N'\n146 |                 END,\n147 |                 k.segment_code,\n148 |                 CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n149 |                 ISNULL(k.marketing_opt_in, 'N'),\n150 |                 k.customer_since,\n151 |                 UPPER(RTRIM(k.source_system)),\n152 |                 k.version_count,\n153 |                 k.updated_at,\n154 |                 @AsOfDate\n155 |         FROM    #customer k;\n156 | \n157 |         SET @rows = @@ROWCOUNT;\n158 | \n159 |         COMMIT TRANSACTION;\n160 | \n161 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n163 |     END TRY\n164 |     BEGIN CATCH\n165 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n166 | \n167 |         SELECT  @err_msg = ERROR_MESSAGE(),\n168 |                 @err_no  = ERROR_NUMBER();\n169 | \n170 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n171 |              @message = @err_msg, @error_number = @err_no;\n172 |         THROW;\n173 |     END CATCH\n174 | END;\n175 | GO\n\nInput tables:\n- stg.customers: customer_id INT NOT NULL, first_name NVARCHAR(40) NOT NULL, last_name NVARCHAR(60) NOT NULL, email VARCHAR(120), date_of_birth DATE, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), eircode VARCHAR(10), segment_code CHAR(4), marketing_opt_in CHAR(1), customer_since DATE NOT NULL, source_system VARCHAR(10) NOT NULL, updated_at DATETIME2(0) NOT NULL\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 44-44: The output segment_code is CHAR(4), so legacy values come back padded to 4 characters. Spark output must keep or add that padding to match exactly.\n- TSQL-05 (+ concatenation with NULL yields NULL) at lines 123-123: full_name is built with + from first_name and last_name. If either is NULL, the legacy result is NULL. The translation must use concat(), which also returns NULL, not concat_ws(), which skips NULLs. The trap is latent if the source names are never NULL.\n- TSQL-05 (+ concatenation with NULL yields NULL) at lines 124-124: The initials are joined with +, so a NULL first or last name makes them NULL. The translation must keep that NULL result.\n- TSQL-15 (LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT) at lines 124-124: SUBSTRING(x, 0, 2) returns only 1 character in T-SQL, so initials are 2 letters. Spark's substring(x, 0, 2) returns 2 characters, which gives 4-letter initials.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 127-127: PARTITION BY on the VARCHAR email column groups case variants together under the CI collation, so 'A@x.ie' and 'a@x.ie' count as one shared email. Spark keeps them apart.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 127-127: PARTITION BY email also ignores trailing spaces, so 'a@x.ie ' and 'a@x.ie' land in the same partition in SQL Server but not in Spark.\n- TSQL-04 (DATEDIFF counts boundaries crossed, not elapsed periods) at lines 129-129: DATEDIFF(YEAR, ...) counts year boundaries crossed, not full years elapsed. age_at_join must be year(customer_since) - year(date_of_birth), not floor(months_between/12).\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 134-134: The VARCHAR county is matched with IN against title-case names. SQL Server matches case variants such as 'DUBLIN', but Spark sends them to UNKNOWN.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 134-134: The county IN check ignores trailing spaces in SQL Server ('Dublin ' matches). Spark does not.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 135-135: The SOUTH county IN list matches case-insensitively in the legacy engine.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 135-135: The SOUTH county IN list ignores trailing spaces in the legacy engine.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 136-136: The WEST county IN list matches case-insensitively in the legacy engine.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 136-136: The WEST county IN list ignores trailing spaces in the legacy engine.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 137-137: The NORTH-WEST county IN list matches case-insensitively in the legacy engine.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 137-137: The NORTH-WEST county IN list ignores trailing spaces in the legacy engine.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 138-138: The MIDLANDS county IN list matches case-insensitively in the legacy engine.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 138-138: The MIDLANDS county IN list ignores trailing spaces in the legacy engine.\n- TSQL-15 (LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT) at lines 143-143: LEN(eircode) ignores trailing spaces, so 'D02X285 ' still counts as 7 characters. Spark's length() counts 8 and marks the code invalid.\n- TSQL-15 (LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT) at lines 144-144: LEN(eircode) = 8 ignores trailing spaces. The translation needs rtrim before length() to give the same result.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 148-148: segment_code = 'STD' also matches 'std' or 'Std' under the CI collation. Spark's comparison is case-sensitive.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 148-148: segment_code is CHAR(4), so it holds 'STD ' padded with a space. SQL Server's = 'STD' ignores the padding, but Spark compares the padded value exactly and gets no match.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "2c5af9fda6f57f2b35000d150744b99bf9cb58de1b050eec2f987026678f09fa",
+  "response": {
+    "duration_api_ms": 45677,
+    "duration_ms": 45983,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 6899,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 6899,
+        "cacheReadInputTokens": 1423,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1672846,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 5590,
+        "provider": "firstParty",
+        "thinkingTokens": 586,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "County values in the wrong case for every region list (DUBLIN, cork, GALWAY, donegal, LAOIS), a segment_code of 'std', and emails that differ only in case (Mary@x.ie / mary@x.ie / MARY@X.IE). Under the CI collation the legacy job puts each county in its region, flags 'std' as standard, and counts the three emails as one shared address (3). A naive Spark translation sends the counties to UNKNOWN, flags 'std' as N, and counts each email as 1. One canonical row (Dublin, STD) is included for comparison.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "county": "DUBLIN",
+                  "customer_id": "1",
+                  "customer_since": "2015-03-01",
+                  "date_of_birth": "1980-05-01",
+                  "eircode": "D02X285",
+                  "email": "Mary@x.ie",
+                  "first_name": "Mary",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "std",
+                  "source_system": "crm",
+                  "updated_at": "2024-01-10T09:00:00"
+                },
+                {
+                  "county": "cork",
+                  "customer_id": "2",
+                  "customer_since": "2016-04-01",
+                  "date_of_birth": "1975-02-11",
+                  "eircode": "T12AB34",
+                  "email": "mary@x.ie",
+                  "first_name": "John",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "N",
+                  "segment_code": "Std",
+                  "source_system": "crm",
+                  "updated_at": "2024-02-10T09:00:00"
+                },
+                {
+                  "county": "GALWAY",
+                  "customer_id": "3",
+                  "customer_since": "2018-06-01",
+                  "date_of_birth": "1990-07-21",
+                  "eircode": "H91XY12",
+                  "email": "MARY@X.IE",
+                  "first_name": "Aoife",
+                  "last_name": "Kelly",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-03-10T09:00:00"
+                },
+                {
+                  "county": "donegal",
+                  "customer_id": "4",
+                  "customer_since": "2019-01-15",
+                  "date_of_birth": "1985-09-15",
+                  "eircode": "F92AB12",
+                  "email": "sean@y.ie",
+                  "first_name": "Sean",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "web",
+                  "updated_at": "2024-04-10T09:00:00"
+                },
+                {
+                  "county": "LAOIS",
+                  "customer_id": "5",
+                  "customer_since": "2020-08-01",
+                  "date_of_birth": "1992-11-30",
+                  "eircode": "R32AB12",
+                  "email": "niamh@z.ie",
+                  "first_name": "Niamh",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "segment_code": "STD",
+                  "source_system": "web",
+                  "updated_at": "2024-05-10T09:00:00"
+                },
+                {
+                  "county": "Dublin",
+                  "customer_id": "6",
+                  "customer_since": "2017-02-01",
+                  "date_of_birth": "1988-03-03",
+                  "eircode": "D04AB12",
+                  "email": "ciara@z.ie",
+                  "first_name": "Ciara",
+                  "last_name": "Nolan",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-06-10T09:00:00"
+                }
+              ],
+              "table": "stg.customers"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "County values with trailing spaces for every region list ('Dublin ', 'Cork ', 'Mayo ', 'Sligo ', 'Offaly '). Emails that differ only by a trailing space ('pat@x.ie' and 'pat@x.ie '). segment_code values 'STD' (stored padded as 'STD ' in CHAR(4)) and 'PR' (padded to 'PR  '). SQL Server ignores trailing spaces, so it matches the counties to their regions, counts the shared email as 2, flags STD as Y and returns segment_code padded to 4 characters. A naive Spark translation gets UNKNOWN regions, counts 1 for each email, flags the padded 'STD ' as N, or returns an unpadded segment_code.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "county": "Dublin ",
+                  "customer_id": "11",
+                  "customer_since": "2014-03-01",
+                  "date_of_birth": "1970-01-20",
+                  "eircode": "D02X285",
+                  "email": "pat@x.ie",
+                  "first_name": "Pat",
+                  "last_name": "Murphy",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-01-10T09:00:00"
+                },
+                {
+                  "county": "Cork ",
+                  "customer_id": "12",
+                  "customer_since": "2016-05-01",
+                  "date_of_birth": "1982-04-12",
+                  "eircode": "T12AB34",
+                  "email": "pat@x.ie ",
+                  "first_name": "Rose",
+                  "last_name": "Healy",
+                  "marketing_opt_in": "N",
+                  "segment_code": "STD ",
+                  "source_system": "crm",
+                  "updated_at": "2024-02-10T09:00:00"
+                },
+                {
+                  "county": "Mayo ",
+                  "customer_id": "13",
+                  "customer_since": "2019-07-01",
+                  "date_of_birth": "1991-06-06",
+                  "eircode": "F23AB12",
+                  "email": "liam@x.ie",
+                  "first_name": "Liam",
+                  "last_name": "Burke",
+                  "segment_code": "PR",
+                  "source_system": "web ",
+                  "updated_at": "2024-03-10T09:00:00"
+                },
+                {
+                  "county": "Sligo ",
+                  "customer_id": "14",
+                  "customer_since": "2018-09-01",
+                  "date_of_birth": "1987-08-08",
+                  "eircode": "F91AB12",
+                  "email": "orla@x.ie",
+                  "first_name": "Orla",
+                  "last_name": "Quinn",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-04-10T09:00:00"
+                },
+                {
+                  "county": "Offaly ",
+                  "customer_id": "15",
+                  "customer_since": "2015-11-01",
+                  "date_of_birth": "1979-10-10",
+                  "eircode": "R35AB12",
+                  "email": "eoin@x.ie",
+                  "first_name": "Eoin",
+                  "last_name": "Daly",
+                  "marketing_opt_in": "N",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-05-10T09:00:00"
+                },
+                {
+                  "county": "Kerry",
+                  "customer_id": "16",
+                  "customer_since": "2021-01-01",
+                  "date_of_birth": "1993-12-12",
+                  "eircode": "V92AB12",
+                  "email": "fiona@x.ie",
+                  "first_name": "Fiona",
+                  "last_name": "Lynch",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-06-10T09:00:00"
+                }
+              ],
+              "table": "stg.customers"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Builds full_name and initials with + from first_name and last_name. Both columns are NOT NULL in stg.customers, so a NULL can't be loaded and the NULL case of the trap is latent. The rows cover the edge cases that are allowed: an empty first name, an empty last name, and names with trailing spaces, which are concatenated after RTRIM. On these rows a concat() translation and the legacy job should give the same full_name and initials, and a concat_ws() translation that skips empty or NULL parts would differ only if a NULL could reach it.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "county": "Meath",
+                  "customer_id": "21",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1980-01-01",
+                  "eircode": "C15AB12",
+                  "email": "anne@x.ie",
+                  "first_name": "Anne ",
+                  "last_name": "Brady ",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-01-10T09:00:00"
+                },
+                {
+                  "county": "Clare",
+                  "customer_id": "22",
+                  "customer_since": "2016-02-02",
+                  "date_of_birth": "1981-02-02",
+                  "eircode": "V95AB12",
+                  "email": "moran@x.ie",
+                  "first_name": "",
+                  "last_name": "Moran",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-02-10T09:00:00"
+                },
+                {
+                  "county": "Cavan",
+                  "customer_id": "23",
+                  "customer_since": "2017-03-03",
+                  "date_of_birth": "1982-03-03",
+                  "eircode": "H12AB12",
+                  "email": "declan@x.ie",
+                  "first_name": "Declan",
+                  "last_name": "",
+                  "marketing_opt_in": "N",
+                  "segment_code": "STD",
+                  "source_system": "web",
+                  "updated_at": "2024-03-10T09:00:00"
+                },
+                {
+                  "county": "Waterford",
+                  "customer_id": "24",
+                  "customer_since": "2018-04-04",
+                  "date_of_birth": "1983-04-04",
+                  "eircode": "X91AB12",
+                  "email": "grace@x.ie",
+                  "first_name": "Grace",
+                  "last_name": "Power",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-04-10T09:00:00"
+                },
+                {
+                  "county": "Longford",
+                  "customer_id": "25",
+                  "customer_since": "2019-05-05",
+                  "date_of_birth": "1984-05-05",
+                  "eircode": "N39AB12",
+                  "email": "tom@x.ie",
+                  "first_name": "Tom",
+                  "last_name": "Casey",
+                  "marketing_opt_in": "N",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-05-10T09:00:00"
+                }
+              ],
+              "table": "stg.customers"
+            }
+          ],
+          "trap_id": "TSQL-05"
+        },
+        {
+          "description": "Names that give 2-letter initials in T-SQL, because SUBSTRING(x,0,2) returns only the first character. A naive Spark substring(x,0,2) returns 2 characters per name, so it gives 4-letter initials. The Eircodes include trailing spaces: 'D02X285 ' and 'D02X2851  ' have a T-SQL LEN of 7 and 8, and 'D02 X285 ' has a LEN of 8 with a space at position 4. T-SQL's LEN ignores trailing spaces, so it marks some of these valid where a naive length() would not. Canonical codes ('D02X285', 'D02 X285') and an invalid code ('D02X28') are included.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "county": "Dublin",
+                  "customer_id": "31",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1980-01-01",
+                  "eircode": "D02X285 ",
+                  "email": "brian@x.ie",
+                  "first_name": "Brian",
+                  "last_name": "Fox",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-01-10T09:00:00"
+                },
+                {
+                  "county": "Cork",
+                  "customer_id": "32",
+                  "customer_since": "2016-02-02",
+                  "date_of_birth": "1981-02-02",
+                  "eircode": "D02 X285 ",
+                  "email": "siobhan@x.ie",
+                  "first_name": "Siobhan",
+                  "last_name": "Reilly",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-02-10T09:00:00"
+                },
+                {
+                  "county": "Galway",
+                  "customer_id": "33",
+                  "customer_since": "2017-03-03",
+                  "date_of_birth": "1982-03-03",
+                  "eircode": "D02X285",
+                  "email": "kevin@x.ie",
+                  "first_name": "Kevin",
+                  "last_name": "Hayes",
+                  "marketing_opt_in": "N",
+                  "segment_code": "STD",
+                  "source_system": "web",
+                  "updated_at": "2024-03-10T09:00:00"
+                },
+                {
+                  "county": "Sligo",
+                  "customer_id": "34",
+                  "customer_since": "2018-04-04",
+                  "date_of_birth": "1983-04-04",
+                  "eircode": "D02 X285",
+                  "email": "emer@x.ie",
+                  "first_name": "Emer",
+                  "last_name": "Duffy",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-04-10T09:00:00"
+                },
+                {
+                  "county": "Laois",
+                  "customer_id": "35",
+                  "customer_since": "2019-05-05",
+                  "date_of_birth": "1984-05-05",
+                  "eircode": "D02X28",
+                  "email": "paul@x.ie",
+                  "first_name": "Paul",
+                  "last_name": "Egan",
+                  "marketing_opt_in": "N",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-05-10T09:00:00"
+                },
+                {
+                  "county": "Kildare",
+                  "customer_id": "36",
+                  "customer_since": "2020-06-06",
+                  "date_of_birth": "1985-06-06",
+                  "eircode": "D02X2851  ",
+                  "email": "maeve@x.ie",
+                  "first_name": "Maeve",
+                  "last_name": "Carroll",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-06-10T09:00:00"
+                }
+              ],
+              "table": "stg.customers"
+            }
+          ],
+          "trap_id": "TSQL-15"
+        },
+        {
+          "description": "Birth dates and join dates where counting year boundaries (DATEDIFF YEAR) gives a different age than counting full years elapsed. Examples: born 1990-12-31 and joined 2020-01-01 (boundaries 30, full years 29), and born 1985-06-15 and joined 2015-06-14. A row where a birthday has already passed in the join year, and a row with no date of birth (NULL age), are included as controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "county": "Dublin",
+                  "customer_id": "41",
+                  "customer_since": "2020-01-01",
+                  "date_of_birth": "1990-12-31",
+                  "eircode": "D02X285",
+                  "email": "alan@x.ie",
+                  "first_name": "Alan",
+                  "last_name": "Kenny",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-01-10T09:00:00"
+                },
+                {
+                  "county": "Cork",
+                  "customer_id": "42",
+                  "customer_since": "2015-06-14",
+                  "date_of_birth": "1985-06-15",
+                  "eircode": "T12AB34",
+                  "email": "brid@x.ie",
+                  "first_name": "Brid",
+                  "last_name": "Lawlor",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-02-10T09:00:00"
+                },
+                {
+                  "county": "Mayo",
+                  "customer_id": "43",
+                  "customer_since": "2018-03-01",
+                  "date_of_birth": "2000-11-20",
+                  "eircode": "F23AB12",
+                  "email": "colm@x.ie",
+                  "first_name": "Colm",
+                  "last_name": "Molloy",
+                  "marketing_opt_in": "N",
+                  "segment_code": "STD",
+                  "source_system": "web",
+                  "updated_at": "2024-03-10T09:00:00"
+                },
+                {
+                  "county": "Leitrim",
+                  "customer_id": "44",
+                  "customer_since": "2010-05-01",
+                  "date_of_birth": "1975-01-10",
+                  "eircode": "N41AB12",
+                  "email": "dara@x.ie",
+                  "first_name": "Dara",
+                  "last_name": "Hogan",
+                  "marketing_opt_in": "Y",
+                  "segment_code": "STD",
+                  "source_system": "crm",
+                  "updated_at": "2024-04-10T09:00:00"
+                },
+                {
+                  "county": "Offaly",
+                  "customer_id": "45",
+                  "customer_since": "2019-05-05",
+                  "eircode": "R35AB12",
+                  "email": "ella@x.ie",
+                  "first_name": "Ella",
+                  "last_name": "Foley",
+                  "marketing_opt_in": "N",
+                  "segment_code": "PRM",
+                  "source_system": "crm",
+                  "updated_at": "2024-05-10T09:00:00"
+                }
+              ],
+              "table": "stg.customers"
+            }
+          ],
+          "trap_id": "TSQL-04"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1672846,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 6899,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 6899,
+      "cache_read_input_tokens": 1423,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 6899,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 6899,
+          "cache_read_input_tokens": 1423,
+          "input_tokens": 2,
+          "output_tokens": 5590,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 5590,
+      "output_tokens_details": {
+        "thinking_tokens": 586
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

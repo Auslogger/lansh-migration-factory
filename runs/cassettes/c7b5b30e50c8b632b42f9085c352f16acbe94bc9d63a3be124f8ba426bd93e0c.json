@@ -1,0 +1,285 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:42:21.400735Z",
+  "request": {
+    "agent": "translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S04",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S04: risk_scoring.sas (sas), legacy file estate/sas/S04_risk_scoring.sas (SHA-256 c1d72f4893edd62876d4761f52b901aa90dfef5174bbc3f8bb269afea9e46504).\nCustomer risk score and tier from claims experience.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n  1 | /******************************************************************************\n  2 |   Program  : risk_scoring.sas\n  3 |   Purpose  : Customer risk score and referral tier by line of business for\n  4 |              underwriting. Claims experience (claim count, recoveries and\n  5 |              severity against the line's average) plus the line's loss ratio,\n  6 |              loaded for the policyholder's age and county.\n  7 |   Inputs   : dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer\n  8 |   Output   : rpt.risk_scores (rebuilt on every run)\n  9 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n 10 |   Author   : TF\n 11 | \n 12 |   Change log\n 13 |     2015-06-02  TF    Initial version (motor only)\n 14 |     2016-11-21  TF    Home and travel added; scoring per line in a macro\n 15 |                       (CR-0998)\n 16 |     2018-04-09  GH    Age and county loadings from the pricing review (CR-1302)\n 17 |     2020-01-27  GH    Line loss ratio from premium_bands.sas (CR-1544)\n 18 |     2022-09-12  TF    Referral tiers for the underwriting queue (CR-2011)\n 19 | ******************************************************************************/\n 20 | \n 21 | /* policyholder loadings: age at the reporting date and county */\n 22 | data work.cust(keep=customer_id age age_load county_load);\n 23 |   set dw.dim_customer(keep=customer_id date_of_birth county);\n 24 |   age = int((&as_of - date_of_birth) / 365.25);\n 25 |   if missing(age) then age_load = 1.00;\n 26 |   else if age < 25 then age_load = 1.40;\n 27 |   else if age >= 70 then age_load = 1.25;\n 28 |   else age_load = 1.00;\n 29 |   select (upcase(strip(county)));\n 30 |     when ('DUBLIN') county_load = 1.15;\n 31 |     when ('CORK', 'LIMERICK', 'GALWAY') county_load = 1.05;\n 32 |     otherwise county_load = 1.00;\n 33 |   end;\n 34 | run;\n 35 | \n 36 | /* claims experience per customer and line of business */\n 37 | proc sql;\n 38 |   create table work.experience as\n 39 |   select customer_id, lob_code,\n 40 |          count(*)          as n_claims,\n 41 |          sum(total_paid)   as paid,\n 42 |          sum(n_recoveries) as n_recoveries\n 43 |   from   dw.claims_enriched\n 44 |   group  by customer_id, lob_code;\n 45 | quit;\n 46 | \n 47 | /* loss ratio per line: paid on the claims book over earned premium */\n 48 | proc sql;\n 49 |   create table work.lob_ratio as\n 50 |   select e.lob_code, sum(e.paid) / p.earned as loss_ratio\n 51 |   from   work.experience e,\n 52 |          (select lob_code, sum(earned_eur) as earned\n 53 |           from   rpt.premium_band_summary\n 54 |           group  by lob_code) p\n 55 |   where  e.lob_code = p.lob_code\n 56 |   group  by e.lob_code, p.earned;\n 57 | quit;\n 58 | \n 59 | /* each customer against the average for the line */\n 60 | %macro score_lines(lobs);\n 61 |   %local i lob;\n 62 |   %do i = 1 %to %sysfunc(countw(&lobs));\n 63 |     %let lob = %scan(&lobs, &i);\n 64 |     proc sql;\n 65 |       create table work.score_&lob as\n 66 |       select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n 67 |              x.paid / mean(x.paid) as severity\n 68 |       from   work.experience x\n 69 |       where  x.lob_code = \"&lob\";\n 70 |     quit;\n 71 |   %end;\n 72 | %mend score_lines;\n 73 | \n 74 | %score_lines(MOT HOM TRV);\n 75 | \n 76 | proc sql;\n 77 |   create table work.scoring as\n 78 |   select s.*, c.age, c.age_load, c.county_load, r.loss_ratio\n 79 |   from   (select * from work.score_mot\n 80 |           union all\n 81 |           select * from work.score_hom\n 82 |           union all\n 83 |           select * from work.score_trv) s\n 84 |          left join work.cust c on c.customer_id = s.customer_id\n 85 |          left join work.lob_ratio r on r.lob_code = s.lob_code\n 86 |   order  by s.customer_id, s.lob_code;\n 87 | quit;\n 88 | \n 89 | /* points, loadings and the referral tier */\n 90 | data rpt.risk_scores(keep=customer_id lob_code n_claims paid n_recoveries severity age\n 91 |                           age_load county_load loss_ratio points score tier as_of_date);\n 92 |   set work.scoring;\n 93 |   sev_points = 0;\n 94 |   if severity >= 2 then sev_points = 10;\n 95 |   else if severity >= 1 then sev_points = 5;\n 96 |   lob_points = round(2.5 * loss_ratio, 0.5);\n 97 |   points = 12.5 * min(n_claims, 4) + 7.5 * n_recoveries + sev_points + lob_points;\n 98 |   score  = round(points * age_load * county_load, 0.01);\n 99 |   if score >= 35 then tier = 'HIGH';\n100 |   else if score >= 22 then tier = 'MEDIUM';\n101 |   else tier = 'LOW';\n102 |   format as_of_date yymmdd10.;\n103 |   as_of_date = &as_of;\n104 | run;\n\nInput tables:\n- dw.claims_enriched: claim_id double (num 8 format=BEST), claim_number string (char 20 format=$CHAR), policy_id double (num 8 format=BEST), customer_id double (num 8 format=BEST), lob_code string (char 5 format=$CHAR), loss_date date (num 8 format=YYMMDD), reported_date date (num 8 format=YYMMDD), status string (char 12 format=$CHAR), n_payments double (num 8), n_recoveries double (num 8), total_paid double (num 8), indemnity_amt double (num 8), expense_amt double (num 8), recovery_amt double (num 8), first_payment_date date (num 8 format=DATE), last_payment_date date (num 8 format=DATE), recovery_flag double (num 8), has_payment double (num 8), gross_paid double (num 8), net_paid double (num 8)\n- rpt.premium_band_summary: lob_code string (char 5 format=$CHAR), prem_band string (char 8), n_policies double (num 8), n_transactions double (num 8), written_eur double (num 8 format=BEST), earned_eur double (num 8 format=BEST), as_of_date date (num 8 format=YYMMDD)\n- dw.dim_customer: customer_id int (INT), first_name string (NVARCHAR(40)), last_name string (NVARCHAR(60)), full_name string (NVARCHAR(101)), initials string (NVARCHAR(2)), email string (VARCHAR(120)), email_shared_count int (INT), date_of_birth date (DATE), age_at_join int (INT), address_line1 string (NVARCHAR(100)), town string (NVARCHAR(50)), county string (VARCHAR(30)), region string (VARCHAR(12)), eircode string (VARCHAR(10)), eircode_valid string (CHAR(1)), segment_code string (CHAR(4)), is_standard_segment string (CHAR(1)), marketing_opt_in string (CHAR(1)), customer_since date (DATE), source_system string (VARCHAR(10)), version_count int (INT), record_updated_at timestamp_ntz (DATETIME2(0)), as_of_date date (DATE), _row_seq int (num 8)\n\nOutput tables (contract types, legacy types):\n- rpt.risk_scores (key ['customer_id', 'lob_code']): customer_id double (num 8 format=BEST), lob_code string (char 5 format=$CHAR), n_claims double (num 8), paid double (num 8), n_recoveries double (num 8), severity double (num 8), age double (num 8), age_load double (num 8), county_load double (num 8), loss_ratio double (num 8), points double (num 8), score double (num 8), tier string (char 4), as_of_date date (num 8 format=YYMMDD)\n\nTrap findings in this job:\n- SAS-03 lines 24-24: Age comes from plain arithmetic on SAS day counts (&as_of minus date_of_birth, divided by 365.25). In Spark, date_of_birth is a DATE and as_of must be turned into a date, so this needs datediff or date functions.\n- SAS-13 lines 60-74: The %do loop writes one PROC SQL per line of business (MOT, HOM, TRV), and lines 79-83 union the results. In Spark this becomes a Python loop or a single query grouped by line of business, filtered to those three codes.\n- SAS-10 lines 66-69: mean(x.paid) is mixed with ungrouped columns, so SAS remerges the mean over the rows the WHERE keeps (one line of business) back onto every row. Spark needs a window or a join to the per-line average of paid.\n- SAS-15 lines 96-96: round(2.5*loss_ratio, 0.5) rounds to the nearest half, half away from zero, with fuzz. F.round takes decimal places, so this needs something like floor(x*2+0.5)/2 plus fuzz handling.\n- SAS-15 lines 98-98: round(points*age_load*county_load, 0.01) is applied to a computed double. SAS's fuzz rounds near-half values up, but Spark's F.round on the binary value can round them down.\n- SAS-11 lines 99-100: The first assignment, 'HIGH', fixes tier at length 4, so 'MEDIUM' is silently cut to 'MEDI' (the output schema has tier as char 4). Spark must reproduce 'MEDI' on purpose.\n- SAS-03 lines 102-103: as_of_date is the number &as_of (a SAS day count) shown with yymmdd10. In Spark it must be converted from days since 1960-01-01 to a date.\n\nTrap cards:\n### SAS-03 (semantic): Dates are numbers of days since 1 January 1960\nLegacy: A SAS date is a number: days since 1960-01-01. Date arithmetic is plain arithmetic (d + 30, d2 - d1, int((d2 - d1) / 365.25)); a date compared with a number compares day counts. Datetimes are seconds since 1960-01-01T00:00.\nSpark: Spark dates are a separate type; arithmetic needs date functions.\nFix: Day differences are datediff(d2, d1); d + n is date_add(d, n); keep any division of a day count as double arithmetic (int() truncates toward zero). Where a date is used as a number, use datediff(d, DATE'1960-01-01').\nExample: tenure = int((&as_of - start_date) / 365.25); -> F.floor(F.datediff(as_of, 'start_date') / 365.25) for non-negative values\n\n### SAS-10 (semantic): PROC SQL remerges summary statistics\nLegacy: In PROC SQL, a SELECT that mixes summary functions (mean, sum, count, ...) with columns not in a GROUP BY computes the statistic over the whole table (or the group) and joins it back to every row (\"The query requires remerging summary statistics\"); with WHERE, over the filtered rows.\nSpark: Spark refuses such a query; the statistic must be a window or a join.\nFix: Compute the statistic with a window over the same rows (Window.partitionBy() for the whole filtered table, or by the GROUP BY columns) and keep every row.\nExample: select store_id, sales / mean(sales) as sales_index from work.stores where region = 'N' -> F.col('sales') / F.avg('sales').over(Window.partitionBy())\n\n### SAS-11 (semantic): A character variable's length is fixed by its first assignment\nLegacy: Without a LENGTH statement, a character variable gets the length of the first value assigned to it in the step (at compile time): if the first assignment is 'BIG', a later 'SMALL' is silently truncated to 'SMA'. Values are blank-padded to that length.\nSpark: Spark strings have no fixed length and never truncate.\nFix: Find the variable's length: a LENGTH statement, else the first assignment in the step's source order (or the source variable's length). Truncate every assigned value with substring(x, 1, n). Reproduce it exactly and mark it if it looks like a bug.\nExample: if qty > 100 then size = 'BIG'; else size = 'SMALL'; -> F.substring(F.when(F.col('qty') > 100, 'BIG').otherwise('SMALL'), 1, 3)\n\n### SAS-13 (construct): Macro loops\nLegacy: %macro / %do loops generate repeated code at compile time, one copy per iteration, with macro variables substituted (&lob becomes MOT, HOM, ...).\nSpark: The generated copies become a Python loop or a single grouped query.\nFix: Expand the macro by hand: one DataFrame per generated step, unioned, or one grouped computation when the copies differ only by a filter value. Keep the iteration values exactly as listed in the macro call.\nExample: %do i = 1 %to %sysfunc(countw(&regions)); %let region = %scan(&regions, &i); ... -> for region in ['N', 'S', 'E', 'W']: ...\n\n### SAS-15 (semantic): ROUND to a unit, with fuzz, on computed values; everything is an 8-byte double\nLegacy: SAS numbers are 8-byte doubles. round(x, unit) rounds to the nearest multiple of the unit (round(2.85, 1) is 3, round(x, 0.5) to halves), half away from zero, and applies a fuzz factor so a computed value a tiny bit below a half (e.g. 2.675 computed as 2.67499999...) still rounds up as if it were exactly half.\nSpark: F.round(x, n) takes a number of decimal places, not a unit, and on a double rounds the binary value, so a computed 2.675 rounds to 2.67.\nFix: Compute round(x, unit) as round(x / unit) * unit in DECIMAL arithmetic: cast x to decimal(38,10) (which rounds away the binary error, like the fuzz), divide by the unit as a decimal, round half up to 0 places, multiply by the unit, then cast to double. Keep the operation order of the legacy expression.\nExample: price = round(cost * markup * tax_factor, 0.01); -> F.round((cost * markup * tax_factor).cast('decimal(38,10)') / 0.01, 0) * 0.01\n\nsqlglot draft (a starting point, not trusted):\n-- lines 22-34 (data_step); traps: SAS-03 (line 24)\n-- no draft: translate this data_step from the code\n\n-- lines 37-45 (proc)\nCREATE TABLE work.experience AS\nSELECT\n  customer_id,\n  lob_code,\n  COUNT(*) AS n_claims,\n  SUM(total_paid) AS paid,\n  SUM(n_recoveries) AS n_recoveries\nFROM dw.claims_enriched\nGROUP BY\n  customer_id,\n  lob_code\n\n-- lines 48-57 (proc)\nCREATE TABLE work.lob_ratio AS\nSELECT\n  e.lob_code,\n  SUM(e.paid) / p.earned AS loss_ratio\nFROM work.experience AS e, (\n  SELECT\n    lob_code,\n    SUM(earned_eur) AS earned\n  FROM rpt.premium_band_summary\n  GROUP BY\n    lob_code\n) AS p\nWHERE\n  e.lob_code = p.lob_code\nGROUP BY\n  e.lob_code,\n  p.earned\n\n-- lines 60-72 (macro); traps: SAS-10 (line 66), SAS-13 (line 60)\n-- no draft: translate this macro from the code\n\n-- lines 74-74 (other); traps: SAS-13 (line 60)\n-- no draft: translate this other from the code\n\n-- lines 76-87 (proc)\nCREATE TABLE work.scoring AS\nSELECT\n  s.*,\n  c.age,\n  c.age_load,\n  c.county_load,\n  r.loss_ratio\nFROM (\n  SELECT\n    *\n  FROM work.score_mot\n  UNION ALL\n  SELECT\n    *\n  FROM work.score_hom\n  UNION ALL\n  SELECT\n    *\n  FROM work.score_trv\n) AS s\nLEFT JOIN work.cust AS c\n  ON c.customer_id = s.customer_id\nLEFT JOIN work.lob_ratio AS r\n  ON r.lob_code = s.lob_code\nORDER BY\n  s.customer_id,\n  s.lob_code\n\n-- lines 90-104 (data_step); traps: SAS-03 (line 102), SAS-11 (line 99), SAS-15 (line 96), SAS-15 (line 98)\n-- no draft: translate this data_step from the code\n\nLineage agent's notes:\n- n_claims is COUNT(*). No input column feeds its value, so I recorded it as coming from dw.claims_enriched.customer_id (a grouping key) at low confidence. The same applies to points, score and tier through n_claims.\n- severity divides paid by MEAN(paid) without a GROUP BY. SAS fills that mean in across every row of each per-line table, so it is the average over that line's customers. PySpark needs a window over lob_code to match.\n- Only lines MOT, HOM and TRV survive (lines 69 and 74). Rows match lob_code exactly; trailing blanks in char 5 are ignored when SAS compares strings.\n- Both joins on lines 84–85 are LEFT joins, so they keep every row. They could still duplicate rows if dw.dim_customer has more than one row per customer_id. dim_customer has version_count and _row_seq, which suggests it may keep history. The scoring step does not dedup.\n- loss_ratio comes from an inner join with rpt.premium_band_summary (line 55). A line with no premium rows gets a missing loss_ratio. That makes lob_points, points, score and tier missing too, and a missing score falls to tier 'LOW'.\n- If date_of_birth is missing, age is missing and age_load is 1.00.\n- The ORDER BY on line 86 only sorts the rows. It decides no row survival, so I recorded no ranks edges.\n\nSuspected legacy bugs found at Design (reproduce each exactly, and mark the lines that reproduce it with the marker and its id):\n- S04-D1 Hard-coded line-of-business list drops other lines (lines [60, 62, 63, 69, 74, 79, 80, 81, 82, 83]): The macro is called with a fixed list (MOT HOM TRV) and only those three score tables are unioned. Customer/line rows in claims_enriched with any other lob_code, including a differently cased or null code, never reach rpt.risk_scores. Their claims still count towards the line loss ratios.\n- S04-D2 Missing inputs make the score missing and silently tier the row LOW (lines [25, 42, 50, 55, 84, 85, 96, 97, 98, 99, 100, 101]): Points and score are built with + and *, which pass missing values through. If n_recoveries is missing (every claim has null n_recoveries), loss_ratio is missing (the line has no row in premium_band_summary because of the inner join in lob_ratio), or age_load/county_load are missing (the customer is not in dim_customer, through the left join), then points and score come out missing. The tier IF chain then sends a missing score to 'LOW'. The author clearly wanted a default for missing values (a missing age gets age_load 1.00 on line 25), but unmatched customers and missing components get no default.\n- S04-D3 Customer dimension join can multiply score rows (lines [22, 23, 84]): work.cust takes every row of dw.dim_customer with no filter for the current version. The dimension has version_count/_row_seq columns, which suggests it keeps history. The left join on customer_id then repeats each customer/line score row once per customer version, and ages or counties can differ between versions.\n- S04-D4 Age approximated by days/365.25 (lines [24, 26, 27]): Age is int((as_of - date_of_birth)/365.25). This understates the age of people whose birthday falls on or just before the reporting date (e.g. born 2000-12-31 gives 24, not 25 at 2025-12-31). That can move them across the 25 or 70 loading boundaries.\n- S04-D5 Claims experience not limited to the reporting date (lines [9, 38, 39, 40, 41, 42, 43, 44]): as_of is used only for age. Claims, payments and recoveries are taken from claims_enriched whatever their loss or reported date, so claims after the reporting date add to counts, paid, severity and loss ratio.\n",
+    "system_prompt": "You are the translator agent of LANSH. You migrate one legacy SAS 9.4 job to PySpark 4.2, and your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module in the LANSH job template:\n- A module docstring: \"<job id> <name>: migrated from <legacy path>.\", then the lines \"Legacy SHA-256: <hash>\", \"Written by: LANSH translator (Claude)\", \"Traps handled: <ids>\" and \"Bugs reproduced on purpose (# LANSH-DEFECT): <short names, or none>\".\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Handle every trap finding you are given, following its card's fix guidance, and list the trap ids in traps_handled.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- SAS specifics: every SAS number is an 8-byte double: cast numeric inputs to double before any arithmetic and output numbers as doubles; a missing number is smaller than every number in comparisons; sum() skips missing values while + propagates them; character values are blank-padded, so trailing blanks never count and a blank value is missing (output NULL for it); a character variable's length is fixed by its first assignment; DATA steps read rows in their data set order (_row_seq for source tables).\n- Work data sets become DataFrames; macros are expanded by hand.\n"
+  },
+  "request_sha256": "c7b5b30e50c8b632b42f9085c352f16acbe94bc9d63a3be124f8ba426bd93e0c",
+  "response": {
+    "duration_api_ms": 78444,
+    "duration_ms": 78918,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 8029,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 8029,
+        "cacheReadInputTokens": 2189,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.24825779999999997,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 9179,
+        "provider": "firstParty",
+        "thinkingTokens": 4398,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"S04 risk_scoring: migrated from estate/sas/S04_risk_scoring.sas.\n\nLegacy SHA-256: c1d72f4893edd62876d4761f52b901aa90dfef5174bbc3f8bb269afea9e46504\nWritten by: LANSH translator (Claude)\nTraps handled: SAS-03, SAS-10, SAS-11, SAS-13, SAS-15\nBugs reproduced on purpose (# LANSH-DEFECT): S04-D1 hard-coded line list, S04-D2 missing inputs give missing score and tier LOW, S04-D3 customer dimension join can multiply rows, S04-D4 age by days/365.25, S04-D5 claims not limited to reporting date\n\"\"\"\nfrom decimal import Decimal\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nfrom pyspark.sql import functions as F\n\n\ndef _sas_char(c):\n    # SAS char: trailing blanks never count, a blank value is missing\n    t = F.rtrim(c)\n    return F.when(t == \"\", F.lit(None).cast(\"string\")).otherwise(t)\n\n\ndef _sas_round(x, unit: str):\n    # SAS round(x, unit) with fuzz: decimal arithmetic, half away from zero (SAS-15)\n    u = F.lit(Decimal(unit))\n    return (F.round(x.cast(\"decimal(38,10)\") / u, 0) * u).cast(\"double\")\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = F.to_date(F.lit(params[\"AsOfDate\"]))\n\n    # ---- work.cust (lines 22-34) ----\n    dimc = inputs[\"dw.dim_customer\"]\n    age_raw = F.datediff(as_of, F.col(\"date_of_birth\")).cast(\"double\") / F.lit(365.25)  # SAS-03\n    # int() truncates toward zero\n    age = F.when(age_raw >= 0, F.floor(age_raw)).otherwise(F.ceil(age_raw)).cast(\"double\")  # LANSH-DEFECT: S04-D4 age approximated by days/365.25\n    cust = dimc.select(\n        F.col(\"customer_id\").cast(\"double\").alias(\"customer_id\"),\n        F.col(\"date_of_birth\"),\n        F.col(\"county\"),\n    ).withColumn(\"age\", age)\n    cust = cust.withColumn(\n        \"age_load\",\n        F.when(F.col(\"age\").isNull(), F.lit(1.00))\n        .when(F.col(\"age\") < 25, F.lit(1.40))  # LANSH-DEFECT: S04-D4 age boundary uses approximated age\n        .when(F.col(\"age\") >= 70, F.lit(1.25))  # LANSH-DEFECT: S04-D4 age boundary uses approximated age\n        .otherwise(F.lit(1.00)),\n    )\n    cty = F.upper(F.trim(F.col(\"county\")))\n    cust = cust.withColumn(\n        \"county_load\",\n        F.when(cty == \"DUBLIN\", F.lit(1.15))\n        .when(cty.isin(\"CORK\", \"LIMERICK\", \"GALWAY\"), F.lit(1.05))\n        .otherwise(F.lit(1.00)),\n    ).select(\"customer_id\", \"age\", \"age_load\", \"county_load\")  # LANSH-DEFECT: S04-D3 every dim_customer row kept, no current-version filter\n\n    # ---- work.experience (lines 37-45) ----\n    cl = inputs[\"dw.claims_enriched\"].select(\n        F.col(\"customer_id\").cast(\"double\").alias(\"customer_id\"),\n        _sas_char(F.col(\"lob_code\")).alias(\"lob_code\"),\n        F.col(\"total_paid\").cast(\"double\").alias(\"total_paid\"),\n        F.col(\"n_recoveries\").cast(\"double\").alias(\"n_recoveries\"),\n    )\n    experience = cl.groupBy(\"customer_id\", \"lob_code\").agg(  # LANSH-DEFECT: S04-D5 claims not limited to the reporting date\n        F.count(F.lit(1)).cast(\"double\").alias(\"n_claims\"),\n        F.sum(\"total_paid\").alias(\"paid\"),\n        F.sum(\"n_recoveries\").alias(\"n_recoveries\"),  # LANSH-DEFECT: S04-D2 all-missing n_recoveries gives missing sum\n    )\n\n    # ---- work.lob_ratio (lines 48-57) ----\n    prem = inputs[\"rpt.premium_band_summary\"].select(\n        _sas_char(F.col(\"lob_code\")).alias(\"lob_code\"),\n        F.col(\"earned_eur\").cast(\"double\").alias(\"earned_eur\"),\n    )\n    p = prem.groupBy(\"lob_code\").agg(F.sum(\"earned_eur\").alias(\"earned\"))\n    e = experience.select(F.col(\"lob_code\").alias(\"e_lob\"), F.col(\"paid\"))\n    lob_ratio = (\n        e.join(p, e[\"e_lob\"].eqNullSafe(p[\"lob_code\"]), \"inner\")  # LANSH-DEFECT: S04-D2 inner join drops lines without premium, so loss_ratio is missing\n        .groupBy(\"e_lob\", \"earned\")\n        .agg(F.sum(\"paid\").alias(\"sum_paid\"))\n        .select(\n            F.col(\"e_lob\").alias(\"r_lob\"),\n            F.try_divide(F.col(\"sum_paid\"), F.col(\"earned\")).alias(\"loss_ratio\"),\n        )\n    )\n\n    # ---- %score_lines(MOT HOM TRV) (lines 60-74), SAS-13 / SAS-10 ----\n    scores = None\n    for lob in [\"MOT\", \"HOM\", \"TRV\"]:  # LANSH-DEFECT: S04-D1 hard-coded line-of-business list drops other lines\n        x = experience.where(F.col(\"lob_code\") == F.lit(lob))\n        x = x.select(\n            \"customer_id\", \"lob_code\", \"n_claims\", \"paid\", \"n_recoveries\",\n            F.try_divide(F.col(\"paid\"), F.avg(\"paid\").over(Window.partitionBy())).alias(\"severity\"),\n        )\n        scores = x if scores is None else scores.unionByName(x)  # LANSH-DEFECT: S04-D1 only the three listed score tables are unioned\n\n    # ---- work.scoring (lines 76-87) ----\n    s = scores\n    scoring = (\n        s.join(cust.withColumnRenamed(\"customer_id\", \"c_cid\"),\n               s[\"customer_id\"].eqNullSafe(F.col(\"c_cid\")), \"left\")  # LANSH-DEFECT: S04-D3 one row per customer version; S04-D2 unmatched customer gets missing loadings\n        .join(lob_ratio, F.col(\"lob_code\").eqNullSafe(F.col(\"r_lob\")), \"left\")\n        .select(\"customer_id\", \"lob_code\", \"n_claims\", \"paid\", \"n_recoveries\", \"severity\",\n                \"age\", \"age_load\", \"county_load\", \"loss_ratio\")\n    )\n\n    # ---- rpt.risk_scores (lines 90-104) ----\n    sev_points = (\n        F.when(F.col(\"severity\") >= 2, F.lit(10.0))\n        .when(F.col(\"severity\") >= 1, F.lit(5.0))\n        .otherwise(F.lit(0.0))\n    )\n    lob_points = _sas_round(F.lit(2.5) * F.col(\"loss_ratio\"), \"0.5\")  # LANSH-DEFECT: S04-D2 missing loss_ratio passes through\n    out = scoring.withColumn(\"lob_points\", lob_points)\n    out = out.withColumn(\n        \"points\",\n        F.lit(12.5) * F.least(F.col(\"n_claims\"), F.lit(4.0))\n        + F.lit(7.5) * F.col(\"n_recoveries\")\n        + sev_points\n        + F.col(\"lob_points\"),  # LANSH-DEFECT: S04-D2 + propagates missing components into points\n    )\n    out = out.withColumn(\n        \"score\",\n        _sas_round(F.col(\"points\") * F.col(\"age_load\") * F.col(\"county_load\"), \"0.01\"),  # LANSH-DEFECT: S04-D2 missing points or loadings give missing score\n    )\n    out = out.withColumn(\n        \"tier\",\n        F.substring(  # SAS-11: tier length fixed at 4 by first assignment 'HIGH'\n            F.when(F.col(\"score\") >= 35, F.lit(\"HIGH\"))\n            .when(F.col(\"score\") >= 22, F.lit(\"MEDIUM\"))\n            .otherwise(F.lit(\"LOW\")),  # LANSH-DEFECT: S04-D2 missing score falls to tier LOW\n            1, 4,\n        ),\n    )\n    out = out.withColumn(\"as_of_date\", as_of)  # SAS-03: &as_of day count shown as yymmdd10.\n\n    result = out.select(\n        \"customer_id\", \"lob_code\", \"n_claims\", \"paid\", \"n_recoveries\", \"severity\", \"age\",\n        \"age_load\", \"county_load\", \"loss_ratio\", \"points\", \"score\", \"tier\", \"as_of_date\",\n    )\n    return {\"rpt.risk_scores\": result}\n",
+      "defects": [
+        {
+          "intended": "Score every line of business that has claims.",
+          "legacy_lines": [
+            60,
+            62,
+            63,
+            69,
+            74,
+            79,
+            80,
+            81,
+            82,
+            83
+          ],
+          "title": "S04-D1 Hard-coded line-of-business list drops other lines",
+          "what_it_does": "Only MOT, HOM and TRV rows are scored and unioned. Rows with any other lob_code never reach rpt.risk_scores, but their claims still count in the line loss ratios."
+        },
+        {
+          "intended": "Default the missing components, as a missing age is defaulted, or flag the row instead of tiering it LOW.",
+          "legacy_lines": [
+            25,
+            42,
+            50,
+            55,
+            84,
+            85,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101
+          ],
+          "title": "S04-D2 Missing inputs make the score missing and tier LOW",
+          "what_it_does": "A missing n_recoveries, loss_ratio, age_load or county_load passes through + and *, so points and score are missing, and a missing score falls to tier 'LOW'."
+        },
+        {
+          "intended": "Join only the current version of each customer.",
+          "legacy_lines": [
+            22,
+            23,
+            84
+          ],
+          "title": "S04-D3 Customer dimension join can multiply score rows",
+          "what_it_does": "work.cust keeps every dim_customer row (all versions), so the left join repeats a customer/line row once per version."
+        },
+        {
+          "intended": "Exact age in whole years at the reporting date.",
+          "legacy_lines": [
+            24,
+            26,
+            27
+          ],
+          "title": "S04-D4 Age approximated by days/365.25",
+          "what_it_does": "int((as_of - date_of_birth)/365.25) can understate age near birthdays and move people across the 25 and 70 loading boundaries."
+        },
+        {
+          "intended": "Count only claims up to as_of.",
+          "legacy_lines": [
+            9,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44
+          ],
+          "title": "S04-D5 Claims experience not limited to the reporting date",
+          "what_it_does": "Every claim in claims_enriched is counted, whatever its loss or reported date."
+        }
+      ],
+      "notes": "as_of_date: built from the text parameter with to_date instead of a SAS day count; the value is the same. Joins: SAS PROC SQL joins treat missing keys as equal, so the lob_ratio and scoring joins use eqNullSafe; this only matters for rows with a missing customer_id. lob_code: trailing blanks are trimmed and a blank becomes null before grouping and filtering, to match SAS char comparison. Division by zero: severity and loss_ratio use try_divide, so dividing by zero gives a missing value as in SAS. lob_ratio: joined first, then grouped by (lob_code, earned), in the legacy order. Rounding: round(x, unit) uses the SAS-15 decimal method. For the 0.5 unit the intermediate decimal keeps 9 places, which only changes values within 1e-9 of a half and there acts like SAS's fuzz. Row order: the output does not depend on row order, because the ORDER BY only sorts and the final DATA step has no RETAIN or LAG.",
+      "traps_handled": [
+        "SAS-03",
+        "SAS-13",
+        "SAS-10",
+        "SAS-15",
+        "SAS-11"
+      ]
+    },
+    "total_cost_usd": 0.24825779999999997,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 8029,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 8029,
+      "cache_read_input_tokens": 2189,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 8029,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 8029,
+          "cache_read_input_tokens": 2189,
+          "input_tokens": 2,
+          "output_tokens": 9179,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 9179,
+      "output_tokens_details": {
+        "thinking_tokens": 4398
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,942 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:47:01.641670Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "X2",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job X2: usp_large_loss_watchlist. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_large_loss_watchlist\n  3 |   Purpose  : Large-loss watchlist for the claims committee. Every claim with an\n  4 |              incurred amount (paid to date plus outstanding case reserve) of at\n  5 |              least EUR 25,000 as at @AsOfDate, compared with 90 days earlier and\n  6 |              given a watch category (NEW, DETERIORATING, IMPROVING, STABLE).\n  7 |   Author   : RBy\n  8 |   Change log\n  9 |     2013-05-22  RBy   Initial version (CR-0301)\n 10 |     2015-01-19  RBy   Expense reserves included in incurred (CR-0577)\n 11 |     2016-10-04  DMcC  Claims closed more than 90 days ago dropped (CR-0912)\n 12 |     2018-07-30  DMcC  Reserve changes and days since last activity added (CR-1188)\n 13 |     2020-02-11  NOF   Threshold raised from EUR 20,000 to EUR 25,000 (CR-1402)\n 14 |     2022-09-05  NOF   Status and LOB codes trimmed and upper-cased (INC-3204)\n 15 | ==============================================================================*/\n 16 | SET NOCOUNT ON;\n 17 | GO\n 18 | IF OBJECT_ID(N'rpt.large_loss_watchlist', N'U') IS NULL\n 19 | CREATE TABLE rpt.large_loss_watchlist (\n 20 |     as_of_date                DATE           NOT NULL,\n 21 |     claim_id                  INT            NOT NULL,\n 22 |     claim_number              VARCHAR(20)    NOT NULL,\n 23 |     policy_id                 INT            NOT NULL,\n 24 |     lob_code                  VARCHAR(5)     NOT NULL,\n 25 |     claim_status              VARCHAR(12)    NOT NULL,\n 26 |     reported_date             DATE           NOT NULL,\n 27 |     closed_date               DATE           NULL,\n 28 |     paid_to_date              DECIMAL(14,2)  NOT NULL,\n 29 |     outstanding_reserve       DECIMAL(14,2)  NOT NULL,\n 30 |     incurred_amount           DECIMAL(14,2)  NOT NULL,\n 31 |     incurred_90d_ago          DECIMAL(14,2)  NOT NULL,\n 32 |     movement_90d              DECIMAL(14,2)  NOT NULL,\n 33 |     reserve_changes_90d       INT            NOT NULL,\n 34 |     days_since_last_activity  INT            NULL,\n 35 |     watch_category            VARCHAR(15)    NOT NULL\n 36 | );\n 37 | GO\n 38 | CREATE OR ALTER PROCEDURE rpt.usp_large_loss_watchlist\n 39 |     @AsOfDate DATE\n 40 | AS\n 41 | BEGIN\n 42 |     SET NOCOUNT ON;\n 43 | \n 44 |     DECLARE @job       VARCHAR(128) = 'rpt.usp_large_loss_watchlist';\n 45 |     DECLARE @PriorDate DATE         = DATEADD(DAY, -90, @AsOfDate);\n 46 |     DECLARE @rows      INT;\n 47 | \n 48 |     BEGIN TRY\n 49 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'start', @status = 'STARTED';\n 50 | \n 51 |         -- open and reopened claims, plus claims closed in the last 90 days\n 52 |         SELECT c.claim_id, c.claim_number, c.policy_id,\n 53 |                UPPER(LTRIM(RTRIM(c.lob_code))) AS lob_code,\n 54 |                UPPER(LTRIM(RTRIM(c.status)))   AS claim_status,\n 55 |                c.reported_date, c.closed_date\n 56 |         INTO #clm\n 57 |         FROM stg.claims c WITH (NOLOCK)\n 58 |         WHERE c.reported_date <= @AsOfDate\n 59 |           AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);\n 60 |         SET @rows = @@ROWCOUNT;\n 61 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'claims', @status = 'INFO', @rows_affected = @rows;\n 62 | \n 63 |         -- payments to date and 90 days ago; unkeyed amounts count as nil\n 64 |         SELECT p.claim_id,\n 65 |                SUM(ISNULL(p.amount, 0)) AS paid_now,\n 66 |                SUM(CASE WHEN p.payment_date <= @PriorDate THEN ISNULL(p.amount, 0) ELSE 0 END) AS paid_prior,\n 67 |                MAX(CASE WHEN p.amount IS NOT NULL THEN p.payment_date END) AS last_payment_date\n 68 |         INTO #paid\n 69 |         FROM stg.claim_payments p WITH (NOLOCK)\n 70 |         INNER JOIN #clm c ON c.claim_id = p.claim_id\n 71 |         WHERE p.payment_date <= @AsOfDate\n 72 |         GROUP BY p.claim_id;\n 73 | \n 74 |         -- outstanding reserve as at today and 90 days ago\n 75 |         SELECT r.claim_id, d.period, r.reserve_amount,\n 76 |                ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id\n 77 |                                   ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n 78 |         INTO #res\n 79 |         FROM stg.claim_reserves r WITH (NOLOCK)\n 80 |         INNER JOIN #clm c ON c.claim_id = r.claim_id\n 81 |         CROSS APPLY (VALUES ('NOW', @AsOfDate), ('PRIOR', @PriorDate)) d (period, as_at)\n 82 |         WHERE r.reserve_date <= d.as_at;\n 83 | \n 84 |         SELECT claim_id,\n 85 |                SUM(CASE WHEN period = 'NOW'   THEN reserve_amount ELSE 0 END) AS os_now,\n 86 |                SUM(CASE WHEN period = 'PRIOR' THEN reserve_amount ELSE 0 END) AS os_prior\n 87 |         INTO #os\n 88 |         FROM #res\n 89 |         WHERE rn = 1\n 90 |         GROUP BY claim_id;\n 91 | \n 92 |         -- reserve activity\n 93 |         SELECT r.claim_id,\n 94 |                SUM(CASE WHEN r.reserve_date > @PriorDate THEN 1 ELSE 0 END) AS reserve_changes_90d,\n 95 |                MAX(r.reserve_date) AS last_reserve_date\n 96 |         INTO #ract\n 97 |         FROM stg.claim_reserves r WITH (NOLOCK)\n 98 |         INNER JOIN #clm c ON c.claim_id = r.claim_id\n 99 |         WHERE r.reserve_date <= @AsOfDate\n100 |         GROUP BY r.claim_id;\n101 | \n102 |         SELECT c.claim_id,\n103 |                ISNULL(p.paid_now, 0) AS paid_to_date,\n104 |                ISNULL(o.os_now, 0) AS outstanding_reserve,\n105 |                ISNULL(p.paid_now, 0) + ISNULL(o.os_now, 0) AS incurred_amount,\n106 |                ISNULL(p.paid_prior, 0) + ISNULL(o.os_prior, 0) AS incurred_90d_ago,\n107 |                ISNULL(a.reserve_changes_90d, 0) AS reserve_changes_90d,\n108 |                CASE WHEN ISNULL(p.last_payment_date, '19000101') > ISNULL(a.last_reserve_date, '19000101')\n109 |                     THEN p.last_payment_date ELSE a.last_reserve_date END AS last_activity_date\n110 |         INTO #inc\n111 |         FROM #clm c\n112 |         LEFT JOIN #paid p ON p.claim_id = c.claim_id\n113 |         LEFT JOIN #os o   ON o.claim_id = c.claim_id\n114 |         LEFT JOIN #ract a ON a.claim_id = c.claim_id;\n115 | \n116 |         TRUNCATE TABLE rpt.large_loss_watchlist;\n117 | \n118 |         INSERT INTO rpt.large_loss_watchlist\n119 |             (as_of_date, claim_id, claim_number, policy_id, lob_code, claim_status, reported_date,\n120 |              closed_date, paid_to_date, outstanding_reserve, incurred_amount, incurred_90d_ago,\n121 |              movement_90d, reserve_changes_90d, days_since_last_activity, watch_category)\n122 |         SELECT @AsOfDate, c.claim_id, c.claim_number, c.policy_id, c.lob_code, c.claim_status,\n123 |                c.reported_date, c.closed_date,\n124 |                i.paid_to_date, i.outstanding_reserve, i.incurred_amount, i.incurred_90d_ago,\n125 |                i.incurred_amount - i.incurred_90d_ago,\n126 |                i.reserve_changes_90d,\n127 |                DATEDIFF(DAY, i.last_activity_date, @AsOfDate),\n128 |                CASE WHEN i.incurred_90d_ago < 25000 THEN 'NEW'\n129 |                     WHEN i.incurred_amount > i.incurred_90d_ago * 1.10 THEN 'DETERIORATING'\n130 |                     WHEN i.incurred_amount < i.incurred_90d_ago * 0.90 THEN 'IMPROVING'\n131 |                     ELSE 'STABLE' END\n132 |         FROM #inc i\n133 |         INNER JOIN #clm c ON c.claim_id = i.claim_id\n134 |         WHERE i.incurred_amount >= 25000;\n135 |         SET @rows = @@ROWCOUNT;\n136 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'load rpt.large_loss_watchlist', @status = 'INFO', @rows_affected = @rows;\n137 | \n138 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'SUCCESS';\n139 |     END TRY\n140 |     BEGIN CATCH\n141 |         DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE(), @err INT = ERROR_NUMBER();\n142 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'FAILED',\n143 |              @message = @msg, @error_number = @err;\n144 |         THROW;\n145 |     END CATCH\n146 | END;\n147 | GO\n\nInput tables:\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.claim_payments: payment_id INT NOT NULL, claim_id INT NOT NULL, payment_date DATE NOT NULL, amount DECIMAL(12,2), payment_type VARCHAR(12) NOT NULL, payee_type VARCHAR(12)\n- stg.claim_reserves: reserve_id INT NOT NULL, claim_id INT NOT NULL, reserve_date DATE NOT NULL, reserve_type VARCHAR(12) NOT NULL, reserve_amount DECIMAL(12,2) NOT NULL\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 59-59: c.status is VARCHAR(12) and is compared before the trim and upper-case. Under the CI collation, 'Closed' and 'closed' count as CLOSED and are dropped once closed more than 90 days ago. Spark's binary <> would keep them.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 59-59: The raw status is compared untrimmed. SQL Server treats 'CLOSED ' as equal to 'CLOSED', but Spark does not, so old closed claims padded with trailing spaces would stay in the Spark result.\n- TSQL-06 (ISNULL takes the type of its first argument; NULL treated as equal in change checks) at lines 108-109: ISNULL takes the DATE type of its first argument, so '19000101' becomes the date 1900-01-01. In Spark, coalesce(date, '19000101') widens to string or fails to cast that literal, so the replacement must be written as a typed date literal.\n- TSQL-04 (DATEDIFF counts boundaries crossed, not elapsed periods) at lines 127-127: DATEDIFF(DAY, start, end) on DATE values gives the day difference. Spark's datediff takes its arguments in reverse order (end, start), so they must be swapped to avoid a negated result.\n- TSQL-07 (DECIMAL precision and scale, and ROUND on computed values) at lines 129-130: incurred_90d_ago * 1.10 and * 0.90 are exact DECIMAL multiplications in T-SQL. In PySpark, F.lit(1.10) is a double, which can put a claim on the boundary into the wrong DETERIORATING/IMPROVING/STABLE category. Use decimal literals.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "c6f439e8f090b473422ac08bdf5147127465954ee967d57f47fbd2dfddd04ec1",
+  "response": {
+    "duration_api_ms": 67086,
+    "duration_ms": 67393,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5627,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5627,
+        "cacheReadInputTokens": 1423,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.2234486,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 8907,
+        "provider": "firstParty",
+        "thinkingTokens": 1900,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Claims with mixed-case CLOSED statuses ('Closed', 'closed', 'clOSed') closed more than 90 days before AsOfDate (PriorDate = 2025-10-02). Under the CI collation, `status <> 'CLOSED'` is false for these rows, so the legacy job drops them. A binary Spark comparison would keep them. There are also controls: an OPEN claim, an upper-case CLOSED claim closed long ago (dropped by both), and a 'Closed' claim closed recently (kept by both). Every claim has a EUR 50,000 reserve, so any claim that passes the filter is written to the output.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-0001",
+                  "closed_date": null,
+                  "customer_id": "9001",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5001",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-0002",
+                  "closed_date": "2025-06-30",
+                  "customer_id": "9002",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5002",
+                  "reported_date": "2025-01-20",
+                  "status": "Closed"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-0003",
+                  "closed_date": "2025-05-15",
+                  "customer_id": "9003",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5003",
+                  "reported_date": "2025-01-25",
+                  "status": "closed"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-0004",
+                  "closed_date": "2025-07-01",
+                  "customer_id": "9004",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5004",
+                  "reported_date": "2025-02-01",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-0005",
+                  "closed_date": "2025-11-15",
+                  "customer_id": "9005",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5005",
+                  "reported_date": "2025-02-05",
+                  "status": "Closed"
+                },
+                {
+                  "claim_id": "6",
+                  "claim_number": "CLM-0006",
+                  "closed_date": "2025-08-01",
+                  "customer_id": "9006",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5006",
+                  "reported_date": "2025-02-10",
+                  "status": "clOSed"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "101",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "2",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "102",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "3",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "103",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "4",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "104",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "5",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "105",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "6",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "106",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Claims whose raw status has trailing spaces ('CLOSED ', 'CLOSED  ') and was closed before PriorDate 2025-10-02. SQL Server ignores trailing spaces when comparing, so these count as CLOSED and are dropped. A Spark comparison of the untrimmed string would keep them. Controls: an OPEN claim, an 'OPEN ' claim with padding (kept either way), an unpadded CLOSED claim closed long ago (dropped by both), and a padded 'CLOSED ' claim closed recently (kept). Every claim has a EUR 60,000 reserve.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "11",
+                  "claim_number": "CLM-0011",
+                  "closed_date": null,
+                  "customer_id": "9011",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5011",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "12",
+                  "claim_number": "CLM-0012",
+                  "closed_date": "2025-06-30",
+                  "customer_id": "9012",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5012",
+                  "reported_date": "2025-01-20",
+                  "status": "CLOSED "
+                },
+                {
+                  "claim_id": "13",
+                  "claim_number": "CLM-0013",
+                  "closed_date": "2025-05-01",
+                  "customer_id": "9013",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5013",
+                  "reported_date": "2025-01-25",
+                  "status": "CLOSED  "
+                },
+                {
+                  "claim_id": "14",
+                  "claim_number": "CLM-0014",
+                  "closed_date": "2025-07-15",
+                  "customer_id": "9014",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5014",
+                  "reported_date": "2025-02-01",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "15",
+                  "claim_number": "CLM-0015",
+                  "closed_date": "2025-12-01",
+                  "customer_id": "9015",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5015",
+                  "reported_date": "2025-02-05",
+                  "status": "CLOSED "
+                },
+                {
+                  "claim_id": "16",
+                  "claim_number": "CLM-0016",
+                  "closed_date": null,
+                  "customer_id": "9016",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5016",
+                  "reported_date": "2025-02-10",
+                  "status": "OPEN "
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "11",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "111",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "12",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "112",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "13",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "113",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "14",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "114",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "15",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "115",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "16",
+                  "reserve_amount": "60000.00",
+                  "reserve_date": "2025-03-01",
+                  "reserve_id": "116",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "The last-activity choice with NULL on either side. Claims are set up with payments only (last_reserve_date is NULL), reserves only (last_payment_date is NULL), a later payment than reserve, a later reserve than payment, and a NULL-amount payment that does not count as activity, so last_payment_date stays NULL even though a payment row is dated later. In the legacy job, ISNULL(..., '19000101') becomes the date 1900-01-01. A naive coalesce with the string literal would turn the comparison into a string comparison or a cast failure, which changes which date is picked or turns days_since_last_activity into NULL. Every claim's incurred amount is at least EUR 25,000.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "21",
+                  "claim_number": "CLM-0021",
+                  "closed_date": null,
+                  "customer_id": "9021",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5021",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "22",
+                  "claim_number": "CLM-0022",
+                  "closed_date": null,
+                  "customer_id": "9022",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5022",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "23",
+                  "claim_number": "CLM-0023",
+                  "closed_date": null,
+                  "customer_id": "9023",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5023",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "24",
+                  "claim_number": "CLM-0024",
+                  "closed_date": null,
+                  "customer_id": "9024",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5024",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "25",
+                  "claim_number": "CLM-0025",
+                  "closed_date": null,
+                  "customer_id": "9025",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5025",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "26",
+                  "claim_number": "CLM-0026",
+                  "closed_date": null,
+                  "customer_id": "9026",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5026",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "30000.00",
+                  "claim_id": "21",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-11-20",
+                  "payment_id": "201",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "10000.00",
+                  "claim_id": "23",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-12-10",
+                  "payment_id": "202",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "15000.00",
+                  "claim_id": "24",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-07-01",
+                  "payment_id": "203",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "25",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-12-28",
+                  "payment_id": "204",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "26000.00",
+                  "claim_id": "26",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-12-05",
+                  "payment_id": "205",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "22",
+                  "reserve_amount": "40000.00",
+                  "reserve_date": "2025-10-15",
+                  "reserve_id": "221",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "23",
+                  "reserve_amount": "20000.00",
+                  "reserve_date": "2025-08-01",
+                  "reserve_id": "222",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "24",
+                  "reserve_amount": "20000.00",
+                  "reserve_date": "2025-12-20",
+                  "reserve_id": "223",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "25",
+                  "reserve_amount": "30000.00",
+                  "reserve_date": "2025-09-15",
+                  "reserve_id": "224",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-06"
+        },
+        {
+          "description": "Claims whose last activity falls at different distances before AsOfDate 2025-12-31: on AsOfDate itself, one day before, mid-month, across a year boundary (2024-01-15), and one where the latest payment is dated after AsOfDate and so is excluded. The legacy DATEDIFF(DAY, last_activity, AsOfDate) is positive. A Spark datediff with the arguments left in T-SQL order would return negative values.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "31",
+                  "claim_number": "CLM-0031",
+                  "closed_date": null,
+                  "customer_id": "9031",
+                  "lob_code": "MOT",
+                  "loss_date": "2023-12-01",
+                  "policy_id": "5031",
+                  "reported_date": "2023-12-10",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "32",
+                  "claim_number": "CLM-0032",
+                  "closed_date": null,
+                  "customer_id": "9032",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5032",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "33",
+                  "claim_number": "CLM-0033",
+                  "closed_date": null,
+                  "customer_id": "9033",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5033",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "34",
+                  "claim_number": "CLM-0034",
+                  "closed_date": null,
+                  "customer_id": "9034",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5034",
+                  "reported_date": "2025-01-15",
+                  "status": "REOPENED"
+                },
+                {
+                  "claim_id": "35",
+                  "claim_number": "CLM-0035",
+                  "closed_date": null,
+                  "customer_id": "9035",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5035",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "28000.00",
+                  "claim_id": "32",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-12-31",
+                  "payment_id": "301",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "5000.00",
+                  "claim_id": "33",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-12-30",
+                  "payment_id": "302",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "12000.00",
+                  "claim_id": "35",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-11-03",
+                  "payment_id": "303",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "9000.00",
+                  "claim_id": "35",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2026-01-10",
+                  "payment_id": "304",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "31",
+                  "reserve_amount": "45000.00",
+                  "reserve_date": "2024-01-15",
+                  "reserve_id": "331",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "33",
+                  "reserve_amount": "25000.00",
+                  "reserve_date": "2025-06-01",
+                  "reserve_id": "332",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "34",
+                  "reserve_amount": "35000.00",
+                  "reserve_date": "2025-12-15",
+                  "reserve_id": "333",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "35",
+                  "reserve_amount": "20000.00",
+                  "reserve_date": "2025-04-01",
+                  "reserve_id": "334",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-04"
+        },
+        {
+          "description": "Claims whose incurred amount is exactly 1.10x or 0.90x of incurred_90d_ago. A reserve on 2025-09-01 sets the prior amount and a reserve on 2025-12-01 sets the current amount. Pairs: 25000.10→27500.11, 30000.00→33000.00, 33333.30→36666.63 (all exactly 1.10x), and 30000.30→27000.27, 28000.70→25200.63, 33333.30→29999.97 (all exactly 0.90x). With exact DECIMAL arithmetic the strict > and < fail, so the legacy job marks these STABLE. Double literals can push them into DETERIORATING or IMPROVING. A clear DETERIORATING claim (40000→50000) is included as a control.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "41",
+                  "claim_number": "CLM-0041",
+                  "closed_date": null,
+                  "customer_id": "9041",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5041",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "42",
+                  "claim_number": "CLM-0042",
+                  "closed_date": null,
+                  "customer_id": "9042",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5042",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "43",
+                  "claim_number": "CLM-0043",
+                  "closed_date": null,
+                  "customer_id": "9043",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5043",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "44",
+                  "claim_number": "CLM-0044",
+                  "closed_date": null,
+                  "customer_id": "9044",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5044",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "45",
+                  "claim_number": "CLM-0045",
+                  "closed_date": null,
+                  "customer_id": "9045",
+                  "lob_code": "PROP",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5045",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "46",
+                  "claim_number": "CLM-0046",
+                  "closed_date": null,
+                  "customer_id": "9046",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5046",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "47",
+                  "claim_number": "CLM-0047",
+                  "closed_date": null,
+                  "customer_id": "9047",
+                  "lob_code": "MOT",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "5047",
+                  "reported_date": "2025-01-15",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "41",
+                  "reserve_amount": "25000.10",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "401",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "41",
+                  "reserve_amount": "27500.11",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "402",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "42",
+                  "reserve_amount": "30000.00",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "403",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "42",
+                  "reserve_amount": "33000.00",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "404",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "43",
+                  "reserve_amount": "30000.30",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "405",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "43",
+                  "reserve_amount": "27000.27",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "406",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "44",
+                  "reserve_amount": "28000.70",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "407",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "44",
+                  "reserve_amount": "25200.63",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "408",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "45",
+                  "reserve_amount": "40000.00",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "409",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "45",
+                  "reserve_amount": "50000.00",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "410",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "46",
+                  "reserve_amount": "33333.30",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "411",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "46",
+                  "reserve_amount": "36666.63",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "412",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "47",
+                  "reserve_amount": "33333.30",
+                  "reserve_date": "2025-09-01",
+                  "reserve_id": "413",
+                  "reserve_type": "INDEMNITY"
+                },
+                {
+                  "claim_id": "47",
+                  "reserve_amount": "29999.97",
+                  "reserve_date": "2025-12-01",
+                  "reserve_id": "414",
+                  "reserve_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_reserves"
+            }
+          ],
+          "trap_id": "TSQL-07"
+        }
+      ]
+    },
+    "total_cost_usd": 0.2234486,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5627,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5627,
+      "cache_read_input_tokens": 1423,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5627,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5627,
+          "cache_read_input_tokens": 1423,
+          "input_tokens": 2,
+          "output_tokens": 8907,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 8907,
+      "output_tokens_details": {
+        "thinking_tokens": 1900
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

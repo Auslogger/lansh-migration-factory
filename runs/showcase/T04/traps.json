@@ -1,0 +1,152 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 71,
+    "line_start": 61,
+    "note": "#open_claims temp table becomes a DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                UPPER(RTRIM(c.lob_code))    AS lob_code,\n                c.status,\n                c.handler_code,\n                c.lo\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 73,
+    "line_start": 73,
+    "note": "status is VARCHAR; IN ('OPEN','REOPENED') matches case variants under CI collation, Spark binary compare drops them.",
+    "snippet": "WHERE   c.status IN ('OPEN', 'REOPENED')",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 73,
+    "line_start": 73,
+    "note": "status VARCHAR values with trailing spaces ('OPEN ') still match in SQL Server, not in Spark.",
+    "snippet": "WHERE   c.status IN ('OPEN', 'REOPENED')",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 86,
+    "line_start": 81,
+    "note": "#reserve temp table becomes a DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n\n        SELECT  x.claim_id,\n                x.reserve_type,\n                x.reserve_amount\n        INTO    #reserve",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 91,
+    "line_start": 90,
+    "note": "PARTITION BY reserve_type (VARCHAR) groups case variants together for the latest-reserve pick; Spark would split them.",
+    "snippet": "ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n                                           ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 91,
+    "line_start": 90,
+    "note": "PARTITION BY reserve_type ignores trailing spaces in SQL Server; Spark partitions 'EXPENSE ' separately.",
+    "snippet": "ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n                                           ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 108,
+    "line_start": 101,
+    "note": "#money temp table becomes a DataFrame.",
+    "snippet": "IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n\n        SELECT  oc.claim_id,\n                COUNT(DISTINCT p.payment_id)    AS n_payments,\n                ISNULL(SUM(p.amount), 0)        AS total_paid,\n                ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 106,
+    "line_start": 106,
+    "note": "reserve_type = 'INDEMNITY' on VARCHAR matches 'Indemnity' under CI collation; Spark would not.",
+    "snippet": "ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 106,
+    "line_start": 106,
+    "note": "reserve_type = 'INDEMNITY' ignores trailing spaces in SQL Server.",
+    "snippet": "ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 107,
+    "line_start": 107,
+    "note": "reserve_type = 'EXPENSE' on VARCHAR is case-insensitive in legacy.",
+    "snippet": "ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 107,
+    "line_start": 107,
+    "note": "reserve_type = 'EXPENSE' ignores trailing spaces in SQL Server.",
+    "snippet": "ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 136,
+    "line_start": 136,
+    "note": "handler_code is nullable; '+' concatenation makes claim_ref NULL when handler_code is NULL; must use concat (not concat_ws).",
+    "snippet": "oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,",
+    "trap_id": "TSQL-05"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 143,
+    "line_start": 143,
+    "note": "CONVERT style 103 gives dd/mm/yyyy; Spark needs date_format 'dd/MM/yyyy'.",
+    "snippet": "CONVERT(VARCHAR(10), oc.loss_date, 103),",
+    "trap_id": "TSQL-16"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 145,
+    "line_start": 145,
+    "note": "CONVERT(CHAR(6), d, 112) truncates yyyymmdd to yyyymm; Spark needs date_format 'yyyyMM'.",
+    "snippet": "CONVERT(CHAR(6), oc.reported_date, 112),",
+    "trap_id": "TSQL-16"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "T04",
+    "line_end": 146,
+    "line_start": 146,
+    "note": "DATEDIFF(DAY) on DATE equals day difference, but Spark datediff(end,start) reverses argument order; naive translation flips the sign.",
+    "snippet": "DATEDIFF(DAY, oc.reported_date, @AsOfDate),",
+    "trap_id": "TSQL-04"
+  }
+]

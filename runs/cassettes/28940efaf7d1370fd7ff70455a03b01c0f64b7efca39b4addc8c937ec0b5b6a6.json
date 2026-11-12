@@ -1,0 +1,682 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:00:47.207398Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T05",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T05: usp_claim_aging (tsql), file estate/tsql/T05_usp_claim_aging.sql.\nAgeing of open claims by time since last activity.\nParameters: AsOfDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_claim_aging\n  3 |   Purpose  : Ageing of the open claims book for claims operations: each open or\n  4 |              re-opened claim is aged on the days since its last activity (its\n  5 |              last payment up to the reporting date, or the date it was notified\n  6 |              when nothing has been paid yet). Feeds the weekly diary review.\n  7 |   Output   : rpt.claim_aging (truncated and reloaded on every run)\n  8 |   Author   : BMcG\n  9 | \n 10 |   Change log\n 11 |     2013-10-07  BMcG  Initial version\n 12 |     2014-05-19  BMcG  weeks_open added for the handler workload report (CR-0317)\n 13 |     2016-02-08  RF    Re-opened claims aged as well (CR-0852)\n 14 |     2017-09-25  RF    Payments staged in #pay first; nightly run down from\n 15 |                       40 min to 2 min (INC-1904)\n 16 |     2019-04-01  NK    Payments dated after the reporting date ignored (CR-1488)\n 17 |     2020-11-16  NK    Ageing bands added for the claims MI pack (CR-1951)\n 18 | ==============================================================================*/\n 19 | SET NOCOUNT ON;\n 20 | GO\n 21 | IF OBJECT_ID(N'rpt.claim_aging', N'U') IS NULL\n 22 | CREATE TABLE rpt.claim_aging (\n 23 |     claim_id             INT            NOT NULL,\n 24 |     claim_number         VARCHAR(20)    NOT NULL,\n 25 |     lob_code             VARCHAR(5)     NOT NULL,\n 26 |     reported_date        DATE           NOT NULL,\n 27 |     n_payments           INT            NOT NULL,\n 28 |     total_paid           DECIMAL(14,2)  NULL,\n 29 |     last_payment_date    DATE           NULL,\n 30 |     last_activity_date   DATE           NOT NULL,\n 31 |     days_since_activity  INT            NOT NULL,\n 32 |     weeks_open           INT            NOT NULL,\n 33 |     aging_band           VARCHAR(10)    NOT NULL,\n 34 |     as_of_date           DATE           NOT NULL,\n 35 |     CONSTRAINT pk_claim_aging PRIMARY KEY CLUSTERED (claim_id)\n 36 | );\n 37 | GO\n 38 | CREATE OR ALTER PROCEDURE rpt.usp_claim_aging\n 39 |     @AsOfDate DATE\n 40 | AS\n 41 | BEGIN\n 42 |     SET NOCOUNT ON;\n 43 | \n 44 |     DECLARE @job_name  VARCHAR(128) = 'rpt.usp_claim_aging',\n 45 |             @rows      INT,\n 46 |             @claim_id  INT,\n 47 |             @reported  DATE,\n 48 |             @pay_date  DATE,\n 49 |             @amount    DECIMAL(12,2),\n 50 |             @n_pay     INT,\n 51 |             @total     DECIMAL(14,2),\n 52 |             @last_pay  DATE,\n 53 |             @last_act  DATE,\n 54 |             @days      INT,\n 55 |             @weeks     INT,\n 56 |             @band      VARCHAR(10),\n 57 |             @err_msg   NVARCHAR(4000),\n 58 |             @err_no    INT;\n 59 | \n 60 |     BEGIN TRY\n 61 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 62 | \n 63 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 64 |         IF OBJECT_ID('tempdb..#pay') IS NOT NULL DROP TABLE #pay;\n 65 | \n 66 |         -- 1. open book: open and re-opened claims notified by the reporting date\n 67 |         SELECT c.claim_id,\n 68 |                c.claim_number,\n 69 |                UPPER(RTRIM(c.lob_code)) AS lob_code,\n 70 |                c.reported_date\n 71 |         INTO   #open_claims\n 72 |         FROM   stg.claims AS c WITH (NOLOCK)\n 73 |         WHERE  c.status IN ('OPEN', 'REOPENED')\n 74 |           AND  c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims',\n 78 |              @status = 'INFO', @rows_affected = @rows;\n 79 | \n 80 |         -- 2. payments on those claims up to the reporting date\n 81 |         SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n 82 |         INTO   #pay\n 83 |         FROM   stg.claim_payments AS p WITH (NOLOCK)\n 84 |         INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n 85 |         WHERE  p.payment_date <= @AsOfDate;\n 86 | \n 87 |         SET @rows = @@ROWCOUNT;\n 88 |         CREATE CLUSTERED INDEX ix_pay ON #pay (claim_id, payment_date, payment_id);\n 89 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'payments',\n 90 |              @status = 'INFO', @rows_affected = @rows;\n 91 | \n 92 |         CREATE TABLE #aging (\n 93 |             claim_id             INT            NOT NULL PRIMARY KEY,\n 94 |             n_payments           INT            NOT NULL,\n 95 |             total_paid           DECIMAL(14,2)  NULL,\n 96 |             last_payment_date    DATE           NULL,\n 97 |             last_activity_date   DATE           NOT NULL,\n 98 |             days_since_activity  INT            NOT NULL,\n 99 |             weeks_open           INT            NOT NULL,\n100 |             aging_band           VARCHAR(10)    NOT NULL\n101 |         );\n102 | \n103 |         -- 3. age each claim on its payment history\n104 |         DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n105 |             SELECT claim_id, reported_date\n106 |             FROM   #open_claims\n107 |             ORDER  BY claim_id;\n108 | \n109 |         OPEN claim_cur;\n110 |         FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n111 | \n112 |         WHILE @@FETCH_STATUS = 0\n113 |         BEGIN\n114 |             SET @n_pay    = 0;\n115 |             SET @total    = 0;\n116 |             SET @last_pay = NULL;\n117 | \n118 |             DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n119 |                 SELECT payment_date, amount\n120 |                 FROM   #pay\n121 |                 WHERE  claim_id = @claim_id\n122 |                 ORDER  BY payment_date, payment_id;\n123 | \n124 |             OPEN pay_cur;\n125 |             FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n126 | \n127 |             WHILE @@FETCH_STATUS = 0\n128 |             BEGIN\n129 |                 SET @n_pay    = @n_pay + 1;\n130 |                 SET @total    = @total + @amount;\n131 |                 SET @last_pay = @pay_date;\n132 | \n133 |                 FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n134 |             END\n135 | \n136 |             CLOSE pay_cur;\n137 |             DEALLOCATE pay_cur;\n138 | \n139 |             -- last activity: the last payment, or notification if nothing paid yet\n140 |             SET @last_act = ISNULL(@last_pay, @reported);\n141 |             SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);\n142 |             SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);\n143 | \n144 |             -- ageing band for the MI pack\n145 |             SET @band = CASE WHEN @days < 30 THEN '0-29'\n146 |                              WHEN @days BETWEEN 31 AND 60 THEN '31-60'\n147 |                              WHEN @days > 60 THEN '61+'\n148 |                              ELSE 'UNKNOWN'\n149 |                         END;\n150 | \n151 |             INSERT INTO #aging (claim_id, n_payments, total_paid, last_payment_date,\n152 |                                 last_activity_date, days_since_activity, weeks_open, aging_band)\n153 |             VALUES (@claim_id, @n_pay, @total, @last_pay, @last_act, @days, @weeks, @band);\n154 | \n155 |             FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n156 |         END\n157 | \n158 |         CLOSE claim_cur;\n159 |         DEALLOCATE claim_cur;\n160 | \n161 |         SELECT @rows = COUNT(*) FROM #aging;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim loop',\n163 |              @status = 'INFO', @rows_affected = @rows;\n164 | \n165 |         -- 4. reload the report table\n166 |         TRUNCATE TABLE rpt.claim_aging;\n167 | \n168 |         INSERT INTO rpt.claim_aging (claim_id, claim_number, lob_code, reported_date,\n169 |                n_payments, total_paid, last_payment_date, last_activity_date,\n170 |                days_since_activity, weeks_open, aging_band, as_of_date)\n171 |         SELECT o.claim_id, o.claim_number, o.lob_code, o.reported_date,\n172 |                a.n_payments, a.total_paid, a.last_payment_date, a.last_activity_date,\n173 |                a.days_since_activity, a.weeks_open, a.aging_band, @AsOfDate\n174 |         FROM   #aging AS a\n175 |         INNER JOIN #open_claims AS o ON o.claim_id = a.claim_id;\n176 | \n177 |         SET @rows = @@ROWCOUNT;\n178 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'load rpt.claim_aging',\n179 |              @status = 'INFO', @rows_affected = @rows;\n180 | \n181 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n182 |     END TRY\n183 |     BEGIN CATCH\n184 |         SELECT @err_msg = ERROR_MESSAGE(), @err_no = ERROR_NUMBER();\n185 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim aging',\n186 |              @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n187 |         THROW;\n188 |     END CATCH\n189 | END;\n190 | GO\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.claim_payments: payment_id INT, claim_id INT, payment_date DATE, amount DECIMAL(12,2), payment_type VARCHAR(12), payee_type VARCHAR(12), _row_seq INT\n\nOutput tables:\n- rpt.claim_aging: claim_id INT, claim_number VARCHAR(20), lob_code VARCHAR(5), reported_date DATE, n_payments INT, total_paid DECIMAL(14,2), last_payment_date DATE, last_activity_date DATE, days_since_activity INT, weeks_open INT, aging_band VARCHAR(10), as_of_date DATE\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "28940efaf7d1370fd7ff70455a03b01c0f64b7efca39b4addc8c937ec0b5b6a6",
+  "response": {
+    "duration_api_ms": 35473,
+    "duration_ms": 35816,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5075,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5075,
+        "cacheReadInputTokens": 1869,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1306618,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4484,
+        "provider": "firstParty",
+        "thinkingTokens": 881,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.97,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            67,
+            105,
+            110,
+            153,
+            171
+          ],
+          "output_column": "claim_id",
+          "output_table": "rpt.claim_aging",
+          "transform": "direct copy via #open_claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "claim_number",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            68,
+            171
+          ],
+          "output_column": "claim_number",
+          "output_table": "rpt.claim_aging",
+          "transform": "direct copy via #open_claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            69,
+            171
+          ],
+          "output_column": "lob_code",
+          "output_table": "rpt.claim_aging",
+          "transform": "UPPER(RTRIM(lob_code))"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            70,
+            171
+          ],
+          "output_column": "reported_date",
+          "output_table": "rpt.claim_aging",
+          "transform": "direct copy via #open_claims"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "payment_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            81,
+            118,
+            129,
+            153,
+            172
+          ],
+          "output_column": "n_payments",
+          "output_table": "rpt.claim_aging",
+          "transform": "count of payment rows per claim in cursor loop"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            114,
+            129
+          ],
+          "output_column": "n_payments",
+          "output_table": "rpt.claim_aging",
+          "transform": "starts at 0, +1 per payment"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "amount",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            81,
+            119,
+            125,
+            130,
+            153,
+            172
+          ],
+          "output_column": "total_paid",
+          "output_table": "rpt.claim_aging",
+          "transform": "running sum of amount per claim (cursor)"
+        },
+        {
+          "confidence": 0.75,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            115
+          ],
+          "output_column": "total_paid",
+          "output_table": "rpt.claim_aging",
+          "transform": "initialised to 0; 0 when no payments"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            81,
+            119,
+            131,
+            153,
+            172
+          ],
+          "output_column": "last_payment_date",
+          "output_table": "rpt.claim_aging",
+          "transform": "payment_date of last payment in order (payment_date, payment_id); NULL if none"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            131,
+            140,
+            153,
+            172
+          ],
+          "output_column": "last_activity_date",
+          "output_table": "rpt.claim_aging",
+          "transform": "ISNULL(last payment_date, reported_date)"
+        },
+        {
+          "confidence": 0.96,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            105,
+            110,
+            140,
+            153,
+            172
+          ],
+          "output_column": "last_activity_date",
+          "output_table": "rpt.claim_aging",
+          "transform": "ISNULL(last payment_date, reported_date)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            140,
+            141,
+            153
+          ],
+          "output_column": "days_since_activity",
+          "output_table": "rpt.claim_aging",
+          "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            140,
+            141,
+            153
+          ],
+          "output_column": "days_since_activity",
+          "output_table": "rpt.claim_aging",
+          "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            141
+          ],
+          "output_column": "days_since_activity",
+          "output_table": "rpt.claim_aging",
+          "transform": "DATEDIFF(DAY, last_act, @AsOfDate)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            142,
+            153
+          ],
+          "output_column": "weeks_open",
+          "output_table": "rpt.claim_aging",
+          "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            142
+          ],
+          "output_column": "weeks_open",
+          "output_table": "rpt.claim_aging",
+          "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "derives",
+          "lines": [
+            140,
+            141,
+            145,
+            146,
+            147,
+            148
+          ],
+          "output_column": "aging_band",
+          "output_table": "rpt.claim_aging",
+          "transform": "CASE on days_since_activity"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            140,
+            141,
+            145,
+            146,
+            147,
+            148
+          ],
+          "output_column": "aging_band",
+          "output_table": "rpt.claim_aging",
+          "transform": "CASE on days_since_activity"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            141,
+            145
+          ],
+          "output_column": "aging_band",
+          "output_table": "rpt.claim_aging",
+          "transform": "CASE on DATEDIFF(DAY, last_act, @AsOfDate)"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            145,
+            146,
+            147,
+            148
+          ],
+          "output_column": "aging_band",
+          "output_table": "rpt.claim_aging",
+          "transform": "band literals '0-29','31-60','61+','UNKNOWN'"
+        },
+        {
+          "confidence": 0.99,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            173
+          ],
+          "output_column": "as_of_date",
+          "output_table": "rpt.claim_aging",
+          "transform": "@AsOfDate stamped"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "status",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            73
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "status IN ('OPEN','REOPENED')"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            74
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "reported_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            74,
+            85
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "reported_date <= @AsOfDate; payment_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            85
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "payments limited to payment_date <= @AsOfDate (limits payments aggregated, not output rows)"
+        },
+        {
+          "confidence": 0.65,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "filters",
+          "lines": [
+            84,
+            121
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "payments joined to open claims on claim_id / cursor WHERE claim_id = @claim_id (limits payments aggregated)"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            84,
+            175
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "#aging INNER JOIN #open_claims ON claim_id; payment join key"
+        },
+        {
+          "confidence": 0.8,
+          "input_column": "payment_date",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "ranks",
+          "lines": [
+            122,
+            131
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "pay_cur ORDER BY payment_date, payment_id; last fetched row sets last_payment_date"
+        },
+        {
+          "confidence": 0.6,
+          "input_column": "payment_id",
+          "input_kind": "column",
+          "input_table": "stg.claim_payments",
+          "kind": "ranks",
+          "lines": [
+            122
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_aging",
+          "transform": "tie-break in ORDER BY payment_date, payment_id (tie-break only; it doesn't change the value)"
+        }
+      ],
+      "notes": "1) Bug in aging_band (lines 145-148): when days_since_activity = 30 the row falls into 'UNKNOWN', because the bands are <30, 31-60 and >60. The PySpark port must keep this. 2) total_paid is 0, not NULL, when a claim has no payments (@total starts at 0 on line 115), even though the column allows NULL. last_payment_date is NULL in that case. 3) n_payments is a count of payment rows. It is mapped to stg.claim_payments.payment_id plus a constant, with lower confidence. 4) The filters on payment_date, the payment claim_id join and @AsOfDate on line 85 only limit which payments are added up. They don't decide which output rows appear; one row is written per open claim. 5) The final join of #aging to #open_claims (line 175) is a 1:1 match on stg.claims.claim_id. 6) The ORDER BY on payment_date, payment_id decides which payment's date becomes last_payment_date (the last one fetched). The payment_id tie-break doesn't change the value. 7) DATEDIFF(WEEK) counts week boundaries crossed (Sunday-based by default), not elapsed days divided by 7. The port must match this."
+    },
+    "total_cost_usd": 0.1306618,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5075,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5075,
+      "cache_read_input_tokens": 1869,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5075,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5075,
+          "cache_read_input_tokens": 1869,
+          "input_tokens": 2,
+          "output_tokens": 4484,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4484,
+      "output_tokens_details": {
+        "thinking_tokens": 881
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,19 @@
+{
+  "approach": "lansh",
+  "cost_usd_equivalent": 1.9872,
+  "duration_seconds": 66.977,
+  "ended_at": "2026-11-12T04:10:37.100675Z",
+  "heal_attempts": 0,
+  "input_tokens": 57514,
+  "job_id": "X1",
+  "llm_calls": 6,
+  "llm_live_calls": 0,
+  "output_tokens": 79320,
+  "reviewer_seconds": 0.001,
+  "run_id": "dev-holdout-learn",
+  "sla": [],
+  "stage": null,
+  "started_at": "2026-11-12T04:09:30.123544Z",
+  "status": "MATCH",
+  "wave": null
+}

@@ -1,0 +1,265 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:01:34.730326Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T05",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T05: usp_claim_aging. Ageing of open claims by time since last activity.\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_claim_aging\n  3 |   Purpose  : Ageing of the open claims book for claims operations: each open or\n  4 |              re-opened claim is aged on the days since its last activity (its\n  5 |              last payment up to the reporting date, or the date it was notified\n  6 |              when nothing has been paid yet). Feeds the weekly diary review.\n  7 |   Output   : rpt.claim_aging (truncated and reloaded on every run)\n  8 |   Author   : BMcG\n  9 | \n 10 |   Change log\n 11 |     2013-10-07  BMcG  Initial version\n 12 |     2014-05-19  BMcG  weeks_open added for the handler workload report (CR-0317)\n 13 |     2016-02-08  RF    Re-opened claims aged as well (CR-0852)\n 14 |     2017-09-25  RF    Payments staged in #pay first; nightly run down from\n 15 |                       40 min to 2 min (INC-1904)\n 16 |     2019-04-01  NK    Payments dated after the reporting date ignored (CR-1488)\n 17 |     2020-11-16  NK    Ageing bands added for the claims MI pack (CR-1951)\n 18 | ==============================================================================*/\n 19 | SET NOCOUNT ON;\n 20 | GO\n 21 | IF OBJECT_ID(N'rpt.claim_aging', N'U') IS NULL\n 22 | CREATE TABLE rpt.claim_aging (\n 23 |     claim_id             INT            NOT NULL,\n 24 |     claim_number         VARCHAR(20)    NOT NULL,\n 25 |     lob_code             VARCHAR(5)     NOT NULL,\n 26 |     reported_date        DATE           NOT NULL,\n 27 |     n_payments           INT            NOT NULL,\n 28 |     total_paid           DECIMAL(14,2)  NULL,\n 29 |     last_payment_date    DATE           NULL,\n 30 |     last_activity_date   DATE           NOT NULL,\n 31 |     days_since_activity  INT            NOT NULL,\n 32 |     weeks_open           INT            NOT NULL,\n 33 |     aging_band           VARCHAR(10)    NOT NULL,\n 34 |     as_of_date           DATE           NOT NULL,\n 35 |     CONSTRAINT pk_claim_aging PRIMARY KEY CLUSTERED (claim_id)\n 36 | );\n 37 | GO\n 38 | CREATE OR ALTER PROCEDURE rpt.usp_claim_aging\n 39 |     @AsOfDate DATE\n 40 | AS\n 41 | BEGIN\n 42 |     SET NOCOUNT ON;\n 43 | \n 44 |     DECLARE @job_name  VARCHAR(128) = 'rpt.usp_claim_aging',\n 45 |             @rows      INT,\n 46 |             @claim_id  INT,\n 47 |             @reported  DATE,\n 48 |             @pay_date  DATE,\n 49 |             @amount    DECIMAL(12,2),\n 50 |             @n_pay     INT,\n 51 |             @total     DECIMAL(14,2),\n 52 |             @last_pay  DATE,\n 53 |             @last_act  DATE,\n 54 |             @days      INT,\n 55 |             @weeks     INT,\n 56 |             @band      VARCHAR(10),\n 57 |             @err_msg   NVARCHAR(4000),\n 58 |             @err_no    INT;\n 59 | \n 60 |     BEGIN TRY\n 61 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 62 | \n 63 |         IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n 64 |         IF OBJECT_ID('tempdb..#pay') IS NOT NULL DROP TABLE #pay;\n 65 | \n 66 |         -- 1. open book: open and re-opened claims notified by the reporting date\n 67 |         SELECT c.claim_id,\n 68 |                c.claim_number,\n 69 |                UPPER(RTRIM(c.lob_code)) AS lob_code,\n 70 |                c.reported_date\n 71 |         INTO   #open_claims\n 72 |         FROM   stg.claims AS c WITH (NOLOCK)\n 73 |         WHERE  c.status IN ('OPEN', 'REOPENED')\n 74 |           AND  c.reported_date <= @AsOfDate;\n 75 | \n 76 |         SET @rows = @@ROWCOUNT;\n 77 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims',\n 78 |              @status = 'INFO', @rows_affected = @rows;\n 79 | \n 80 |         -- 2. payments on those claims up to the reporting date\n 81 |         SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n 82 |         INTO   #pay\n 83 |         FROM   stg.claim_payments AS p WITH (NOLOCK)\n 84 |         INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n 85 |         WHERE  p.payment_date <= @AsOfDate;\n 86 | \n 87 |         SET @rows = @@ROWCOUNT;\n 88 |         CREATE CLUSTERED INDEX ix_pay ON #pay (claim_id, payment_date, payment_id);\n 89 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'payments',\n 90 |              @status = 'INFO', @rows_affected = @rows;\n 91 | \n 92 |         CREATE TABLE #aging (\n 93 |             claim_id             INT            NOT NULL PRIMARY KEY,\n 94 |             n_payments           INT            NOT NULL,\n 95 |             total_paid           DECIMAL(14,2)  NULL,\n 96 |             last_payment_date    DATE           NULL,\n 97 |             last_activity_date   DATE           NOT NULL,\n 98 |             days_since_activity  INT            NOT NULL,\n 99 |             weeks_open           INT            NOT NULL,\n100 |             aging_band           VARCHAR(10)    NOT NULL\n101 |         );\n102 | \n103 |         -- 3. age each claim on its payment history\n104 |         DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n105 |             SELECT claim_id, reported_date\n106 |             FROM   #open_claims\n107 |             ORDER  BY claim_id;\n108 | \n109 |         OPEN claim_cur;\n110 |         FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n111 | \n112 |         WHILE @@FETCH_STATUS = 0\n113 |         BEGIN\n114 |             SET @n_pay    = 0;\n115 |             SET @total    = 0;\n116 |             SET @last_pay = NULL;\n117 | \n118 |             DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n119 |                 SELECT payment_date, amount\n120 |                 FROM   #pay\n121 |                 WHERE  claim_id = @claim_id\n122 |                 ORDER  BY payment_date, payment_id;\n123 | \n124 |             OPEN pay_cur;\n125 |             FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n126 | \n127 |             WHILE @@FETCH_STATUS = 0\n128 |             BEGIN\n129 |                 SET @n_pay    = @n_pay + 1;\n130 |                 SET @total    = @total + @amount;\n131 |                 SET @last_pay = @pay_date;\n132 | \n133 |                 FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n134 |             END\n135 | \n136 |             CLOSE pay_cur;\n137 |             DEALLOCATE pay_cur;\n138 | \n139 |             -- last activity: the last payment, or notification if nothing paid yet\n140 |             SET @last_act = ISNULL(@last_pay, @reported);\n141 |             SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);\n142 |             SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);\n143 | \n144 |             -- ageing band for the MI pack\n145 |             SET @band = CASE WHEN @days < 30 THEN '0-29'\n146 |                              WHEN @days BETWEEN 31 AND 60 THEN '31-60'\n147 |                              WHEN @days > 60 THEN '61+'\n148 |                              ELSE 'UNKNOWN'\n149 |                         END;\n150 | \n151 |             INSERT INTO #aging (claim_id, n_payments, total_paid, last_payment_date,\n152 |                                 last_activity_date, days_since_activity, weeks_open, aging_band)\n153 |             VALUES (@claim_id, @n_pay, @total, @last_pay, @last_act, @days, @weeks, @band);\n154 | \n155 |             FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n156 |         END\n157 | \n158 |         CLOSE claim_cur;\n159 |         DEALLOCATE claim_cur;\n160 | \n161 |         SELECT @rows = COUNT(*) FROM #aging;\n162 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim loop',\n163 |              @status = 'INFO', @rows_affected = @rows;\n164 | \n165 |         -- 4. reload the report table\n166 |         TRUNCATE TABLE rpt.claim_aging;\n167 | \n168 |         INSERT INTO rpt.claim_aging (claim_id, claim_number, lob_code, reported_date,\n169 |                n_payments, total_paid, last_payment_date, last_activity_date,\n170 |                days_since_activity, weeks_open, aging_band, as_of_date)\n171 |         SELECT o.claim_id, o.claim_number, o.lob_code, o.reported_date,\n172 |                a.n_payments, a.total_paid, a.last_payment_date, a.last_activity_date,\n173 |                a.days_since_activity, a.weeks_open, a.aging_band, @AsOfDate\n174 |         FROM   #aging AS a\n175 |         INNER JOIN #open_claims AS o ON o.claim_id = a.claim_id;\n176 | \n177 |         SET @rows = @@ROWCOUNT;\n178 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'load rpt.claim_aging',\n179 |              @status = 'INFO', @rows_affected = @rows;\n180 | \n181 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n182 |     END TRY\n183 |     BEGIN CATCH\n184 |         SELECT @err_msg = ERROR_MESSAGE(), @err_no = ERROR_NUMBER();\n185 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim aging',\n186 |              @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n187 |         THROW;\n188 |     END CATCH\n189 | END;\n190 | GO\n\nViews for impact queries:\n- stg_claims (stg.claims): claim_id int, claim_number string, policy_id int, customer_id int, lob_code string, loss_date date, reported_date date, status string, closed_date date, cause_code string, handler_code string, description string, _row_seq int\n- stg_claim_payments (stg.claim_payments): payment_id int, claim_id int, payment_date date, amount decimal(12,2), payment_type string, payee_type string, _row_seq int\n- golden_rpt_claim_aging (the legacy output rpt.claim_aging): claim_id int, claim_number string, lob_code string, reported_date date, n_payments int, total_paid decimal(14,2), last_payment_date date, last_activity_date date, days_since_activity int, weeks_open int, aging_band string, as_of_date date\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "40a71f88f5ac8fa18245ecb4552440d27ea841a18705e14c93fa6fbd9d8b9b8c",
+  "response": {
+    "duration_api_ms": 38311,
+    "duration_ms": 38584,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4998,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4998,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.12014620000000001,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 3994,
+        "provider": "firstParty",
+        "thinkingTokens": 1736,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": null,
+          "confidence": 0.85,
+          "description": "The band CASE uses @days < 30 for '0-29' and BETWEEN 31 AND 60 for '31-60'. A claim with exactly 30 days since last activity matches neither and gets 'UNKNOWN'. days_since_activity is never negative (reported_date <= AsOfDate and payment_date <= AsOfDate), so 30 is the only value that reaches UNKNOWN.",
+          "evidence_lines": [
+            145,
+            146,
+            147,
+            148
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_rpt_claim_aging WHERE days_since_activity = 30 OR aging_band = 'UNKNOWN'",
+          "intended_behaviour": "The bands should cover every value with no gaps: 0-29, 30-60, 61+ (or 0-30, 31-60, 61+). Day 30 should get a real band, not UNKNOWN.",
+          "title": "Ageing band gap: 30 days falls into UNKNOWN"
+        },
+        {
+          "amount_column": "weeks_open",
+          "confidence": 0.5,
+          "description": "weeks_open = DATEDIFF(WEEK, @reported, @AsOfDate). This counts the Sunday week boundaries crossed, not completed 7-day weeks, so a claim reported on a Saturday shows 1 week open the next day and the result can be one week off from the real elapsed weeks.",
+          "evidence_lines": [
+            142
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(weeks_open - CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT))), 0) AS amount_affected FROM golden_rpt_claim_aging WHERE weeks_open <> CAST(FLOOR(DATEDIFF(as_of_date, reported_date) / 7) AS INT)",
+          "intended_behaviour": "Whole weeks the claim has been open, i.e. FLOOR(DATEDIFF(DAY, reported_date, AsOfDate) / 7).",
+          "title": "weeks_open counts week boundaries, not elapsed weeks"
+        },
+        {
+          "amount_column": "total_paid",
+          "confidence": 0.45,
+          "description": "The cursor builds the total with SET @total = @total + @amount. If any payment up to the reporting date has a NULL amount, the running total becomes NULL and stays NULL, so total_paid is NULL for the whole claim even though its other payments have amounts. The NULL-amount payment is still counted in n_payments.",
+          "evidence_lines": [
+            115,
+            130,
+            95,
+            28
+          ],
+          "impact_query": "WITH p AS (SELECT claim_id, SUM(amount) AS amt, SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) AS n_null FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(p.amt, 0))), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN p ON p.claim_id = g.claim_id WHERE p.n_null > 0",
+          "intended_behaviour": "NULL amounts should be ignored (as SUM does), so total_paid is the sum of the known payment amounts.",
+          "title": "A NULL payment amount makes total_paid NULL"
+        },
+        {
+          "amount_column": "total_paid",
+          "confidence": 0.3,
+          "description": "Payments are copied from stg.claim_payments without removing duplicates (staging has a _row_seq column, which suggests a payment can be loaded more than once). If a payment_id appears more than once for a claim, every copy is added to n_payments and total_paid.",
+          "evidence_lines": [
+            81,
+            82,
+            83,
+            84,
+            85,
+            129,
+            130
+          ],
+          "impact_query": "WITH d AS (SELECT claim_id, payment_id, COUNT(*) AS c, MAX(amount) AS amt FROM stg_claim_payments WHERE payment_date <= DATE'2025-12-31' GROUP BY claim_id, payment_id HAVING COUNT(*) > 1), per AS (SELECT claim_id, SUM((c - 1) * COALESCE(amt, 0)) AS extra FROM d GROUP BY claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(per.extra)), 0) AS amount_affected FROM golden_rpt_claim_aging g JOIN per ON per.claim_id = g.claim_id",
+          "intended_behaviour": "Each payment (claim_id, payment_id) should be counted once.",
+          "title": "Duplicate staged payment rows are double-counted"
+        }
+      ]
+    },
+    "total_cost_usd": 0.12014620000000001,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4998,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4998,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4998,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4998,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 3994,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3994,
+      "output_tokens_details": {
+        "thinking_tokens": 1736
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,172 @@
+[
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 36,
+    "line_start": 36,
+    "note": "In SAS a missing payment_date counts as smaller than any date, so payment_date <= &as_of keeps rows with no date. A Spark filter drops them, so the translation needs an explicit isNull() OR.",
+    "snippet": "where=(payment_date <= &as_of))",
+    "trap_id": "SAS-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 36,
+    "line_start": 36,
+    "note": "&as_of is a SAS day count (days since 1960) compared with payment_date. In Spark it has to become a date literal, or the column has to be converted, before the comparison.",
+    "snippet": "where=(payment_date <= &as_of))",
+    "trap_id": "SAS-03"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 49,
+    "line_start": 48,
+    "note": "The accumulators and the first/last dates are retained across rows and reset at first.claim_id. The result depends on the row order (claim_id, _row_seq), so Spark needs an ordered window or an aggregate.",
+    "snippet": "retain n_payments n_recoveries total_paid indemnity_amt expense_amt recovery_amt\n         first_payment_date last_payment_date recovery_flag;",
+    "trap_id": "SAS-06"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 52,
+    "line_start": 52,
+    "note": "first.claim_id resets the counters, and first_payment_date is the payment_date of the first row in _row_seq order, not the earliest date. Spark needs a window ordered by _row_seq.",
+    "snippet": "if first.claim_id then do;",
+    "trap_id": "SAS-07"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 63,
+    "line_start": 63,
+    "note": "The sum statement n_payments + 1 is implicitly retained and counts every row, including rows kept with a missing date.",
+    "snippet": "n_payments + 1;",
+    "trap_id": "SAS-06"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 64,
+    "line_start": 64,
+    "note": "The sum statement treats a missing amount as 0, so total_paid is never missing. In Spark this means a NULL-skipping F.sum or a coalesce.",
+    "snippet": "total_paid + amount;",
+    "trap_id": "SAS-02"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 64,
+    "line_start": 64,
+    "note": "The sum statement total_paid + amount is retained and accumulates in row order within the claim.",
+    "snippet": "total_paid + amount;",
+    "trap_id": "SAS-06"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 68,
+    "line_start": 68,
+    "note": "indemnity_amt = indemnity_amt + amount uses plain +, so one missing amount makes indemnity_amt missing for the rest of the claim. F.sum would skip the NULL and give a different result.",
+    "snippet": "if ptype = 'INDEMNITY' then indemnity_amt = indemnity_amt + amount;",
+    "trap_id": "SAS-02"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 69,
+    "line_start": 69,
+    "note": "In expense_amt = expense_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.",
+    "snippet": "else if ptype = 'EXPENSE' then expense_amt = expense_amt + amount;",
+    "trap_id": "SAS-02"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 70,
+    "line_start": 70,
+    "note": "In recovery_amt = recovery_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.",
+    "snippet": "else if ptype = 'RECOVERY' then recovery_amt = recovery_amt + amount;",
+    "trap_id": "SAS-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 73,
+    "line_start": 73,
+    "note": "In SAS, amount < 0 is true when amount is missing, so a payment with no amount sets recovery_flag and adds to n_recoveries. A Spark when() treats it as false.",
+    "snippet": "if amount < 0 then do;",
+    "trap_id": "SAS-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 75,
+    "line_start": 75,
+    "note": "n_recoveries + 1 is retained and reset per claim. It is part of the carried state that has to become a conditional count.",
+    "snippet": "n_recoveries + 1;",
+    "trap_id": "SAS-06"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 79,
+    "line_start": 78,
+    "note": "last_payment_date is the payment_date of the last row in _row_seq order (not the maximum date), and it is output at last.claim_id. Spark needs a last value over a window ordered by _row_seq.",
+    "snippet": "last_payment_date = payment_date;\n  if last.claim_id then output;",
+    "trap_id": "SAS-07"
+  },
+  {
+    "confidence": 0.35,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 89,
+    "line_start": 88,
+    "note": "Latent: MERGE BY matches a missing claim_id with a missing claim_id, but a Spark equi-join never matches NULL keys. The translation would need a null-safe join if any keys are missing.",
+    "snippet": "merge work.claims(in=c) work.pay_summary(in=p);\n  by claim_id;",
+    "trap_id": "SAS-01"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 90,
+    "line_start": 88,
+    "note": "This MERGE with in= flags and 'if c' is a left join from claims to pay_summary. has_payment = p comes from the in= flag, and claims with no payments keep missing values in the pay_summary columns.",
+    "snippet": "merge work.claims(in=c) work.pay_summary(in=p);\n  by claim_id;\n  if c;",
+    "trap_id": "SAS-05"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 103,
+    "line_start": 103,
+    "note": "gross_paid uses +, so it is missing for claims with no payments (their indemnity_amt and expense_amt are not reset to 0) and for claims where an amount was missing. The translation must not coalesce.",
+    "snippet": "gross_paid = indemnity_amt + expense_amt;",
+    "trap_id": "SAS-02"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S01",
+    "line_end": 104,
+    "line_start": 104,
+    "note": "sum() skips missing arguments and is missing only if all three are missing, so it is missing for claims with no payments. Spark needs coalesce logic that keeps NULL only when every argument is NULL.",
+    "snippet": "net_paid   = sum(indemnity_amt, expense_amt, recovery_amt);",
+    "trap_id": "SAS-02"
+  }
+]

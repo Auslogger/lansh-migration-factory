@@ -1,0 +1,189 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:27:58.794070Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T03",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T03: usp_build_fact_premium_earned. Written and earned premium in EUR per premium transaction.\nOutput table dw.fact_premium_earned, 67879 rows in the legacy output.\n\nColumns:\n- txn_id INT: 67879 distinct, 0 NULL\n- policy_id INT: 61441 distinct, 0 NULL\n- policy_sk INT: 61441 distinct, 0 NULL\n- lob_code VARCHAR(5): 3 distinct, 0 NULL\n- txn_type VARCHAR(4): 4 distinct, 0 NULL\n- txn_date DATE: 2570 distinct, 0 NULL\n- effective_from DATE: 2553 distinct, 0 NULL\n- effective_to DATE: 2701 distinct, 0 NULL\n- currency CHAR(3): 3 distinct, 0 NULL\n- amount DECIMAL(12,2): 46962 distinct, 0 NULL\n- fx_rate DECIMAL(18,8): 1529 distinct, 0 NULL\n- written_eur DECIMAL(14,2): 47088 distinct, 0 NULL\n- term_days INT: 366 distinct, 0 NULL\n- earned_days INT: 366 distinct, 0 NULL\n- earned_pct DECIMAL(5,2): 101 distinct, 0 NULL\n- earned_eur DECIMAL(14,2): 43198 distinct, 0 NULL\n- unearned_eur DECIMAL(14,2): 23383 distinct, 0 NULL\n- daily_rate_eur DECIMAL(12,4): 27385 distinct, 0 NULL\n- monthly_instalment_eur DECIMAL(14,2): 11474 distinct, 0 NULL\n- first_due_date DATE: 84 distinct, 0 NULL\n- as_of_date DATE: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['txn_id']\n\nLegacy code:\n/*==============================================================================\n  Job       dw.usp_build_fact_premium_earned\n  Purpose   Premium fact for finance: one row per premium transaction, converted\n            to EUR at the rate published on or before the booking date, with\n            the premium earned as at the reporting date.\n  Author    MOD\n  Run by    FIN_MONTH_END, after dw.usp_load_dim_policy\n  Output    dw.fact_premium_earned (full refresh)\n\n  Change log\n    2016-01-11  MOD  Initial version (CR-0904)\n    2016-07-04  MOD  Sterling and dollar business converted to EUR (CR-0977)\n    2018-03-19  PK   Policy surrogate key and line of business from dim_policy (CR-1290)\n    2019-09-30  PK   Daily rate and monthly instalment for the cash-flow model (CR-1510)\n    2021-02-15  MOD  First instalment due date for the direct debit file (CR-1618)\n    2023-05-08  JMcK Earned percentage for the finance dashboard (INC-2301)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'dw.fact_premium_earned', N'U') IS NULL\nCREATE TABLE dw.fact_premium_earned (\n    txn_id                  INT            NOT NULL,\n    policy_id               INT            NOT NULL,\n    policy_sk               INT            NOT NULL,\n    lob_code                VARCHAR(5)     NOT NULL,\n    txn_type                VARCHAR(4)     NOT NULL,\n    txn_date                DATE           NOT NULL,\n    effective_from          DATE           NOT NULL,\n    effective_to            DATE           NOT NULL,\n    currency                CHAR(3)        NOT NULL,\n    amount                  DECIMAL(12,2)  NOT NULL,\n    fx_rate                 DECIMAL(18,8)  NOT NULL,\n    written_eur             DECIMAL(14,2)  NOT NULL,\n    term_days               INT            NOT NULL,\n    earned_days             INT            NOT NULL,\n    earned_pct              DECIMAL(5,2)   NOT NULL,\n    earned_eur              DECIMAL(14,2)  NOT NULL,\n    unearned_eur            DECIMAL(14,2)  NOT NULL,\n    daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n    monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n    first_due_date          DATE           NOT NULL,\n    as_of_date              DATE           NOT NULL,\n    CONSTRAINT pk_dw_fact_premium_earned PRIMARY KEY (txn_id)\n);\nGO\nCREATE OR ALTER PROCEDURE dw.usp_build_fact_premium_earned\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'dw.usp_build_fact_premium_earned',\n            @rows      INT,\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Transactions with their EUR rate: EUR as is, other currencies at the\n           latest rate on or before the booking date (later row wins on revisions) */\n        IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount,\n                CAST(1 AS DECIMAL(18,8)) AS fx_rate\n        INTO    #txn\n        FROM    stg.premium_transactions t WITH (NOLOCK)\n        WHERE   t.currency = 'EUR'\n          AND   t.txn_date <= @AsOfDate;\n\n        INSERT INTO #txn (txn_id, policy_id, txn_type, txn_date, effective_from, effective_to,\n                          currency, amount, fx_rate)\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)), t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount, fx.rate_to_eur\n        FROM    stg.premium_transactions t WITH (NOLOCK)\n        CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx\n        WHERE   t.currency <> 'EUR'\n          AND   t.txn_date <= @AsOfDate;\n\n        SELECT @rows = COUNT(*) FROM #txn;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'transactions', @status = 'INFO', @rows_affected = @rows;\n\n        /* Days of cover and days earned by the reporting date */\n        IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n\n        SELECT  x.*,\n                CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n                DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n                CASE WHEN @AsOfDate < x.effective_from THEN 0\n                     WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n                     ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n                END AS earned_days\n        INTO    #earn\n        FROM    #txn x;\n\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE dw.fact_premium_earned;\n\n        INSERT INTO dw.fact_premium_earned\n               (txn_id, policy_id, policy_sk, lob_code, txn_type, txn_date, effective_from,\n                effective_to, currency, amount, fx_rate, written_eur, term_days, earned_days,\n                earned_pct, earned_eur, unearned_eur, daily_rate_eur, monthly_instalment_eur,\n                first_due_date, as_of_date)\n        SELECT  e.txn_id,\n                e.policy_id,\n                p.policy_sk,\n                p.lob_code,\n                e.txn_type,\n                e.txn_date,\n                e.effective_from,\n                e.effective_to,\n                e.currency,\n                e.amount,\n                e.fx_rate,\n                e.written_eur,\n                e.term_days,\n                e.earned_days,\n                e.earned_days * 100 / e.term_days,\n                ROUND(e.written_eur * e.earned_days / 365, 2),\n                e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n                ROUND(e.written_eur / e.term_days, 4, 1),\n                ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n                DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n                @AsOfDate\n        FROM    #earn e\n        JOIN    dw.dim_policy p WITH (NOLOCK)\n                ON p.policy_id = e.policy_id\n               AND p.is_current = 'Y';\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.fact_premium_earned', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "cb2776a7903fc9495d915341e5309e6002ce1e5c4baa8e3c9567d99b3d04255f",
+  "response": {
+    "duration_api_ms": 8713,
+    "duration_ms": 8951,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4310,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4310,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0481478,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 674,
+        "provider": "firstParty",
+        "thinkingTokens": 0,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "as_of_date": "The @AsOfDate parameter; the same on every row.",
+        "daily_rate_eur": "written_eur / term_days, truncated (not rounded) to 4 dp.",
+        "earned_days": "Days of cover earned by as_of_date, between 0 and term_days.",
+        "earned_eur": "written_eur * earned_days / 365 (not / term_days), rounded to 2 dp. It can differ from written_eur even when fully earned.",
+        "earned_pct": "Integer division earned_days*100/term_days, so it is truncated to a whole percent.",
+        "first_due_date": "First day of the second month after effective_from (DATEADD month 1 to EOMONTH).",
+        "fx_rate": "1 for EUR. For other currencies it is the latest stg.fx_rates rate on or before txn_date; if two rows share a date, the higher _row_seq wins. Transactions with no rate found are dropped (CROSS APPLY).",
+        "monthly_instalment_eur": "written_eur divided by integer term_days/30, or by 1 if that is 0; rounded to 2 dp.",
+        "policy_sk": "From the current dim_policy row (is_current='Y').",
+        "term_days": "Days of cover counting both ends: DATEDIFF(effective_from, effective_to) + 1.",
+        "unearned_eur": "written_eur - earned_eur.",
+        "written_eur": "amount * fx_rate, rounded to 2 decimal places."
+      },
+      "grain": "One row per premium transaction booked on or before the reporting date whose policy has a current row in dim_policy. Each row holds the written and earned premium in EUR as at @AsOfDate.",
+      "keys": [
+        "txn_id"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "currency"
+      ]
+    },
+    "total_cost_usd": 0.0481478,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4310,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4310,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4310,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4310,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 674,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 674,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,231 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-estate/S01/openlineage/S01.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "ad9abf25a1f07ee384712267385c9c36ff9ecf60fe7e9b55c959f467856ee2f0",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "a51726505f4a2482939ddb31fa0cd1e0754fe962fdde8bc9b455109016d79fcf",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 641,
+            "legacy": 641,
+            "partition": "lob_code='HOM', status='CLOSED'"
+          },
+          {
+            "candidate": 250,
+            "legacy": 250,
+            "partition": "lob_code='HOM', status='OPEN'"
+          },
+          {
+            "candidate": 20,
+            "legacy": 20,
+            "partition": "lob_code='HOM', status='REOPENED'"
+          },
+          {
+            "candidate": 1267,
+            "legacy": 1267,
+            "partition": "lob_code='MOT', status='CLOSED'"
+          },
+          {
+            "candidate": 446,
+            "legacy": 446,
+            "partition": "lob_code='MOT', status='OPEN'"
+          },
+          {
+            "candidate": 40,
+            "legacy": 40,
+            "partition": "lob_code='MOT', status='REOPENED'"
+          },
+          {
+            "candidate": 180,
+            "legacy": 180,
+            "partition": "lob_code='TRV', status='CLOSED'"
+          },
+          {
+            "candidate": 65,
+            "legacy": 65,
+            "partition": "lob_code='TRV', status='OPEN'"
+          },
+          {
+            "candidate": 2,
+            "legacy": 2,
+            "partition": "lob_code='TRV', status='REOPENED'"
+          }
+        ],
+        "candidate": 2911,
+        "legacy": 2911
+      },
+      "duration_seconds": 6.23,
+      "error": null,
+      "explanation": "MATCH: all 2,911 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "ad9abf25a1f07ee384712267385c9c36ff9ecf60fe7e9b55c959f467856ee2f0",
+      "job_id": "S01",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "claim_id"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 2911,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-estate",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T02:17:46.596157Z",
+      "status": "MATCH",
+      "table": "dw.claims_enriched",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "877538416.0",
+          "column": "claim_id",
+          "legacy": "877538416.0",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1545784723.0",
+          "column": "policy_id",
+          "legacy": "1545784723.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "320603454.0",
+          "column": "customer_id",
+          "legacy": "320603454.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "10200.0",
+          "column": "n_payments",
+          "legacy": "10200.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "218.0",
+          "column": "n_recoveries",
+          "legacy": "218.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "12027486.519999985",
+          "column": "total_paid",
+          "legacy": "12027486.519999985",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "11425755.96999996",
+          "column": "indemnity_amt",
+          "legacy": "11425755.96999996",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "504317.45999999985",
+          "column": "expense_amt",
+          "legacy": "504317.45999999985",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "-197021.5599999999",
+          "column": "recovery_amt",
+          "legacy": "-197021.5599999999",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "213.0",
+          "column": "recovery_flag",
+          "legacy": "213.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "2466.0",
+          "column": "has_payment",
+          "legacy": "2466.0",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "11857100.749999985",
+          "column": "gross_paid",
+          "legacy": "11857100.749999985",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "11733051.86999999",
+          "column": "net_paid",
+          "legacy": "11733051.86999999",
+          "matches": true,
+          "policy": "float_rel",
+          "rel_tolerance": 1e-09
+        }
+      ]
+    }
+  ],
+  "seconds": 15.739,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 2911,
+      "job_id": "S01",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 2911,
+      "runtime_seconds": 10.162,
+      "table": "dw.claims_enriched"
+    }
+  ],
+  "status": "MATCH"
+}

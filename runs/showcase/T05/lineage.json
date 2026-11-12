@@ -1,0 +1,546 @@
+[
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      67,
+      105,
+      110,
+      153,
+      171
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "claim_id",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "direct copy via #open_claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      68,
+      171
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "claim_number",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "direct copy via #open_claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      69,
+      171
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(lob_code))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      70,
+      171
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "reported_date",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "direct copy via #open_claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.6,
+    "evidence_lines": [
+      81,
+      118,
+      129,
+      153,
+      172
+    ],
+    "input_column": "payment_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "n_payments",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "count of payment rows per claim in cursor loop",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.7,
+    "evidence_lines": [
+      114,
+      129
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "n_payments",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "starts at 0, +1 per payment",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.97,
+    "evidence_lines": [
+      81,
+      119,
+      125,
+      130,
+      153,
+      172
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "running sum of amount per claim (cursor)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.75,
+    "evidence_lines": [
+      115
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "initialised to 0; 0 when no payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.97,
+    "evidence_lines": [
+      81,
+      119,
+      131,
+      153,
+      172
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "last_payment_date",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "payment_date of last payment in order (payment_date, payment_id); NULL if none",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.96,
+    "evidence_lines": [
+      131,
+      140,
+      153,
+      172
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "last_activity_date",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "ISNULL(last payment_date, reported_date)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.96,
+    "evidence_lines": [
+      105,
+      110,
+      140,
+      153,
+      172
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "last_activity_date",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "ISNULL(last payment_date, reported_date)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      140,
+      141,
+      153
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "days_since_activity",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      140,
+      141,
+      153
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "days_since_activity",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.97,
+    "evidence_lines": [
+      141
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "days_since_activity",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, last_act, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.97,
+    "evidence_lines": [
+      142,
+      153
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "weeks_open",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.97,
+    "evidence_lines": [
+      142
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "weeks_open",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "DATEDIFF(WEEK, reported_date, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.93,
+    "evidence_lines": [
+      140,
+      141,
+      145,
+      146,
+      147,
+      148
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "aging_band",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "CASE on days_since_activity",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.93,
+    "evidence_lines": [
+      140,
+      141,
+      145,
+      146,
+      147,
+      148
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "aging_band",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "CASE on days_since_activity",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.93,
+    "evidence_lines": [
+      141,
+      145
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "aging_band",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "CASE on DATEDIFF(DAY, last_act, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": false,
+    "confidence": 0.95,
+    "evidence_lines": [
+      145,
+      146,
+      147,
+      148
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "aging_band",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "band literals '0-29','31-60','61+','UNKNOWN'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.99,
+    "evidence_lines": [
+      173
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "@AsOfDate stamped",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      73
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "status IN ('OPEN','REOPENED')",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      74
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "reported_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      74,
+      85
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "reported_date <= @AsOfDate; payment_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      85
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "payments limited to payment_date <= @AsOfDate (limits payments aggregated, not output rows)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.65,
+    "evidence_lines": [
+      84,
+      121
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "payments joined to open claims on claim_id / cursor WHERE claim_id = @claim_id (limits payments aggregated)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      84,
+      175
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T05",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "#aging INNER JOIN #open_claims ON claim_id; payment join key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      122,
+      131
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "pay_cur ORDER BY payment_date, payment_id; last fetched row sets last_payment_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      122
+    ],
+    "input_column": "payment_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T05",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.claim_aging",
+    "source": "llm",
+    "transform": "tie-break in ORDER BY payment_date, payment_id (tie-break only; it doesn't change the value)",
+    "verified": true
+  }
+]

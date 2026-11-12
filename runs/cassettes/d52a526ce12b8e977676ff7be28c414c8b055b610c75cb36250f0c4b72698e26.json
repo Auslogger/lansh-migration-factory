@@ -1,0 +1,228 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:09:53.838276Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T01",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T01: usp_load_dim_customer (tsql), legacy file estate/tsql/T01_usp_load_dim_customer.sql (SHA-256 d38c02712a8ae80f9e6e8fff845b41ac7d89026778fc03455b34ded21bba4dc6).\nCustomer dimension, one row per CRM customer.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job      : dw.usp_load_dim_customer\n  Purpose  : Customer dimension for the marketing and pricing teams. One row\n             per CRM customer with the customer's current details from the\n             CRM extract, plus sales region, Eircode check, initials and\n             segment flags for campaigns and the pricing models.\n  Output   : dw.dim_customer (truncated and reloaded on every run)\n  Author   : DOC\n\n  Change log\n    2013-05-20  DOC   Initial version\n    2014-11-03  DOC   Sales region from county for the regional reports (CR-0412)\n    2015-01-26  DOC   full_name and initials for the mail merge (CR-0538)\n    2016-02-18  AMcG  Eircode added, with a format check (CR-0877)\n    2017-09-07  AMcG  email_shared_count for the marketing duplicate review\n                      (CR-1190)\n    2018-05-21  AMcG  Opt-in defaults to N when the customer was never asked\n                      (GDPR, CR-1342)\n    2019-03-25  SR    age_at_join for the pricing models (CR-1564)\n    2019-11-04  KB    CRM extract is now change data capture: one row per\n                      saved version, keep the current one (CR-1702)\n    2020-10-12  SR    is_standard_segment for the renewal campaign (CR-1841)\n    2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'dw.dim_customer', N'U') IS NULL\nCREATE TABLE dw.dim_customer (\n    customer_id          INT            NOT NULL,\n    first_name           NVARCHAR(40)   NOT NULL,\n    last_name            NVARCHAR(60)   NOT NULL,\n    full_name            NVARCHAR(101)  NOT NULL,\n    initials             NVARCHAR(2)    NOT NULL,\n    email                VARCHAR(120)   NULL,\n    email_shared_count   INT            NOT NULL,\n    date_of_birth        DATE           NULL,\n    age_at_join          INT            NULL,\n    address_line1        NVARCHAR(100)  NULL,\n    town                 NVARCHAR(50)   NULL,\n    county               VARCHAR(30)    NULL,\n    region               VARCHAR(12)    NOT NULL,\n    eircode              VARCHAR(10)    NULL,\n    eircode_valid        CHAR(1)        NOT NULL,\n    segment_code         CHAR(4)        NULL,\n    is_standard_segment  CHAR(1)        NOT NULL,\n    marketing_opt_in     CHAR(1)        NOT NULL,\n    customer_since       DATE           NOT NULL,\n    source_system        VARCHAR(10)    NOT NULL,\n    version_count        INT            NOT NULL,\n    record_updated_at    DATETIME2(0)   NOT NULL,\n    as_of_date           DATE           NOT NULL,\n    CONSTRAINT pk_dim_customer PRIMARY KEY CLUSTERED (customer_id)\n);\nGO\nCREATE OR ALTER PROCEDURE dw.usp_load_dim_customer\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'dw.usp_load_dim_customer',\n            @rows      INT,\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        IF OBJECT_ID('tempdb..#customer_versions') IS NOT NULL DROP TABLE #customer_versions;\n        IF OBJECT_ID('tempdb..#customer') IS NOT NULL DROP TABLE #customer;\n\n        /* 1. Customer versions saved up to the reporting date. The CRM extract\n              writes a new row every time a record is saved. */\n        SELECT  c.customer_id,\n                c.first_name,\n                c.last_name,\n                c.email,\n                c.date_of_birth,\n                c.address_line1,\n                c.town,\n                c.county,\n                c.eircode,\n                c.segment_code,\n                c.marketing_opt_in,\n                c.customer_since,\n                c.source_system,\n                c.updated_at,\n                c._row_seq,\n                COUNT(*) OVER (PARTITION BY c.customer_id) AS version_count\n        INTO    #customer_versions\n        FROM    stg.customers c WITH (NOLOCK)\n        WHERE   CAST(c.updated_at AS DATE) <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'customer versions', @status = 'INFO', @rows_affected = @rows;\n\n        /* 2. Keep the current version of each customer */\n        SELECT  v.*\n        INTO    #customer\n        FROM   (SELECT  cv.*,\n                        ROW_NUMBER() OVER (PARTITION BY cv.customer_id\n                                           ORDER BY cv.updated_at, cv._row_seq) AS version_no\n                FROM    #customer_versions cv) v\n        WHERE   v.version_no = 1;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'current versions', @status = 'INFO', @rows_affected = @rows;\n\n        /* 3. Reload the dimension */\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE dw.dim_customer;\n\n        INSERT INTO dw.dim_customer\n               (customer_id, first_name, last_name, full_name, initials, email,\n                email_shared_count, date_of_birth, age_at_join, address_line1, town,\n                county, region, eircode, eircode_valid, segment_code, is_standard_segment,\n                marketing_opt_in, customer_since, source_system, version_count,\n                record_updated_at, as_of_date)\n        SELECT  k.customer_id,\n                RTRIM(k.first_name),\n                k.last_name,\n                RTRIM(k.first_name) + N' ' + RTRIM(k.last_name),\n                UPPER(SUBSTRING(k.first_name, 0, 2) + SUBSTRING(k.last_name, 0, 2)),\n                k.email,\n                CASE WHEN k.email IS NULL THEN 0\n                     ELSE COUNT(*) OVER (PARTITION BY k.email) END,\n                k.date_of_birth,\n                DATEDIFF(YEAR, k.date_of_birth, k.customer_since),\n                k.address_line1,\n                k.town,\n                k.county,\n                -- sales regions as agreed with distribution (CR-0412)\n                CASE WHEN k.county IN ('Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford') THEN 'EAST'\n                     WHEN k.county IN ('Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow') THEN 'SOUTH'\n                     WHEN k.county IN ('Galway', 'Mayo', 'Clare', 'Roscommon') THEN 'WEST'\n                     WHEN k.county IN ('Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan') THEN 'NORTH-WEST'\n                     WHEN k.county IN ('Westmeath', 'Longford', 'Offaly', 'Laois') THEN 'MIDLANDS'\n                     ELSE 'UNKNOWN'\n                END,\n                k.eircode,\n                -- routing key (3) and unique identifier (4), keyed with or without the space\n                CASE WHEN LEN(k.eircode) = 7 THEN 'Y'\n                     WHEN LEN(k.eircode) = 8 AND SUBSTRING(k.eircode, 4, 1) = ' ' THEN 'Y'\n                     ELSE 'N'\n                END,\n                k.segment_code,\n                CASE WHEN k.segment_code = 'STD' THEN 'Y' ELSE 'N' END,\n                ISNULL(k.marketing_opt_in, 'N'),\n                k.customer_since,\n                UPPER(RTRIM(k.source_system)),\n                k.version_count,\n                k.updated_at,\n                @AsOfDate\n        FROM    #customer k;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.dim_customer', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.customers: customer_id int (INT), first_name string (NVARCHAR(40)), last_name string (NVARCHAR(60)), email string (VARCHAR(120)), date_of_birth date (DATE), address_line1 string (NVARCHAR(100)), town string (NVARCHAR(50)), county string (VARCHAR(30)), eircode string (VARCHAR(10)), segment_code string (CHAR(4)), marketing_opt_in string (CHAR(1)), customer_since date (DATE), source_system string (VARCHAR(10)), updated_at timestamp_ntz (DATETIME2(0)), _row_seq int (INT)\n\nOutput tables:\n- dw.dim_customer: customer_id int (INT), first_name string (NVARCHAR(40)), last_name string (NVARCHAR(60)), full_name string (NVARCHAR(101)), initials string (NVARCHAR(2)), email string (VARCHAR(120)), email_shared_count int (INT), date_of_birth date (DATE), age_at_join int (INT), address_line1 string (NVARCHAR(100)), town string (NVARCHAR(50)), county string (VARCHAR(30)), region string (VARCHAR(12)), eircode string (VARCHAR(10)), eircode_valid string (CHAR(1)), segment_code string (CHAR(4)), is_standard_segment string (CHAR(1)), marketing_opt_in string (CHAR(1)), customer_since date (DATE), source_system string (VARCHAR(10)), version_count int (INT), record_updated_at timestamp_ntz (DATETIME2(0)), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "d52a526ce12b8e977676ff7be28c414c8b055b610c75cb36250f0c4b72698e26",
+  "response": {
+    "duration_api_ms": 67389,
+    "duration_ms": 67707,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5390,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5390,
+        "cacheReadInputTokens": 1079,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.19908379999999998,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7787,
+        "provider": "firstParty",
+        "thinkingTokens": 4220,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"Job T01: dw.usp_load_dim_customer (legacy T-SQL, SQL Server 2022) migrated to PySpark.\n\nCustomer dimension, one row per CRM customer. Output dw.dim_customer is fully\nreloaded on every run. Reproduces the legacy behaviour exactly, including\nsuspected bugs (marked LANSH-DEFECT).\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nfrom pyspark.sql import functions as F\n\n\ndef _ci(col):\n    # SQL Server default collation: case-insensitive, trailing spaces ignored in comparisons\n    return F.lower(F.rtrim(col))\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = datetime.date.fromisoformat(params[\"AsOfDate\"])\n    c = inputs[\"stg.customers\"]\n\n    # 1. Versions saved up to the reporting date\n    v = c.where(F.to_date(F.col(\"updated_at\")) <= F.lit(as_of))\n    v = v.withColumn(\n        \"version_count\",\n        F.count(F.lit(1)).over(Window.partitionBy(\"customer_id\")),\n    )\n\n    # 2. \"Keep the current version\" -- legacy orders ascending, so it keeps the OLDEST version\n    w = Window.partitionBy(\"customer_id\").orderBy(F.col(\"updated_at\").asc(), F.col(\"_row_seq\").asc())  # LANSH-DEFECT: ascending order keeps the oldest version, not the current one\n    k = v.withColumn(\"version_no\", F.row_number().over(w)).where(F.col(\"version_no\") == 1)\n\n    # 3. Dimension columns\n    email = F.col(\"email\")\n    email_count = F.count(F.lit(1)).over(Window.partitionBy(_ci(email)))\n\n    county = _ci(F.col(\"county\"))\n    east = [s.lower() for s in ['Dublin', 'Kildare', 'Meath', 'Wicklow', 'Louth', 'Wexford']]\n    south = [s.lower() for s in ['Cork', 'Kerry', 'Limerick', 'Tipperary', 'Waterford', 'Kilkenny', 'Carlow']]\n    west = [s.lower() for s in ['Galway', 'Mayo', 'Clare', 'Roscommon']]\n    north_west = [s.lower() for s in ['Donegal', 'Sligo', 'Leitrim', 'Cavan', 'Monaghan']]\n    midlands = [s.lower() for s in ['Westmeath', 'Longford', 'Offaly', 'Laois']]\n    region = (\n        F.when(county.isin(east), F.lit('EAST'))\n        .when(county.isin(south), F.lit('SOUTH'))\n        .when(county.isin(west), F.lit('WEST'))\n        .when(county.isin(north_west), F.lit('NORTH-WEST'))\n        .when(county.isin(midlands), F.lit('MIDLANDS'))\n        .otherwise(F.lit('UNKNOWN'))\n    )\n\n    eir = F.col(\"eircode\")\n    eir_len = F.length(F.rtrim(eir))  # T-SQL LEN ignores trailing spaces\n    eircode_valid = (\n        F.when(eir_len == 7, F.lit('Y'))\n        .when((eir_len == 8) & (F.substring(eir, 4, 1) == F.lit(' ')), F.lit('Y'))\n        .otherwise(F.lit('N'))\n    )\n\n    # T-SQL SUBSTRING(x, 0, 2) returns only the first character\n    initials = F.upper(F.concat(F.substring(F.col(\"first_name\"), 1, 1), F.substring(F.col(\"last_name\"), 1, 1)))\n\n    out = k.select(\n        F.col(\"customer_id\").alias(\"customer_id\"),\n        F.rtrim(F.col(\"first_name\")).alias(\"first_name\"),\n        F.col(\"last_name\").alias(\"last_name\"),\n        F.concat(F.rtrim(F.col(\"first_name\")), F.lit(' '), F.rtrim(F.col(\"last_name\"))).alias(\"full_name\"),\n        initials.alias(\"initials\"),\n        email.alias(\"email\"),\n        F.when(email.isNull(), F.lit(0)).otherwise(email_count).cast(\"int\").alias(\"email_shared_count\"),\n        F.col(\"date_of_birth\").alias(\"date_of_birth\"),\n        (F.year(F.col(\"customer_since\")) - F.year(F.col(\"date_of_birth\"))).cast(\"int\").alias(\"age_at_join\"),  # LANSH-DEFECT: DATEDIFF(YEAR) counts year boundaries, not completed years of age\n        F.col(\"address_line1\").alias(\"address_line1\"),\n        F.col(\"town\").alias(\"town\"),\n        F.col(\"county\").alias(\"county\"),\n        region.alias(\"region\"),\n        eir.alias(\"eircode\"),\n        eircode_valid.alias(\"eircode_valid\"),\n        F.col(\"segment_code\").alias(\"segment_code\"),\n        F.when(_ci(F.col(\"segment_code\")) == F.lit('STD'.lower()), F.lit('Y')).otherwise(F.lit('N')).alias(\"is_standard_segment\"),\n        F.coalesce(F.col(\"marketing_opt_in\"), F.lit('N')).alias(\"marketing_opt_in\"),\n        F.col(\"customer_since\").alias(\"customer_since\"),\n        F.upper(F.rtrim(F.col(\"source_system\"))).alias(\"source_system\"),\n        F.col(\"version_count\").cast(\"int\").alias(\"version_count\"),\n        F.col(\"updated_at\").alias(\"record_updated_at\"),\n        F.lit(as_of).alias(\"as_of_date\"),\n    )\n\n    return {\"dw.dim_customer\": out}\n",
+      "defects": [
+        {
+          "intended": "Keep the current (latest) version: ORDER BY updated_at DESC, _row_seq DESC, as the comment and CR-1702 describe.",
+          "legacy_lines": [
+            104,
+            105,
+            106,
+            107,
+            108
+          ],
+          "title": "Keeps oldest customer version instead of current",
+          "what_it_does": "ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at, _row_seq) ascending with version_no = 1 keeps each customer's earliest version saved up to @AsOfDate."
+        },
+        {
+          "intended": "The customer's age in completed years on the join date.",
+          "legacy_lines": [
+            133
+          ],
+          "title": "age_at_join counts calendar-year boundaries",
+          "what_it_does": "DATEDIFF(YEAR, date_of_birth, customer_since) subtracts the calendar years, so anyone who joined before their birthday that year comes out one year too old."
+        }
+      ],
+      "notes": "1. Text comparisons assume the database uses SQL Server's default collation (case-insensitive, accent-sensitive, likely SQL_Latin1_General_CP1_CI_AS), which also ignores trailing spaces. On that basis the county IN lists, segment_code = 'STD' and the PARTITION BY email in email_shared_count all compare on lower(rtrim(x)). If the legacy database uses a case-sensitive collation, drop the lower().\n2. LEN(eircode) is translated as length(rtrim(eircode)), because T-SQL LEN ignores trailing spaces.\n3. T-SQL SUBSTRING(x, 0, 2) returns one character, so the translation uses substring(x, 1, 1). Spark's substring(x, 0, 2) would return two characters. This is not marked as a defect because the result is what was intended.\n4. UPPER can differ between the engines for a few non-ASCII characters (for example, Java upper-cases ß to SS). This is unlikely to matter for names.\n5. Rows with a NULL updated_at are dropped by the date filter, as in the legacy job.\n6. version_count counts only the versions saved up to AsOfDate.\n7. If first_name or last_name were NULL, the legacy insert would fail on the NOT NULL columns. The translation does not raise an error for this.\n8. No trap cards were provided, so traps_handled is empty.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.19908379999999998,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5390,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5390,
+      "cache_read_input_tokens": 1079,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5390,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5390,
+          "cache_read_input_tokens": 1079,
+          "input_tokens": 2,
+          "output_tokens": 7787,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7787,
+      "output_tokens_details": {
+        "thinking_tokens": 4220
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,848 @@
+[
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      63,
+      134
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_id",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy via #open_claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      64,
+      135
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_number",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy via #open_claims",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      66,
+      136
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_ref",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(lob_code)) + '/' + claim_number + '/' + handler_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      64,
+      136
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_ref",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "lob_code + '/' + claim_number + '/' + handler_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      68,
+      136
+    ],
+    "input_column": "handler_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_ref",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "lob_code + '/' + claim_number + '/' + handler_code (NULL handler gives NULL ref)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      136
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "claim_ref",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "'/' separator literal",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      65,
+      137
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      138,
+      157,
+      158,
+      159
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "policy_number",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "LEFT JOIN on policy_id at latest snapshot <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      66,
+      139
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(lob_code))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      67,
+      140
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "status",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      68,
+      141
+    ],
+    "input_column": "handler_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "handler_code",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      69,
+      142
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "loss_date",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      69,
+      143
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "loss_date_text",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CONVERT(VARCHAR(10), loss_date, 103) dd/mm/yyyy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      70,
+      144
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "reported_date",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "direct copy",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      70,
+      145
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "reported_period",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CONVERT(CHAR(6), reported_date, 112) yyyymm",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      70,
+      146
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "days_open",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, reported_date, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.98,
+    "evidence_lines": [
+      146
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "days_open",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, reported_date, @AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      104,
+      147
+    ],
+    "input_column": "payment_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "n_payments",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "COUNT(DISTINCT payment_id) per claim",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      105,
+      148
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ISNULL(SUM(amount),0) per claim (fanned out by reserve join)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.85,
+    "evidence_lines": [
+      105
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ISNULL default 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      85,
+      106,
+      149
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "indemnity_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ISNULL(MAX(CASE WHEN reserve_type='INDEMNITY' THEN reserve_amount END),0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      84,
+      106
+    ],
+    "input_column": "reserve_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "indemnity_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CASE WHEN reserve_type='INDEMNITY'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.85,
+    "evidence_lines": [
+      106
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "indemnity_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "'INDEMNITY' literal / ISNULL default 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      85,
+      107,
+      150
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "expense_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ISNULL(MAX(CASE WHEN reserve_type='EXPENSE' THEN reserve_amount END),0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.9,
+    "evidence_lines": [
+      84,
+      107
+    ],
+    "input_column": "reserve_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "expense_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CASE WHEN reserve_type='EXPENSE'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.85,
+    "evidence_lines": [
+      107
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "expense_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "'EXPENSE' literal / ISNULL default 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.96,
+    "evidence_lines": [
+      106,
+      107,
+      151
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "current_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "indemnity_reserve + expense_reserve",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.88,
+    "evidence_lines": [
+      106,
+      107,
+      151
+    ],
+    "input_column": "reserve_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "current_reserve",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CASE pivot by reserve_type feeding the sum",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.96,
+    "evidence_lines": [
+      105,
+      152
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "incurred",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "total_paid + indemnity_reserve + expense_reserve",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.96,
+    "evidence_lines": [
+      106,
+      107,
+      152
+    ],
+    "input_column": "reserve_amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "incurred",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "total_paid + indemnity_reserve + expense_reserve",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.88,
+    "evidence_lines": [
+      106,
+      107,
+      152
+    ],
+    "input_column": "reserve_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "incurred",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "CASE pivot by reserve_type feeding the sum",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.99,
+    "evidence_lines": [
+      153
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "@AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      73
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "status IN ('OPEN','REOPENED')",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      73
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "literals 'OPEN','REOPENED'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      74
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "reported_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      74,
+      94,
+      112,
+      123
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "reported_date/reserve_date/payment_date/snapshot_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      93,
+      114
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "JOIN to open claims on claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      94
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "reserve_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      111
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "LEFT JOIN ON p.claim_id = oc.claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      112
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "payment_date <= @AsOfDate in join",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      158
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "LEFT JOIN ON ps.policy_id = oc.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      158
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "LEFT JOIN key to policy_snapshots",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      121,
+      122,
+      123,
+      159
+    ],
+    "input_column": "snapshot_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "snapshot_date = MAX(snapshot_date) WHERE snapshot_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      93,
+      111,
+      114,
+      156
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T04",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "join key across #money/#reserve/payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.96,
+    "evidence_lines": [
+      90,
+      91,
+      95
+    ],
+    "input_column": "reserve_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ROW_NUMBER ORDER BY reserve_date DESC, keep rn=1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.96,
+    "evidence_lines": [
+      91,
+      95
+    ],
+    "input_column": "reserve_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "ROW_NUMBER tie-break reserve_id DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      90
+    ],
+    "input_column": "reserve_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_reserves",
+    "job_id": "T04",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "rpt.claims_summary",
+    "source": "llm",
+    "transform": "PARTITION BY claim_id, reserve_type",
+    "verified": true
+  }
+]

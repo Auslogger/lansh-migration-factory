@@ -1,0 +1,912 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:54:17.400488Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S01",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S01: claims_enrich.sas. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /******************************************************************************\n  2 |   Program  : claims_enrich.sas\n  3 |   Purpose  : Claim-level payment history for the risk team. One row per claim\n  4 |              on the claims register with its payments up to the reporting\n  5 |              date: payment and recovery counts, paid to date, the paid split\n  6 |              by payment type (gross, and net of recoveries), the first and\n  7 |              last payment dates and a recovery marker. Read by the customer\n  8 |              risk scoring (risk_scoring.sas).\n  9 |   Inputs   : stg.claims, stg.claim_payments\n 10 |   Output   : dw.claims_enriched (rebuilt on every run)\n 11 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n 12 |   Author   : DOS\n 13 | \n 14 |   Change log\n 15 |     2014-03-10  DOS   Initial version\n 16 |     2015-08-24  DOS   Recoveries counted and flagged for the subrogation desk\n 17 |                       (CR-0611)\n 18 |     2017-01-16  AK    Paid split by payment type; gross and net paid (CR-1042)\n 19 |     2018-11-05  AK    Payments dated after the reporting date left out\n 20 |                       (INC-1677)\n 21 |     2019-09-30  AK    Line of business and status tidied for the MI pack\n 22 |                       (CR-1502)\n 23 |     2021-06-14  SMcC  Claims with nothing paid yet kept, with has_payment, for\n 24 |                       risk_scoring.sas (CR-1873)\n 25 | ******************************************************************************/\n 26 | \n 27 | /* claims register */\n 28 | proc sort data=stg.claims(keep=claim_id claim_number policy_id customer_id lob_code\n 29 |                                loss_date reported_date status)\n 30 |           out=work.claims;\n 31 |   by claim_id;\n 32 | run;\n 33 | \n 34 | /* payments to the reporting date, claim by claim in the order they were keyed */\n 35 | proc sort data=stg.claim_payments(keep=claim_id payment_date amount payment_type _row_seq\n 36 |                                   where=(payment_date <= &as_of))\n 37 |           out=work.payments;\n 38 |   by claim_id _row_seq;\n 39 | run;\n 40 | \n 41 | /* roll the payments up to one row per claim */\n 42 | data work.pay_summary(keep=claim_id n_payments n_recoveries total_paid indemnity_amt\n 43 |                            expense_amt recovery_amt first_payment_date last_payment_date\n 44 |                            recovery_flag);\n 45 |   set work.payments;\n 46 |   by claim_id;\n 47 |   length ptype $12;\n 48 |   retain n_payments n_recoveries total_paid indemnity_amt expense_amt recovery_amt\n 49 |          first_payment_date last_payment_date recovery_flag;\n 50 |   format first_payment_date last_payment_date date9.;\n 51 | \n 52 |   if first.claim_id then do;\n 53 |     n_payments    = 0;\n 54 |     n_recoveries  = 0;\n 55 |     total_paid    = 0;\n 56 |     indemnity_amt = 0;\n 57 |     expense_amt   = 0;\n 58 |     recovery_amt  = 0;\n 59 |     recovery_flag = 0;\n 60 |     first_payment_date = payment_date;\n 61 |   end;\n 62 | \n 63 |   n_payments + 1;\n 64 |   total_paid + amount;\n 65 | \n 66 |   /* paid split by payment type (keyed in mixed case) */\n 67 |   ptype = upcase(strip(payment_type));\n 68 |   if ptype = 'INDEMNITY' then indemnity_amt = indemnity_amt + amount;\n 69 |   else if ptype = 'EXPENSE' then expense_amt = expense_amt + amount;\n 70 |   else if ptype = 'RECOVERY' then recovery_amt = recovery_amt + amount;\n 71 | \n 72 |   /* recoveries (salvage, third-party) come through as negative amounts */\n 73 |   if amount < 0 then do;\n 74 |     recovery_flag = 1;\n 75 |     n_recoveries + 1;\n 76 |   end;\n 77 | \n 78 |   last_payment_date = payment_date;\n 79 |   if last.claim_id then output;\n 80 | run;\n 81 | \n 82 | /* enrich the register: every claim is reported, paid or not */\n 83 | data dw.claims_enriched(keep=claim_id claim_number policy_id customer_id lob_code\n 84 |                              loss_date reported_date status n_payments n_recoveries\n 85 |                              total_paid indemnity_amt expense_amt recovery_amt gross_paid\n 86 |                              net_paid first_payment_date last_payment_date recovery_flag\n 87 |                              has_payment);\n 88 |   merge work.claims(in=c) work.pay_summary(in=p);\n 89 |   by claim_id;\n 90 |   if c;\n 91 | \n 92 |   lob_code = upcase(strip(lob_code));\n 93 |   status   = upcase(strip(status));\n 94 | \n 95 |   has_payment = p;\n 96 |   if not p then do;\n 97 |     n_payments    = 0;\n 98 |     n_recoveries  = 0;\n 99 |     total_paid    = 0;\n100 |     recovery_flag = 0;\n101 |   end;\n102 | \n103 |   gross_paid = indemnity_amt + expense_amt;\n104 |   net_paid   = sum(indemnity_amt, expense_amt, recovery_amt);\n105 | run;\n106 | \n107 | proc datasets lib=work nolist;\n108 |   delete claims payments pay_summary;\n109 | quit;\n\nInput tables:\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.claim_payments: payment_id INT NOT NULL, claim_id INT NOT NULL, payment_date DATE NOT NULL, amount DECIMAL(12,2), payment_type VARCHAR(12) NOT NULL, payee_type VARCHAR(12)\n\nSemantic traps to test (one case per distinct trap id):\n- SAS-01 (A missing value is smaller than any number) at lines 36-36: In SAS a missing payment_date counts as smaller than any date, so payment_date <= &as_of keeps rows with no date. A Spark filter drops them, so the translation needs an explicit isNull() OR.\n- SAS-03 (Dates are numbers of days since 1 January 1960) at lines 36-36: &as_of is a SAS day count (days since 1960) compared with payment_date. In Spark it has to become a date literal, or the column has to be converted, before the comparison.\n- SAS-06 (RETAIN and the sum statement, in input order) at lines 48-49: The accumulators and the first/last dates are retained across rows and reset at first.claim_id. The result depends on the row order (claim_id, _row_seq), so Spark needs an ordered window or an aggregate.\n- SAS-06 (RETAIN and the sum statement, in input order) at lines 63-63: The sum statement n_payments + 1 is implicitly retained and counts every row, including rows kept with a missing date.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 64-64: The sum statement treats a missing amount as 0, so total_paid is never missing. In Spark this means a NULL-skipping F.sum or a coalesce.\n- SAS-06 (RETAIN and the sum statement, in input order) at lines 64-64: The sum statement total_paid + amount is retained and accumulates in row order within the claim.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 68-68: indemnity_amt = indemnity_amt + amount uses plain +, so one missing amount makes indemnity_amt missing for the rest of the claim. F.sum would skip the NULL and give a different result.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 69-69: In expense_amt = expense_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 70-70: In recovery_amt = recovery_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.\n- SAS-01 (A missing value is smaller than any number) at lines 73-73: In SAS, amount < 0 is true when amount is missing, so a payment with no amount sets recovery_flag and adds to n_recoveries. A Spark when() treats it as false.\n- SAS-06 (RETAIN and the sum statement, in input order) at lines 75-75: n_recoveries + 1 is retained and reset per claim. It is part of the carried state that has to become a conditional count.\n- SAS-01 (A missing value is smaller than any number) at lines 88-89: Latent: MERGE BY matches a missing claim_id with a missing claim_id, but a Spark equi-join never matches NULL keys. The translation would need a null-safe join if any keys are missing.\n- SAS-05 (MERGE BY with IN= flags) at lines 88-90: This MERGE with in= flags and 'if c' is a left join from claims to pay_summary. has_payment = p comes from the in= flag, and claims with no payments keep missing values in the pay_summary columns.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 103-103: gross_paid uses +, so it is missing for claims with no payments (their indemnity_amt and expense_amt are not reset to 0) and for claims where an amount was missing. The translation must not coalesce.\n- SAS-02 (SUM() ignores missing values; + propagates them) at lines 104-104: sum() skips missing arguments and is missing only if all three are missing, so it is missing for claims with no payments. Spark needs coalesce logic that keeps NULL only when every argument is NULL.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy SAS 9.4 jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "23656dd930ca239f4d252f80dadb5b4bbbb01b5ce66c45c6aff2573213e8a626",
+  "response": {
+    "duration_api_ms": 59005,
+    "duration_ms": 59343,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4628,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4628,
+        "cacheReadInputTokens": 1067,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.18872540000000002,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7574,
+        "provider": "firstParty",
+        "thinkingTokens": 1212,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Several payments have no amount (payment_date is NOT NULL, so the testable missing-value case is line 73). In SAS, amount < 0 is true when amount is missing, so those payments set recovery_flag=1 and add to n_recoveries. A naive F.when(amount < 0) treats NULL as false, so it gives recovery_flag 0 and undercounts n_recoveries. Claim 2 has a real negative recovery and claim 4 has only positive amounts, as the canonical cases. Claim 5 has no payments.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-0001",
+                  "customer_id": "1001",
+                  "lob_code": "motor",
+                  "loss_date": "2025-01-10",
+                  "policy_id": "101",
+                  "reported_date": "2025-01-12",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-0002",
+                  "customer_id": "1002",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-02-10",
+                  "policy_id": "102",
+                  "reported_date": "2025-02-11",
+                  "status": "Closed"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-0003",
+                  "customer_id": "1003",
+                  "lob_code": "Motor",
+                  "loss_date": "2025-03-10",
+                  "policy_id": "103",
+                  "reported_date": "2025-03-15",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-0004",
+                  "customer_id": "1004",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-04-10",
+                  "policy_id": "104",
+                  "reported_date": "2025-04-11",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-0005",
+                  "customer_id": "1005",
+                  "lob_code": "home",
+                  "loss_date": "2025-05-10",
+                  "policy_id": "105",
+                  "reported_date": "2025-05-20",
+                  "status": "open"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "1000.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-02-01",
+                  "payment_id": "11",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "1",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "12",
+                  "payment_type": "Expense"
+                },
+                {
+                  "amount": "500.00",
+                  "claim_id": "2",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "21",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "-200.00",
+                  "claim_id": "2",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "22",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "3",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "31",
+                  "payment_type": "Recovery"
+                },
+                {
+                  "amount": "250.00",
+                  "claim_id": "3",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "32",
+                  "payment_type": "indemnity"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "4",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "41",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "75.00",
+                  "claim_id": "4",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "42",
+                  "payment_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "SAS-01"
+        },
+        {
+          "description": "Payment dates sit on both sides of AsOfDate=2025-12-31: exactly on the date (kept), the day after (dropped), well after (dropped), and one before 1960-01-01, which is a negative SAS day count. If &as_of is left as a raw day count, or compared as a string or integer against a Spark date column, the wrong rows are kept or dropped. Claim 3 has only post-cutoff payments, so its has_payment should be 0.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-1001",
+                  "customer_id": "2001",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-11-01",
+                  "policy_id": "201",
+                  "reported_date": "2025-11-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-1002",
+                  "customer_id": "2002",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "202",
+                  "reported_date": "2025-05-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-1003",
+                  "customer_id": "2003",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-12-20",
+                  "policy_id": "203",
+                  "reported_date": "2025-12-28",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-1004",
+                  "customer_id": "2004",
+                  "lob_code": "LIAB",
+                  "loss_date": "1959-12-01",
+                  "policy_id": "204",
+                  "reported_date": "1959-12-15",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-1005",
+                  "customer_id": "2005",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2024-12-01",
+                  "policy_id": "205",
+                  "reported_date": "2024-12-02",
+                  "status": "CLOSED"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "400.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-12-31",
+                  "payment_id": "101",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "900.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2026-01-01",
+                  "payment_id": "102",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "150.00",
+                  "claim_id": "2",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-06-15",
+                  "payment_id": "201",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "-50.00",
+                  "claim_id": "2",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2026-03-01",
+                  "payment_id": "202",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": "700.00",
+                  "claim_id": "3",
+                  "payee_type": "INSURED",
+                  "payment_date": "2026-01-05",
+                  "payment_id": "301",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "20.00",
+                  "claim_id": "4",
+                  "payee_type": "INSURED",
+                  "payment_date": "1959-12-31",
+                  "payment_id": "401",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "60.00",
+                  "claim_id": "5",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2024-12-31",
+                  "payment_id": "501",
+                  "payment_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "SAS-03"
+        },
+        {
+          "description": "Payments were keyed out of date order, and the rows of different claims are interleaved in _row_seq. The retained first_payment_date and last_payment_date take the dates of the first and last rows by (claim_id, _row_seq). They are not the min and max dates, which a naive aggregate would give. Claim 1 also has a post-cutoff row in the middle, which has to be filtered out before the ordering. The claims register is not sorted by claim_id. Claim 4 is the canonical case: its payments are in date order.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-2003",
+                  "customer_id": "3003",
+                  "lob_code": "HOME",
+                  "loss_date": "2024-12-01",
+                  "policy_id": "303",
+                  "reported_date": "2024-12-05",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-2001",
+                  "customer_id": "3001",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-01-01",
+                  "policy_id": "301",
+                  "reported_date": "2025-01-02",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-2002",
+                  "customer_id": "3002",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-01-05",
+                  "policy_id": "302",
+                  "reported_date": "2025-01-06",
+                  "status": "closed"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-2004",
+                  "customer_id": "3004",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-02-01",
+                  "policy_id": "304",
+                  "reported_date": "2025-02-03",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-2005",
+                  "customer_id": "3005",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "305",
+                  "reported_date": "2025-03-03",
+                  "status": "open"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "100.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-05-10",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "2",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-09-01",
+                  "payment_id": "2",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "200.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-02-01",
+                  "payment_id": "3",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "-40.00",
+                  "claim_id": "3",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-07-07",
+                  "payment_id": "4",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": "999.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2026-02-01",
+                  "payment_id": "5",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "50.00",
+                  "claim_id": "1",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-08-20",
+                  "payment_id": "6",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "-25.00",
+                  "claim_id": "2",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-01-15",
+                  "payment_id": "7",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": "500.00",
+                  "claim_id": "3",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-01-03",
+                  "payment_id": "8",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "75.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-03-03",
+                  "payment_id": "9",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "80.00",
+                  "claim_id": "4",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "10",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "20.00",
+                  "claim_id": "4",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "11",
+                  "payment_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "SAS-06"
+        },
+        {
+          "description": "Some typed payments have a missing amount. The sum statement treats it as 0 in total_paid. But the plain + in indemnity_amt, expense_amt and recovery_amt makes that bucket missing for the rest of the claim, even after later non-missing payments. gross_paid (+) is then missing, while net_paid (sum()) skips the missing bucket. A naive F.sum skips the NULLs and gives non-null buckets and a non-null gross_paid. Claim 4 is the canonical case with no missing amounts. Claim 5 has no payments, so gross_paid and net_paid are missing and should not be coalesced.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-3001",
+                  "customer_id": "4001",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-01-01",
+                  "policy_id": "401",
+                  "reported_date": "2025-01-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-3002",
+                  "customer_id": "4002",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-02-01",
+                  "policy_id": "402",
+                  "reported_date": "2025-02-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-3003",
+                  "customer_id": "4003",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "403",
+                  "reported_date": "2025-03-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-3004",
+                  "customer_id": "4004",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "404",
+                  "reported_date": "2025-04-02",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-3005",
+                  "customer_id": "4005",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "405",
+                  "reported_date": "2025-05-02",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "1000.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-02-01",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "2",
+                  "payment_type": " Indemnity "
+                },
+                {
+                  "amount": "500.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "3",
+                  "payment_type": "indemnity"
+                },
+                {
+                  "amount": "200.00",
+                  "claim_id": "1",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "4",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "2",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "5",
+                  "payment_type": "Expense"
+                },
+                {
+                  "amount": "300.00",
+                  "claim_id": "2",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "6",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "-100.00",
+                  "claim_id": "2",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "7",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "3",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "8",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": "400.00",
+                  "claim_id": "3",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "9",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "-60.00",
+                  "claim_id": "3",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "10",
+                  "payment_type": "recovery"
+                },
+                {
+                  "amount": "100.00",
+                  "claim_id": "4",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "11",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "50.00",
+                  "claim_id": "4",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "12",
+                  "payment_type": "EXPENSE"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "SAS-02"
+        },
+        {
+          "description": "The MERGE with in= flags and 'if c' is a left join from the register. Claims 3 and 5 have no payments, and claim 6 has only payments after the cutoff. All three must be kept with has_payment=0, the four counters set to 0, and indemnity/expense/recovery/gross/net left missing. Claim 99 has payments but is not on the register, so it must be dropped. A naive inner join, a full join, coalescing every column to 0, or deriving has_payment from n_payments>0 would differ. Claims 1, 2 and 4 are matched as the canonical case.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM-4001",
+                  "customer_id": "5001",
+                  "lob_code": " motor",
+                  "loss_date": "2025-01-01",
+                  "policy_id": "501",
+                  "reported_date": "2025-01-02",
+                  "status": "open "
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM-4002",
+                  "customer_id": "5002",
+                  "lob_code": "Home",
+                  "loss_date": "2025-02-01",
+                  "policy_id": "502",
+                  "reported_date": "2025-02-02",
+                  "status": "Closed"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM-4003",
+                  "customer_id": "5003",
+                  "lob_code": "liab",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "503",
+                  "reported_date": "2025-03-02",
+                  "status": "open"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM-4004",
+                  "customer_id": "5004",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "504",
+                  "reported_date": "2025-04-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM-4005",
+                  "customer_id": "5005",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "505",
+                  "reported_date": "2025-05-02",
+                  "status": "Reopened"
+                },
+                {
+                  "claim_id": "6",
+                  "claim_number": "CLM-4006",
+                  "customer_id": "5006",
+                  "lob_code": "LIAB",
+                  "loss_date": "2025-12-15",
+                  "policy_id": "506",
+                  "reported_date": "2025-12-20",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "250.00",
+                  "claim_id": "1",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-02-01",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "40.00",
+                  "claim_id": "1",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "2",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "600.00",
+                  "claim_id": "2",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-03-01",
+                  "payment_id": "3",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "-100.00",
+                  "claim_id": "2",
+                  "payee_type": "THIRDPARTY",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "4",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": "90.00",
+                  "claim_id": "4",
+                  "payee_type": "VENDOR",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "5",
+                  "payment_type": "EXPENSE"
+                },
+                {
+                  "amount": "5000.00",
+                  "claim_id": "99",
+                  "payee_type": "INSURED",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "6",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "800.00",
+                  "claim_id": "6",
+                  "payee_type": "INSURED",
+                  "payment_date": "2026-01-10",
+                  "payment_id": "7",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "SAS-05"
+        }
+      ]
+    },
+    "total_cost_usd": 0.18872540000000002,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4628,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4628,
+      "cache_read_input_tokens": 1067,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4628,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4628,
+          "cache_read_input_tokens": 1067,
+          "input_tokens": 2,
+          "output_tokens": 7574,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7574,
+      "output_tokens_details": {
+        "thinking_tokens": 1212
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

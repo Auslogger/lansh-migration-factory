@@ -1,0 +1,72 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 24,
+    "line_start": 24,
+    "note": "Age comes from plain arithmetic on SAS day counts (&as_of minus date_of_birth, divided by 365.25). In Spark, date_of_birth is a DATE and as_of must be turned into a date, so this needs datediff or date functions.",
+    "snippet": "age = int((&as_of - date_of_birth) / 365.25);",
+    "trap_id": "SAS-03"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 74,
+    "line_start": 60,
+    "note": "The %do loop writes one PROC SQL per line of business (MOT, HOM, TRV), and lines 79-83 union the results. In Spark this becomes a Python loop or a single query grouped by line of business, filtered to those three codes.",
+    "snippet": "%macro score_lines(lobs);\n  %local i lob;\n  %do i = 1 %to %sysfunc(countw(&lobs));\n    %let lob = %scan(&lobs, &i);\n    proc sql;\n      create table work.score_&lob as\n      select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n             x.paid / mean(x.paid) as severity\n      fr\u2026",
+    "trap_id": "SAS-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 69,
+    "line_start": 66,
+    "note": "mean(x.paid) is mixed with ungrouped columns, so SAS remerges the mean over the rows the WHERE keeps (one line of business) back onto every row. Spark needs a window or a join to the per-line average of paid.",
+    "snippet": "select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n             x.paid / mean(x.paid) as severity\n      from   work.experience x\n      where  x.lob_code = \"&lob\";",
+    "trap_id": "SAS-10"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 96,
+    "line_start": 96,
+    "note": "round(2.5*loss_ratio, 0.5) rounds to the nearest half, half away from zero, with fuzz. F.round takes decimal places, so this needs something like floor(x*2+0.5)/2 plus fuzz handling.",
+    "snippet": "lob_points = round(2.5 * loss_ratio, 0.5);",
+    "trap_id": "SAS-15"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 98,
+    "line_start": 98,
+    "note": "round(points*age_load*county_load, 0.01) is applied to a computed double. SAS's fuzz rounds near-half values up, but Spark's F.round on the binary value can round them down.",
+    "snippet": "score  = round(points * age_load * county_load, 0.01);",
+    "trap_id": "SAS-15"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 100,
+    "line_start": 99,
+    "note": "The first assignment, 'HIGH', fixes tier at length 4, so 'MEDIUM' is silently cut to 'MEDI' (the output schema has tier as char 4). Spark must reproduce 'MEDI' on purpose.",
+    "snippet": "if score >= 35 then tier = 'HIGH';\n  else if score >= 22 then tier = 'MEDIUM';",
+    "trap_id": "SAS-11"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "S04",
+    "line_end": 103,
+    "line_start": 102,
+    "note": "as_of_date is the number &as_of (a SAS day count) shown with yymmdd10. In Spark it must be converted from days since 1960-01-01 to a date.",
+    "snippet": "format as_of_date yymmdd10.;\n  as_of_date = &as_of;",
+    "trap_id": "SAS-03"
+  }
+]

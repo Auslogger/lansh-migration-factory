@@ -1,0 +1,176 @@
+{
+  "error": null,
+  "lineage_event": "runs/dev-estate/T08/openlineage/T08.json",
+  "mode": "chained",
+  "reports": [
+    {
+      "approach": "lansh",
+      "candidate_sha256": "dbeb53828d46d4afd07eef07546eb17860032141a15895bdb2bd9516a24903a0",
+      "code_sha256": null,
+      "column_diffs": [],
+      "contract_sha256": "2b61cb8c5e0d14aa8e6ccc1a8253dccf4f7f6f083344fe790b9d16932700d7f4",
+      "counts": {
+        "by_partition": [
+          {
+            "candidate": 283,
+            "legacy": 283,
+            "partition": "lob_code='HOM', fraud_band='LOW'"
+          },
+          {
+            "candidate": 43,
+            "legacy": 43,
+            "partition": "lob_code='HOM', fraud_band='MEDIUM'"
+          },
+          {
+            "candidate": 1,
+            "legacy": 1,
+            "partition": "lob_code='MOT', fraud_band='HIGH'"
+          },
+          {
+            "candidate": 552,
+            "legacy": 552,
+            "partition": "lob_code='MOT', fraud_band='LOW'"
+          },
+          {
+            "candidate": 75,
+            "legacy": 75,
+            "partition": "lob_code='MOT', fraud_band='MEDIUM'"
+          },
+          {
+            "candidate": 73,
+            "legacy": 73,
+            "partition": "lob_code='TRV', fraud_band='LOW'"
+          },
+          {
+            "candidate": 15,
+            "legacy": 15,
+            "partition": "lob_code='TRV', fraud_band='MEDIUM'"
+          }
+        ],
+        "candidate": 1042,
+        "legacy": 1042
+      },
+      "duration_seconds": 4.768,
+      "error": null,
+      "explanation": "MATCH: all 1,042 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+      "extra_samples": [],
+      "golden_sha256": "dbeb53828d46d4afd07eef07546eb17860032141a15895bdb2bd9516a24903a0",
+      "job_id": "T08",
+      "key_integrity": {
+        "candidate_duplicate_keys": 0,
+        "candidate_null_keys": 0,
+        "legacy_duplicate_keys": 0,
+        "legacy_null_keys": 0
+      },
+      "keys": [
+        "claim_id"
+      ],
+      "missing_samples": [],
+      "mode": "chained",
+      "rows": {
+        "extra": 0,
+        "matched": 1042,
+        "missing": 0,
+        "value_diff": 0
+      },
+      "run_id": "dev-estate",
+      "schema_diff": {
+        "extra_columns": [],
+        "missing_columns": [],
+        "type_mismatches": []
+      },
+      "signatures": [],
+      "started_at": "2026-11-12T02:46:22.338905Z",
+      "status": "MATCH",
+      "table": "rpt.claim_fraud_flags",
+      "totals": [
+        {
+          "abs_tolerance": null,
+          "candidate": "315090901",
+          "column": "claim_id",
+          "legacy": "315090901",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "553100929",
+          "column": "policy_id",
+          "legacy": "553100929",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "114690369",
+          "column": "customer_id",
+          "legacy": "114690369",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "72",
+          "column": "early_notification_flag",
+          "legacy": "72",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "11",
+          "column": "invalid_reg_flag",
+          "legacy": "11",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "51",
+          "column": "new_customer_flag",
+          "legacy": "51",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "1",
+          "column": "lob_mismatch_flag",
+          "legacy": "1",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        },
+        {
+          "abs_tolerance": null,
+          "candidate": "135",
+          "column": "fraud_score",
+          "legacy": "135",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null
+        }
+      ]
+    }
+  ],
+  "seconds": 13.894,
+  "sla": [
+    {
+      "breaches": [],
+      "expected_rows": 1042,
+      "job_id": "T08",
+      "max_runtime_seconds": 600.0,
+      "row_tolerance_pct": 10.0,
+      "rows": 1042,
+      "runtime_seconds": 8.786,
+      "table": "rpt.claim_fraud_flags"
+    }
+  ],
+  "status": "MATCH"
+}

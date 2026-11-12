@@ -1,0 +1,782 @@
+[
+  {
+    "flow_id": "F-de62184651-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "address_line1",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "address_line1",
+        "table": "stg.customers"
+      },
+      {
+        "column": "address_line1",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "address_line1",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-ae521551b3-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "age_at_join",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "age_at_join",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-ae521551b3-protected",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "age_at_join",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "age_at_join",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-40f10e92e0-protected",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "county",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "stg.customers"
+      },
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-2c6b2ade17-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-2c6b2ade17-protected",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "date_of_birth",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-e0880aca19-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "eircode",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "eircode",
+        "table": "stg.customers"
+      },
+      {
+        "column": "eircode",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "eircode",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-dfe32d2f01-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "eircode_valid",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "eircode",
+        "table": "stg.customers"
+      },
+      {
+        "column": "eircode_valid",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "eircode",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-d993b97f5e-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "email",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "email",
+        "table": "stg.customers"
+      },
+      {
+        "column": "email",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "email",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-68704c7511-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "email_shared_count",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "email",
+        "table": "stg.customers"
+      },
+      {
+        "column": "email_shared_count",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "email",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-8e70969fd1-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "first_name",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "first_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "first_name",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "first_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-0a964b3a4c-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "full_name",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "first_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "full_name",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "first_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-12c341275d-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "full_name",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "last_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "full_name",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "last_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-673af2b332-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "initials",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "first_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "initials",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "first_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-d82bccd8d3-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "initials",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "last_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "initials",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "last_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-78d86ff869-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "last_name",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "last_name",
+        "table": "stg.customers"
+      },
+      {
+        "column": "last_name",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "last_name",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-07a89c7b64-protected",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "region",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "stg.customers"
+      },
+      {
+        "column": "region",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-225767d127-pii",
+    "job_ids": [
+      "T01"
+    ],
+    "output": {
+      "column": "town",
+      "table": "dw.dim_customer"
+    },
+    "path": [
+      {
+        "column": "town",
+        "table": "stg.customers"
+      },
+      {
+        "column": "town",
+        "table": "dw.dim_customer"
+      }
+    ],
+    "source": {
+      "column": "town",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-5a468d48ca-pii",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "age",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-5a468d48ca-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "age",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-5c5897a0cd-pii",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "age_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-5c5897a0cd-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "age_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "age_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-39dbc0c2b8-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "county_load",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "stg.customers"
+      },
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "county_load",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-ceaaa55823-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "stg.customers"
+      },
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-f3f5941d4c-pii",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-f3f5941d4c-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "score",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "score",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-87846a1197-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "county",
+        "table": "stg.customers"
+      },
+      {
+        "column": "county",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "county",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  },
+  {
+    "flow_id": "F-e001b8ed68-pii",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "pii"
+  },
+  {
+    "flow_id": "F-e001b8ed68-protected",
+    "job_ids": [
+      "T01",
+      "S04"
+    ],
+    "output": {
+      "column": "tier",
+      "table": "rpt.risk_scores"
+    },
+    "path": [
+      {
+        "column": "date_of_birth",
+        "table": "stg.customers"
+      },
+      {
+        "column": "date_of_birth",
+        "table": "dw.dim_customer"
+      },
+      {
+        "column": "tier",
+        "table": "rpt.risk_scores"
+      }
+    ],
+    "source": {
+      "column": "date_of_birth",
+      "table": "stg.customers"
+    },
+    "tag": "protected"
+  }
+]

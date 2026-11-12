@@ -1,0 +1,331 @@
+[
+  {
+    "confidence": 0.8,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.620425Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D1",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D1",
+    "description": "#paid joins claim_payments to #clm, and #clm only holds claims whose reported_date falls between @YearStart and @AsOfDate. Payments made in 2025 on claims reported in earlier years are dropped from claims_paid_eur, from paid_to_written and so from review_flag. A broker/LOB that only has such payments gets no output row at all.",
+    "evidence_lines": [
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112
+    ],
+    "impact": {
+      "amount_affected": "1388119.21",
+      "amount_column": "claims_paid_eur",
+      "measured_on": "golden:X1",
+      "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), paid_int AS (SELECT p.broker_code, p.lob_code, SUM(COALESCE(cp.amount,0)) AS paid FROM stg_claim_payments cp JOIN stg_claims c ON c.claim_id = cp.claim_id JOIN pol p ON p.policy_id = c.policy_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' GROUP BY p.broker_code, p.lob_code), g AS (SELECT broker_code, lob_code, MAX(claims_paid_eur) AS paid FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(i.paid,0) - COALESCE(g.paid,0))),0) AS amount_affected FROM paid_int i FULL OUTER JOIN g ON i.broker_code = g.broker_code AND i.lob_code = g.lob_code WHERE COALESCE(i.paid,0) <> COALESCE(g.paid,0)",
+      "rows_affected": 87
+    },
+    "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), paid_int AS (SELECT p.broker_code, p.lob_code, SUM(COALESCE(cp.amount,0)) AS paid FROM stg_claim_payments cp JOIN stg_claims c ON c.claim_id = cp.claim_id JOIN pol p ON p.policy_id = c.policy_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' GROUP BY p.broker_code, p.lob_code), g AS (SELECT broker_code, lob_code, MAX(claims_paid_eur) AS paid FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(i.paid,0) - COALESCE(g.paid,0))),0) AS amount_affected FROM paid_int i FULL OUTER JOIN g ON i.broker_code = g.broker_code AND i.lob_code = g.lob_code WHERE COALESCE(i.paid,0) <> COALESCE(g.paid,0)",
+    "intended_behaviour": "claims_paid_eur should hold every payment dated in the year on the broker's policies, whenever the claim was notified. Only claims_notified should be limited by reported_date.",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Claims paid limited to claims notified in the same year"
+  },
+  {
+    "confidence": 0.5,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.620607Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D2",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D2",
+    "description": "The final insert LEFT JOINs stg.brokers on broker_code alone. Nothing picks one row per broker the way the policy snapshots and FX rates are deduplicated with _row_seq. A broker with several rows in stg.brokers (history or reloads) repeats every broker/LOB output row, along with its premium, claims and policy counts.",
+    "evidence_lines": [
+      147,
+      148
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "gwp_eur",
+      "measured_on": "golden:X1",
+      "query": "WITH g AS (SELECT broker_code, lob_code, COUNT(*) AS n, MAX(gwp_eur) AS gwp FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COALESCE(SUM(n - 1),0) AS rows_affected, COALESCE(SUM((n - 1) * ABS(gwp)),0) AS amount_affected FROM g WHERE n > 1",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH g AS (SELECT broker_code, lob_code, COUNT(*) AS n, MAX(gwp_eur) AS gwp FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COALESCE(SUM(n - 1),0) AS rows_affected, COALESCE(SUM((n - 1) * ABS(gwp)),0) AS amount_affected FROM g WHERE n > 1",
+    "intended_behaviour": "Exactly one output row per broker and LOB, using only the latest broker record.",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Broker dimension joined without deduplication"
+  },
+  {
+    "confidence": 0.45,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.620778Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D3",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D3",
+    "description": "ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT') only catches NULL. A broker_code that is empty or all spaces trims to '' and is reported under an empty broker code, separately from DIRECT business.",
+    "evidence_lines": [
+      52
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "gwp_eur",
+      "measured_on": "golden:X1",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(gwp_eur)),0) AS amount_affected FROM golden_rpt_broker_production WHERE TRIM(broker_code) = ''",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(gwp_eur)),0) AS amount_affected FROM golden_rpt_broker_production WHERE TRIM(broker_code) = ''",
+    "intended_behaviour": "Direct business, meaning a NULL or blank broker code, should all be reported under DIRECT (NULLIF(trimmed,'') before ISNULL).",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Blank broker codes not mapped to DIRECT"
+  },
+  {
+    "confidence": 0.4,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.620906Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D4",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D4",
+    "description": "The OUTER APPLY returns NULL when the currency has no rate dated on or before the transaction (or when currency is NULL). amount * NULL is NULL and SUM skips it, so the premium vanishes from gwp_eur and the paid-to-written ratio without any error.",
+    "evidence_lines": [
+      76,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "gwp_eur",
+      "measured_on": "golden:X1",
+      "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), t AS (SELECT t.txn_id, t.txn_date, UPPER(TRIM(t.currency)) AS currency, t.amount, p.broker_code, p.lob_code FROM stg_premium_transactions t JOIN pol p ON p.policy_id = t.policy_id WHERE t.txn_date >= DATE'2025-01-01' AND t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(TRIM(t.currency)) <> 'EUR')), nr AS (SELECT t.* FROM t LEFT ANTI JOIN stg_fx_rates f ON UPPER(TRIM(f.currency)) = t.currency AND f.rate_date <= t.txn_date), fr AS (SELECT UPPER(TRIM(currency)) AS currency, MIN_BY(rate_to_eur, rate_date) AS r FROM stg_fx_rates GROUP BY UPPER(TRIM(currency))) SELECT COUNT(DISTINCT nr.broker_code, nr.lob_code) AS rows_affected, COALESCE(SUM(ABS(nr.amount * COALESCE(fr.r, 1))),0) AS amount_affected FROM nr LEFT JOIN fr ON fr.currency = nr.currency",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), t AS (SELECT t.txn_id, t.txn_date, UPPER(TRIM(t.currency)) AS currency, t.amount, p.broker_code, p.lob_code FROM stg_premium_transactions t JOIN pol p ON p.policy_id = t.policy_id WHERE t.txn_date >= DATE'2025-01-01' AND t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(TRIM(t.currency)) <> 'EUR')), nr AS (SELECT t.* FROM t LEFT ANTI JOIN stg_fx_rates f ON UPPER(TRIM(f.currency)) = t.currency AND f.rate_date <= t.txn_date), fr AS (SELECT UPPER(TRIM(currency)) AS currency, MIN_BY(rate_to_eur, rate_date) AS r FROM stg_fx_rates GROUP BY UPPER(TRIM(currency))) SELECT COUNT(DISTINCT nr.broker_code, nr.lob_code) AS rows_affected, COALESCE(SUM(ABS(nr.amount * COALESCE(fr.r, 1))),0) AS amount_affected FROM nr LEFT JOIN fr ON fr.currency = nr.currency",
+    "intended_behaviour": "Every written premium transaction should be converted, using a fallback rate or by failing or flagging the run, not dropped. The amount shown is estimated at the earliest available rate, or left unconverted if the currency has no rate at all.",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Non-EUR premium silently dropped when no FX rate is found"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.621025Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D5",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D5",
+    "description": "The comment says recoveries are netted off, but the code sums every payment amount whatever its payment_type. If recoveries are stored as positive amounts with a recovery payment_type, they increase claims_paid_eur instead of reducing it.",
+    "evidence_lines": [
+      106,
+      107
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "claims_paid_eur",
+      "measured_on": "golden:X1",
+      "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), r AS (SELECT c.broker_code, c.lob_code, cp.amount FROM stg_claim_payments cp JOIN clm c ON c.claim_id = cp.claim_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' AND UPPER(cp.payment_type) LIKE '%RECOV%' AND cp.amount > 0) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COALESCE(SUM(2 * amount),0) AS amount_affected FROM r",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), r AS (SELECT c.broker_code, c.lob_code, cp.amount FROM stg_claim_payments cp JOIN clm c ON c.claim_id = cp.claim_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' AND UPPER(cp.payment_type) LIKE '%RECOV%' AND cp.amount > 0) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COALESCE(SUM(2 * amount),0) AS amount_affected FROM r",
+    "intended_behaviour": "Recovery-type payments should reduce claims paid (subtracted, or sign-flipped when stored as positives).",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Recoveries added rather than netted off"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.621142Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D6",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D6",
+    "description": "stg.claims is used as-is in #clm. stg.policy_snapshots and stg.fx_rates are deduplicated with _row_seq, but claims are not. If a claim_id has several staging rows, it is counted more than once in claims_notified, and each of its payments is added once per duplicate in claims_paid_eur.",
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      97,
+      110
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "claims_paid_eur",
+      "measured_on": "golden:X1",
+      "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), d AS (SELECT claim_id, broker_code, lob_code, COUNT(*) AS n FROM clm GROUP BY claim_id, broker_code, lob_code HAVING COUNT(*) > 1), pay AS (SELECT claim_id, SUM(COALESCE(amount,0)) AS amt FROM stg_claim_payments WHERE payment_date >= DATE'2025-01-01' AND payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(DISTINCT d.broker_code, d.lob_code) AS rows_affected, COALESCE(SUM(ABS((d.n - 1) * COALESCE(p.amt,0))),0) AS amount_affected FROM d LEFT JOIN pay p ON p.claim_id = d.claim_id",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), d AS (SELECT claim_id, broker_code, lob_code, COUNT(*) AS n FROM clm GROUP BY claim_id, broker_code, lob_code HAVING COUNT(*) > 1), pay AS (SELECT claim_id, SUM(COALESCE(amount,0)) AS amt FROM stg_claim_payments WHERE payment_date >= DATE'2025-01-01' AND payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(DISTINCT d.broker_code, d.lob_code) AS rows_affected, COALESCE(SUM(ABS((d.n - 1) * COALESCE(p.amt,0))),0) AS amount_affected FROM d LEFT JOIN pay p ON p.claim_id = d.claim_id",
+    "intended_behaviour": "One row per claim_id (the latest by _row_seq) before counting and joining payments.",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Duplicate claim rows multiply claims notified and claims paid"
+  },
+  {
+    "confidence": 0.2,
+    "decision": {
+      "decided_at": "2026-11-12T04:01:57.621559Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X1-D7",
+      "gate": "H2",
+      "job_id": "X1",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X1-D7",
+    "description": "The in-force test uses expiry_date >= @AsOfDate. A policy whose expiry_date equals the as-of date counts as in force. If expiry_date is the exclusive end of cover (inception plus 12 months), such a policy has already lapsed.",
+    "evidence_lines": [
+      69,
+      70,
+      71
+    ],
+    "impact": {
+      "amount_affected": "69.00",
+      "amount_column": "policies_in_force",
+      "measured_on": "golden:X1",
+      "query": "WITH pol AS (SELECT policy_id, broker_code, lob_code, inception_date, expiry_date, cancellation_date FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, s.inception_date, s.expiry_date, s.cancellation_date, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COUNT(*) AS amount_affected FROM pol WHERE inception_date <= DATE'2025-12-31' AND expiry_date = DATE'2025-12-31' AND (cancellation_date IS NULL OR cancellation_date > DATE'2025-12-31')",
+      "rows_affected": 30
+    },
+    "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code, inception_date, expiry_date, cancellation_date FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, s.inception_date, s.expiry_date, s.cancellation_date, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COUNT(*) AS amount_affected FROM pol WHERE inception_date <= DATE'2025-12-31' AND expiry_date = DATE'2025-12-31' AND (cancellation_date IS NULL OR cancellation_date > DATE'2025-12-31')",
+    "intended_behaviour": "If expiry is exclusive, the test should be expiry_date > @AsOfDate.",
+    "job_id": "X1",
+    "source": "llm",
+    "title": "Policies expiring on the as-of date counted as in force"
+  },
+  {
+    "confidence": 0.7,
+    "decision": {
+      "decided_at": "2026-11-12T04:05:48.692463Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X2-D1",
+      "gate": "H2",
+      "job_id": "X2",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X2-D1",
+    "description": "#res numbers the reserve rows with ROW_NUMBER() OVER (PARTITION BY period, claim_id ORDER BY reserve_date DESC, reserve_id DESC) and keeps rn = 1. That leaves one reserve row per claim and period. A claim usually holds an indemnity reserve and an expense reserve (CR-0577). Only the most recently changed of the two goes into outstanding_reserve, and the other type's open reserve is dropped. This understates outstanding_reserve, incurred_amount, incurred_90d_ago and movement_90d. It can also keep claims off the list entirely or give them the wrong watch_category.",
+    "evidence_lines": [
+      10,
+      75,
+      76,
+      77,
+      84,
+      85,
+      86,
+      89
+    ],
+    "impact": {
+      "amount_affected": "683219.73",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)",
+      "rows_affected": 43
+    },
+    "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND (upper(rtrim(status)) <> 'CLOSED' OR closed_date > DATE'2025-10-02')), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now, SUM(CASE WHEN p.payment_date <= DATE'2025-10-02' THEN COALESCE(p.amount,0) ELSE 0 END) AS paid_prior FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, d.period, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_leg, ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id, r.reserve_type ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn_int FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id CROSS JOIN (SELECT 'NOW' AS period, DATE'2025-12-31' AS as_at UNION ALL SELECT 'PRIOR' AS period, DATE'2025-10-02' AS as_at) d WHERE r.reserve_date <= d.as_at), os AS (SELECT claim_id, COALESCE(SUM(CASE WHEN period='NOW' AND rn_leg=1 THEN reserve_amount END),0) AS leg_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_leg=1 THEN reserve_amount END),0) AS leg_prior, COALESCE(SUM(CASE WHEN period='NOW' AND rn_int=1 THEN reserve_amount END),0) AS int_now, COALESCE(SUM(CASE WHEN period='PRIOR' AND rn_int=1 THEN reserve_amount END),0) AS int_prior FROM res GROUP BY claim_id), cmp AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.leg_now,0) AS leg_inc, COALESCE(p.paid_now,0) + COALESCE(o.int_now,0) AS int_inc, COALESCE(p.paid_prior,0) + COALESCE(o.leg_prior,0) AS leg_prior_inc, COALESCE(p.paid_prior,0) + COALESCE(o.int_prior,0) AS int_prior_inc FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(int_inc - leg_inc)),0) AS amount_affected FROM cmp WHERE (leg_inc >= 25000 OR int_inc >= 25000) AND (leg_inc <> int_inc OR leg_prior_inc <> int_prior_inc)",
+    "intended_behaviour": "Take the latest reserve for each claim, period and reserve_type (add reserve_type to the PARTITION BY), then add up those latest amounts across types to get the outstanding reserve. This is how expense reserves become part of incurred, as CR-0577 asks.",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "Latest reserve picked across all reserve types, so only one type counts"
+  },
+  {
+    "confidence": 0.35,
+    "decision": {
+      "decided_at": "2026-11-12T04:05:48.692726Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X2-D2",
+      "gate": "H2",
+      "job_id": "X2",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X2-D2",
+    "description": "The claim filter keeps closed claims only when closed_date > @PriorDate, where @PriorDate is AsOfDate - 90 days (2025-10-02). A claim closed on 2025-10-02, exactly 90 days before the as-of date, is therefore left out.",
+    "evidence_lines": [
+      11,
+      45,
+      59
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH clm AS (SELECT claim_id FROM stg_claims WHERE reported_date <= DATE'2025-12-31' AND upper(rtrim(status)) = 'CLOSED' AND closed_date = DATE'2025-10-02'), paid AS (SELECT p.claim_id, SUM(COALESCE(p.amount,0)) AS paid_now FROM stg_claim_payments p JOIN clm c ON c.claim_id = p.claim_id WHERE p.payment_date <= DATE'2025-12-31' GROUP BY p.claim_id), res AS (SELECT r.claim_id, r.reserve_amount, ROW_NUMBER() OVER (PARTITION BY r.claim_id ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn FROM stg_claim_reserves r JOIN clm c ON c.claim_id = r.claim_id WHERE r.reserve_date <= DATE'2025-12-31'), os AS (SELECT claim_id, COALESCE(SUM(reserve_amount),0) AS os_now FROM res WHERE rn = 1 GROUP BY claim_id), inc AS (SELECT c.claim_id, COALESCE(p.paid_now,0) + COALESCE(o.os_now,0) AS incurred FROM clm c LEFT JOIN paid p ON p.claim_id = c.claim_id LEFT JOIN os o ON o.claim_id = c.claim_id) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred),0) AS amount_affected FROM inc WHERE incurred >= 25000",
+    "intended_behaviour": "CR-0912 drops claims closed more than 90 days ago. A claim closed exactly 90 days ago should stay on the list (closed_date >= @PriorDate).",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "Claims closed exactly 90 days ago are dropped"
+  },
+  {
+    "confidence": 0.3,
+    "decision": {
+      "decided_at": "2026-11-12T04:05:48.692931Z",
+      "decided_by": "agent:lansh-dev",
+      "decision": "reproduce",
+      "defect_id": "X2-D3",
+      "gate": "H2",
+      "job_id": "X2",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run"
+    },
+    "defect_id": "X2-D3",
+    "description": "Line 59 compares the untrimmed c.status with 'CLOSED'. SQL Server ignores trailing spaces and, under the usual collation, case, but it does not ignore leading spaces. A status such as ' CLOSED' passes the <> 'CLOSED' test, so claims closed long ago (or with no closed_date) still make the list. They then appear as 'CLOSED' because the output column is trimmed (INC-3204).",
+    "evidence_lines": [
+      14,
+      54,
+      59
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "incurred_amount",
+      "measured_on": "golden:X2",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(incurred_amount),0) AS amount_affected FROM golden_rpt_large_loss_watchlist WHERE claim_status = 'CLOSED' AND (closed_date IS NULL OR closed_date <= DATE'2025-10-02')",
+    "intended_behaviour": "Use the same cleaned status in the filter as in the output: UPPER(LTRIM(RTRIM(c.status))) <> 'CLOSED'. Closed claims would then stay only if closed_date > @PriorDate.",
+    "job_id": "X2",
+    "source": "llm",
+    "title": "CLOSED check uses the raw status, not the trimmed one"
+  }
+]

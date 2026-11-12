@@ -1,0 +1,407 @@
+{
+  "eventTime": "2026-11-12T02:18:52.253367+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "loss_date",
+              "type": "date"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "closed_date",
+              "type": "date"
+            },
+            {
+              "name": "cause_code",
+              "type": "string"
+            },
+            {
+              "name": "handler_code",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.claims",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "payment_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "date"
+            },
+            {
+              "name": "amount",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "payment_type",
+              "type": "string"
+            },
+            {
+              "name": "payee_type",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.claim_payments",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T05.usp_claim_aging",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "aging_band": {
+              "inputFields": [
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on days_since_activity",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on days_since_activity",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "claim_id": {
+              "inputFields": [
+                {
+                  "field": "claim_id",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #open_claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "claim_number": {
+              "inputFields": [
+                {
+                  "field": "claim_number",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #open_claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "days_since_activity": {
+              "inputFields": [
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(DAY, ISNULL(last_pay, reported), @AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "last_activity_date": {
+              "inputFields": [
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ISNULL(last payment_date, reported_date)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ISNULL(last payment_date, reported_date)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "last_payment_date": {
+              "inputFields": [
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "payment_date of last payment in order (payment_date, payment_id); NULL if none",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(RTRIM(lob_code))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "n_payments": {
+              "inputFields": [
+                {
+                  "field": "payment_id",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "count of payment rows per claim in cursor loop",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reported_date": {
+              "inputFields": [
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #open_claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "total_paid": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "running sum of amount per claim (cursor)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "weeks_open": {
+              "inputFields": [
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(WEEK, reported_date, @AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "n_payments",
+              "type": "int"
+            },
+            {
+              "name": "total_paid",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "last_payment_date",
+              "type": "date"
+            },
+            {
+              "name": "last_activity_date",
+              "type": "date"
+            },
+            {
+              "name": "days_since_activity",
+              "type": "int"
+            },
+            {
+              "name": "weeks_open",
+              "type": "int"
+            },
+            {
+              "name": "aging_band",
+              "type": "string"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.claim_aging",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:18:52.253367+00:00",
+        "nominalStartTime": "2026-11-12T02:18:33.472269+00:00"
+      }
+    },
+    "runId": "9004b4a3-f76d-57fb-ab42-0ebdd24a35a8"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

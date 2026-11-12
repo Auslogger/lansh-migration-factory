@@ -1,0 +1,785 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      33,
+      142
+    ],
+    "input_column": null,
+    "input_kind": "generated",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "policy_sk",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "IDENTITY(1,1) surrogate key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      88,
+      147
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      89,
+      147
+    ],
+    "input_column": "policy_number",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "policy_number",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      90,
+      147
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "customer_id",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      91,
+      111,
+      112,
+      147
+    ],
+    "input_column": "segment_code",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "customer_segment",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "c.segment_code via LEFT JOIN on customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.93,
+    "evidence_lines": [
+      92,
+      107,
+      108,
+      147
+    ],
+    "input_column": "product_code",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "product_code",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "pr.product_code (equal to p.product_code by inner join)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      93,
+      148
+    ],
+    "input_column": "product_name",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "product_name",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      94,
+      148
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      95,
+      148
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "broker_code",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "ISNULL(p.broker_code,'DIRECT-SALES')",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      95
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "broker_code",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "'DIRECT-SALES' default when broker_code is NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      96,
+      109,
+      110,
+      148
+    ],
+    "input_column": "broker_name",
+    "input_kind": "column",
+    "input_table": "stg.brokers",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "broker_name",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "b.broker_name via LEFT JOIN on broker_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      97,
+      148
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "status",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      98,
+      149
+    ],
+    "input_column": "inception_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "inception_date",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      99,
+      149
+    ],
+    "input_column": "expiry_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "expiry_date",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      100,
+      149
+    ],
+    "input_column": "cancellation_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "cancellation_date",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      101,
+      149
+    ],
+    "input_column": "annual_premium",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "annual_premium",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      102,
+      150
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "currency",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      103,
+      150
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "vehicle_reg",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      104,
+      150
+    ],
+    "input_column": "ncd_years",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "ncd_years",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "direct copy via #src",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      151
+    ],
+    "input_column": "@SnapshotDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "valid_from",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "@SnapshotDate on new version",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      152
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "valid_to",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "'9999-12-31' on new current version",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      136
+    ],
+    "input_column": "@SnapshotDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "valid_to",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "DATEADD(DAY,-1,@SnapshotDate) when closing a version (MERGE UPDATE)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      137,
+      153
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "is_current",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "'Y' on insert; 'N' on MERGE close",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.97,
+    "evidence_lines": [
+      154
+    ],
+    "input_column": "@SnapshotDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "source_snapshot_date",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "@SnapshotDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": true,
+    "confidence": 0.95,
+    "evidence_lines": [
+      155
+    ],
+    "input_column": null,
+    "input_kind": "generated",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "derives",
+    "output_column": "load_ts",
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "SYSDATETIME() load timestamp",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      113
+    ],
+    "input_column": "snapshot_date",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "p.snapshot_date = @SnapshotDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      82,
+      113
+    ],
+    "input_column": "@SnapshotDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "p.snapshot_date = @SnapshotDate; also refuse if older than last loaded snapshot",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      107,
+      108
+    ],
+    "input_column": "product_code",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "INNER JOIN pr.product_code = p.product_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      107,
+      108
+    ],
+    "input_column": "product_code",
+    "input_kind": "column",
+    "input_table": "stg.products",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "INNER JOIN pr.product_code = p.product_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.75,
+    "evidence_lines": [
+      110,
+      132
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "LEFT JOIN b.broker_code = p.broker_code (row fan-out only); also MERGE change test",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      110
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "stg.brokers",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "LEFT JOIN b.broker_code = p.broker_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      112
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "dw.dim_customer",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "LEFT JOIN c.customer_id = p.customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.6,
+    "evidence_lines": [
+      112
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "LEFT JOIN c.customer_id = p.customer_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      129,
+      159
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      129,
+      159
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      130,
+      160
+    ],
+    "input_column": "is_current",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "tgt.is_current = 'Y' in MERGE; d.is_current = 'Y' in NOT EXISTS",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      131
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test ISNULL(src.status,'') <> ISNULL(tgt.status,'')",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      131
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on status",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      132
+    ],
+    "input_column": "broker_code",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on broker_code",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      133
+    ],
+    "input_column": "annual_premium",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on annual_premium",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      133
+    ],
+    "input_column": "annual_premium",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on annual_premium",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      134
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "stg.policy_snapshots",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on vehicle_reg",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      134
+    ],
+    "input_column": "vehicle_reg",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MERGE change test on vehicle_reg",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      79,
+      80,
+      82,
+      83
+    ],
+    "input_column": "source_snapshot_date",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T02",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_policy",
+    "source": "llm",
+    "transform": "MAX(source_snapshot_date) guard: THROW if @SnapshotDate older",
+    "verified": true
+  }
+]

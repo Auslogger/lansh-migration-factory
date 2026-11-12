@@ -1,0 +1,202 @@
+[
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 67,
+    "line_start": 62,
+    "note": "The #txn temp table is built with SELECT INTO and then added to by an INSERT; in Spark it becomes a DataFrame made by unioning the EUR and non-EUR branches.",
+    "snippet": "IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n\n        SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n                t.effective_from, t.effective_to, t.currency, t.amount,\n                CAST(1 AS DECIMAL(18,8)) AS fx_rate\n        INTO    #txn",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 69,
+    "line_start": 69,
+    "note": "currency is CHAR(3) text. Under a CI collation, 'eur' or 'Eur' also matches 'EUR', but Spark's binary compare would drop those rows from the EUR branch.",
+    "snippet": "WHERE   t.currency = 'EUR'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 69,
+    "line_start": 69,
+    "note": "currency is CHAR(3), and SQL Server ignores trailing spaces in the comparison. A value like 'EU ' or a padded source value would compare differently in Spark.",
+    "snippet": "WHERE   t.currency = 'EUR'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 81,
+    "line_start": 77,
+    "note": "TOP 1 is ordered by rate_date DESC, _row_seq DESC. If _row_seq ties within a date, the row chosen is arbitrary, so the window ordering must match.",
+    "snippet": "CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx",
+    "trap_id": "TSQL-08"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 81,
+    "line_start": 77,
+    "note": "CROSS APPLY TOP 1 picks the latest rate per transaction and drops transactions that have no rate. In Spark this needs a join with a row_number window (inner semantics).",
+    "snippet": "CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n                     FROM   stg.fx_rates r WITH (NOLOCK)\n                     WHERE  r.currency = t.currency\n                       AND  r.rate_date <= t.txn_date\n                     ORDER BY r.rate_date DESC, r._row_seq DESC) fx",
+    "trap_id": "TSQL-09"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 79,
+    "line_start": 79,
+    "note": "The rate lookup joins on the CHAR(3) currency columns. The CI collation matches case variants such as 'usd' to 'USD', and Spark's join would miss them.",
+    "snippet": "WHERE  r.currency = t.currency",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 79,
+    "line_start": 79,
+    "note": "The CHAR(3) join on currency ignores trailing spaces in the legacy engine. Spark needs trimmed keys to match the same way.",
+    "snippet": "WHERE  r.currency = t.currency",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 82,
+    "line_start": 82,
+    "note": "The <> 'EUR' test is case-insensitive in the legacy engine. In Spark, lower-case 'eur' rows would go to the FX branch and also be missing from the EUR branch.",
+    "snippet": "WHERE   t.currency <> 'EUR'",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 82,
+    "line_start": 82,
+    "note": "currency is CHAR(3) and the legacy comparison ignores trailing spaces. Spark compares the exact string.",
+    "snippet": "WHERE   t.currency <> 'EUR'",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 99,
+    "line_start": 89,
+    "note": "The #earn temp table holds the intermediate term and earned-day columns; in Spark it becomes a DataFrame or temp view.",
+    "snippet": "IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n\n        SELECT  x.*,\n                CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n                DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n                CASE WHEN @AsOfDate < x.effectiv\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 92,
+    "line_start": 92,
+    "note": "DECIMAL(12,2)*DECIMAL(18,8) is rounded half away from zero to 2 places and cast to DECIMAL(14,2). Spark must keep decimal types and HALF_UP rounding, not doubles.",
+    "snippet": "CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 124,
+    "line_start": 124,
+    "note": "earned_days*100/term_days is INT/INT, so the percentage is truncated to a whole number before it is stored in DECIMAL(5,2) (e.g. 33.00, not 33.33). Spark's / would return a fraction.",
+    "snippet": "e.earned_days * 100 / e.term_days,",
+    "trap_id": "TSQL-03"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 125,
+    "line_start": 125,
+    "note": "Decimal * int / 365 follows SQL Server's precision and scale rules for division, then ROUND to 2 places half away from zero. Spark's decimal division and rounding must reproduce this.",
+    "snippet": "ROUND(e.written_eur * e.earned_days / 365, 2),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 126,
+    "line_start": 126,
+    "note": "Unearned is written_eur minus the separately rounded earned amount, so the decimal scale and rounding of the subtrahend must match the legacy result.",
+    "snippet": "e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 127,
+    "line_start": 127,
+    "note": "ROUND(x, 4, 1) truncates rather than rounds. Spark needs an explicit truncation of the decimal quotient (e.g. floor-based for positive values, toward zero for negatives), not F.round.",
+    "snippet": "ROUND(e.written_eur / e.term_days, 4, 1),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 128,
+    "line_start": 128,
+    "note": "term_days/30 is integer division, so the instalment count is truncated: 365 days gives 12, and under 30 days gives 0, which falls back to 1.",
+    "snippet": "ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),",
+    "trap_id": "TSQL-03"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 128,
+    "line_start": 128,
+    "note": "Decimal divided by an int count, then ROUND to 2 places half away from zero into DECIMAL(14,2). The decimal types must be kept.",
+    "snippet": "ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 129,
+    "line_start": 129,
+    "note": "DATEADD(MONTH,1,EOMONTH(d)) clamps without snapping to month-end: an end of February gives the 28th/29th of March. Spark's add_months on a last-day input returns the 31st, so the result would differ.",
+    "snippet": "DATEADD(MONTH, 1, EOMONTH(e.effective_from)),",
+    "trap_id": "TSQL-18"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "is_current is CHAR(1) text. Under the CI collation a lower-case 'y' also matches, and Spark's exact compare would drop those policies from the inner join.",
+    "snippet": "AND p.is_current = 'Y';",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.3,
+    "detector": "llm",
+    "job_id": "T03",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "is_current is CHAR(1). The trailing-space-insensitive compare is a latent risk only if values are stored with spaces.",
+    "snippet": "AND p.is_current = 'Y';",
+    "trap_id": "TSQL-02"
+  }
+]

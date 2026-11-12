@@ -1,0 +1,807 @@
+{
+  "eventTime": "2026-11-12T02:19:08.137321+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "loss_date",
+              "type": "date"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "closed_date",
+              "type": "date"
+            },
+            {
+              "name": "cause_code",
+              "type": "string"
+            },
+            {
+              "name": "handler_code",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.claims",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "payment_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "date"
+            },
+            {
+              "name": "amount",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "payment_type",
+              "type": "string"
+            },
+            {
+              "name": "payee_type",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.claim_payments",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T06.usp_loss_triangle",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "accident_year": {
+              "inputFields": [
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "YEAR(loss_date); PIVOT group key",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_0": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "cumulative_0 = dev_0 (SUM amount, dev_year 0)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_0 dev_year bucket",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_0 dev_year bucket",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_1": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + dev_1 (UPDATE after insert)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_2": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + .. + dev_2",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_3": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + .. + dev_3",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_4": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + .. + dev_4",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_5": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + .. + dev_5",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "cumulative_6": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_0 + .. + dev_6",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n dev_year buckets",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via dev_n buckets and accident_year CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_0": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) where dev_year=0, ISNULL(...,0)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_1": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=1, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [1]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [1]; CASE WHEN YEAR(loss_date)+1 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_2": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=2, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [2]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [2]; CASE WHEN YEAR(loss_date)+2 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_3": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=3, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [3]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [3]; CASE WHEN YEAR(loss_date)+3 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_4": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=4, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [4]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [4]; CASE WHEN YEAR(loss_date)+4 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_5": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=5, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [5]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [5]; CASE WHEN YEAR(loss_date)+5 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "dev_6": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "PIVOT SUM(amount) for dev_year=6, ISNULL(...,0) inside CASE",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "payment_date",
+                  "name": "bronze.claim_payments",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [6]",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "dev_year bucket [6]; CASE WHEN YEAR(loss_date)+6 <= YEAR(@AsOfDate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(RTRIM(lob_code)); PIVOT group key",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "accident_year",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "dev_0",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_1",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_2",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_3",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_4",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_5",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "dev_6",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_0",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_1",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_2",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_3",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_4",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_5",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "cumulative_6",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.loss_triangle_paid",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:19:08.137321+00:00",
+        "nominalStartTime": "2026-11-12T02:18:52.271075+00:00"
+      }
+    },
+    "runId": "edbc775a-ba8a-5d1c-af37-8f4a11808ecb"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

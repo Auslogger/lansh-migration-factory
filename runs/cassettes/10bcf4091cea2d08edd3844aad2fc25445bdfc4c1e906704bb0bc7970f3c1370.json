@@ -1,0 +1,226 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:18:21.428615Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T08",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T08: usp_fraud_flags (tsql), legacy file estate/tsql/T08_usp_fraud_flags.sql (SHA-256 6e90a4a5ad66f2169982f70407d488edd7b7e0053a0617f71b9e9947cb9de886).\nRule-based fraud indicators for recently notified claims.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job       rpt.usp_fraud_flags\n  Purpose   Fraud indicators for the Special Investigations Unit (SIU): one row\n            per claim notified in the twelve months to the reporting date, with\n            the indicator flags, a score and a referral band for the SIU\n            worklist and case tool.\n  Author    MOB\n  Run by    SIU_WEEKLY, after the claims and policy extracts and dw.dim_customer\n            have loaded\n  Output    rpt.claim_fraud_flags (full refresh)\n\n  Change log\n    2016-05-09  MOB   Initial version: early notification and new customer\n                      indicators (CR-0954)\n    2016-11-21  MOB   Motor claims: registration not in the Irish format\n                      (CR-1012)\n    2017-04-03  SB    Claim keyed against a policy from another line of\n                      business (INC-1530)\n    2018-08-27  SB    fraud_score and referral bands agreed with SIU (CR-1377)\n    2019-02-11  NF    Policy dates from the latest policy extract on or before\n                      the reporting date, not the old policy master (CR-1529)\n    2020-06-15  NF    loss_day_key and reason text for the SIU case tool\n                      (CR-1810)\n    2021-10-04  SB    lob_code upper-cased for the SIU dashboard (INC-2389)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claim_fraud_flags', N'U') IS NULL\nCREATE TABLE rpt.claim_fraud_flags (\n    claim_id                 INT            NOT NULL,\n    claim_number             VARCHAR(20)    NOT NULL,\n    policy_id                INT            NOT NULL,\n    policy_number            VARCHAR(20)    NULL,\n    customer_id              INT            NOT NULL,\n    lob_code                 VARCHAR(5)     NOT NULL,\n    loss_date                DATE           NOT NULL,\n    reported_date            DATE           NOT NULL,\n    early_notification_flag  INT            NOT NULL,\n    invalid_reg_flag         INT            NOT NULL,\n    new_customer_flag        INT            NOT NULL,\n    lob_mismatch_flag        INT            NOT NULL,\n    fraud_score              INT            NOT NULL,\n    fraud_band               VARCHAR(6)     NOT NULL,  -- HIGH / MEDIUM / LOW\n    loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n    reason_text              VARCHAR(100)   NOT NULL,\n    as_of_date               DATE           NOT NULL,\n    CONSTRAINT pk_rpt_claim_fraud_flags PRIMARY KEY (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_fraud_flags\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name       VARCHAR(128) = 'rpt.usp_fraud_flags',\n            @rows           INT,\n            @snapshot_date  DATE,\n            @err_msg        NVARCHAR(4000),\n            @err_no         INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Policy details from the latest policy extract on or before the reporting date */\n        SELECT  @snapshot_date = MAX(ps.snapshot_date)\n        FROM    stg.policy_snapshots ps WITH (NOLOCK)\n        WHERE   ps.snapshot_date <= @AsOfDate;\n\n        /* 1. Claims notified in the twelve months to the reporting date, with the\n              policy they were made under and when the policyholder became a customer */\n        IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                c.customer_id,\n                c.lob_code,\n                c.loss_date,\n                c.reported_date,\n                p.policy_number,\n                p.inception_date,\n                p.expiry_date,\n                p.vehicle_reg,\n                dc.customer_since\n        INTO    #claims\n        FROM    stg.claims c WITH (NOLOCK)\n        LEFT JOIN stg.policy_snapshots p WITH (NOLOCK)\n               ON p.policy_id = c.policy_id\n              AND p.snapshot_date = @snapshot_date\n        LEFT JOIN dw.dim_customer dc WITH (NOLOCK)\n               ON dc.customer_id = c.customer_id\n        WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n          AND   c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claims notified', @status = 'INFO', @rows_affected = @rows;\n\n        /* 2. SIU indicators, one point each (CR-0954, CR-1012, INC-1530) */\n        IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n\n        SELECT  f.*,\n                f.early_notification_flag + f.invalid_reg_flag\n                  + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n        INTO    #flags\n        FROM   (SELECT  cl.claim_id,\n                        -- claim notified within 30 days of the cover starting\n                        CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n                             THEN 1 ELSE 0 END                    AS early_notification_flag,\n                        -- motor: registration not in the Irish format, e.g. 191-D-12345\n                        CASE WHEN cl.lob_code = 'MOT'\n                              AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n                             THEN 1 ELSE 0 END                    AS invalid_reg_flag,\n                        -- customer for less than six months at the date of loss\n                        CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n                             THEN 1 ELSE 0 END                    AS new_customer_flag,\n                        -- policy number starts with its line of business (MOT/2024/500001)\n                        CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n                             THEN 1 ELSE 0 END                    AS lob_mismatch_flag\n                FROM    #claims cl) f;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'indicators', @status = 'INFO', @rows_affected = @rows;\n\n        /* 3. Reload the SIU table: bands agreed with SIU (CR-1377) */\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE rpt.claim_fraud_flags;\n\n        INSERT INTO rpt.claim_fraud_flags\n               (claim_id, claim_number, policy_id, policy_number, customer_id, lob_code,\n                loss_date, reported_date, early_notification_flag, invalid_reg_flag,\n                new_customer_flag, lob_mismatch_flag, fraud_score, fraud_band,\n                loss_day_key, reason_text, as_of_date)\n        SELECT  cl.claim_id,\n                cl.claim_number,\n                cl.policy_id,\n                cl.policy_number,\n                cl.customer_id,\n                UPPER(RTRIM(cl.lob_code)),\n                cl.loss_date,\n                cl.reported_date,\n                f.early_notification_flag,\n                f.invalid_reg_flag,\n                f.new_customer_flag,\n                f.lob_mismatch_flag,\n                f.fraud_score,\n                CASE WHEN f.fraud_score >= 2 THEN 'HIGH'\n                     WHEN f.fraud_score = 1  THEN 'MEDIUM'\n                     ELSE 'LOW'\n                END,\n                CONVERT(CHAR(8), cl.loss_date, 112),\n                'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n                    + CASE WHEN f.fraud_score = 0 THEN ' - no indicators' ELSE ' -' END\n                    + CASE WHEN f.early_notification_flag = 1 THEN ' EARLY'   ELSE '' END\n                    + CASE WHEN f.invalid_reg_flag        = 1 THEN ' REG'     ELSE '' END\n                    + CASE WHEN f.new_customer_flag       = 1 THEN ' NEWCUST' ELSE '' END\n                    + CASE WHEN f.lob_mismatch_flag       = 1 THEN ' LOB'     ELSE '' END,\n                @AsOfDate\n        FROM    #claims cl\n        JOIN    #flags f\n                ON f.claim_id = cl.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claim_fraud_flags', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.policy_snapshots: snapshot_date date (DATE), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), product_code string (VARCHAR(10)), broker_code string (VARCHAR(10)), inception_date date (DATE), expiry_date date (DATE), status string (VARCHAR(12)), cancellation_date date (DATE), annual_premium decimal(12,2) (DECIMAL(12,2)), currency string (CHAR(3)), sum_insured decimal(14,2) (DECIMAL(14,2)), payment_frequency string (VARCHAR(10)), vehicle_reg string (VARCHAR(12)), ncd_years int (INT), _row_seq int (INT)\n- dw.dim_customer: customer_id int (INT), first_name string (NVARCHAR(40)), last_name string (NVARCHAR(60)), full_name string (NVARCHAR(101)), initials string (NVARCHAR(2)), email string (VARCHAR(120)), email_shared_count int (INT), date_of_birth date (DATE), age_at_join int (INT), address_line1 string (NVARCHAR(100)), town string (NVARCHAR(50)), county string (VARCHAR(30)), region string (VARCHAR(12)), eircode string (VARCHAR(10)), eircode_valid string (CHAR(1)), segment_code string (CHAR(4)), is_standard_segment string (CHAR(1)), marketing_opt_in string (CHAR(1)), customer_since date (DATE), source_system string (VARCHAR(10)), version_count int (INT), record_updated_at timestamp_ntz (DATETIME2(0)), as_of_date date (DATE)\n\nOutput tables:\n- rpt.claim_fraud_flags: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), policy_number string (VARCHAR(20)), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), early_notification_flag int (INT), invalid_reg_flag int (INT), new_customer_flag int (INT), lob_mismatch_flag int (INT), fraud_score int (INT), fraud_band string (VARCHAR(6)), loss_day_key string (CHAR(8)), reason_text string (VARCHAR(100)), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "10bcf4091cea2d08edd3844aad2fc25445bdfc4c1e906704bb0bc7970f3c1370",
+  "response": {
+    "duration_api_ms": 61449,
+    "duration_ms": 61802,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5318,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5318,
+        "cacheReadInputTokens": 1842,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1867604,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7192,
+        "provider": "firstParty",
+        "thinkingTokens": 3661,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"Job T08: rpt.usp_fraud_flags (legacy T-SQL, estate/tsql/T08_usp_fraud_flags.sql).\n\nFraud indicators for the SIU: one row for each claim notified in the twelve\nmonths to the reporting date, with indicator flags, a score, a referral band, a\nyyyymmdd loss day key and reason text. Output: rpt.claim_fraud_flags (full refresh).\n\nLegacy bugs are reproduced on purpose and marked with '# LANSH-DEFECT'.\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import DataFrame, SparkSession\nimport pyspark.sql.functions as F\n\n\ndef _ci(col):\n    # SQL Server default collation (CI, trailing-space-insensitive) for '=' / '<>'\n    return F.upper(F.rtrim(col))\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = F.lit(datetime.date.fromisoformat(params[\"AsOfDate\"]))\n\n    claims_src = inputs[\"stg.claims\"]\n    ps = inputs[\"stg.policy_snapshots\"]\n    dc = inputs[\"dw.dim_customer\"]\n\n    # @snapshot_date = MAX(snapshot_date) WHERE snapshot_date <= @AsOfDate (NULL -> no policy matches)\n    snap = ps.filter(F.col(\"snapshot_date\") <= as_of).agg(F.max(\"snapshot_date\").alias(\"snap_max\"))\n    pol = (\n        ps.join(snap, ps[\"snapshot_date\"] == snap[\"snap_max\"], \"inner\")\n        .select(\n            F.col(\"policy_id\").alias(\"p_policy_id\"),\n            F.col(\"policy_number\"),\n            F.col(\"inception_date\"),\n            F.col(\"expiry_date\"),\n            F.col(\"vehicle_reg\"),\n        )\n    )\n    cust = dc.select(F.col(\"customer_id\").alias(\"dc_customer_id\"), F.col(\"customer_since\"))\n\n    # 1. #claims\n    c = claims_src.filter(\n        (F.col(\"reported_date\") > F.add_months(as_of, -12)) & (F.col(\"reported_date\") <= as_of)\n    )\n    cl = (\n        c.join(pol, c[\"policy_id\"] == pol[\"p_policy_id\"], \"left\")\n        .join(cust, c[\"customer_id\"] == cust[\"dc_customer_id\"], \"left\")\n        .select(\n            c[\"claim_id\"], c[\"claim_number\"], c[\"policy_id\"], c[\"customer_id\"], c[\"lob_code\"],\n            c[\"loss_date\"], c[\"reported_date\"],\n            pol[\"policy_number\"], pol[\"inception_date\"], pol[\"expiry_date\"], pol[\"vehicle_reg\"],\n            cust[\"customer_since\"],\n        )\n    )\n\n    # 2. #flags\n    days_exp_to_rep = F.datediff(F.col(\"reported_date\"), F.col(\"expiry_date\"))\n    # LANSH-DEFECT: measures from expiry_date, not inception_date (cover start)\n    early = F.when((days_exp_to_rep >= 0) & (days_exp_to_rep <= 30), F.lit(1)).otherwise(F.lit(0))\n\n    # vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%' (case-insensitive collation; NULL -> unknown -> 0)\n    reg_like = F.col(\"vehicle_reg\").rlike(\"(?s)^[0-9][0-9].*-[A-Za-z].*-[0-9]\")\n    invalid_reg = F.when(\n        (_ci(F.col(\"lob_code\")) == F.lit(\"MOT\")) & (~reg_like), F.lit(1)\n    ).otherwise(F.lit(0))\n\n    new_cust = F.when(\n        F.datediff(F.col(\"loss_date\"), F.col(\"customer_since\")) < 180, F.lit(1)\n    ).otherwise(F.lit(0))\n\n    # T-SQL SUBSTRING(policy_number, 0, 4) returns only characters 1..3\n    pol_prefix = F.substring(F.col(\"policy_number\"), 1, 3)  # LANSH-DEFECT: SUBSTRING(...,0,4) yields 3 chars, so lob codes longer than 3 chars always mismatch\n    lob_mismatch = F.when(_ci(pol_prefix) != _ci(F.col(\"lob_code\")), F.lit(1)).otherwise(F.lit(0))\n\n    f = cl.select(\n        F.col(\"claim_id\").alias(\"f_claim_id\"),\n        early.alias(\"early_notification_flag\"),\n        invalid_reg.alias(\"invalid_reg_flag\"),\n        new_cust.alias(\"new_customer_flag\"),\n        lob_mismatch.alias(\"lob_mismatch_flag\"),\n    ).withColumn(\n        \"fraud_score\",\n        F.col(\"early_notification_flag\") + F.col(\"invalid_reg_flag\")\n        + F.col(\"new_customer_flag\") + F.col(\"lob_mismatch_flag\"),\n    )\n\n    # 3. Insert: #claims JOIN #flags ON claim_id\n    j = cl.join(f, cl[\"claim_id\"] == f[\"f_claim_id\"], \"inner\")\n\n    score = F.col(\"fraud_score\")\n    band = (\n        F.when(score >= 2, F.lit(\"HIGH\"))\n        .when(score == 1, F.lit(\"MEDIUM\"))\n        .otherwise(F.lit(\"LOW\"))\n    )\n    reason = F.concat(\n        F.lit(\"Notified \"),\n        F.date_format(F.col(\"reported_date\"), \"dd/MM/yyyy\"),\n        F.when(score == 0, F.lit(\" - no indicators\")).otherwise(F.lit(\" -\")),\n        F.when(F.col(\"early_notification_flag\") == 1, F.lit(\" EARLY\")).otherwise(F.lit(\"\")),\n        F.when(F.col(\"invalid_reg_flag\") == 1, F.lit(\" REG\")).otherwise(F.lit(\"\")),\n        F.when(F.col(\"new_customer_flag\") == 1, F.lit(\" NEWCUST\")).otherwise(F.lit(\"\")),\n        F.when(F.col(\"lob_mismatch_flag\") == 1, F.lit(\" LOB\")).otherwise(F.lit(\"\")),\n    )\n\n    out = j.select(\n        F.col(\"claim_id\"),\n        F.col(\"claim_number\"),\n        F.col(\"policy_id\"),\n        F.col(\"policy_number\"),\n        F.col(\"customer_id\"),\n        F.upper(F.rtrim(F.col(\"lob_code\"))).alias(\"lob_code\"),\n        F.col(\"loss_date\"),\n        F.col(\"reported_date\"),\n        F.col(\"early_notification_flag\"),\n        F.col(\"invalid_reg_flag\"),\n        F.col(\"new_customer_flag\"),\n        F.col(\"lob_mismatch_flag\"),\n        F.col(\"fraud_score\"),\n        band.alias(\"fraud_band\"),\n        F.date_format(F.col(\"loss_date\"), \"yyyyMMdd\").alias(\"loss_day_key\"),\n        reason.alias(\"reason_text\"),\n        as_of.alias(\"as_of_date\"),\n    )\n\n    return {\"rpt.claim_fraud_flags\": out}\n",
+      "defects": [
+        {
+          "intended": "Flag claims notified within 30 days of the cover starting, so it should use DATEDIFF(DAY, inception_date, reported_date).",
+          "legacy_lines": [
+            110,
+            111
+          ],
+          "title": "Early notification measured from policy expiry instead of inception",
+          "what_it_does": "Sets the flag when DATEDIFF(DAY, expiry_date, reported_date) is between 0 and 30, which means the claim was notified in the 30 days after the cover ended."
+        },
+        {
+          "intended": "Compare the policy-number prefix (the part before the first '/') with the full lob_code.",
+          "legacy_lines": [
+            121,
+            122
+          ],
+          "title": "SUBSTRING(policy_number, 0, 4) returns only 3 characters",
+          "what_it_does": "Because T-SQL starts counting at position 0, SUBSTRING(policy_number, 0, 4) returns only the first 3 characters. Any lob_code longer than 3 characters therefore never matches, and its claims always get lob_mismatch_flag = 1."
+        }
+      ],
+      "notes": "I didn't get any trap cards for this job, so traps_handled is empty. The code hasn't been run against data yet; please check these points:\n1. Collation: I assumed the default case-insensitive, accent-sensitive SQL Server collation. So lob_code = 'MOT' and SUBSTRING(...) <> lob_code are compared after UPPER(RTRIM()) on both sides. The LIKE class [A-Z] is written as [A-Za-z]. Under a SQL_Latin1 collation, the [A-Z] range in a LIKE pattern can also match accented letters; my regex doesn't, so this needs checking if registrations contain such characters.\n2. The LIKE pattern is written as the Java regex (?s)^[0-9][0-9].*-[A-Za-z].*-[0-9]. A NULL vehicle_reg gives NOT LIKE = unknown, so the flag is 0. A NULL policy_number gives <> = unknown, so the flag is 0.\n3. In Spark, substring(x, 0, 4) would return 4 characters, so the code uses substring(x, 1, 3) to match what T-SQL returns.\n4. If no snapshot exists on or before AsOfDate, @snapshot_date is NULL and every policy column comes back NULL. An inner join to the MAX value reproduces this.\n5. Joins are reproduced as written. #claims JOIN #flags is a real join on claim_id, so duplicate snapshot, customer or claim rows multiply the same way they do in the legacy job. In the legacy job they would also break the primary key and fail the job.\n6. DATEADD(MONTH, -12) maps to add_months; both clamp to the end of the month.\n7. Date formats: style 112 is written as yyyyMMdd and style 103 as dd/MM/yyyy.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.1867604,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5318,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5318,
+      "cache_read_input_tokens": 1842,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5318,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5318,
+          "cache_read_input_tokens": 1842,
+          "input_tokens": 2,
+          "output_tokens": 7192,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7192,
+      "output_tokens_details": {
+        "thinking_tokens": 3661
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

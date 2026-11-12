@@ -1,0 +1,314 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:34:14.433685Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "X1",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job X1: usp_broker_production. Broker and line-of-business production as at the as-of date (policies in force, EUR written premium, claims notified and paid in the year, paid-to-written review flag)\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_broker_production\n  3 |   Purpose  : Broker production report for distribution MI. One row per broker\n  4 |              and line of business as at @AsOfDate: policies in force, gross\n  5 |              written premium in EUR booked in the calendar year, claims notified\n  6 |              and claims paid in the year, and a review flag for brokers whose\n  7 |              paid-to-written ratio for the year is above 0.75.\n  8 |   Author   : PdeB\n  9 |   Change log\n 10 |     2014-02-10  PdeB  Initial version (CR-0412)\n 11 |     2015-09-03  PdeB  GBP/USD premium converted to EUR at the ECB rate (CR-0688)\n 12 |     2017-11-20  SOK   Direct business reported under broker code DIRECT (CR-1047)\n 13 |     2019-05-14  AMcG  Inactive brokers kept when they still have business (INC-2231)\n 14 |     2021-03-08  SOK   Paid-to-written review flag for distribution (CR-1590)\n 15 |     2022-06-27  AMcG  Broker codes trimmed and upper-cased (INC-3118)\n 16 | ==============================================================================*/\n 17 | SET NOCOUNT ON;\n 18 | GO\n 19 | IF OBJECT_ID(N'rpt.broker_production', N'U') IS NULL\n 20 | CREATE TABLE rpt.broker_production (\n 21 |     as_of_date         DATE           NOT NULL,\n 22 |     broker_code        VARCHAR(10)    NOT NULL,\n 23 |     broker_name        NVARCHAR(80)   NULL,\n 24 |     broker_status      VARCHAR(10)    NULL,\n 25 |     lob_code           VARCHAR(5)     NOT NULL,\n 26 |     policies_in_force  INT            NOT NULL,\n 27 |     gwp_eur            DECIMAL(14,2)  NOT NULL,\n 28 |     claims_notified    INT            NOT NULL,\n 29 |     claims_paid_eur    DECIMAL(14,2)  NOT NULL,\n 30 |     paid_to_written    DECIMAL(12,4)  NULL,\n 31 |     review_flag        CHAR(1)        NOT NULL\n 32 | );\n 33 | GO\n 34 | CREATE OR ALTER PROCEDURE rpt.usp_broker_production\n 35 |     @AsOfDate DATE\n 36 | AS\n 37 | BEGIN\n 38 |     SET NOCOUNT ON;\n 39 | \n 40 |     DECLARE @job       VARCHAR(128) = 'rpt.usp_broker_production';\n 41 |     DECLARE @YearStart DATE         = DATEFROMPARTS(YEAR(@AsOfDate), 1, 1);\n 42 |     DECLARE @rows      INT;\n 43 | \n 44 |     BEGIN TRY\n 45 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'start', @status = 'STARTED';\n 46 | \n 47 |         -- policy attributes from the latest snapshot on or before the as-of date\n 48 |         SELECT x.policy_id, x.broker_code, x.lob_code, x.inception_date, x.expiry_date, x.cancellation_date\n 49 |         INTO #pol\n 50 |         FROM (\n 51 |             SELECT s.policy_id,\n 52 |                    ISNULL(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n 53 |                    UPPER(RTRIM(p.lob_code)) AS lob_code,\n 54 |                    s.inception_date, s.expiry_date, s.cancellation_date,\n 55 |                    ROW_NUMBER() OVER (PARTITION BY s.policy_id\n 56 |                                       ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn\n 57 |             FROM stg.policy_snapshots s WITH (NOLOCK)\n 58 |             INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code\n 59 |             WHERE s.snapshot_date <= @AsOfDate\n 60 |         ) x\n 61 |         WHERE x.rn = 1;\n 62 |         SET @rows = @@ROWCOUNT;\n 63 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'policies', @status = 'INFO', @rows_affected = @rows;\n 64 | \n 65 |         -- policies in force on the as-of date\n 66 |         SELECT p.broker_code, p.lob_code, COUNT(*) AS policies_in_force\n 67 |         INTO #inforce\n 68 |         FROM #pol p\n 69 |         WHERE p.inception_date <= @AsOfDate\n 70 |           AND p.expiry_date >= @AsOfDate\n 71 |           AND (p.cancellation_date IS NULL OR p.cancellation_date > @AsOfDate)\n 72 |         GROUP BY p.broker_code, p.lob_code;\n 73 | \n 74 |         -- premium booked in the year, at the latest rate published on or before the booking date\n 75 |         SELECT p.broker_code, p.lob_code,\n 76 |                SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\n 77 |         INTO #gwp\n 78 |         FROM stg.premium_transactions t WITH (NOLOCK)\n 79 |         INNER JOIN #pol p ON p.policy_id = t.policy_id\n 80 |         OUTER APPLY (\n 81 |             SELECT TOP 1 f.rate_to_eur\n 82 |             FROM stg.fx_rates f WITH (NOLOCK)\n 83 |             WHERE f.currency = t.currency\n 84 |               AND f.rate_date <= t.txn_date\n 85 |             ORDER BY f.rate_date DESC, f._row_seq DESC\n 86 |         ) fx\n 87 |         WHERE t.txn_date >= @YearStart\n 88 |           AND t.txn_date <= @AsOfDate\n 89 |         GROUP BY p.broker_code, p.lob_code;\n 90 |         SET @rows = @@ROWCOUNT;\n 91 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'premium', @status = 'INFO', @rows_affected = @rows;\n 92 | \n 93 |         -- claims notified in the year\n 94 |         SELECT c.claim_id, p.broker_code, p.lob_code\n 95 |         INTO #clm\n 96 |         FROM stg.claims c WITH (NOLOCK)\n 97 |         INNER JOIN #pol p ON p.policy_id = c.policy_id\n 98 |         WHERE c.reported_date >= @YearStart\n 99 |           AND c.reported_date <= @AsOfDate;\n100 | \n101 |         SELECT c.broker_code, c.lob_code, COUNT(*) AS claims_notified\n102 |         INTO #notified\n103 |         FROM #clm c\n104 |         GROUP BY c.broker_code, c.lob_code;\n105 | \n106 |         -- claims paid in the year, recoveries netted off, unkeyed amounts ignored\n107 |         SELECT c.broker_code, c.lob_code, SUM(ISNULL(cp.amount, 0)) AS claims_paid_eur\n108 |         INTO #paid\n109 |         FROM stg.claim_payments cp WITH (NOLOCK)\n110 |         INNER JOIN #clm c ON c.claim_id = cp.claim_id\n111 |         WHERE cp.payment_date >= @YearStart\n112 |           AND cp.payment_date <= @AsOfDate\n113 |         GROUP BY c.broker_code, c.lob_code;\n114 |         SET @rows = @@ROWCOUNT;\n115 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'claims', @status = 'INFO', @rows_affected = @rows;\n116 | \n117 |         SELECT broker_code, lob_code INTO #keys FROM #inforce\n118 |         UNION SELECT broker_code, lob_code FROM #gwp\n119 |         UNION SELECT broker_code, lob_code FROM #notified\n120 |         UNION SELECT broker_code, lob_code FROM #paid;\n121 | \n122 |         -- paid-to-written ratio over all lines of the broker\n123 |         SELECT k.broker_code,\n124 |                CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written\n125 |         INTO #ratio\n126 |         FROM #keys k\n127 |         LEFT JOIN #gwp g   ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n128 |         LEFT JOIN #paid pd ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n129 |         GROUP BY k.broker_code;\n130 | \n131 |         TRUNCATE TABLE rpt.broker_production;\n132 | \n133 |         INSERT INTO rpt.broker_production\n134 |             (as_of_date, broker_code, broker_name, broker_status, lob_code, policies_in_force,\n135 |              gwp_eur, claims_notified, claims_paid_eur, paid_to_written, review_flag)\n136 |         SELECT @AsOfDate,\n137 |                k.broker_code,\n138 |                b.broker_name,\n139 |                UPPER(RTRIM(b.status)),\n140 |                k.lob_code,\n141 |                ISNULL(i.policies_in_force, 0),\n142 |                CAST(ISNULL(g.gwp_eur, 0) AS DECIMAL(14,2)),\n143 |                ISNULL(n.claims_notified, 0),\n144 |                CAST(ISNULL(pd.claims_paid_eur, 0) AS DECIMAL(14,2)),\n145 |                r.paid_to_written,\n146 |                CASE WHEN r.paid_to_written > 0.75 THEN 'Y' ELSE 'N' END\n147 |         FROM #keys k\n148 |         LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code\n149 |         LEFT JOIN #inforce i  ON i.broker_code = k.broker_code AND i.lob_code = k.lob_code\n150 |         LEFT JOIN #gwp g      ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n151 |         LEFT JOIN #notified n ON n.broker_code = k.broker_code AND n.lob_code = k.lob_code\n152 |         LEFT JOIN #paid pd    ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n153 |         LEFT JOIN #ratio r    ON r.broker_code = k.broker_code;\n154 |         SET @rows = @@ROWCOUNT;\n155 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'load rpt.broker_production', @status = 'INFO', @rows_affected = @rows;\n156 | \n157 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'SUCCESS';\n158 |     END TRY\n159 |     BEGIN CATCH\n160 |         DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE(), @err INT = ERROR_NUMBER();\n161 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'FAILED',\n162 |              @message = @msg, @error_number = @err;\n163 |         THROW;\n164 |     END CATCH\n165 | END;\n166 | GO\n\nViews for impact queries:\n- stg_policy_snapshots (stg.policy_snapshots): snapshot_date date, policy_id int, policy_number string, customer_id int, product_code string, broker_code string, inception_date date, expiry_date date, status string, cancellation_date date, annual_premium decimal(12,2), currency string, sum_insured decimal(14,2), payment_frequency string, vehicle_reg string, ncd_years int, _row_seq int\n- stg_products (stg.products): product_code string, product_name string, lob_code string, term_months int, levy_rate decimal(5,4), launched_on date, withdrawn_on date, _row_seq int\n- stg_premium_transactions (stg.premium_transactions): txn_id int, policy_id int, txn_type string, txn_date date, effective_from date, effective_to date, amount decimal(12,2), currency string, _row_seq int\n- stg_fx_rates (stg.fx_rates): rate_date date, currency string, rate_to_eur decimal(18,8), source string, _row_seq int\n- stg_claims (stg.claims): claim_id int, claim_number string, policy_id int, customer_id int, lob_code string, loss_date date, reported_date date, status string, closed_date date, cause_code string, handler_code string, description string, _row_seq int\n- stg_claim_payments (stg.claim_payments): payment_id int, claim_id int, payment_date date, amount decimal(12,2), payment_type string, payee_type string, _row_seq int\n- stg_brokers (stg.brokers): broker_code string, broker_name string, region string, commission_rate decimal(5,4), status string, appointed_date date, _row_seq int\n- golden_rpt_broker_production (the legacy output rpt.broker_production): as_of_date date, broker_code string, broker_name string, broker_status string, lob_code string, policies_in_force int, gwp_eur decimal(14,2), claims_notified int, claims_paid_eur decimal(14,2), paid_to_written decimal(12,4), review_flag string\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "4e6fbf07d3e90db2738c029b30b6185f48e8e8674067363247ed3755a94ed071",
+  "response": {
+    "duration_api_ms": 93013,
+    "duration_ms": 93279,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5991,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5991,
+        "cacheReadInputTokens": 1044,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.2746248,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 11324,
+        "provider": "firstParty",
+        "thinkingTokens": 6602,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": "claims_paid_eur",
+          "confidence": 0.8,
+          "description": "#paid joins claim_payments to #clm, and #clm only holds claims whose reported_date falls between @YearStart and @AsOfDate. Payments made in 2025 on claims reported in earlier years are dropped from claims_paid_eur, from paid_to_written and so from review_flag. A broker/LOB that only has such payments gets no output row at all.",
+          "evidence_lines": [
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
+          ],
+          "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), paid_int AS (SELECT p.broker_code, p.lob_code, SUM(COALESCE(cp.amount,0)) AS paid FROM stg_claim_payments cp JOIN stg_claims c ON c.claim_id = cp.claim_id JOIN pol p ON p.policy_id = c.policy_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' GROUP BY p.broker_code, p.lob_code), g AS (SELECT broker_code, lob_code, MAX(claims_paid_eur) AS paid FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(COALESCE(i.paid,0) - COALESCE(g.paid,0))),0) AS amount_affected FROM paid_int i FULL OUTER JOIN g ON i.broker_code = g.broker_code AND i.lob_code = g.lob_code WHERE COALESCE(i.paid,0) <> COALESCE(g.paid,0)",
+          "intended_behaviour": "claims_paid_eur should hold every payment dated in the year on the broker's policies, whenever the claim was notified. Only claims_notified should be limited by reported_date.",
+          "title": "Claims paid limited to claims notified in the same year"
+        },
+        {
+          "amount_column": "gwp_eur",
+          "confidence": 0.5,
+          "description": "The final insert LEFT JOINs stg.brokers on broker_code alone. Nothing picks one row per broker the way the policy snapshots and FX rates are deduplicated with _row_seq. A broker with several rows in stg.brokers (history or reloads) repeats every broker/LOB output row, along with its premium, claims and policy counts.",
+          "evidence_lines": [
+            147,
+            148
+          ],
+          "impact_query": "WITH g AS (SELECT broker_code, lob_code, COUNT(*) AS n, MAX(gwp_eur) AS gwp FROM golden_rpt_broker_production GROUP BY broker_code, lob_code) SELECT COALESCE(SUM(n - 1),0) AS rows_affected, COALESCE(SUM((n - 1) * ABS(gwp)),0) AS amount_affected FROM g WHERE n > 1",
+          "intended_behaviour": "Exactly one output row per broker and LOB, using only the latest broker record.",
+          "title": "Broker dimension joined without deduplication"
+        },
+        {
+          "amount_column": "gwp_eur",
+          "confidence": 0.45,
+          "description": "ISNULL(UPPER(LTRIM(RTRIM(broker_code))),'DIRECT') only catches NULL. A broker_code that is empty or all spaces trims to '' and is reported under an empty broker code, separately from DIRECT business.",
+          "evidence_lines": [
+            52
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(gwp_eur)),0) AS amount_affected FROM golden_rpt_broker_production WHERE TRIM(broker_code) = ''",
+          "intended_behaviour": "Direct business, meaning a NULL or blank broker code, should all be reported under DIRECT (NULLIF(trimmed,'') before ISNULL).",
+          "title": "Blank broker codes not mapped to DIRECT"
+        },
+        {
+          "amount_column": "gwp_eur",
+          "confidence": 0.4,
+          "description": "The OUTER APPLY returns NULL when the currency has no rate dated on or before the transaction (or when currency is NULL). amount * NULL is NULL and SUM skips it, so the premium vanishes from gwp_eur and the paid-to-written ratio without any error.",
+          "evidence_lines": [
+            76,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86
+          ],
+          "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), t AS (SELECT t.txn_id, t.txn_date, UPPER(TRIM(t.currency)) AS currency, t.amount, p.broker_code, p.lob_code FROM stg_premium_transactions t JOIN pol p ON p.policy_id = t.policy_id WHERE t.txn_date >= DATE'2025-01-01' AND t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(TRIM(t.currency)) <> 'EUR')), nr AS (SELECT t.* FROM t LEFT ANTI JOIN stg_fx_rates f ON UPPER(TRIM(f.currency)) = t.currency AND f.rate_date <= t.txn_date), fr AS (SELECT UPPER(TRIM(currency)) AS currency, MIN_BY(rate_to_eur, rate_date) AS r FROM stg_fx_rates GROUP BY UPPER(TRIM(currency))) SELECT COUNT(DISTINCT nr.broker_code, nr.lob_code) AS rows_affected, COALESCE(SUM(ABS(nr.amount * COALESCE(fr.r, 1))),0) AS amount_affected FROM nr LEFT JOIN fr ON fr.currency = nr.currency",
+          "intended_behaviour": "Every written premium transaction should be converted, using a fallback rate or by failing or flagging the run, not dropped. The amount shown is estimated at the earliest available rate, or left unconverted if the currency has no rate at all.",
+          "title": "Non-EUR premium silently dropped when no FX rate is found"
+        },
+        {
+          "amount_column": "claims_paid_eur",
+          "confidence": 0.3,
+          "description": "The comment says recoveries are netted off, but the code sums every payment amount whatever its payment_type. If recoveries are stored as positive amounts with a recovery payment_type, they increase claims_paid_eur instead of reducing it.",
+          "evidence_lines": [
+            106,
+            107
+          ],
+          "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), r AS (SELECT c.broker_code, c.lob_code, cp.amount FROM stg_claim_payments cp JOIN clm c ON c.claim_id = cp.claim_id WHERE cp.payment_date >= DATE'2025-01-01' AND cp.payment_date <= DATE'2025-12-31' AND UPPER(cp.payment_type) LIKE '%RECOV%' AND cp.amount > 0) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COALESCE(SUM(2 * amount),0) AS amount_affected FROM r",
+          "intended_behaviour": "Recovery-type payments should reduce claims paid (subtracted, or sign-flipped when stored as positives).",
+          "title": "Recoveries added rather than netted off"
+        },
+        {
+          "amount_column": "claims_paid_eur",
+          "confidence": 0.3,
+          "description": "stg.claims is used as-is in #clm. stg.policy_snapshots and stg.fx_rates are deduplicated with _row_seq, but claims are not. If a claim_id has several staging rows, it is counted more than once in claims_notified, and each of its payments is added once per duplicate in claims_paid_eur.",
+          "evidence_lines": [
+            94,
+            95,
+            96,
+            97,
+            110
+          ],
+          "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1), clm AS (SELECT c.claim_id, p.broker_code, p.lob_code FROM stg_claims c JOIN pol p ON p.policy_id = c.policy_id WHERE c.reported_date >= DATE'2025-01-01' AND c.reported_date <= DATE'2025-12-31'), d AS (SELECT claim_id, broker_code, lob_code, COUNT(*) AS n FROM clm GROUP BY claim_id, broker_code, lob_code HAVING COUNT(*) > 1), pay AS (SELECT claim_id, SUM(COALESCE(amount,0)) AS amt FROM stg_claim_payments WHERE payment_date >= DATE'2025-01-01' AND payment_date <= DATE'2025-12-31' GROUP BY claim_id) SELECT COUNT(DISTINCT d.broker_code, d.lob_code) AS rows_affected, COALESCE(SUM(ABS((d.n - 1) * COALESCE(p.amt,0))),0) AS amount_affected FROM d LEFT JOIN pay p ON p.claim_id = d.claim_id",
+          "intended_behaviour": "One row per claim_id (the latest by _row_seq) before counting and joining payments.",
+          "title": "Duplicate claim rows multiply claims notified and claims paid"
+        },
+        {
+          "amount_column": "policies_in_force",
+          "confidence": 0.2,
+          "description": "The in-force test uses expiry_date >= @AsOfDate. A policy whose expiry_date equals the as-of date counts as in force. If expiry_date is the exclusive end of cover (inception plus 12 months), such a policy has already lapsed.",
+          "evidence_lines": [
+            69,
+            70,
+            71
+          ],
+          "impact_query": "WITH pol AS (SELECT policy_id, broker_code, lob_code, inception_date, expiry_date, cancellation_date FROM (SELECT s.policy_id, COALESCE(UPPER(TRIM(s.broker_code)),'DIRECT') AS broker_code, UPPER(RTRIM(p.lob_code)) AS lob_code, s.inception_date, s.expiry_date, s.cancellation_date, ROW_NUMBER() OVER (PARTITION BY s.policy_id ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn FROM stg_policy_snapshots s JOIN stg_products p ON p.product_code = s.product_code WHERE s.snapshot_date <= DATE'2025-12-31') x WHERE rn = 1) SELECT COUNT(DISTINCT broker_code, lob_code) AS rows_affected, COUNT(*) AS amount_affected FROM pol WHERE inception_date <= DATE'2025-12-31' AND expiry_date = DATE'2025-12-31' AND (cancellation_date IS NULL OR cancellation_date > DATE'2025-12-31')",
+          "intended_behaviour": "If expiry is exclusive, the test should be expiry_date > @AsOfDate.",
+          "title": "Policies expiring on the as-of date counted as in force"
+        }
+      ]
+    },
+    "total_cost_usd": 0.2746248,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5991,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5991,
+      "cache_read_input_tokens": 1044,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5991,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5991,
+          "cache_read_input_tokens": 1044,
+          "input_tokens": 2,
+          "output_tokens": 11324,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 11324,
+      "output_tokens_details": {
+        "thinking_tokens": 6602
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

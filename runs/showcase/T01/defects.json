@@ -1,0 +1,93 @@
+[
+  {
+    "confidence": 0.93,
+    "defect_id": "T01-D1",
+    "description": "Step 2 numbers each customer's versions with ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY updated_at, _row_seq) and keeps version_no = 1. The sort is ascending, so row 1 is the first version ever saved. Every customer with more than one version gets their original details (name, email, address, county, segment, opt-in, record_updated_at) instead of their current ones.",
+    "evidence_lines": [
+      97,
+      101,
+      102,
+      104
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+      "rows_affected": 3224
+    },
+    "impact_query": "WITH v AS (SELECT customer_id, COUNT(*) AS n FROM stg_customers WHERE CAST(updated_at AS DATE) <= DATE'2025-12-31' GROUP BY customer_id) SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g JOIN v ON g.customer_id = v.customer_id WHERE v.n > 1",
+    "intended_behaviour": "Keep the latest version saved up to @AsOfDate, i.e. ORDER BY updated_at DESC, _row_seq DESC, as the header (CR-1702) and the step comment say.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "Keeps the oldest CRM version instead of the current one"
+  },
+  {
+    "confidence": 0.8,
+    "defect_id": "T01-D2",
+    "description": "age_at_join = DATEDIFF(YEAR, date_of_birth, customer_since) only subtracts the years. If the customer joined before their birthday that year, the age comes out one year too high.",
+    "evidence_lines": [
+      129
+    ],
+    "impact": {
+      "amount_affected": "8436.00",
+      "amount_column": "age_at_join",
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+      "rows_affected": 8436
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.age_at_join - (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END))), 0) AS amount_affected FROM golden_dw_dim_customer g WHERE g.date_of_birth IS NOT NULL AND g.age_at_join <> (year(g.customer_since) - year(g.date_of_birth) - CASE WHEN month(g.customer_since) * 100 + day(g.customer_since) < month(g.date_of_birth) * 100 + day(g.date_of_birth) THEN 1 ELSE 0 END)",
+    "intended_behaviour": "Age in completed years at the join date: subtract 1 when the month/day of customer_since is before the month/day of date_of_birth.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "age_at_join counts calendar-year boundaries, not completed years"
+  },
+  {
+    "confidence": 0.55,
+    "defect_id": "T01-D3",
+    "description": "eircode_valid is 'Y' whenever LEN(eircode) = 7, whatever the characters are. A 7-character value that has a space in it (really a 6-character code with a space, e.g. 'D02 X28') or contains punctuation passes. LEN also ignores trailing spaces. Only the 8-character form checks where the space is.",
+    "evidence_lines": [
+      142,
+      143,
+      144,
+      145
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.eircode_valid <> CASE WHEN g.eircode IS NOT NULL AND (rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{7}$' OR rtrim(g.eircode) RLIKE '^[A-Za-z0-9]{3} [A-Za-z0-9]{4}$') THEN 'Y' ELSE 'N' END",
+    "intended_behaviour": "Per the comment (3-character routing key plus 4-character unique identifier, with or without the space), valid means 7 alphanumeric characters with no space, or 3 alphanumerics, a space, then 4 alphanumerics.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "Eircode check accepts any 7-character value, including ones with a misplaced space"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "T01-D4",
+    "description": "The region CASE matches only the exact county names (for example 'Dublin'). A populated county written another way, such as 'Co. Dublin', 'County Cork', 'Tipperary North' or 'Laoighis', is mapped to 'UNKNOWN' even though it belongs to a known sales region.",
+    "evidence_lines": [
+      134,
+      135,
+      136,
+      137,
+      138,
+      139
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T01",
+      "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+      "rows_affected": 0
+    },
+    "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_customer g WHERE g.region = 'UNKNOWN' AND g.county IS NOT NULL AND trim(g.county) <> ''",
+    "intended_behaviour": "Normalise the county (strip 'Co.'/'County' prefixes and known variants) before mapping, so every real county gets its region and UNKNOWN is left for missing or unrecognisable values.",
+    "job_id": "T01",
+    "source": "llm",
+    "title": "County spelling variants fall into region UNKNOWN"
+  }
+]

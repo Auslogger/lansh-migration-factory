@@ -1,0 +1,184 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:43:35.787826Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "X2",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job X2: usp_large_loss_watchlist. Claims with incurred of at least EUR 25,000 as at the as-of date, with 90-day movement, reserve activity and a watch category for the claims committee\nOutput table rpt.large_loss_watchlist, 79 rows in the legacy output.\n\nColumns:\n- as_of_date DATE: 1 distinct, 0 NULL\n- claim_id INT: 79 distinct, 0 NULL\n- claim_number VARCHAR(20): 79 distinct, 0 NULL\n- policy_id INT: 79 distinct, 0 NULL\n- lob_code VARCHAR(5): 2 distinct, 0 NULL\n- claim_status VARCHAR(12): 3 distinct, 0 NULL\n- reported_date DATE: 75 distinct, 0 NULL\n- closed_date DATE: 8 distinct, 65 NULL\n- paid_to_date DECIMAL(14,2): 74 distinct, 0 NULL\n- outstanding_reserve DECIMAL(14,2): 74 distinct, 0 NULL\n- incurred_amount DECIMAL(14,2): 79 distinct, 0 NULL\n- incurred_90d_ago DECIMAL(14,2): 70 distinct, 0 NULL\n- movement_90d DECIMAL(14,2): 65 distinct, 0 NULL\n- reserve_changes_90d INT: 9 distinct, 0 NULL\n- days_since_last_activity INT: 50 distinct, 0 NULL\n- watch_category VARCHAR(15): 4 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['claim_id']\n- ['claim_number']\n- ['policy_id']\n\nLegacy code:\n/*==============================================================================\n  Job      : rpt.usp_large_loss_watchlist\n  Purpose  : Large-loss watchlist for the claims committee. Every claim with an\n             incurred amount (paid to date plus outstanding case reserve) of at\n             least EUR 25,000 as at @AsOfDate, compared with 90 days earlier and\n             given a watch category (NEW, DETERIORATING, IMPROVING, STABLE).\n  Author   : RBy\n  Change log\n    2013-05-22  RBy   Initial version (CR-0301)\n    2015-01-19  RBy   Expense reserves included in incurred (CR-0577)\n    2016-10-04  DMcC  Claims closed more than 90 days ago dropped (CR-0912)\n    2018-07-30  DMcC  Reserve changes and days since last activity added (CR-1188)\n    2020-02-11  NOF   Threshold raised from EUR 20,000 to EUR 25,000 (CR-1402)\n    2022-09-05  NOF   Status and LOB codes trimmed and upper-cased (INC-3204)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.large_loss_watchlist', N'U') IS NULL\nCREATE TABLE rpt.large_loss_watchlist (\n    as_of_date                DATE           NOT NULL,\n    claim_id                  INT            NOT NULL,\n    claim_number              VARCHAR(20)    NOT NULL,\n    policy_id                 INT            NOT NULL,\n    lob_code                  VARCHAR(5)     NOT NULL,\n    claim_status              VARCHAR(12)    NOT NULL,\n    reported_date             DATE           NOT NULL,\n    closed_date               DATE           NULL,\n    paid_to_date              DECIMAL(14,2)  NOT NULL,\n    outstanding_reserve       DECIMAL(14,2)  NOT NULL,\n    incurred_amount           DECIMAL(14,2)  NOT NULL,\n    incurred_90d_ago          DECIMAL(14,2)  NOT NULL,\n    movement_90d              DECIMAL(14,2)  NOT NULL,\n    reserve_changes_90d       INT            NOT NULL,\n    days_since_last_activity  INT            NULL,\n    watch_category            VARCHAR(15)    NOT NULL\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_large_loss_watchlist\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job       VARCHAR(128) = 'rpt.usp_large_loss_watchlist';\n    DECLARE @PriorDate DATE         = DATEADD(DAY, -90, @AsOfDate);\n    DECLARE @rows      INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job, @step_name = 'start', @status = 'STARTED';\n\n        -- open and reopened claims, plus claims closed in the last 90 days\n        SELECT c.claim_id, c.claim_number, c.policy_id,\n               UPPER(LTRIM(RTRIM(c.lob_code))) AS lob_code,\n               UPPER(LTRIM(RTRIM(c.status)))   AS claim_status,\n               c.reported_date, c.closed_date\n        INTO #clm\n        FROM stg.claims c WITH (NOLOCK)\n        WHERE c.reported_date <= @AsOfDate\n          AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job, @step_name = 'claims', @status = 'INFO', @rows_affected = @rows;\n\n        -- payments to date and 90 days ago; unkeyed amounts count as nil\n        SELECT p.claim_id,\n               SUM(ISNULL(p.amount, 0)) AS paid_now,\n               SUM(CASE WHEN p.payment_date <= @PriorDate THEN ISNULL(p.amount, 0) ELSE 0 END) AS paid_prior,\n               MAX(CASE WHEN p.amount IS NOT NULL THEN p.payment_date END) AS last_payment_date\n        INTO #paid\n        FROM stg.claim_payments p WITH (NOLOCK)\n        INNER JOIN #clm c ON c.claim_id = p.claim_id\n        WHERE p.payment_date <= @AsOfDate\n        GROUP BY p.claim_id;\n\n        -- outstanding reserve as at today and 90 days ago\n        SELECT r.claim_id, d.period, r.reserve_amount,\n               ROW_NUMBER() OVER (PARTITION BY d.period, r.claim_id\n                                  ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n        INTO #res\n        FROM stg.claim_reserves r WITH (NOLOCK)\n        INNER JOIN #clm c ON c.claim_id = r.claim_id\n        CROSS APPLY (VALUES ('NOW', @AsOfDate), ('PRIOR', @PriorDate)) d (period, as_at)\n        WHERE r.reserve_date <= d.as_at;\n\n        SELECT claim_id,\n               SUM(CASE WHEN period = 'NOW'   THEN reserve_amount ELSE 0 END) AS os_now,\n               SUM(CASE WHEN period = 'PRIOR' THEN reserve_amount ELSE 0 END) AS os_prior\n        INTO #os\n        FROM #res\n        WHERE rn = 1\n        GROUP BY claim_id;\n\n        -- reserve activity\n        SELECT r.claim_id,\n               SUM(CASE WHEN r.reserve_date > @PriorDate THEN 1 ELSE 0 END) AS reserve_changes_90d,\n               MAX(r.reserve_date) AS last_reserve_date\n        INTO #ract\n        FROM stg.claim_reserves r WITH (NOLOCK)\n        INNER JOIN #clm c ON c.claim_id = r.claim_id\n        WHERE r.reserve_date <= @AsOfDate\n        GROUP BY r.claim_id;\n\n        SELECT c.claim_id,\n               ISNULL(p.paid_now, 0) AS paid_to_date,\n               ISNULL(o.os_now, 0) AS outstanding_reserve,\n               ISNULL(p.paid_now, 0) + ISNULL(o.os_now, 0) AS incurred_amount,\n               ISNULL(p.paid_prior, 0) + ISNULL(o.os_prior, 0) AS incurred_90d_ago,\n               ISNULL(a.reserve_changes_90d, 0) AS reserve_changes_90d,\n               CASE WHEN ISNULL(p.last_payment_date, '19000101') > ISNULL(a.last_reserve_date, '19000101')\n                    THEN p.last_payment_date ELSE a.last_reserve_date END AS last_activity_date\n        INTO #inc\n        FROM #clm c\n        LEFT JOIN #paid p ON p.claim_id = c.claim_id\n        LEFT JOIN #os o   ON o.claim_id = c.claim_id\n        LEFT JOIN #ract a ON a.claim_id = c.claim_id;\n\n        TRUNCATE TABLE rpt.large_loss_watchlist;\n\n        INSERT INTO rpt.large_loss_watchlist\n            (as_of_date, claim_id, claim_number, policy_id, lob_code, claim_status, reported_date,\n             closed_date, paid_to_date, outstanding_reserve, incurred_amount, incurred_90d_ago,\n             movement_90d, reserve_changes_90d, days_since_last_activity, watch_category)\n        SELECT @AsOfDate, c.claim_id, c.claim_number, c.policy_id, c.lob_code, c.claim_status,\n               c.reported_date, c.closed_date,\n               i.paid_to_date, i.outstanding_reserve, i.incurred_amount, i.incurred_90d_ago,\n               i.incurred_amount - i.incurred_90d_ago,\n               i.reserve_changes_90d,\n               DATEDIFF(DAY, i.last_activity_date, @AsOfDate),\n               CASE WHEN i.incurred_90d_ago < 25000 THEN 'NEW'\n                    WHEN i.incurred_amount > i.incurred_90d_ago * 1.10 THEN 'DETERIORATING'\n                    WHEN i.incurred_amount < i.incurred_90d_ago * 0.90 THEN 'IMPROVING'\n                    ELSE 'STABLE' END\n        FROM #inc i\n        INNER JOIN #clm c ON c.claim_id = i.claim_id\n        WHERE i.incurred_amount >= 25000;\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job, @step_name = 'load rpt.large_loss_watchlist', @status = 'INFO', @rows_affected = @rows;\n\n        EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE(), @err INT = ERROR_NUMBER();\n        EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'FAILED',\n             @message = @msg, @error_number = @err;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "45eb87d30e6ea611e3f4a29ef3f251cd3bcc05a537eda1d73f5dec03e204b761",
+  "response": {
+    "duration_api_ms": 5909,
+    "duration_ms": 6097,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4568,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4568,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0462318,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 475,
+        "provider": "firstParty",
+        "thinkingTokens": 0,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "claim_status": "Trimmed and upper-cased from the source status.",
+        "days_since_last_activity": "Days from the later of the last keyed payment date or last reserve date to as_of_date; NULL if there was no activity.",
+        "incurred_90d_ago": "Paid to date plus latest reserve as at as_of_date minus 90 days.",
+        "incurred_amount": "paid_to_date + outstanding_reserve as at as_of_date; always >= 25000.",
+        "movement_90d": "incurred_amount - incurred_90d_ago.",
+        "reserve_changes_90d": "Count of reserve records dated within the last 90 days.",
+        "watch_category": "NEW if incurred_90d_ago < 25000; DETERIORATING if up more than 10%; IMPROVING if down more than 10%; else STABLE."
+      },
+      "grain": "One row per claim (open, reopened, or closed within the last 90 days) whose incurred amount (paid to date plus latest outstanding reserve) is at least EUR 25,000 as at the as-of date.",
+      "keys": [
+        "claim_id"
+      ],
+      "partition_columns": [
+        "watch_category",
+        "lob_code"
+      ]
+    },
+    "total_cost_usd": 0.0462318,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4568,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4568,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4568,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4568,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 475,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 475,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

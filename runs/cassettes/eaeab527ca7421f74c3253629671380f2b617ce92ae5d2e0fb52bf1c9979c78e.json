@@ -1,0 +1,998 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:20:36.592139Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T08",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T08: usp_fraud_flags (tsql), file estate/tsql/T08_usp_fraud_flags.sql.\nRule-based fraud indicators for recently notified claims.\nParameters: AsOfDate.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_fraud_flags\n  3 |   Purpose   Fraud indicators for the Special Investigations Unit (SIU): one row\n  4 |             per claim notified in the twelve months to the reporting date, with\n  5 |             the indicator flags, a score and a referral band for the SIU\n  6 |             worklist and case tool.\n  7 |   Author    MOB\n  8 |   Run by    SIU_WEEKLY, after the claims and policy extracts and dw.dim_customer\n  9 |             have loaded\n 10 |   Output    rpt.claim_fraud_flags (full refresh)\n 11 | \n 12 |   Change log\n 13 |     2016-05-09  MOB   Initial version: early notification and new customer\n 14 |                       indicators (CR-0954)\n 15 |     2016-11-21  MOB   Motor claims: registration not in the Irish format\n 16 |                       (CR-1012)\n 17 |     2017-04-03  SB    Claim keyed against a policy from another line of\n 18 |                       business (INC-1530)\n 19 |     2018-08-27  SB    fraud_score and referral bands agreed with SIU (CR-1377)\n 20 |     2019-02-11  NF    Policy dates from the latest policy extract on or before\n 21 |                       the reporting date, not the old policy master (CR-1529)\n 22 |     2020-06-15  NF    loss_day_key and reason text for the SIU case tool\n 23 |                       (CR-1810)\n 24 |     2021-10-04  SB    lob_code upper-cased for the SIU dashboard (INC-2389)\n 25 | ==============================================================================*/\n 26 | SET NOCOUNT ON;\n 27 | GO\n 28 | IF OBJECT_ID(N'rpt.claim_fraud_flags', N'U') IS NULL\n 29 | CREATE TABLE rpt.claim_fraud_flags (\n 30 |     claim_id                 INT            NOT NULL,\n 31 |     claim_number             VARCHAR(20)    NOT NULL,\n 32 |     policy_id                INT            NOT NULL,\n 33 |     policy_number            VARCHAR(20)    NULL,\n 34 |     customer_id              INT            NOT NULL,\n 35 |     lob_code                 VARCHAR(5)     NOT NULL,\n 36 |     loss_date                DATE           NOT NULL,\n 37 |     reported_date            DATE           NOT NULL,\n 38 |     early_notification_flag  INT            NOT NULL,\n 39 |     invalid_reg_flag         INT            NOT NULL,\n 40 |     new_customer_flag        INT            NOT NULL,\n 41 |     lob_mismatch_flag        INT            NOT NULL,\n 42 |     fraud_score              INT            NOT NULL,\n 43 |     fraud_band               VARCHAR(6)     NOT NULL,  -- HIGH / MEDIUM / LOW\n 44 |     loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n 45 |     reason_text              VARCHAR(100)   NOT NULL,\n 46 |     as_of_date               DATE           NOT NULL,\n 47 |     CONSTRAINT pk_rpt_claim_fraud_flags PRIMARY KEY (claim_id)\n 48 | );\n 49 | GO\n 50 | CREATE OR ALTER PROCEDURE rpt.usp_fraud_flags\n 51 |     @AsOfDate DATE\n 52 | AS\n 53 | BEGIN\n 54 |     SET NOCOUNT ON;\n 55 | \n 56 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_fraud_flags',\n 57 |             @rows           INT,\n 58 |             @snapshot_date  DATE,\n 59 |             @err_msg        NVARCHAR(4000),\n 60 |             @err_no         INT;\n 61 | \n 62 |     BEGIN TRY\n 63 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 64 | \n 65 |         /* Policy details from the latest policy extract on or before the reporting date */\n 66 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n 67 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n 68 |         WHERE   ps.snapshot_date <= @AsOfDate;\n 69 | \n 70 |         /* 1. Claims notified in the twelve months to the reporting date, with the\n 71 |               policy they were made under and when the policyholder became a customer */\n 72 |         IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n 73 | \n 74 |         SELECT  c.claim_id,\n 75 |                 c.claim_number,\n 76 |                 c.policy_id,\n 77 |                 c.customer_id,\n 78 |                 c.lob_code,\n 79 |                 c.loss_date,\n 80 |                 c.reported_date,\n 81 |                 p.policy_number,\n 82 |                 p.inception_date,\n 83 |                 p.expiry_date,\n 84 |                 p.vehicle_reg,\n 85 |                 dc.customer_since\n 86 |         INTO    #claims\n 87 |         FROM    stg.claims c WITH (NOLOCK)\n 88 |         LEFT JOIN stg.policy_snapshots p WITH (NOLOCK)\n 89 |                ON p.policy_id = c.policy_id\n 90 |               AND p.snapshot_date = @snapshot_date\n 91 |         LEFT JOIN dw.dim_customer dc WITH (NOLOCK)\n 92 |                ON dc.customer_id = c.customer_id\n 93 |         WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n 94 |           AND   c.reported_date <= @AsOfDate;\n 95 | \n 96 |         SET @rows = @@ROWCOUNT;\n 97 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claims notified', @status = 'INFO', @rows_affected = @rows;\n 98 | \n 99 |         /* 2. SIU indicators, one point each (CR-0954, CR-1012, INC-1530) */\n100 |         IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n101 | \n102 |         SELECT  f.*,\n103 |                 f.early_notification_flag + f.invalid_reg_flag\n104 |                   + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n105 |         INTO    #flags\n106 |         FROM   (SELECT  cl.claim_id,\n107 |                         -- claim notified within 30 days of the cover starting\n108 |                         CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n109 |                              THEN 1 ELSE 0 END                    AS early_notification_flag,\n110 |                         -- motor: registration not in the Irish format, e.g. 191-D-12345\n111 |                         CASE WHEN cl.lob_code = 'MOT'\n112 |                               AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n113 |                              THEN 1 ELSE 0 END                    AS invalid_reg_flag,\n114 |                         -- customer for less than six months at the date of loss\n115 |                         CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n116 |                              THEN 1 ELSE 0 END                    AS new_customer_flag,\n117 |                         -- policy number starts with its line of business (MOT/2024/500001)\n118 |                         CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n119 |                              THEN 1 ELSE 0 END                    AS lob_mismatch_flag\n120 |                 FROM    #claims cl) f;\n121 | \n122 |         SET @rows = @@ROWCOUNT;\n123 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'indicators', @status = 'INFO', @rows_affected = @rows;\n124 | \n125 |         /* 3. Reload the SIU table: bands agreed with SIU (CR-1377) */\n126 |         BEGIN TRANSACTION;\n127 | \n128 |         TRUNCATE TABLE rpt.claim_fraud_flags;\n129 | \n130 |         INSERT INTO rpt.claim_fraud_flags\n131 |                (claim_id, claim_number, policy_id, policy_number, customer_id, lob_code,\n132 |                 loss_date, reported_date, early_notification_flag, invalid_reg_flag,\n133 |                 new_customer_flag, lob_mismatch_flag, fraud_score, fraud_band,\n134 |                 loss_day_key, reason_text, as_of_date)\n135 |         SELECT  cl.claim_id,\n136 |                 cl.claim_number,\n137 |                 cl.policy_id,\n138 |                 cl.policy_number,\n139 |                 cl.customer_id,\n140 |                 UPPER(RTRIM(cl.lob_code)),\n141 |                 cl.loss_date,\n142 |                 cl.reported_date,\n143 |                 f.early_notification_flag,\n144 |                 f.invalid_reg_flag,\n145 |                 f.new_customer_flag,\n146 |                 f.lob_mismatch_flag,\n147 |                 f.fraud_score,\n148 |                 CASE WHEN f.fraud_score >= 2 THEN 'HIGH'\n149 |                      WHEN f.fraud_score = 1  THEN 'MEDIUM'\n150 |                      ELSE 'LOW'\n151 |                 END,\n152 |                 CONVERT(CHAR(8), cl.loss_date, 112),\n153 |                 'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n154 |                     + CASE WHEN f.fraud_score = 0 THEN ' - no indicators' ELSE ' -' END\n155 |                     + CASE WHEN f.early_notification_flag = 1 THEN ' EARLY'   ELSE '' END\n156 |                     + CASE WHEN f.invalid_reg_flag        = 1 THEN ' REG'     ELSE '' END\n157 |                     + CASE WHEN f.new_customer_flag       = 1 THEN ' NEWCUST' ELSE '' END\n158 |                     + CASE WHEN f.lob_mismatch_flag       = 1 THEN ' LOB'     ELSE '' END,\n159 |                 @AsOfDate\n160 |         FROM    #claims cl\n161 |         JOIN    #flags f\n162 |                 ON f.claim_id = cl.claim_id;\n163 | \n164 |         SET @rows = @@ROWCOUNT;\n165 | \n166 |         COMMIT TRANSACTION;\n167 | \n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claim_fraud_flags', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n\nOutput tables:\n- rpt.claim_fraud_flags: claim_id INT, claim_number VARCHAR(20), policy_id INT, policy_number VARCHAR(20), customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, early_notification_flag INT, invalid_reg_flag INT, new_customer_flag INT, lob_mismatch_flag INT, fraud_score INT, fraud_band VARCHAR(6), loss_day_key CHAR(8), reason_text VARCHAR(100), as_of_date DATE\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "eaeab527ca7421f74c3253629671380f2b617ce92ae5d2e0fb52bf1c9979c78e",
+  "response": {
+    "duration_api_ms": 51727,
+    "duration_ms": 51997,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 341,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 341,
+        "cacheReadInputTokens": 7295,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.149015,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7241,
+        "provider": "firstParty",
+        "thinkingTokens": 863,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.98,
+          "input_column": "claim_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            74,
+            135
+          ],
+          "output_column": "claim_id",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "claim_number",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            75,
+            136
+          ],
+          "output_column": "claim_number",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            76,
+            137
+          ],
+          "output_column": "policy_id",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.97,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            81,
+            88,
+            138
+          ],
+          "output_column": "policy_number",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy from the LEFT JOINed snapshot (NULL if no match)"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            77,
+            139
+          ],
+          "output_column": "customer_id",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            78,
+            140
+          ],
+          "output_column": "lob_code",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "UPPER(RTRIM(lob_code))"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            79,
+            141
+          ],
+          "output_column": "loss_date",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            80,
+            142
+          ],
+          "output_column": "reported_date",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "direct copy via #claims"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "expiry_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            83,
+            108,
+            109,
+            143
+          ],
+          "output_column": "early_notification_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            80,
+            108,
+            109,
+            143
+          ],
+          "output_column": "early_notification_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            111,
+            112,
+            113,
+            144
+          ],
+          "output_column": "invalid_reg_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN lob_code='MOT' AND vehicle_reg NOT LIKE pattern THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            84,
+            112,
+            113,
+            144
+          ],
+          "output_column": "invalid_reg_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            111,
+            112
+          ],
+          "output_column": "invalid_reg_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "literal 'MOT' and LIKE pattern"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "derives",
+          "lines": [
+            85,
+            115,
+            116,
+            145
+          ],
+          "output_column": "new_customer_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            79,
+            115,
+            116,
+            145
+          ],
+          "output_column": "new_customer_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            81,
+            118,
+            119,
+            146
+          ],
+          "output_column": "lob_mismatch_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            78,
+            118,
+            119,
+            146
+          ],
+          "output_column": "lob_mismatch_flag",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "expiry_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            108,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (early_notification)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            108,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (early_notification)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            111,
+            118,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (invalid_reg, lob_mismatch)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            112,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (invalid_reg)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            115,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (new_customer)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            115,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (new_customer)"
+        },
+        {
+          "confidence": 0.93,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            103,
+            104,
+            118,
+            147
+          ],
+          "output_column": "fraud_score",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "sum of the four flags (lob_mismatch)"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "expiry_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            108,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score >=2 HIGH / =1 MEDIUM / else LOW"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            108,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            111,
+            118,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            112,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "derives",
+          "lines": [
+            115,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            115,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            118,
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CASE on fraud_score"
+        },
+        {
+          "confidence": 0.75,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            148,
+            149,
+            150
+          ],
+          "output_column": "fraud_band",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "literals 'HIGH'/'MEDIUM'/'LOW'"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            152
+          ],
+          "output_column": "loss_day_key",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "CONVERT(CHAR(8), loss_date, 112) yyyymmdd"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            153,
+            155
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "'Notified ' + CONVERT(VARCHAR(10), reported_date, 103) + flag tags"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "expiry_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            108,
+            154,
+            155
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' EARLY' tag / score tag"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            111,
+            118,
+            156,
+            158
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' REG' / ' LOB' tags"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "vehicle_reg",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            112,
+            156
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' REG' tag"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "customer_since",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "derives",
+          "lines": [
+            115,
+            157
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' NEWCUST' tag"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "loss_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "derives",
+          "lines": [
+            115,
+            157
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' NEWCUST' tag"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "policy_number",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "derives",
+          "lines": [
+            118,
+            158
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "' LOB' tag"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            153,
+            154,
+            155,
+            156,
+            157,
+            158
+          ],
+          "output_column": "reason_text",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "literal text 'Notified ', ' - no indicators', ' EARLY' etc."
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            51,
+            159
+          ],
+          "output_column": "as_of_date",
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "parameter value"
+        },
+        {
+          "confidence": 0.98,
+          "input_column": "reported_date",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            93,
+            94
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "reported_date > DATEADD(MONTH,-12,@AsOfDate) AND <= @AsOfDate"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "filters",
+          "lines": [
+            66,
+            68,
+            93,
+            94
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "12-month reporting window; latest snapshot_date <= @AsOfDate"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "snapshot_date",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            66,
+            67,
+            68,
+            90
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "LEFT JOIN on snapshot_date = MAX(snapshot_date) <= @AsOfDate"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.policy_snapshots",
+          "kind": "filters",
+          "lines": [
+            88,
+            89
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "LEFT JOIN p.policy_id = c.policy_id"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            88,
+            89
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "LEFT JOIN p.policy_id = c.policy_id"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "dw.dim_customer",
+          "kind": "filters",
+          "lines": [
+            91,
+            92
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "LEFT JOIN dc.customer_id = c.customer_id"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": "customer_id",
+          "input_kind": "column",
+          "input_table": "stg.claims",
+          "kind": "filters",
+          "lines": [
+            91,
+            92
+          ],
+          "output_column": null,
+          "output_table": "rpt.claim_fraud_flags",
+          "transform": "LEFT JOIN dc.customer_id = c.customer_id"
+        }
+      ],
+      "notes": "1) The policy and customer joins (lines 88-92) are LEFT JOINs. They decide which policy and customer values get attached, but they never drop a claim. They are recorded as filters at 0.85 confidence. If either join matches more than one row (e.g. duplicate policy_id within a snapshot, or a dw.dim_customer that is not one row per customer), a claim is repeated and the claim_id primary key is broken. 2) The join between #flags and #claims (line 162) is on claim_id, and both sides come from the same row set, so it neither filters nor adds rows. No separate edge is given for it. 3) Legacy behaviours the PySpark version must copy exactly: (a) early_notification_flag uses expiry_date, not inception_date as the comment says. inception_date is read into #claims but never used. (b) SUBSTRING(policy_number,0,4) returns only the first 3 characters (T-SQL start 0). If policy_number is NULL the <> test is UNKNOWN, so the flag is 0. (c) If vehicle_reg is NULL, NOT LIKE is UNKNOWN, so invalid_reg_flag is 0. If customer_since is NULL, new_customer_flag is 0. (d) The 'MOT' test and the lob mismatch test compare against the raw lob_code, not the upper-cased one. Under the default case-insensitive collation 'mot' still matches 'MOT', and trailing blanks are ignored. Spark compares case- and blank-sensitively, so its results can differ. (e) The LIKE pattern uses a T-SQL character class ([0-9], [A-Z]) and needs translating to a regex. (f) The reason_text date uses style 103 (dd/mm/yyyy). (g) If no snapshot is on or before @AsOfDate, @snapshot_date is NULL and every policy column is NULL."
+    },
+    "total_cost_usd": 0.149015,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 341,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 341,
+      "cache_read_input_tokens": 7295,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 341,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 341,
+          "cache_read_input_tokens": 7295,
+          "input_tokens": 2,
+          "output_tokens": 7241,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7241,
+      "output_tokens_details": {
+        "thinking_tokens": 863
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

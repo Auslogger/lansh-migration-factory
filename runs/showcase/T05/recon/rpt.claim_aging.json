@@ -1,0 +1,153 @@
+{
+  "approach": "lansh",
+  "candidate_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+  "code_sha256": "5cb945e3b84952dfde95c307b613b593a664c99a9ee5df85780d5d025267c2ab",
+  "column_diffs": [],
+  "contract_sha256": "37d71b0f678842552b6f25561e451a329537686803c990a5ac5da280050b3d5d",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 93,
+        "legacy": 93,
+        "partition": "lob_code='HOM', aging_band='0-29'"
+      },
+      {
+        "candidate": 36,
+        "legacy": 36,
+        "partition": "lob_code='HOM', aging_band='31-60'"
+      },
+      {
+        "candidate": 131,
+        "legacy": 131,
+        "partition": "lob_code='HOM', aging_band='61+'"
+      },
+      {
+        "candidate": 10,
+        "legacy": 10,
+        "partition": "lob_code='HOM', aging_band='UNKNOWN'"
+      },
+      {
+        "candidate": 150,
+        "legacy": 150,
+        "partition": "lob_code='MOT', aging_band='0-29'"
+      },
+      {
+        "candidate": 88,
+        "legacy": 88,
+        "partition": "lob_code='MOT', aging_band='31-60'"
+      },
+      {
+        "candidate": 229,
+        "legacy": 229,
+        "partition": "lob_code='MOT', aging_band='61+'"
+      },
+      {
+        "candidate": 19,
+        "legacy": 19,
+        "partition": "lob_code='MOT', aging_band='UNKNOWN'"
+      },
+      {
+        "candidate": 22,
+        "legacy": 22,
+        "partition": "lob_code='TRV', aging_band='0-29'"
+      },
+      {
+        "candidate": 11,
+        "legacy": 11,
+        "partition": "lob_code='TRV', aging_band='31-60'"
+      },
+      {
+        "candidate": 32,
+        "legacy": 32,
+        "partition": "lob_code='TRV', aging_band='61+'"
+      },
+      {
+        "candidate": 2,
+        "legacy": 2,
+        "partition": "lob_code='TRV', aging_band='UNKNOWN'"
+      }
+    ],
+    "candidate": 823,
+    "legacy": 823
+  },
+  "duration_seconds": 0.86,
+  "error": null,
+  "explanation": "MATCH: all 823 rows agree record for record, compared on the keys ['claim_id']; counts, totals and every compared column agree under their policies.",
+  "extra_samples": [],
+  "golden_sha256": "52e8d5320a5c3e1f610cf9d8e4bb542de44bbea60afbf9098e128ab79adc949f",
+  "job_id": "T05",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "claim_id"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 823,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T02:17:06.833884Z",
+  "status": "MATCH",
+  "table": "rpt.claim_aging",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "248594498",
+      "column": "claim_id",
+      "legacy": "248594498",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "1979",
+      "column": "n_payments",
+      "legacy": "1979",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2904669.63",
+      "column": "total_paid",
+      "legacy": "2904669.63",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "118343",
+      "column": "days_since_activity",
+      "legacy": "118343",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "40753",
+      "column": "weeks_open",
+      "legacy": "40753",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    }
+  ]
+}

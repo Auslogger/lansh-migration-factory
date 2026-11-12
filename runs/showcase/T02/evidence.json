@@ -1,0 +1,4438 @@
+{
+  "job_id": "T02",
+  "generated_at": "2026-11-12T02:19:08.171276Z",
+  "legacy_path": "estate/tsql/T02_usp_load_dim_policy.sql",
+  "legacy_sha256": "a9565f4f944b98bb52293b124a852c693d5fad0c7accb5793a9499945f0e2b0f",
+  "discovery": {
+    "job_id": "T02",
+    "status": "flagged",
+    "flags": [
+      "2 statements sqlglot can't parse (lines 82-83, 118-119); the translator works from the code itself"
+    ],
+    "blocks": [
+      {
+        "job_id": "T02",
+        "index": 0,
+        "kind": "statement",
+        "line_start": 27,
+        "line_end": 27,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 1,
+        "kind": "statement",
+        "line_start": 29,
+        "line_end": 30,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 2,
+        "kind": "statement",
+        "line_start": 32,
+        "line_end": 57,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 3,
+        "kind": "statement",
+        "line_start": 59,
+        "line_end": 59,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 4,
+        "kind": "other",
+        "line_start": 61,
+        "line_end": 64,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T02",
+        "index": 5,
+        "kind": "statement",
+        "line_start": 65,
+        "line_end": 65,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 6,
+        "kind": "statement",
+        "line_start": 67,
+        "line_end": 72,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 7,
+        "kind": "other",
+        "line_start": 74,
+        "line_end": 74,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T02",
+        "index": 8,
+        "kind": "statement",
+        "line_start": 75,
+        "line_end": 75,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 9,
+        "kind": "statement",
+        "line_start": 79,
+        "line_end": 80,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 10,
+        "kind": "statement",
+        "line_start": 82,
+        "line_end": 83,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T02",
+        "index": 11,
+        "kind": "statement",
+        "line_start": 85,
+        "line_end": 85,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 12,
+        "kind": "statement",
+        "line_start": 88,
+        "line_end": 113,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 13,
+        "kind": "statement",
+        "line_start": 115,
+        "line_end": 115,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 14,
+        "kind": "statement",
+        "line_start": 116,
+        "line_end": 116,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 15,
+        "kind": "statement",
+        "line_start": 118,
+        "line_end": 119,
+        "sqlglot_parsed": false
+      },
+      {
+        "job_id": "T02",
+        "index": 16,
+        "kind": "statement",
+        "line_start": 121,
+        "line_end": 121,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 17,
+        "kind": "statement",
+        "line_start": 123,
+        "line_end": 123,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 18,
+        "kind": "statement",
+        "line_start": 127,
+        "line_end": 137,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 19,
+        "kind": "statement",
+        "line_start": 139,
+        "line_end": 139,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 20,
+        "kind": "statement",
+        "line_start": 142,
+        "line_end": 161,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 21,
+        "kind": "statement",
+        "line_start": 163,
+        "line_end": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 22,
+        "kind": "statement",
+        "line_start": 165,
+        "line_end": 165,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 23,
+        "kind": "statement",
+        "line_start": 167,
+        "line_end": 167,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 24,
+        "kind": "statement",
+        "line_start": 168,
+        "line_end": 168,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 25,
+        "kind": "statement",
+        "line_start": 169,
+        "line_end": 169,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 26,
+        "kind": "other",
+        "line_start": 170,
+        "line_end": 170,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T02",
+        "index": 27,
+        "kind": "other",
+        "line_start": 171,
+        "line_end": 171,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T02",
+        "index": 28,
+        "kind": "statement",
+        "line_start": 172,
+        "line_end": 172,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 29,
+        "kind": "statement",
+        "line_start": 174,
+        "line_end": 175,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 30,
+        "kind": "statement",
+        "line_start": 177,
+        "line_end": 178,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 31,
+        "kind": "statement",
+        "line_start": 179,
+        "line_end": 179,
+        "sqlglot_parsed": true
+      },
+      {
+        "job_id": "T02",
+        "index": 32,
+        "kind": "other",
+        "line_start": 180,
+        "line_end": 180,
+        "sqlglot_parsed": null
+      },
+      {
+        "job_id": "T02",
+        "index": 33,
+        "kind": "other",
+        "line_start": 181,
+        "line_end": 181,
+        "sqlglot_parsed": null
+      }
+    ],
+    "reads": [
+      "dw.dim_customer",
+      "stg.brokers",
+      "stg.policy_snapshots",
+      "stg.products"
+    ],
+    "writes": [
+      "dw.dim_policy"
+    ]
+  },
+  "code": {
+    "job_id": "T02",
+    "module_path": "runs/showcase/T02/jobs/t02.py",
+    "code_sha256": "fc399a765138ecb78055a1719f79de8bac5d12104b48e53996c94762fb722369",
+    "legacy_path": "estate/tsql/T02_usp_load_dim_policy.sql",
+    "legacy_sha256": "a9565f4f944b98bb52293b124a852c693d5fad0c7accb5793a9499945f0e2b0f",
+    "approach": "lansh",
+    "translator": "claude",
+    "model": "claude-opus-5-5",
+    "attempt": 0,
+    "traps_handled": [
+      "TSQL-01",
+      "TSQL-02",
+      "TSQL-06",
+      "TSQL-11",
+      "TSQL-13"
+    ],
+    "defects_reproduced": [
+      "T02-M1",
+      "T02-M2",
+      "T02-M3",
+      "T02-M4",
+      "T02-M5",
+      "T02-M6",
+      "T02-M7",
+      "T02-M8"
+    ],
+    "guardrail_violations": [],
+    "literals": [
+      {
+        "value": "customer_id",
+        "line": 16,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "customer_segment",
+        "line": 16,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "policy_id",
+        "line": 16,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "policy_number",
+        "line": 16,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "policy_sk",
+        "line": 16,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "broker_code",
+        "line": 17,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "broker_name",
+        "line": 17,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "lob_code",
+        "line": 17,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "product_code",
+        "line": 17,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "product_name",
+        "line": 17,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "cancellation_date",
+        "line": 18,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "expiry_date",
+        "line": 18,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "inception_date",
+        "line": 18,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "status",
+        "line": 18,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "annual_premium",
+        "line": 19,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "currency",
+        "line": 19,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "ncd_years",
+        "line": 19,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "valid_from",
+        "line": 19,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "vehicle_reg",
+        "line": 19,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "is_current",
+        "line": 20,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "load_ts",
+        "line": 20,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "source_snapshot_date",
+        "line": 20,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "valid_to",
+        "line": 20,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 62,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 62,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 67,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "10",
+        "line": 67,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "DIRECT-SALES",
+        "line": 67,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 87,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "",
+        "line": 92,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "",
+        "line": 92,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "status",
+        "line": 95,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "broker_code",
+        "line": 96,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 97,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 97,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "vehicle_reg",
+        "line": 98,
+        "provenance": "contract",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 104,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 106,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "1",
+        "line": 116,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "N",
+        "line": 117,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 122,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "0",
+        "line": 128,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "9999-12-31",
+        "line": 138,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "Y",
+        "line": 139,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 147,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "4",
+        "line": 147,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": " ",
+        "line": 148,
+        "provenance": "trap_card",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      },
+      {
+        "value": "3",
+        "line": 148,
+        "provenance": "legacy",
+        "accepted_by": null,
+        "reason": null,
+        "decision_id": null
+      }
+    ],
+    "created_at": "2026-11-12T02:19:09.471365Z"
+  },
+  "lineage": [
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "policy_sk",
+      "input_kind": "generated",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "IDENTITY(1,1) surrogate key",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        33,
+        142
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "policy_id",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "policy_id",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        88,
+        147
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "policy_number",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "policy_number",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        89,
+        147
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "customer_id",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "customer_id",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        90,
+        147
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "customer_segment",
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "segment_code",
+      "kind": "derives",
+      "transform": "c.segment_code via LEFT JOIN on customer_id",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        91,
+        111,
+        112,
+        147
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "product_code",
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "product_code",
+      "kind": "derives",
+      "transform": "pr.product_code (equal to p.product_code by inner join)",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        92,
+        107,
+        108,
+        147
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "product_name",
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "product_name",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        93,
+        148
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "lob_code",
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "lob_code",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        94,
+        148
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "broker_code",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "broker_code",
+      "kind": "derives",
+      "transform": "ISNULL(p.broker_code,'DIRECT-SALES')",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        95,
+        148
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "broker_code",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'DIRECT-SALES' default when broker_code is NULL",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        95
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "broker_name",
+      "input_kind": "column",
+      "input_table": "stg.brokers",
+      "input_column": "broker_name",
+      "kind": "derives",
+      "transform": "b.broker_name via LEFT JOIN on broker_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        96,
+        109,
+        110,
+        148
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "status",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "status",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        97,
+        148
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "inception_date",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "inception_date",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        98,
+        149
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "expiry_date",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "expiry_date",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        99,
+        149
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "cancellation_date",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "cancellation_date",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        100,
+        149
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "annual_premium",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "annual_premium",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        101,
+        149
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "currency",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "currency",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        102,
+        150
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "vehicle_reg",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "vehicle_reg",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        103,
+        150
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "ncd_years",
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "ncd_years",
+      "kind": "derives",
+      "transform": "direct copy via #src",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        104,
+        150
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "valid_from",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@SnapshotDate",
+      "kind": "derives",
+      "transform": "@SnapshotDate on new version",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        151
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "valid_to",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'9999-12-31' on new current version",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        152
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "valid_to",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@SnapshotDate",
+      "kind": "derives",
+      "transform": "DATEADD(DAY,-1,@SnapshotDate) when closing a version (MERGE UPDATE)",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        136
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "is_current",
+      "input_kind": "constant",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "'Y' on insert; 'N' on MERGE close",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        137,
+        153
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "source_snapshot_date",
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@SnapshotDate",
+      "kind": "derives",
+      "transform": "@SnapshotDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        154
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": "load_ts",
+      "input_kind": "generated",
+      "input_table": null,
+      "input_column": null,
+      "kind": "derives",
+      "transform": "SYSDATETIME() load timestamp",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": true,
+      "evidence_lines": [
+        155
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "snapshot_date",
+      "kind": "filters",
+      "transform": "p.snapshot_date = @SnapshotDate",
+      "source": "llm",
+      "confidence": 0.97,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        113
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "parameter",
+      "input_table": null,
+      "input_column": "@SnapshotDate",
+      "kind": "filters",
+      "transform": "p.snapshot_date = @SnapshotDate; also refuse if older than last loaded snapshot",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        82,
+        113
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "product_code",
+      "kind": "filters",
+      "transform": "INNER JOIN pr.product_code = p.product_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        107,
+        108
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.products",
+      "input_column": "product_code",
+      "kind": "filters",
+      "transform": "INNER JOIN pr.product_code = p.product_code",
+      "source": "llm",
+      "confidence": 0.95,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        107,
+        108
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "broker_code",
+      "kind": "filters",
+      "transform": "LEFT JOIN b.broker_code = p.broker_code (row fan-out only); also MERGE change test",
+      "source": "llm",
+      "confidence": 0.75,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        110,
+        132
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.brokers",
+      "input_column": "broker_code",
+      "kind": "filters",
+      "transform": "LEFT JOIN b.broker_code = p.broker_code",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        110
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_customer",
+      "input_column": "customer_id",
+      "kind": "filters",
+      "transform": "LEFT JOIN c.customer_id = p.customer_id",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        112
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "customer_id",
+      "kind": "filters",
+      "transform": "LEFT JOIN c.customer_id = p.customer_id",
+      "source": "llm",
+      "confidence": 0.6,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        112
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        159
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "policy_id",
+      "kind": "filters",
+      "transform": "MERGE ON tgt.policy_id = src.policy_id; NOT EXISTS d.policy_id = s.policy_id",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        129,
+        159
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "is_current",
+      "kind": "filters",
+      "transform": "tgt.is_current = 'Y' in MERGE; d.is_current = 'Y' in NOT EXISTS",
+      "source": "llm",
+      "confidence": 0.93,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        130,
+        160
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "status",
+      "kind": "filters",
+      "transform": "MERGE change test ISNULL(src.status,'') <> ISNULL(tgt.status,'')",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        131
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "status",
+      "kind": "filters",
+      "transform": "MERGE change test on status",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        131
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "broker_code",
+      "kind": "filters",
+      "transform": "MERGE change test on broker_code",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        132
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "annual_premium",
+      "kind": "filters",
+      "transform": "MERGE change test on annual_premium",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        133
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "annual_premium",
+      "kind": "filters",
+      "transform": "MERGE change test on annual_premium",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        133
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "stg.policy_snapshots",
+      "input_column": "vehicle_reg",
+      "kind": "filters",
+      "transform": "MERGE change test on vehicle_reg",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "vehicle_reg",
+      "kind": "filters",
+      "transform": "MERGE change test on vehicle_reg",
+      "source": "llm",
+      "confidence": 0.9,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        134
+      ]
+    },
+    {
+      "job_id": "T02",
+      "output_table": "dw.dim_policy",
+      "output_column": null,
+      "input_kind": "column",
+      "input_table": "dw.dim_policy",
+      "input_column": "source_snapshot_date",
+      "kind": "filters",
+      "transform": "MAX(source_snapshot_date) guard: THROW if @SnapshotDate older",
+      "source": "llm",
+      "confidence": 0.7,
+      "verified": true,
+      "agrees_with_sqlglot": null,
+      "evidence_lines": [
+        79,
+        80,
+        82,
+        83
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 37,
+      "line_end": 37,
+      "snippet": "customer_segment      CHAR(4)        NULL,",
+      "detector": "llm",
+      "confidence": 0.45,
+      "note": "customer_segment is CHAR(4), copied from CHAR(4) segment_code, so legacy values are padded to 4 characters. Spark strings never pad, so shorter codes come out without trailing spaces."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-13",
+      "line_start": 85,
+      "line_end": 105,
+      "snippet": "IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n\n        /* 1. This snapshot's policies with product, broker and customer segment */\n        SELECT  p.policy_id,\n                p.policy_number,\n                p.customer_id,\n                c.segment_code                          AS cust…",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The #src temp table holds the snapshot batch. In Spark it becomes a DataFrame or a temporary view."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "line_start": 95,
+      "line_end": 95,
+      "snippet": "ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "ISNULL takes the type of p.broker_code, which is VARCHAR(10), so 'DIRECT-SALES' (12 chars) is cut to 'DIRECT-SAL'. A Spark coalesce would write the full literal."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "line_start": 107,
+      "line_end": 108,
+      "snippet": "JOIN    stg.products pr WITH (NOLOCK)\n                ON pr.product_code = p.product_code",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "The product join compares VARCHAR product_code values case-insensitively, so case variants still match. A Spark join drops them, and with them the policy row, because this is an inner join."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 107,
+      "line_end": 108,
+      "snippet": "JOIN    stg.products pr WITH (NOLOCK)\n                ON pr.product_code = p.product_code",
+      "detector": "llm",
+      "confidence": 0.5,
+      "note": "The product_code join ignores trailing spaces. In Spark, a code with trailing spaces fails the inner join and the policy is lost."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "line_start": 109,
+      "line_end": 110,
+      "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK)\n               ON b.broker_code = p.broker_code",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "The broker join on text matches case variants under the CI collation. A Spark binary join misses them, so broker_name is NULL."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 109,
+      "line_end": 110,
+      "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK)\n               ON b.broker_code = p.broker_code",
+      "detector": "llm",
+      "confidence": 0.85,
+      "note": "stg.brokers.broker_code is CHAR(6) and gets padded, while policy broker_code is VARCHAR(10). SQL Server ignores the padding when matching. In Spark the padded values do not match, so broker_name becomes NULL."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-11",
+      "line_start": 127,
+      "line_end": 137,
+      "snippet": "MERGE dw.dim_policy AS tgt\n        USING #src AS src\n           ON tgt.policy_id = src.policy_id\n          AND tgt.is_current = 'Y'\n        WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n                          OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_co…",
+      "detector": "llm",
+      "confidence": 0.95,
+      "note": "This MERGE closes the current version of changed policies (valid_to = snapshot - 1, is_current = 'N'). Spark has to rebuild the whole dimension from its previous state and the batch."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "line_start": 131,
+      "line_end": 131,
+      "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+      "detector": "llm",
+      "confidence": 0.75,
+      "note": "The status <> check is case-insensitive, so a change of letter case only (e.g. 'Active' to 'ACTIVE') opens no new version in legacy. Spark would open one."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 131,
+      "line_end": 131,
+      "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "The status <> check ignores trailing spaces, so a change in trailing spaces alone does not close the version in legacy."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "line_start": 131,
+      "line_end": 131,
+      "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "The status change check uses ISNULL(..., ''), so a NULL status and '' count as equal and no new version opens."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "line_start": 132,
+      "line_end": 132,
+      "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+      "detector": "llm",
+      "confidence": 0.7,
+      "note": "The broker_code <> check is case-insensitive, so a broker code that changes only in letter case does not trigger a new version in legacy."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 132,
+      "line_end": 132,
+      "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+      "detector": "llm",
+      "confidence": 0.55,
+      "note": "The broker_code <> check ignores trailing spaces, so a code that differs only by trailing spaces does not count as a change."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "line_start": 132,
+      "line_end": 132,
+      "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+      "detector": "llm",
+      "confidence": 0.4,
+      "note": "The broker_code change check treats NULL and '' as the same value. Also, the source side has already been truncated to 'DIRECT-SAL' by the ISNULL at line 95, and Spark must compare against that truncated value."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "line_start": 133,
+      "line_end": 133,
+      "snippet": "OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)",
+      "detector": "llm",
+      "confidence": 0.45,
+      "note": "ISNULL(annual_premium, 0) treats a NULL premium and 0 as equal, so that difference opens no new version."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+      "detector": "llm",
+      "confidence": 0.75,
+      "note": "The vehicle_reg <> check is case-insensitive, so a registration that changes only in case ('ab12cde' to 'AB12CDE') is not a change in legacy."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+      "detector": "llm",
+      "confidence": 0.6,
+      "note": "The vehicle_reg <> check ignores trailing spaces, so a registration with added trailing spaces is not seen as changed."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "line_start": 134,
+      "line_end": 134,
+      "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+      "detector": "llm",
+      "confidence": 0.8,
+      "note": "vehicle_reg is nullable. ISNULL(..., '') makes NULL and '' equal, so moving between NULL and empty opens no new version. Spark null-safe comparisons would treat it as a change."
+    },
+    {
+      "job_id": "T02",
+      "trap_id": "TSQL-11",
+      "line_start": 142,
+      "line_end": 161,
+      "snippet": "INSERT INTO dw.dim_policy\n               (policy_id, policy_number, customer_id, customer_segment, product_code,\n                product_name, lob_code, broker_code, broker_name, status, inception_date,\n                expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n         …",
+      "detector": "llm",
+      "confidence": 0.9,
+      "note": "The insert opens new current versions. The IDENTITY key policy_sk is assigned in policy_id order, continuing from the table's highest existing value, and Spark must reproduce that."
+    }
+  ],
+  "contracts": [
+    {
+      "job_id": "T02",
+      "table": "silver.dim_policy",
+      "legacy_table": "dw.dim_policy",
+      "layer": "silver",
+      "grain": "One row per version of a policy (type-2 history): a policy's attributes as they stood from valid_from until valid_to, with a new version opened whenever status, broker, annual premium or vehicle registration changes between snapshots.",
+      "keys": [
+        "policy_id",
+        "valid_from"
+      ],
+      "columns": [
+        {
+          "name": "policy_sk",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "IDENTITY surrogate key that depends on insert order. It is not a business key and will not line up between runs.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "policy_number",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(20)",
+          "nullable": false,
+          "max_length": 20,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_id",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "customer_segment",
+          "data_type": "string",
+          "legacy_type": "CHAR(4)",
+          "nullable": true,
+          "max_length": 4,
+          "tags": [],
+          "description": "segment_code from dw.dim_customer via a left join. NULL when the customer is not found.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "product_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(10)",
+          "nullable": false,
+          "max_length": 10,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "product_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(60)",
+          "nullable": false,
+          "max_length": 60,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "lob_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(5)",
+          "nullable": false,
+          "max_length": 5,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_code",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": "If the source broker is NULL, this is 'DIRECT-SALES', so broker_name is NULL for direct business.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "broker_name",
+          "data_type": "string",
+          "legacy_type": "NVARCHAR(80)",
+          "nullable": true,
+          "max_length": 80,
+          "tags": [],
+          "description": "From stg.brokers via a left join. NULL when the broker is not in the register, including DIRECT-SALES.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "status",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": false,
+          "max_length": 12,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "inception_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "expiry_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "cancellation_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "annual_premium",
+          "data_type": "decimal(12,2)",
+          "legacy_type": "DECIMAL(12,2)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "currency",
+          "data_type": "string",
+          "legacy_type": "CHAR(3)",
+          "nullable": false,
+          "max_length": 3,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "vehicle_reg",
+          "data_type": "string",
+          "legacy_type": "VARCHAR(12)",
+          "nullable": true,
+          "max_length": 12,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "ncd_years",
+          "data_type": "int",
+          "legacy_type": "INT",
+          "nullable": true,
+          "max_length": null,
+          "tags": [],
+          "description": null,
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "valid_from",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The snapshot date that opened this version.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "valid_to",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "9999-12-31 while the version is current. Once closed, it is the day before the next snapshot that changed it.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "is_current",
+          "data_type": "string",
+          "legacy_type": "CHAR(1)",
+          "nullable": false,
+          "max_length": 1,
+          "tags": [],
+          "description": "'Y' for the open version, 'N' for a closed one.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "source_snapshot_date",
+          "data_type": "date",
+          "legacy_type": "DATE",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "The snapshot that inserted the row. Always the same as valid_from.",
+          "policy": {
+            "kind": "exact",
+            "reason": null,
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        },
+        {
+          "name": "load_ts",
+          "data_type": "timestamp_ntz",
+          "legacy_type": "DATETIME2(3)",
+          "nullable": false,
+          "max_length": null,
+          "tags": [],
+          "description": "SYSDATETIME() at insert time, so it depends on when the job ran. It will differ between legacy and the migration.",
+          "policy": {
+            "kind": "exclude",
+            "reason": "volatile audit column (estate/jobs.yaml): it changes on every run",
+            "rel_tolerance": null,
+            "abs_tolerance": null,
+            "references": null
+          }
+        }
+      ],
+      "partition_columns": [
+        "lob_code",
+        "is_current"
+      ],
+      "sla": {
+        "max_runtime_seconds": 600.0,
+        "expected_rows": 69255,
+        "row_tolerance_pct": 10.0
+      },
+      "version": 1
+    }
+  ],
+  "defects": [
+    {
+      "defect_id": "T02-D1",
+      "job_id": "T02",
+      "title": "Row-multiplying joins / duplicate snapshot rows create duplicate current versions",
+      "description": "#src is built from stg.policy_snapshots joined to stg.products, stg.brokers and dw.dim_customer, and nothing makes it unique per policy_id. If a staging table has a duplicate key (the _row_seq column suggests re-staged rows), or a policy appears twice in one snapshot, #src gets several rows for the policy. The INSERT's NOT EXISTS check only looks at rows already in the table, so every duplicate is opened as another current version (is_current='Y'), which counts its annual_premium twice. On a later snapshot those duplicates can also make the MERGE fail because it tries to update the same target row more than once.",
+      "intended_behaviour": "Exactly one current version per policy_id per snapshot: each lookup returns at most one row per key, and the snapshot is reduced to one row per policy_id (for example the latest _row_seq) before the MERGE/INSERT.",
+      "evidence_lines": [
+        88,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        142,
+        156,
+        157,
+        158,
+        159,
+        160
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "annual_premium",
+        "measured_on": "golden:T02",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT g.annual_premium, ROW_NUMBER() OVER (PARTITION BY g.policy_id, g.source_snapshot_date ORDER BY g.policy_sk) AS rn FROM golden_dw_dim_policy g) x WHERE rn > 1"
+      },
+      "source": "llm",
+      "confidence": 0.55
+    },
+    {
+      "defect_id": "T02-D2",
+      "job_id": "T02",
+      "title": "Policies missing from a later snapshot are never closed",
+      "description": "The MERGE only has a WHEN MATCHED branch. A policy that is in dim_policy but missing from the new snapshot (lapsed, purged or moved out) keeps is_current='Y' and valid_to=9999-12-31 for ever, so it is still reported as a live current policy.",
+      "intended_behaviour": "Close the current version (valid_to = snapshot date - 1, is_current = 'N') when a policy no longer appears in the snapshot, for example with WHEN NOT MATCHED BY SOURCE AND tgt.is_current = 'Y'.",
+      "evidence_lines": [
+        127,
+        128,
+        129,
+        130,
+        131,
+        135,
+        136,
+        137
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": null,
+        "measured_on": "golden:T02",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(g.annual_premium), 0) AS amount_affected FROM golden_dw_dim_policy g WHERE g.is_current = 'Y' AND g.source_snapshot_date < DATE'2025-12-31' AND NOT EXISTS (SELECT 1 FROM stg_policy_snapshots s WHERE s.snapshot_date = DATE'2025-12-31' AND s.policy_id = g.policy_id)"
+      },
+      "source": "llm",
+      "confidence": 0.5
+    },
+    {
+      "defect_id": "T02-D3",
+      "job_id": "T02",
+      "title": "Inner join to stg.products silently drops policies with an unknown product",
+      "description": "stg.products is joined with an INNER JOIN. Any policy whose product_code is missing from the product register is left out of #src with no warning, so it never gets a dimension row, or is never versioned if it already has one.",
+      "intended_behaviour": "Keep every policy in the snapshot (LEFT JOIN with a default or unknown product) or reject/log the unmatched rows. The dimension is meant to hold every policy term.",
+      "evidence_lines": [
+        106,
+        107,
+        108
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": "0.00",
+        "amount_column": "annual_premium",
+        "measured_on": "golden:T02",
+        "query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(annual_premium), 0) AS amount_affected FROM (SELECT DISTINCT p.snapshot_date, p.policy_id, p.annual_premium FROM stg_policy_snapshots p WHERE p.snapshot_date IN (DATE'2025-06-30', DATE'2025-12-31') AND NOT EXISTS (SELECT 1 FROM stg_products pr WHERE upper(rtrim(pr.product_code)) = upper(rtrim(p.product_code)))) x"
+      },
+      "source": "llm",
+      "confidence": 0.4
+    },
+    {
+      "defect_id": "T02-D4",
+      "job_id": "T02",
+      "title": "Direct business never gets a broker name",
+      "description": "A NULL broker_code is replaced with 'DIRECT-SALES' in the output (line 95), but the broker lookup joins on the original p.broker_code (NULL), so broker_name is always NULL for direct business, even when the broker register has a DIRECT-SALES entry.",
+      "intended_behaviour": "Join stg.brokers on ISNULL(p.broker_code, 'DIRECT-SALES') so direct business gets the DIRECT-SALES broker name.",
+      "evidence_lines": [
+        95,
+        96,
+        109,
+        110
+      ],
+      "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)",
+      "impact": {
+        "rows_affected": 0,
+        "amount_affected": null,
+        "amount_column": null,
+        "measured_on": "golden:T02",
+        "query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_dim_policy g WHERE g.broker_code = 'DIRECT-SALES' AND g.broker_name IS NULL AND EXISTS (SELECT 1 FROM stg_brokers b WHERE upper(rtrim(b.broker_code)) = 'DIRECT-SALES' AND b.broker_name IS NOT NULL)"
+      },
+      "source": "llm",
+      "confidence": 0.25
+    },
+    {
+      "defect_id": "T02-M5",
+      "job_id": "T02",
+      "title": "ISNULL takes VARCHAR(10) of p.broker_code, so 'DIRECT-SALES' becomes 'DIRECT-SAL'",
+      "description": "Marked # LANSH-DEFECT in the migrated code: ISNULL takes VARCHAR(10) of p.broker_code, so 'DIRECT-SALES' becomes 'DIRECT-SAL'",
+      "intended_behaviour": null,
+      "evidence_lines": [],
+      "impact_query": null,
+      "impact": null,
+      "source": "marker",
+      "confidence": 0.6
+    }
+  ],
+  "defect_decisions": [
+    {
+      "defect_id": "T02-D1",
+      "job_id": "T02",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:10:17.225070Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T02-D2",
+      "job_id": "T02",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:10:17.225907Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T02-D3",
+      "job_id": "T02",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:10:17.226599Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T02-D4",
+      "job_id": "T02",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:10:17.227367Z",
+      "gate": "H2"
+    },
+    {
+      "defect_id": "T02-M5",
+      "job_id": "T02",
+      "decision": "reproduce",
+      "reason": "development run default: reproduce the legacy behaviour; a person decides at the showcase run",
+      "decided_by": "agent:lansh-dev",
+      "decided_at": "2026-11-12T02:19:43.864673Z",
+      "gate": "H4"
+    }
+  ],
+  "flows": [],
+  "flow_decisions": [],
+  "recon": [
+    {
+      "job_id": "T02",
+      "table": "dw.dim_policy",
+      "mode": "isolated",
+      "status": "MATCH",
+      "run_id": "dev-estate",
+      "approach": "lansh",
+      "code_sha256": "fc399a765138ecb78055a1719f79de8bac5d12104b48e53996c94762fb722369",
+      "keys": [
+        "policy_id",
+        "valid_from"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 69255,
+        "candidate": 69255,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', is_current='N'",
+            "legacy": 2835,
+            "candidate": 2835
+          },
+          {
+            "partition": "lob_code='HOM', is_current='Y'",
+            "legacy": 21609,
+            "candidate": 21609
+          },
+          {
+            "partition": "lob_code='MOT', is_current='N'",
+            "legacy": 4024,
+            "candidate": 4024
+          },
+          {
+            "partition": "lob_code='MOT', is_current='Y'",
+            "legacy": 28731,
+            "candidate": 28731
+          },
+          {
+            "partition": "lob_code='TRV', is_current='N'",
+            "legacy": 949,
+            "candidate": 949
+          },
+          {
+            "partition": "lob_code='TRV', is_current='Y'",
+            "legacy": 11107,
+            "candidate": 11107
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "policy_sk",
+          "legacy": "2398162140",
+          "candidate": "2398162140",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "36758184230",
+          "candidate": "36758184230",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "customer_id",
+          "legacy": "7621764273",
+          "candidate": "7621764273",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "annual_premium",
+          "legacy": "27889452.79",
+          "candidate": "27889452.79",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "ncd_years",
+          "legacy": "174050",
+          "candidate": "174050",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 69255,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 69,255 rows agree record for record, compared on the keys ['policy_id', 'valid_from']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "0f417f529a1328087cb47ebd682430e510a447dd0b43354d024ef5f22811a943",
+      "golden_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "candidate_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "started_at": "2026-11-12T02:19:41.209544Z",
+      "duration_seconds": 1.632,
+      "error": null
+    },
+    {
+      "job_id": "T02",
+      "table": "dw.dim_policy",
+      "mode": "chained",
+      "status": "MATCH",
+      "run_id": "dev-estate:operate",
+      "approach": "lansh",
+      "code_sha256": null,
+      "keys": [
+        "policy_id",
+        "valid_from"
+      ],
+      "schema_diff": {
+        "missing_columns": [],
+        "extra_columns": [],
+        "type_mismatches": []
+      },
+      "counts": {
+        "legacy": 69255,
+        "candidate": 69255,
+        "by_partition": [
+          {
+            "partition": "lob_code='HOM', is_current='N'",
+            "legacy": 2835,
+            "candidate": 2835
+          },
+          {
+            "partition": "lob_code='HOM', is_current='Y'",
+            "legacy": 21609,
+            "candidate": 21609
+          },
+          {
+            "partition": "lob_code='MOT', is_current='N'",
+            "legacy": 4024,
+            "candidate": 4024
+          },
+          {
+            "partition": "lob_code='MOT', is_current='Y'",
+            "legacy": 28731,
+            "candidate": 28731
+          },
+          {
+            "partition": "lob_code='TRV', is_current='N'",
+            "legacy": 949,
+            "candidate": 949
+          },
+          {
+            "partition": "lob_code='TRV', is_current='Y'",
+            "legacy": 11107,
+            "candidate": 11107
+          }
+        ]
+      },
+      "totals": [
+        {
+          "column": "policy_sk",
+          "legacy": "2398162140",
+          "candidate": "2398162140",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "policy_id",
+          "legacy": "36758184230",
+          "candidate": "36758184230",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "customer_id",
+          "legacy": "7621764273",
+          "candidate": "7621764273",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "annual_premium",
+          "legacy": "27889452.79",
+          "candidate": "27889452.79",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        },
+        {
+          "column": "ncd_years",
+          "legacy": "174050",
+          "candidate": "174050",
+          "matches": true,
+          "policy": "exact",
+          "rel_tolerance": null,
+          "abs_tolerance": null
+        }
+      ],
+      "key_integrity": {
+        "legacy_duplicate_keys": 0,
+        "candidate_duplicate_keys": 0,
+        "legacy_null_keys": 0,
+        "candidate_null_keys": 0
+      },
+      "rows": {
+        "matched": 69255,
+        "value_diff": 0,
+        "missing": 0,
+        "extra": 0
+      },
+      "column_diffs": [],
+      "missing_samples": [],
+      "extra_samples": [],
+      "signatures": [],
+      "explanation": "MATCH: all 69,255 rows agree record for record, compared on the keys ['policy_id', 'valid_from']; counts, totals and every compared column agree under their policies.",
+      "contract_sha256": "0f417f529a1328087cb47ebd682430e510a447dd0b43354d024ef5f22811a943",
+      "golden_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "candidate_sha256": "47805914e073b96226d3b57c8518f843501cc28cff6da0ede33dc821c7cb234c",
+      "started_at": "2026-11-12T02:26:13.806319Z",
+      "duration_seconds": 4.624,
+      "error": null
+    }
+  ],
+  "heal": [],
+  "tests": [
+    {
+      "test_id": "T02-TSQL-01-1",
+      "job_id": "T02",
+      "trap_id": "TSQL-01",
+      "description": "Letter-case variants across two runs (2025-06-30, then 2025-12-31). Policy 1001 has product_code 'motor01' and the product register has 'MOTOR01'. The legacy inner join still matches it; a binary Spark join drops the policy. Policy 1002 has broker 'brk001' and the register has 'BRK001'. Legacy finds the broker_name; Spark leaves it NULL. In run 2 the changes are case-only: 1001 status 'Active' to 'ACTIVE', 1002 broker 'brk001' to 'BRK001', 1003 vehicle_reg 'ab12cde' to 'AB12CDE'. Legacy opens no new version for these; Spark would close and reopen each one. Policy 1004 is the control: its status really changes, to 'Lapsed'.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK001",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK003",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "1001",
+              "POL-1001",
+              "101",
+              "motor01",
+              "BRK001",
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "11D1234",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "1002",
+              "POL-1002",
+              "102",
+              "MOTOR01",
+              "brk001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "720.00",
+              "EUR",
+              "18000.00",
+              "ANNUAL",
+              "12C555",
+              "3",
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "1003",
+              "POL-1003",
+              "103",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "810.50",
+              "EUR",
+              "25000.00",
+              "MONTHLY",
+              "ab12cde",
+              "2",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "1004",
+              "POL-1004",
+              "104",
+              "HOME01",
+              "BRK002",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "400.00",
+              "EUR",
+              "300000.00",
+              "ANNUAL",
+              null,
+              null,
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "1001",
+              "POL-1001",
+              "101",
+              "motor01",
+              "BRK001",
+              "2025-01-01",
+              "2025-12-31",
+              "ACTIVE",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "11D1234",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "1002",
+              "POL-1002",
+              "102",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "720.00",
+              "EUR",
+              "18000.00",
+              "ANNUAL",
+              "12C555",
+              "3",
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "1003",
+              "POL-1003",
+              "103",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "810.50",
+              "EUR",
+              "25000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "2",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "1004",
+              "POL-1004",
+              "104",
+              "HOME01",
+              "BRK002",
+              "2025-04-01",
+              "2026-03-31",
+              "Lapsed",
+              null,
+              "400.00",
+              "EUR",
+              "300000.00",
+              "ANNUAL",
+              null,
+              null,
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "1001",
+              "POL-1001",
+              "101",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "650.00",
+              "EUR",
+              "11D1234",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "2",
+              "1002",
+              "POL-1002",
+              "102",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "brk001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "720.00",
+              "EUR",
+              "12C555",
+              "3",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "3",
+              "1003",
+              "POL-1003",
+              "103",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "810.50",
+              "EUR",
+              "ab12cde",
+              "2",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "4",
+              "1004",
+              "POL-1004",
+              "104",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "400.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:22.675000"
+            ],
+            [
+              "5",
+              "1004",
+              "POL-1004",
+              "104",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Lapsed",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "400.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:22.717000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t02.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T02-TSQL-02-2",
+      "job_id": "T02",
+      "trap_id": "TSQL-02",
+      "description": "Trailing spaces and CHAR padding across two runs. Policy 2001 has product_code 'MOTOR01 ' with a trailing space. The legacy inner join keeps it; Spark drops the policy. Its broker 'BRK1' matches the CHAR(6) register code 'BRK1  ', which is stored padded. Legacy finds the broker_name; Spark gets NULL. Customers 501 and 503 have CHAR(4) segment codes 'GO' and 'STD', which legacy pads to 'GO  ' and 'STD '; Spark leaves them unpadded. Customer 502's 'PLAT' is the canonical 4-character code. In run 2 the only changes are trailing spaces: 2001 status 'Active  ', 2002 broker 'BRK002 ', 2003 vehicle_reg 'CD34EFG  '. Legacy opens no new version for these; Spark would. Policy 2004 is the control: its premium really changes.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK1",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK3",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "dw.dim_customer",
+          "columns": [
+            "customer_id",
+            "first_name",
+            "last_name",
+            "full_name",
+            "initials",
+            "email",
+            "email_shared_count",
+            "date_of_birth",
+            "age_at_join",
+            "address_line1",
+            "town",
+            "county",
+            "region",
+            "eircode",
+            "eircode_valid",
+            "segment_code",
+            "is_standard_segment",
+            "marketing_opt_in",
+            "customer_since",
+            "source_system",
+            "version_count",
+            "record_updated_at",
+            "as_of_date"
+          ],
+          "rows": [
+            [
+              "501",
+              "Aoife",
+              "Byrne",
+              "Aoife Byrne",
+              "AB",
+              "aoife@example.ie",
+              "1",
+              "1985-04-12",
+              "30",
+              "1 Main St",
+              "Galway",
+              "Galway",
+              "West",
+              "H91X2Y3",
+              "Y",
+              "GO",
+              "N",
+              "Y",
+              "2015-05-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "502",
+              "Brian",
+              "Kelly",
+              "Brian Kelly",
+              "BK",
+              "brian@example.ie",
+              "1",
+              "1978-09-01",
+              "35",
+              "2 High St",
+              "Dublin",
+              "Dublin",
+              "Dublin",
+              "D02AB12",
+              "Y",
+              "PLAT",
+              "N",
+              "N",
+              "2013-02-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "503",
+              "Ciara",
+              "Walsh",
+              "Ciara Walsh",
+              "CW",
+              "ciara@example.ie",
+              "1",
+              "1990-01-20",
+              "28",
+              "3 Quay Rd",
+              "Cork",
+              "Cork",
+              "South",
+              "T12CD34",
+              "Y",
+              "STD",
+              "Y",
+              "Y",
+              "2018-03-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "504",
+              "Declan",
+              "Ryan",
+              "Declan Ryan",
+              "DR",
+              "declan@example.ie",
+              "1",
+              "1982-11-05",
+              "33",
+              "4 Bridge St",
+              "Limerick",
+              "Limerick",
+              "Mid-West",
+              "V94EF56",
+              "Y",
+              "PLAT",
+              "N",
+              "N",
+              "2016-06-01",
+              "CRM",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ],
+            [
+              "505",
+              "Eva",
+              "Doyle",
+              "Eva Doyle",
+              "ED",
+              null,
+              "0",
+              null,
+              null,
+              null,
+              null,
+              null,
+              "Dublin",
+              null,
+              "N",
+              null,
+              "N",
+              "N",
+              "2020-01-01",
+              "WEB",
+              "1",
+              "2025-01-01T00:00:00",
+              "2025-06-30"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "2001",
+              "POL-2001",
+              "501",
+              "MOTOR01 ",
+              "BRK1",
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "2002",
+              "POL-2002",
+              "502",
+              "HOME01",
+              "BRK002",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "420.00",
+              "EUR",
+              "350000.00",
+              "ANNUAL",
+              null,
+              null,
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "2003",
+              "POL-2003",
+              "503",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "780.00",
+              "EUR",
+              "22000.00",
+              "MONTHLY",
+              "CD34EFG",
+              "4",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "2004",
+              "POL-2004",
+              "504",
+              "MOTOR01",
+              "BRK1",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "900.00",
+              "EUR",
+              "30000.00",
+              "ANNUAL",
+              "GH56IJK",
+              "1",
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "2001",
+              "POL-2001",
+              "501",
+              "MOTOR01 ",
+              "BRK1",
+              "2025-01-01",
+              "2025-12-31",
+              "Active  ",
+              null,
+              "650.00",
+              "EUR",
+              "20000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "2002",
+              "POL-2002",
+              "502",
+              "HOME01",
+              "BRK002 ",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "420.00",
+              "EUR",
+              "350000.00",
+              "ANNUAL",
+              null,
+              null,
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "2003",
+              "POL-2003",
+              "503",
+              "MOTOR01",
+              "BRK002",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "780.00",
+              "EUR",
+              "22000.00",
+              "MONTHLY",
+              "CD34EFG  ",
+              "4",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "2004",
+              "POL-2004",
+              "504",
+              "MOTOR01",
+              "BRK1",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "950.00",
+              "EUR",
+              "30000.00",
+              "ANNUAL",
+              "GH56IJK",
+              "1",
+              "8"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "2001",
+              "POL-2001",
+              "501",
+              "GO  ",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "650.00",
+              "EUR",
+              "AB12CDE",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "2",
+              "2002",
+              "POL-2002",
+              "502",
+              "PLAT",
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "420.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "3",
+              "2003",
+              "POL-2003",
+              "503",
+              "STD ",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK002",
+              "Liffey Insurance",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "780.00",
+              "EUR",
+              "CD34EFG",
+              "4",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "4",
+              "2004",
+              "POL-2004",
+              "504",
+              "PLAT",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "900.00",
+              "EUR",
+              "GH56IJK",
+              "1",
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:23.178000"
+            ],
+            [
+              "5",
+              "2004",
+              "POL-2004",
+              "504",
+              "PLAT",
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK1",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "950.00",
+              "EUR",
+              "GH56IJK",
+              "1",
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.218000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t02.py",
+      "status": "pass"
+    },
+    {
+      "test_id": "T02-TSQL-06-3",
+      "job_id": "T02",
+      "trap_id": "TSQL-06",
+      "description": "ISNULL behaviour across two runs. Policies 3001 and 3004 (run 1) and 3005 (new in run 2) have a NULL broker_code. ISNULL takes the VARCHAR(10) type of p.broker_code, so legacy stores 'DIRECT-SAL'; a Spark coalesce writes 'DIRECT-SALES'. 3001 stays NULL in run 2. Legacy compares 'DIRECT-SAL' with 'DIRECT-SAL' and opens no version. A Spark job that compares the full literal against the stored value, or that mixes the two, can flag a change. 3002 moves vehicle_reg from NULL to '', and 3003 from '' to NULL. Under ISNULL(...,'') these are equal and no version opens; a null-safe Spark compare would open one. 3004 is the control: its broker really changes, from NULL to BRK001. NULL status or premium cannot be tested here because both columns are NOT NULL in staging.",
+      "inputs": [
+        {
+          "table": "stg.products",
+          "columns": [
+            "product_code",
+            "product_name",
+            "lob_code",
+            "term_months",
+            "levy_rate",
+            "launched_on",
+            "withdrawn_on",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "12",
+              "0.0300",
+              "2015-01-01",
+              null,
+              "1"
+            ],
+            [
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "12",
+              "0.0100",
+              "2015-01-01",
+              null,
+              "2"
+            ],
+            [
+              "TRAV01",
+              "Travel Annual",
+              "TRV",
+              "12",
+              "0.0000",
+              "2016-01-01",
+              null,
+              "3"
+            ],
+            [
+              "PET01",
+              "Pet Cover",
+              "PET",
+              "12",
+              "0.0000",
+              "2017-01-01",
+              null,
+              "4"
+            ],
+            [
+              "LIFE01",
+              "Life Term",
+              "LIFE",
+              "240",
+              "0.0100",
+              "2014-01-01",
+              null,
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.brokers",
+          "columns": [
+            "broker_code",
+            "broker_name",
+            "region",
+            "commission_rate",
+            "status",
+            "appointed_date",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "BRK001",
+              "Atlantic Brokers",
+              "West",
+              "0.1000",
+              "ACTIVE",
+              "2012-03-01",
+              "1"
+            ],
+            [
+              "BRK002",
+              "Liffey Insurance",
+              "Dublin",
+              "0.1200",
+              "ACTIVE",
+              "2013-05-01",
+              "2"
+            ],
+            [
+              "BRK003",
+              "Shannon Cover",
+              "Mid-West",
+              "0.0900",
+              "ACTIVE",
+              "2014-01-15",
+              "3"
+            ],
+            [
+              "BRK004",
+              "Corrib Partners",
+              "West",
+              "0.1100",
+              "ACTIVE",
+              "2015-02-01",
+              "4"
+            ],
+            [
+              "BRK005",
+              "Boyne Risk",
+              "North-East",
+              "0.1000",
+              "ACTIVE",
+              "2016-07-01",
+              "5"
+            ]
+          ]
+        },
+        {
+          "table": "stg.policy_snapshots",
+          "columns": [
+            "snapshot_date",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "product_code",
+            "broker_code",
+            "inception_date",
+            "expiry_date",
+            "status",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "sum_insured",
+            "payment_frequency",
+            "vehicle_reg",
+            "ncd_years",
+            "_row_seq"
+          ],
+          "rows": [
+            [
+              "2025-06-30",
+              "3001",
+              "POL-3001",
+              "301",
+              "MOTOR01",
+              null,
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "600.00",
+              "EUR",
+              "15000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "1"
+            ],
+            [
+              "2025-06-30",
+              "3002",
+              "POL-3002",
+              "302",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "700.00",
+              "EUR",
+              "17000.00",
+              "ANNUAL",
+              null,
+              "2",
+              "2"
+            ],
+            [
+              "2025-06-30",
+              "3003",
+              "POL-3003",
+              "303",
+              "MOTOR01",
+              "BRK001",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "750.00",
+              "EUR",
+              "19000.00",
+              "MONTHLY",
+              "",
+              "3",
+              "3"
+            ],
+            [
+              "2025-06-30",
+              "3004",
+              "POL-3004",
+              "304",
+              "HOME01",
+              null,
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "500.00",
+              "EUR",
+              "280000.00",
+              "ANNUAL",
+              null,
+              null,
+              "4"
+            ],
+            [
+              "2025-12-31",
+              "3001",
+              "POL-3001",
+              "301",
+              "MOTOR01",
+              null,
+              "2025-01-01",
+              "2025-12-31",
+              "Active",
+              null,
+              "600.00",
+              "EUR",
+              "15000.00",
+              "MONTHLY",
+              "AB12CDE",
+              "5",
+              "5"
+            ],
+            [
+              "2025-12-31",
+              "3002",
+              "POL-3002",
+              "302",
+              "MOTOR01",
+              "BRK001",
+              "2025-02-01",
+              "2026-01-31",
+              "Active",
+              null,
+              "700.00",
+              "EUR",
+              "17000.00",
+              "ANNUAL",
+              "",
+              "2",
+              "6"
+            ],
+            [
+              "2025-12-31",
+              "3003",
+              "POL-3003",
+              "303",
+              "MOTOR01",
+              "BRK001",
+              "2025-03-01",
+              "2026-02-28",
+              "Active",
+              null,
+              "750.00",
+              "EUR",
+              "19000.00",
+              "MONTHLY",
+              null,
+              "3",
+              "7"
+            ],
+            [
+              "2025-12-31",
+              "3004",
+              "POL-3004",
+              "304",
+              "HOME01",
+              "BRK001",
+              "2025-04-01",
+              "2026-03-31",
+              "Active",
+              null,
+              "500.00",
+              "EUR",
+              "280000.00",
+              "ANNUAL",
+              null,
+              null,
+              "8"
+            ],
+            [
+              "2025-12-31",
+              "3005",
+              "POL-3005",
+              "305",
+              "MOTOR01",
+              null,
+              "2025-07-01",
+              "2026-06-30",
+              "Active",
+              null,
+              "820.00",
+              "EUR",
+              "21000.00",
+              "MONTHLY",
+              "GH56IJK",
+              "0",
+              "9"
+            ]
+          ]
+        }
+      ],
+      "expected": [
+        {
+          "table": "dw.dim_policy",
+          "columns": [
+            "policy_sk",
+            "policy_id",
+            "policy_number",
+            "customer_id",
+            "customer_segment",
+            "product_code",
+            "product_name",
+            "lob_code",
+            "broker_code",
+            "broker_name",
+            "status",
+            "inception_date",
+            "expiry_date",
+            "cancellation_date",
+            "annual_premium",
+            "currency",
+            "vehicle_reg",
+            "ncd_years",
+            "valid_from",
+            "valid_to",
+            "is_current",
+            "source_snapshot_date",
+            "load_ts"
+          ],
+          "rows": [
+            [
+              "1",
+              "3001",
+              "POL-3001",
+              "301",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-01-01",
+              "2025-12-31",
+              null,
+              "600.00",
+              "EUR",
+              "AB12CDE",
+              "5",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "2",
+              "3002",
+              "POL-3002",
+              "302",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-02-01",
+              "2026-01-31",
+              null,
+              "700.00",
+              "EUR",
+              null,
+              "2",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "3",
+              "3003",
+              "POL-3003",
+              "303",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-03-01",
+              "2026-02-28",
+              null,
+              "750.00",
+              "EUR",
+              "",
+              "3",
+              "2025-06-30",
+              "9999-12-31",
+              "Y",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "4",
+              "3004",
+              "POL-3004",
+              "304",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "500.00",
+              "EUR",
+              null,
+              null,
+              "2025-06-30",
+              "2025-12-30",
+              "N",
+              "2025-06-30",
+              "2026-11-12T02:13:23.675000"
+            ],
+            [
+              "5",
+              "3004",
+              "POL-3004",
+              "304",
+              null,
+              "HOME01",
+              "Home Standard",
+              "HOME",
+              "BRK001",
+              "Atlantic Brokers",
+              "Active",
+              "2025-04-01",
+              "2026-03-31",
+              null,
+              "500.00",
+              "EUR",
+              null,
+              null,
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.714000"
+            ],
+            [
+              "6",
+              "3005",
+              "POL-3005",
+              "305",
+              null,
+              "MOTOR01",
+              "Motor Comprehensive",
+              "MOT",
+              "DIRECT-SAL",
+              null,
+              "Active",
+              "2025-07-01",
+              "2026-06-30",
+              null,
+              "820.00",
+              "EUR",
+              "GH56IJK",
+              "0",
+              "2025-12-31",
+              "9999-12-31",
+              "Y",
+              "2025-12-31",
+              "2026-11-12T02:13:23.714000"
+            ]
+          ]
+        }
+      ],
+      "expected_source": "legacy_engine",
+      "path": "test_t02.py",
+      "status": "pass"
+    }
+  ],
+  "escalations": [],
+  "llm_usage": [
+    {
+      "call_id": "de4f430f572b40b8bc12cb0c2be9b1ab",
+      "run_id": "dev-estate",
+      "agent": "trap_scan",
+      "job_id": "T02",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "fff2e3b04c129302f91a0a27fcb60336e96c748531b75e8c7b11793e9a95460d",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 3242,
+      "cache_read_tokens": 1309,
+      "cache_creation_tokens": 10089,
+      "duration_ms": 29495,
+      "cost_usd_equivalent": 0.1458218,
+      "replayed": true
+    },
+    {
+      "call_id": "1e8791c7dad743c9a5e4708c20a142cb",
+      "run_id": "dev-estate",
+      "agent": "lineage",
+      "job_id": "T02",
+      "stage": "discover",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "128d724fc02f7a82285b8002d826309e264386abf20b990f718efa3bcef5effb",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5769,
+      "cache_read_tokens": 1869,
+      "cache_creation_tokens": 5993,
+      "duration_ms": 42835,
+      "cost_usd_equivalent": 0.16370579999999998,
+      "replayed": true
+    },
+    {
+      "call_id": "34c848667cae4d31b38c220f087bc7fe",
+      "run_id": "dev-estate",
+      "agent": "contract",
+      "job_id": "T02",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "low",
+      "cli_version": "2.1.311",
+      "request_sha256": "a45f95daf4e13028f30e3e61c22fa23617b33f759c03de16ce74350fabfa99b3",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 606,
+      "cache_read_tokens": 899,
+      "cache_creation_tokens": 4849,
+      "duration_ms": 6634,
+      "cost_usd_equivalent": 0.0510998,
+      "replayed": true
+    },
+    {
+      "call_id": "7f20bea362e9496480d29ac2c6bbc406",
+      "run_id": "dev-estate",
+      "agent": "defect_reviewer",
+      "job_id": "T02",
+      "stage": "design",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "becc605a6175f418dc65ffe69f70797c6170b975ed598e6578f04b62f1e9c890",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 5237,
+      "cache_read_tokens": 1371,
+      "cache_creation_tokens": 5639,
+      "duration_ms": 50199,
+      "cost_usd_equivalent": 0.1501342,
+      "replayed": true
+    },
+    {
+      "call_id": "47bef82ff6a34c91a3ea4e20c0502655",
+      "run_id": "dev-estate",
+      "agent": "translator",
+      "job_id": "T02",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "high",
+      "cli_version": "2.1.311",
+      "request_sha256": "6dbf72b5f13afcde119576f3bc1011ca09cfa2a4a81fc206f16f13f4993d4cbb",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 12179,
+      "cache_read_tokens": 1079,
+      "cache_creation_tokens": 13844,
+      "duration_ms": 104331,
+      "cost_usd_equivalent": 0.35455580000000003,
+      "replayed": true
+    },
+    {
+      "call_id": "2ccba4bc69b448d498bbd288c19652b1",
+      "run_id": "dev-estate",
+      "agent": "test_author",
+      "job_id": "T02",
+      "stage": "generate",
+      "model_requested": "opus",
+      "models_used": [
+        "claude-opus-5-5"
+      ],
+      "effort": "medium",
+      "cli_version": "2.1.311",
+      "request_sha256": "38e3a30957631a99401e231b9e2b015865a2c467396b289f0e17fd0c1cd33b7b",
+      "outcome": "ok",
+      "attempt": 1,
+      "num_turns": 2,
+      "input_tokens": 2,
+      "output_tokens": 11020,
+      "cache_read_tokens": 1423,
+      "cache_creation_tokens": 7710,
+      "duration_ms": 79219,
+      "cost_usd_equivalent": 0.28237260000000003,
+      "replayed": true
+    }
+  ],
+  "gates": [
+    {
+      "decision_id": "edd8e01d3839",
+      "gate": "H1",
+      "stage": "discover",
+      "job_ids": [
+        "T02"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: flagged: 2 statements sqlglot can't parse (lines 82-83, 118-119); the translator works from the code itself; lineage agent notes: dw.dim_policy is both an input and the output: the job never truncates it. The MERGE closes changed current versions by setting valid_to = ",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T02/discovery.json",
+          "sha256": "71b3aeab6ff84551357216c8dbf94885e71323fdc1487764123efd3f29b6e8aa"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/showcase/T02/lineage.json",
+          "sha256": "c9754f351ae0a5c33149004260008d842905564a9904eac8d44515c88c3ffe8c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/showcase/T02/traps.json",
+          "sha256": "cd66c47086d3c66e2c28ef790b74d48ab5be1585dfa85b715dc3964b30390a7c"
+        }
+      ],
+      "warnings": [
+        "flagged: 2 statements sqlglot can't parse (lines 82-83, 118-119); the translator works from the code itself",
+        "lineage agent notes: dw.dim_policy is both an input and the output: the job never truncates it. The MERGE closes changed current versions by setting valid_to = @SnapshotDate - 1 and is_current = 'N'. The INSERT then opens a new version for policies that have no current row left. The change test compares the snapshot with the current row on status, broker_code (after ISNULL to 'DIRECT-SALES'), annual_premium and vehicle_reg. It is listed as filters from both sides because it decides which rows get closed and re-versioned.\n\nproduct_code comes from pr.product_code, which always equals p.product_code because of the inner join. The LEFT JOIN keys to stg.brokers and dw.dim_customer don't remove rows, but they could duplicate them, so I gave them lower confidence as filters.\n\nstg.brokers.broker_code is CHAR(6) while p.broker_code is VARCHAR(10). The join therefore matches only codes of 6 characters or fewer, because SQL Server ignores trailing spaces when comparing. Spark comparisons don't ignore trailing spaces, so the migrated join should trim or pad the codes.\n\nThe @last_loaded guard stops the whole run (THROW) instead of filtering rows. It's listed as a low-confidence filter on source_snapshot_date.\n\nThe script drops and recreates dw.dim_policy on deploy (lines 29-57). That is DDL, not part of the procedure's run.\n\nORDER BY s.policy_id on the INSERT changes only the order in which IDENTITY values are assigned to policy_sk. It doesn't decide which rows appear. To match policy_sk values, the migration must reproduce that order."
+      ],
+      "shown_at": "2026-11-12T02:09:17.928325Z",
+      "decided_at": "2026-11-12T02:09:17.928350Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "66e39f8f3f46a888b80db1645415ea862ba4e0043535e5ae16d32bba3bb7fc09"
+    },
+    {
+      "decision_id": "f139531f2446",
+      "gate": "H2",
+      "stage": "design",
+      "job_ids": [
+        "T02"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: exclude on dw.dim_policy.load_ts: volatile audit column (estate/jobs.yaml): it changes on every run; T02-D1 suspected defect: Row-multiplying joins / duplicate snapshot rows create duplicate current versions (0 rows); T02-D2 suspected defect: Policies missing from a later snapshot are never closed (0 rows); T02-D3 suspected defect: Inner join to stg.products silently drops policies with an unknown product (0 rows); T02-D4 suspected defect: Direct business never gets a broker name (0 rows)",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/showcase/T02/contracts/dw.dim_policy.json",
+          "sha256": "cc4e986c80157fd8f5357ab495ae25940a3d8487e747813157291c7303905b35"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/showcase/T02/defects.json",
+          "sha256": "b5ca553e6cefb96ee2257894cd9592de0f13bbb5797bd560dd5b3193a8e15efe"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/showcase/T02/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [
+        "exclude on dw.dim_policy.load_ts: volatile audit column (estate/jobs.yaml): it changes on every run",
+        "T02-D1 suspected defect: Row-multiplying joins / duplicate snapshot rows create duplicate current versions (0 rows)",
+        "T02-D2 suspected defect: Policies missing from a later snapshot are never closed (0 rows)",
+        "T02-D3 suspected defect: Inner join to stg.products silently drops policies with an unknown product (0 rows)",
+        "T02-D4 suspected defect: Direct business never gets a broker name (0 rows)"
+      ],
+      "shown_at": "2026-11-12T02:10:17.229716Z",
+      "decided_at": "2026-11-12T02:10:17.230379Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "4f94b4796e199c23a9f2c3ac4e0107c663309c124a7d6e9c3aec7f82ab1c45a4"
+    },
+    {
+      "decision_id": "2f44ba42f6e9",
+      "gate": "H3",
+      "stage": "generate",
+      "job_ids": [
+        "T02"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off); warnings read: translator notes: Points for the reviewer:\n\n1. load_ts: the legacy uses SYSDATETIME(); I use F.localtimestamp(). It is one constant per run, but it can never ma",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/showcase/T02/jobs/t02.py",
+          "sha256": "fc399a765138ecb78055a1719f79de8bac5d12104b48e53996c94762fb722369"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/showcase/T02/guardrails.json",
+          "sha256": "1444528d1f1b2a83218fe3c2adc5146049640a0d365cbe175a10ce5fa563a72b"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T02/tests.json",
+          "sha256": "26e1abb6768cdfbbeb813fc3ff35e2c838346fd969bd696561fb4026cb864f02"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/showcase/T02/tests/cases/t02.json",
+          "sha256": "3c46f58283ffe52b070f09651d7f2248033a34f671d247c002abb369e5f53c21"
+        }
+      ],
+      "warnings": [
+        "translator notes: Points for the reviewer:\n\n1. load_ts: the legacy uses SYSDATETIME(); I use F.localtimestamp(). It is one constant per run, but it can never match the legacy wall-clock time, so exclude it from reconciliation.\n\n2. MERGE duplicate check: the job raises an error when more than one source row that meets the change condition matches the same current target row. This is meant to mirror SQL Server error 8672. I assumed matches that open no new version (they fail the WHEN MATCHED AND condition) do not count. Please confirm.\n\n3. policy_sk: it continues from max(previous policy_sk) + row_number() in policy_id order. I assumed no identity values were lost to rolled-back inserts. Ties on a duplicated policy_id are broken by the _row_seq of stg.policy_snapshots, then stg.products, then stg.brokers. dw.dim_customer has no _row_seq.\n\n4. Text comparisons (product and broker joins, the is_current filters, the status / broker_code / vehicle_reg change checks) use upper(rtrim(...)). Stored values stay unchanged.\n\n5. Padding: customer_segment is padded with rpad to 4 and currency to 3 (both CHAR outputs). This is also applied to carried-over history, and is harmless when it is already padded.\n\n6. Errors: the INC-2105 later-snapshot guard and the empty-snapshot THROW raise a RuntimeError. They use collect-style actions (first / isEmpty)."
+      ],
+      "shown_at": "2026-11-12T02:19:28.390753Z",
+      "decided_at": "2026-11-12T02:19:28.391471Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "b7318a4735a069dbdb1d028af735922790323efdf72799441e201626dc13e2ce"
+    },
+    {
+      "decision_id": "104e7c616beb",
+      "gate": "H4",
+      "stage": "reconcile",
+      "job_ids": [
+        "T02"
+      ],
+      "wave": null,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/showcase/T02/recon/dw.dim_policy.json",
+          "sha256": "d7c9105aab09281eccff6242ce8479a5990b6776b3d407d360e2947fdb44836f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/showcase/T02/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:19:43.866441Z",
+      "decided_at": "2026-11-12T02:19:43.867163Z",
+      "flagged_fast": true,
+      "spot_check": false,
+      "re_review_of": null,
+      "prev_hash": "73c2fec55cdb289bdbc6f6eb50ffd2e45214337dcf35a38d1ae535980c272bc4"
+    },
+    {
+      "decision_id": "0af9813684b5",
+      "gate": "H5",
+      "stage": "operate",
+      "job_ids": [
+        "T02"
+      ],
+      "wave": 2,
+      "outcome": "approve",
+      "reviewer": "agent:lansh-dev",
+      "reason": "development run, approved by the agent (not a person's sign-off)",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/showcase/T02/operate.json",
+          "sha256": "b8b550f0442234530ba425d82c52afc0abb8e4f1651dc338225d61d709b3be45"
+        }
+      ],
+      "warnings": [],
+      "shown_at": "2026-11-12T02:26:19.951516Z",
+      "decided_at": "2026-11-12T02:26:19.952326Z",
+      "flagged_fast": true,
+      "spot_check": true,
+      "re_review_of": null,
+      "prev_hash": "85d77ad63b80cc6f638033f7ebcc145d767da3a3cec1585778e74f039c491706"
+    }
+  ]
+}

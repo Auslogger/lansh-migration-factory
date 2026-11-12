@@ -1,0 +1,303 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:53:17.479733Z",
+  "request": {
+    "agent": "translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S01",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S01: claims_enrich.sas (sas), legacy file estate/sas/S01_claims_enrich.sas (SHA-256 a71a8c747de8420f546fc5f245477ce9bcd7afe35d35e74a57235ce04d145b1b).\nClaim-level payment history and indicators.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n  1 | /******************************************************************************\n  2 |   Program  : claims_enrich.sas\n  3 |   Purpose  : Claim-level payment history for the risk team. One row per claim\n  4 |              on the claims register with its payments up to the reporting\n  5 |              date: payment and recovery counts, paid to date, the paid split\n  6 |              by payment type (gross, and net of recoveries), the first and\n  7 |              last payment dates and a recovery marker. Read by the customer\n  8 |              risk scoring (risk_scoring.sas).\n  9 |   Inputs   : stg.claims, stg.claim_payments\n 10 |   Output   : dw.claims_enriched (rebuilt on every run)\n 11 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n 12 |   Author   : DOS\n 13 | \n 14 |   Change log\n 15 |     2014-03-10  DOS   Initial version\n 16 |     2015-08-24  DOS   Recoveries counted and flagged for the subrogation desk\n 17 |                       (CR-0611)\n 18 |     2017-01-16  AK    Paid split by payment type; gross and net paid (CR-1042)\n 19 |     2018-11-05  AK    Payments dated after the reporting date left out\n 20 |                       (INC-1677)\n 21 |     2019-09-30  AK    Line of business and status tidied for the MI pack\n 22 |                       (CR-1502)\n 23 |     2021-06-14  SMcC  Claims with nothing paid yet kept, with has_payment, for\n 24 |                       risk_scoring.sas (CR-1873)\n 25 | ******************************************************************************/\n 26 | \n 27 | /* claims register */\n 28 | proc sort data=stg.claims(keep=claim_id claim_number policy_id customer_id lob_code\n 29 |                                loss_date reported_date status)\n 30 |           out=work.claims;\n 31 |   by claim_id;\n 32 | run;\n 33 | \n 34 | /* payments to the reporting date, claim by claim in the order they were keyed */\n 35 | proc sort data=stg.claim_payments(keep=claim_id payment_date amount payment_type _row_seq\n 36 |                                   where=(payment_date <= &as_of))\n 37 |           out=work.payments;\n 38 |   by claim_id _row_seq;\n 39 | run;\n 40 | \n 41 | /* roll the payments up to one row per claim */\n 42 | data work.pay_summary(keep=claim_id n_payments n_recoveries total_paid indemnity_amt\n 43 |                            expense_amt recovery_amt first_payment_date last_payment_date\n 44 |                            recovery_flag);\n 45 |   set work.payments;\n 46 |   by claim_id;\n 47 |   length ptype $12;\n 48 |   retain n_payments n_recoveries total_paid indemnity_amt expense_amt recovery_amt\n 49 |          first_payment_date last_payment_date recovery_flag;\n 50 |   format first_payment_date last_payment_date date9.;\n 51 | \n 52 |   if first.claim_id then do;\n 53 |     n_payments    = 0;\n 54 |     n_recoveries  = 0;\n 55 |     total_paid    = 0;\n 56 |     indemnity_amt = 0;\n 57 |     expense_amt   = 0;\n 58 |     recovery_amt  = 0;\n 59 |     recovery_flag = 0;\n 60 |     first_payment_date = payment_date;\n 61 |   end;\n 62 | \n 63 |   n_payments + 1;\n 64 |   total_paid + amount;\n 65 | \n 66 |   /* paid split by payment type (keyed in mixed case) */\n 67 |   ptype = upcase(strip(payment_type));\n 68 |   if ptype = 'INDEMNITY' then indemnity_amt = indemnity_amt + amount;\n 69 |   else if ptype = 'EXPENSE' then expense_amt = expense_amt + amount;\n 70 |   else if ptype = 'RECOVERY' then recovery_amt = recovery_amt + amount;\n 71 | \n 72 |   /* recoveries (salvage, third-party) come through as negative amounts */\n 73 |   if amount < 0 then do;\n 74 |     recovery_flag = 1;\n 75 |     n_recoveries + 1;\n 76 |   end;\n 77 | \n 78 |   last_payment_date = payment_date;\n 79 |   if last.claim_id then output;\n 80 | run;\n 81 | \n 82 | /* enrich the register: every claim is reported, paid or not */\n 83 | data dw.claims_enriched(keep=claim_id claim_number policy_id customer_id lob_code\n 84 |                              loss_date reported_date status n_payments n_recoveries\n 85 |                              total_paid indemnity_amt expense_amt recovery_amt gross_paid\n 86 |                              net_paid first_payment_date last_payment_date recovery_flag\n 87 |                              has_payment);\n 88 |   merge work.claims(in=c) work.pay_summary(in=p);\n 89 |   by claim_id;\n 90 |   if c;\n 91 | \n 92 |   lob_code = upcase(strip(lob_code));\n 93 |   status   = upcase(strip(status));\n 94 | \n 95 |   has_payment = p;\n 96 |   if not p then do;\n 97 |     n_payments    = 0;\n 98 |     n_recoveries  = 0;\n 99 |     total_paid    = 0;\n100 |     recovery_flag = 0;\n101 |   end;\n102 | \n103 |   gross_paid = indemnity_amt + expense_amt;\n104 |   net_paid   = sum(indemnity_amt, expense_amt, recovery_amt);\n105 | run;\n106 | \n107 | proc datasets lib=work nolist;\n108 |   delete claims payments pay_summary;\n109 | quit;\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n\nOutput tables (contract types, legacy types):\n- dw.claims_enriched (key ['claim_id']): claim_id double (num 8 format=BEST), claim_number string (char 20 format=$CHAR), policy_id double (num 8 format=BEST), customer_id double (num 8 format=BEST), lob_code string (char 5 format=$CHAR), loss_date date (num 8 format=YYMMDD), reported_date date (num 8 format=YYMMDD), status string (char 12 format=$CHAR), n_payments double (num 8), n_recoveries double (num 8), total_paid double (num 8), indemnity_amt double (num 8), expense_amt double (num 8), recovery_amt double (num 8), first_payment_date date (num 8 format=DATE), last_payment_date date (num 8 format=DATE), recovery_flag double (num 8), has_payment double (num 8), gross_paid double (num 8), net_paid double (num 8)\n\nTrap findings in this job:\n- SAS-01 lines 36-36: In SAS a missing payment_date counts as smaller than any date, so payment_date <= &as_of keeps rows with no date. A Spark filter drops them, so the translation needs an explicit isNull() OR.\n- SAS-03 lines 36-36: &as_of is a SAS day count (days since 1960) compared with payment_date. In Spark it has to become a date literal, or the column has to be converted, before the comparison.\n- SAS-06 lines 48-49: The accumulators and the first/last dates are retained across rows and reset at first.claim_id. The result depends on the row order (claim_id, _row_seq), so Spark needs an ordered window or an aggregate.\n- SAS-07 lines 52-52: first.claim_id resets the counters, and first_payment_date is the payment_date of the first row in _row_seq order, not the earliest date. Spark needs a window ordered by _row_seq.\n- SAS-06 lines 63-63: The sum statement n_payments + 1 is implicitly retained and counts every row, including rows kept with a missing date.\n- SAS-02 lines 64-64: The sum statement treats a missing amount as 0, so total_paid is never missing. In Spark this means a NULL-skipping F.sum or a coalesce.\n- SAS-06 lines 64-64: The sum statement total_paid + amount is retained and accumulates in row order within the claim.\n- SAS-02 lines 68-68: indemnity_amt = indemnity_amt + amount uses plain +, so one missing amount makes indemnity_amt missing for the rest of the claim. F.sum would skip the NULL and give a different result.\n- SAS-02 lines 69-69: In expense_amt = expense_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.\n- SAS-02 lines 70-70: In recovery_amt = recovery_amt + amount, + propagates a missing amount for the rest of the claim. F.sum would not reproduce this.\n- SAS-01 lines 73-73: In SAS, amount < 0 is true when amount is missing, so a payment with no amount sets recovery_flag and adds to n_recoveries. A Spark when() treats it as false.\n- SAS-06 lines 75-75: n_recoveries + 1 is retained and reset per claim. It is part of the carried state that has to become a conditional count.\n- SAS-07 lines 78-79: last_payment_date is the payment_date of the last row in _row_seq order (not the maximum date), and it is output at last.claim_id. Spark needs a last value over a window ordered by _row_seq.\n- SAS-01 lines 88-89: Latent: MERGE BY matches a missing claim_id with a missing claim_id, but a Spark equi-join never matches NULL keys. The translation would need a null-safe join if any keys are missing.\n- SAS-05 lines 88-90: This MERGE with in= flags and 'if c' is a left join from claims to pay_summary. has_payment = p comes from the in= flag, and claims with no payments keep missing values in the pay_summary columns.\n- SAS-02 lines 103-103: gross_paid uses +, so it is missing for claims with no payments (their indemnity_amt and expense_amt are not reset to 0) and for claims where an amount was missing. The translation must not coalesce.\n- SAS-02 lines 104-104: sum() skips missing arguments and is missing only if all three are missing, so it is missing for claims with no payments. Spark needs coalesce logic that keeps NULL only when every argument is NULL.\n\nTrap cards:\n### SAS-01 (semantic): A missing value is smaller than any number\nLegacy: In SAS comparisons a missing numeric value is smaller than every number: if x < 0 is true when x is missing, and so is x <= 5; x > 0 is false. Missing sorts first.\nSpark: A comparison with NULL is NULL, which a filter or when() treats as false.\nFix: Reproduce exactly: x < c (and <=, and 'lt'/'le') becomes (x IS NULL) OR (x < c); x > c and x >= c stay as they are with a NULL x false; x = . (missing) is isNull. Keep the legacy behaviour even where it looks like a bug, and mark it.\nExample: if balance < 0 then overdrawn = 1; -> F.when(F.col('balance').isNull() | (F.col('balance') < 0), 1)\n\n### SAS-02 (semantic): SUM() ignores missing values; + propagates them\nLegacy: sum(a, b) skips missing arguments (sum(., 2) = 2; all missing gives missing); a + b is missing if either is. The sum statement x + y; treats a missing y as 0 and x is retained.\nSpark: a + b is NULL if either is NULL; F.sum over rows skips NULLs; there is no row-wise sum().\nFix: sum(a, b, c) becomes: NULL when every argument is NULL, else the sum of coalesce(arg, 0). a + b stays a + b (NULL propagates). The sum statement x + y accumulates coalesce(y, 0).\nExample: total = a + b; total_any = sum(a, b, c); -> a + b; F.when(all null, None).otherwise(coalesce(a,0) + coalesce(b,0) + coalesce(c,0))\n\n### SAS-03 (semantic): Dates are numbers of days since 1 January 1960\nLegacy: A SAS date is a number: days since 1960-01-01. Date arithmetic is plain arithmetic (d + 30, d2 - d1, int((d2 - d1) / 365.25)); a date compared with a number compares day counts. Datetimes are seconds since 1960-01-01T00:00.\nSpark: Spark dates are a separate type; arithmetic needs date functions.\nFix: Day differences are datediff(d2, d1); d + n is date_add(d, n); keep any division of a day count as double arithmetic (int() truncates toward zero). Where a date is used as a number, use datediff(d, DATE'1960-01-01').\nExample: tenure = int((&as_of - start_date) / 365.25); -> F.floor(F.datediff(as_of, 'start_date') / 365.25) for non-negative values\n\n### SAS-05 (semantic): MERGE BY with IN= flags\nLegacy: merge a(in=x) b(in=y); by k; matches rows by key one-to-one in order within each key; in= flags say which data sets contributed; variables from b overwrite a's for the same name; a key in only one data set keeps the other's variables missing. Many-to-many merges pair rows in order rather than forming a product.\nSpark: A join forms the product of matching rows; columns don't overwrite.\nFix: Full outer join on the BY key with indicator columns for in=; apply the subsetting IF (if x; is a left join from a). For same-named variables, take b's value where b contributed, else a's (coalesce does NOT reproduce this when b's value is missing). Recode variables that the step resets when a data set did not contribute.\nExample: merge work.accounts(in=a) work.txn_summary(in=t); by account_id; if a; -> accounts.join(txn_summary, 'account_id', 'left').withColumn('t', matched)\n\n### SAS-06 (semantic): RETAIN and the sum statement, in input order\nLegacy: retain keeps a variable's value across iterations of the DATA step; the sum statement x + y; is retained automatically, starts at 0 and ignores missing y. With BY groups, the code resets at first.key. The result depends on the order the rows are read.\nSpark: Spark has no row order and no carried state.\nFix: Aggregate per BY group in the input order (_row_seq), or use an ordered window with rowsBetween(unboundedPreceding, currentRow) when per-row values are output. Sum statements accumulate coalesce(y, 0); assignments like x = x + y propagate missing. Double additions in a different order can differ in the last bit; keep the input order.\nExample: retain balance; balance + txn_amount; -> F.sum(F.coalesce('txn_amount', F.lit(0.0))) per account, in _row_seq order\n\n### SAS-07 (construct): FIRST. and LAST. variables\nLegacy: With a BY statement, first.k is 1 on the first row of each k group and last.k on the last, in the data set's order.\nSpark: Spark has no implicit order; groups need a window over a stated order.\nFix: row_number() over (partition by k order by _row_seq) = 1 for first., and the same ordered descending for last.; output-at-last. steps become aggregations per group.\nExample: if last.account_id then output; -> aggregate per account_id (the row kept is the group's last in _row_seq order)\n\nsqlglot draft (a starting point, not trusted):\n-- lines 28-32 (proc)\n-- no draft: translate this proc from the code\n\n-- lines 35-39 (proc); traps: SAS-01 (line 36), SAS-03 (line 36)\n-- no draft: translate this proc from the code\n\n-- lines 42-80 (data_step); traps: SAS-01 (line 73), SAS-02 (line 64), SAS-02 (line 68), SAS-02 (line 69), SAS-02 (line 70), SAS-06 (line 48), SAS-06 (line 63), SAS-06 (line 64), SAS-06 (line 75), SAS-07 (line 52), SAS-07 (line 78)\n-- no draft: translate this data_step from the code\n\n-- lines 83-105 (data_step); traps: SAS-01 (line 88), SAS-02 (line 103), SAS-02 (line 104), SAS-05 (line 88)\n-- no draft: translate this data_step from the code\n\n-- lines 107-109 (proc)\n-- no draft: translate this proc from the code\n\nLineage agent's notes:\nThe payment_date <= &as_of filter (line 36) controls which payments are summed. It does not drop claim rows: every claim on stg.claims appears in the output because of `if c`. first_payment_date and last_payment_date come from the first and last payment in _row_seq (keying) order, not the earliest and latest payment_date. If payments were keyed out of date order, the two can differ from MIN and MAX. For claims with no payments (not p), n_payments, n_recoveries, total_paid and recovery_flag are set to 0. indemnity_amt, expense_amt, recovery_amt and the payment dates are left missing, so gross_paid is missing too (+ on missing values gives missing). net_paid uses sum() and is also missing when all three amounts are missing. Watch for this in the PySpark port. Also, gross_paid is missing for a paid claim whose payments are all one type (for example indemnity only), because the other amount stays 0 there, not missing. In fact both amounts start at 0 for every paid claim, so gross_paid is only missing for claims with no payments. Payment types other than INDEMNITY, EXPENSE and RECOVERY count toward total_paid but toward no split column. n_recoveries and recovery_flag depend on the sign of amount, not on payment_type.\n\nSuspected legacy bugs found at Design (reproduce each exactly, and mark the lines that reproduce it with the marker and its id):\n- S01-D1 Split amounts, gross_paid and net_paid left missing for claims with no payments (lines [96, 97, 98, 99, 100, 101, 103, 104]): For claims with no payments (not p), the merge leaves indemnity_amt, expense_amt and recovery_amt missing. The not-p block (lines 96-101) only resets n_payments, n_recoveries, total_paid and recovery_flag. gross_paid uses '+' on missing values and net_paid is sum() of only missing values, so both come out missing instead of 0.\n- S01-D2 A missing payment amount wipes out the payment-type bucket for the rest of the claim (lines [64, 68, 69, 70, 103]): total_paid uses the sum statement, which ignores missing values. The type split uses 'indemnity_amt = indemnity_amt + amount' (and the same for expense and recovery). One missing amount therefore makes that bucket missing, and it stays missing for every later payment on the claim. gross_paid and net_paid are then wrong as well.\n- S01-D3 First and last payment dates taken from keying order, not from the dates (lines [35, 38, 60, 78]): Payments are sorted by claim_id and _row_seq (the order they were keyed). first_payment_date is the date on the first keyed row and last_payment_date is the date on the last keyed row. If payments were keyed out of date order, these are not the earliest and latest payment dates.\n- S01-D4 Payments with a missing payment_date get past the reporting-date filter (lines [36, 60, 63, 64, 78]): In SAS a missing date is lower than any value, so where=(payment_date <= &as_of) keeps payments with no date. Undated payments are counted in n_payments and total_paid, and the type split, and can make first_payment_date or last_payment_date missing.\n- S01-D5 Recoveries identified by a negative amount, not by payment_type (lines [67, 70, 72, 73, 74, 75]): recovery_amt is built from payment_type = 'RECOVERY', but n_recoveries and recovery_flag count every negative amount. Negative indemnity or expense corrections (reversals) are therefore counted and flagged as recoveries, and any RECOVERY row keyed with a positive amount is missed.\n- S01-D6 Payment types outside the three known values are dropped from the split and from gross/net paid (lines [67, 68, 69, 70, 103, 104]): total_paid includes every payment. The split only recognises INDEMNITY, EXPENSE and RECOVERY. Payments with any other or missing payment_type are left out of indemnity_amt, expense_amt and recovery_amt, so gross_paid and net_paid do not add up to total_paid.\n- S01-D7 Duplicate claim_id on the register produces repeated output rows (lines [28, 30, 31, 88, 90]): stg.claims is sorted without NODUPKEY, so any claim_id that appears more than once on the register comes out more than once, each copy carrying the same payment totals. risk_scoring.sas then counts that claim's paid amounts more than once.\n",
+    "system_prompt": "You are the translator agent of LANSH. You migrate one legacy SAS 9.4 job to PySpark 4.2, and your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module in the LANSH job template:\n- A module docstring: \"<job id> <name>: migrated from <legacy path>.\", then the lines \"Legacy SHA-256: <hash>\", \"Written by: LANSH translator (Claude)\", \"Traps handled: <ids>\" and \"Bugs reproduced on purpose (# LANSH-DEFECT): <short names, or none>\".\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Handle every trap finding you are given, following its card's fix guidance, and list the trap ids in traps_handled.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n- SAS specifics: every SAS number is an 8-byte double: cast numeric inputs to double before any arithmetic and output numbers as doubles; a missing number is smaller than every number in comparisons; sum() skips missing values while + propagates them; character values are blank-padded, so trailing blanks never count and a blank value is missing (output NULL for it); a character variable's length is fixed by its first assignment; DATA steps read rows in their data set order (_row_seq for source tables).\n- Work data sets become DataFrames; macros are expanded by hand.\n"
+  },
+  "request_sha256": "b12bdfddbd1313dd227f70b347fcf63d022cdda9150a2b0f41c88478191afb8a",
+  "response": {
+    "duration_api_ms": 83855,
+    "duration_ms": 84271,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 9291,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 9291,
+        "cacheReadInputTokens": 1079,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.27135180000000003,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 9840,
+        "provider": "firstParty",
+        "thinkingTokens": 4406,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"S01 claims_enrich: migrated from estate/sas/S01_claims_enrich.sas.\n\nLegacy SHA-256: a71a8c747de8420f546fc5f245477ce9bcd7afe35d35e74a57235ce04d145b1b\nWritten by: LANSH translator (Claude)\nTraps handled: SAS-01, SAS-02, SAS-03, SAS-05, SAS-06, SAS-07\nBugs reproduced on purpose (# LANSH-DEFECT): S01-D1 split/gross/net missing for unpaid claims; S01-D2 missing amount wipes the type bucket; S01-D3 first/last dates from keying order; S01-D4 undated payments pass the as-of filter; S01-D5 recoveries by negative amount; S01-D6 unknown payment types dropped from split; S01-D7 duplicate claim_id rows repeated\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import DataFrame, SparkSession, Window\nimport pyspark.sql.functions as F\nimport pyspark.sql.types as T\n\n\ndef _sas_char(col):\n    # SAS char: trailing blanks never count, a blank value is missing (NULL)\n    c = F.rtrim(col)\n    return F.when(c == F.lit(\"\"), F.lit(None).cast(T.StringType())).otherwise(c)\n\n\ndef _upcase_strip(col):\n    # upcase(strip(x)); a blank result is missing\n    c = F.upper(F.trim(col))\n    return F.when(c == F.lit(\"\"), F.lit(None).cast(T.StringType())).otherwise(c)\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    # SAS-03: &as_of (a SAS day count) becomes a date literal\n    as_of = F.lit(datetime.date.fromisoformat(params[\"AsOfDate\"]))\n\n    # ---- lines 28-32: proc sort stg.claims by claim_id (no NODUPKEY) ----\n    claims = inputs[\"stg.claims\"].select(  # LANSH-DEFECT: S01-D7 duplicate claim_id rows are kept (no NODUPKEY)\n        \"claim_id\", \"claim_number\", \"policy_id\", \"customer_id\", \"lob_code\",\n        \"loss_date\", \"reported_date\", \"status\",\n    )\n\n    # ---- lines 35-39: payments up to the reporting date ----\n    pay = inputs[\"stg.claim_payments\"].select(\n        F.col(\"claim_id\"),\n        F.col(\"payment_date\"),\n        F.col(\"amount\").cast(T.DoubleType()).alias(\"amount\"),\n        F.col(\"payment_type\"),\n        F.col(\"_row_seq\"),\n    )\n    # SAS-01: a missing payment_date is smaller than any date, so it passes <=\n    pay = pay.filter(\n        F.col(\"payment_date\").isNull() | (F.col(\"payment_date\") <= as_of)  # LANSH-DEFECT: S01-D4 undated payments pass the reporting-date filter\n    )\n\n    # ---- lines 42-80: roll up per claim in (claim_id, _row_seq) order ----\n    amount = F.col(\"amount\")\n    ptype = F.upper(F.trim(F.col(\"payment_type\")))\n    # LANSH-DEFECT: S01-D6 payment types other than INDEMNITY/EXPENSE/RECOVERY (or missing) go into no split bucket\n    is_ind = F.coalesce(ptype == F.lit(\"INDEMNITY\"), F.lit(False))\n    is_exp = F.coalesce(ptype == F.lit(\"EXPENSE\"), F.lit(False))\n    is_rec = F.coalesce(ptype == F.lit(\"RECOVERY\"), F.lit(False))\n\n    # SAS-06 / SAS-07: ordered running window, reset per claim (first.claim_id)\n    w = (\n        Window.partitionBy(\"claim_id\")\n        .orderBy(F.col(\"_row_seq\").asc())\n        .rowsBetween(Window.unboundedPreceding, Window.currentRow)\n    )\n    w_last = Window.partitionBy(\"claim_id\").orderBy(F.col(\"_row_seq\").desc())\n\n    def _bucket(cond):\n        # SAS-02: x = x + amount starting from 0; one missing amount makes x missing for the rest of the claim\n        running = F.sum(F.when(cond, amount)).over(w)\n        hit_null = F.max(F.when(cond & amount.isNull(), F.lit(1)).otherwise(F.lit(0))).over(w)\n        return F.when(hit_null == F.lit(1), F.lit(None).cast(T.DoubleType())).otherwise(  # LANSH-DEFECT: S01-D2 a missing amount wipes out the bucket for the rest of the claim\n            F.coalesce(running, F.lit(0.0))\n        )\n\n    # SAS-01: amount < 0 is true when amount is missing\n    neg_amt = amount.isNull() | (amount < F.lit(0.0))  # LANSH-DEFECT: S01-D5 recoveries counted by negative (or missing) amount, not by payment_type\n\n    rolled = pay.select(\n        F.col(\"claim_id\"),\n        # SAS-06: n_payments + 1 counts every row (including undated ones)\n        F.count(F.lit(1)).over(w).cast(T.DoubleType()).alias(\"n_payments\"),\n        F.sum(F.when(neg_amt, F.lit(1.0)).otherwise(F.lit(0.0))).over(w).alias(\"n_recoveries\"),\n        # SAS-02 / SAS-06: sum statement treats a missing amount as 0, accumulated in _row_seq order\n        F.sum(F.coalesce(amount, F.lit(0.0))).over(w).alias(\"total_paid\"),\n        _bucket(is_ind).alias(\"indemnity_amt\"),\n        _bucket(is_exp).alias(\"expense_amt\"),\n        _bucket(is_rec).alias(\"recovery_amt\"),\n        # SAS-07: first row's payment_date in _row_seq order (may be missing)\n        F.first(F.col(\"payment_date\"), ignorenulls=False).over(w).alias(\"first_payment_date\"),  # LANSH-DEFECT: S01-D3 first payment date from keying order, not earliest date\n        F.col(\"payment_date\").alias(\"last_payment_date\"),  # LANSH-DEFECT: S01-D3 last payment date from keying order, not latest date\n        F.max(F.when(neg_amt, F.lit(1.0)).otherwise(F.lit(0.0))).over(w).alias(\"recovery_flag\"),\n        F.row_number().over(w_last).alias(\"_rn_last\"),\n    )\n    # SAS-07: output at last.claim_id\n    pay_summary = rolled.filter(F.col(\"_rn_last\") == F.lit(1)).select(\n        F.col(\"claim_id\").alias(\"_p_claim_id\"),\n        \"n_payments\", \"n_recoveries\", \"total_paid\", \"indemnity_amt\", \"expense_amt\",\n        \"recovery_amt\", \"first_payment_date\", \"last_payment_date\", \"recovery_flag\",\n        F.lit(1).alias(\"_p\"),\n    )\n\n    # ---- lines 83-105: merge claims(in=c) pay_summary(in=p); by claim_id; if c ----\n    # SAS-05: left join from claims; SAS-01: MERGE BY matches missing keys, so null-safe join\n    j = claims.join(\n        pay_summary,\n        claims[\"claim_id\"].eqNullSafe(pay_summary[\"_p_claim_id\"]),\n        \"left\",\n    )\n    p = F.col(\"_p\").isNotNull()\n\n    indemnity = F.col(\"indemnity_amt\")  # LANSH-DEFECT: S01-D1 split amounts left missing for claims with no payments\n    expense = F.col(\"expense_amt\")\n    recovery = F.col(\"recovery_amt\")\n\n    # SAS-02: gross_paid uses + (missing propagates)\n    gross_paid = indemnity + expense  # LANSH-DEFECT: S01-D1/S01-D2 gross_paid missing for unpaid claims or after a missing amount\n    # SAS-02: sum() skips missing values, missing only when all are missing\n    net_paid = F.when(  # LANSH-DEFECT: S01-D1 net_paid missing for unpaid claims\n        indemnity.isNull() & expense.isNull() & recovery.isNull(),\n        F.lit(None).cast(T.DoubleType()),\n    ).otherwise(\n        F.coalesce(indemnity, F.lit(0.0)) + F.coalesce(expense, F.lit(0.0)) + F.coalesce(recovery, F.lit(0.0))\n    )\n\n    out = j.select(\n        F.col(\"claim_id\").cast(T.DoubleType()).alias(\"claim_id\"),\n        _sas_char(F.col(\"claim_number\")).alias(\"claim_number\"),\n        F.col(\"policy_id\").cast(T.DoubleType()).alias(\"policy_id\"),\n        F.col(\"customer_id\").cast(T.DoubleType()).alias(\"customer_id\"),\n        _upcase_strip(F.col(\"lob_code\")).alias(\"lob_code\"),\n        F.col(\"loss_date\").alias(\"loss_date\"),\n        F.col(\"reported_date\").alias(\"reported_date\"),\n        _upcase_strip(F.col(\"status\")).alias(\"status\"),\n        F.when(p, F.col(\"n_payments\")).otherwise(F.lit(0.0)).alias(\"n_payments\"),\n        F.when(p, F.col(\"n_recoveries\")).otherwise(F.lit(0.0)).alias(\"n_recoveries\"),\n        F.when(p, F.col(\"total_paid\")).otherwise(F.lit(0.0)).alias(\"total_paid\"),\n        indemnity.alias(\"indemnity_amt\"),\n        expense.alias(\"expense_amt\"),\n        recovery.alias(\"recovery_amt\"),\n        F.col(\"first_payment_date\").alias(\"first_payment_date\"),\n        F.col(\"last_payment_date\").alias(\"last_payment_date\"),\n        F.when(p, F.col(\"recovery_flag\")).otherwise(F.lit(0.0)).alias(\"recovery_flag\"),\n        F.when(p, F.lit(1.0)).otherwise(F.lit(0.0)).alias(\"has_payment\"),\n        gross_paid.alias(\"gross_paid\"),\n        net_paid.alias(\"net_paid\"),\n    )\n\n    # ---- lines 107-109: work data sets deleted (nothing to do) ----\n    return {\"dw.claims_enriched\": out}\n",
+      "defects": [
+        {
+          "intended": "Unpaid claims should show 0 for the split amounts and for gross and net paid.",
+          "legacy_lines": [
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            103,
+            104
+          ],
+          "title": "S01-D1 Split amounts, gross_paid and net_paid left missing for claims with no payments",
+          "what_it_does": "The not-p block resets only n_payments, n_recoveries, total_paid and recovery_flag. indemnity_amt, expense_amt, recovery_amt, gross_paid and net_paid stay missing for unpaid claims."
+        },
+        {
+          "intended": "Missing amounts should be skipped, the way the total_paid sum statement skips them.",
+          "legacy_lines": [
+            64,
+            68,
+            69,
+            70,
+            103
+          ],
+          "title": "S01-D2 A missing payment amount wipes out the payment-type bucket for the rest of the claim",
+          "what_it_does": "The bucket is updated with indemnity_amt = indemnity_amt + amount (same for expense and recovery). One missing amount makes the bucket missing for every later payment on the claim, and gross_paid and net_paid with it."
+        },
+        {
+          "intended": "The earliest and latest payment_date on the claim.",
+          "legacy_lines": [
+            35,
+            38,
+            60,
+            78
+          ],
+          "title": "S01-D3 First and last payment dates taken from keying order, not from the dates",
+          "what_it_does": "The dates come from the first and last payment in _row_seq order."
+        },
+        {
+          "intended": "Only payments dated on or before the reporting date should count.",
+          "legacy_lines": [
+            36,
+            60,
+            63,
+            64,
+            78
+          ],
+          "title": "S01-D4 Payments with a missing payment_date get past the reporting-date filter",
+          "what_it_does": "A missing date counts as smaller than as_of, so undated payments are kept and counted. They can also make first_payment_date or last_payment_date missing."
+        },
+        {
+          "intended": "Count and flag the payments with payment_type RECOVERY.",
+          "legacy_lines": [
+            67,
+            70,
+            72,
+            73,
+            74,
+            75
+          ],
+          "title": "S01-D5 Recoveries identified by a negative amount, not by payment_type",
+          "what_it_does": "Every negative (or missing) amount sets recovery_flag and adds to n_recoveries, whatever its payment_type."
+        },
+        {
+          "intended": "Gross and net paid should add up to total_paid, or other types should be bucketed somewhere.",
+          "legacy_lines": [
+            67,
+            68,
+            69,
+            70,
+            103,
+            104
+          ],
+          "title": "S01-D6 Payment types outside the three known values are dropped from the split and from gross/net paid",
+          "what_it_does": "Payments with any other or a missing payment_type count in total_paid but in none of the split columns."
+        },
+        {
+          "intended": "One row per claim.",
+          "legacy_lines": [
+            28,
+            30,
+            31,
+            88,
+            90
+          ],
+          "title": "S01-D7 Duplicate claim_id on the register produces repeated output rows",
+          "what_it_does": "PROC SORT without NODUPKEY keeps duplicate claims. The merge then gives each copy the same payment totals."
+        }
+      ],
+      "notes": "1. The running sums use ordered windows from the first row to the current one, partitioned by claim_id and ordered by _row_seq. This keeps the legacy order of double additions. The last row per claim (row_number descending) is the last.claim_id output.\n2. The type buckets start at 0 and add up the amounts of their type, skipping nulls. A flag turns a bucket NULL if any of its rows had a missing amount, which reproduces how + propagates a missing value through a retained variable.\n3. The merge is a left join that uses eqNullSafe, so a missing claim_id matches a missing claim_id the way MERGE BY does (the latent SAS-01 finding). pay_summary is unique per claim_id, so duplicate claims rows each get the same summary, as in the legacy one-to-many merge.\n4. net_paid uses coalesce(x, 0) and differs from SAS sum() only in the sign of a zero (-0.0 versus 0.0). That cannot happen with decimal amounts.\n5. F.upper is Unicode-aware and SAS upcase may not be. They agree on ASCII lob_code and status values.\n6. claim_number is right-trimmed, and blank values become NULL.",
+      "traps_handled": [
+        "SAS-01",
+        "SAS-02",
+        "SAS-03",
+        "SAS-05",
+        "SAS-06",
+        "SAS-07"
+      ]
+    },
+    "total_cost_usd": 0.27135180000000003,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 9291,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 9291,
+      "cache_read_input_tokens": 1079,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 9291,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 9291,
+          "cache_read_input_tokens": 1079,
+          "input_tokens": 2,
+          "output_tokens": 9840,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 9840,
+      "output_tokens_details": {
+        "thinking_tokens": 4406
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

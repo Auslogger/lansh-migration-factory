@@ -1,0 +1,385 @@
+{
+  "approach": "sqlglot_only",
+  "candidate_sha256": "69114696fbe9eb2b1ef8879cdab203afd15e096a2e252408b7d030edafa29e36",
+  "code_sha256": "7b06c17c72c36793168e8b44d011aa09c4e8bdb86cdae75da5dc6402e1582ca3",
+  "column_diffs": [
+    {
+      "column": "reported_period",
+      "n_rows": 763,
+      "policy": "exact",
+      "samples": [
+        {
+          "candidate": "20190213",
+          "claim_id": 300002,
+          "legacy": "201902"
+        },
+        {
+          "candidate": "20190829",
+          "claim_id": 300014,
+          "legacy": "201908"
+        },
+        {
+          "candidate": "20191011",
+          "claim_id": 300018,
+          "legacy": "201910"
+        },
+        {
+          "candidate": "20191115",
+          "claim_id": 300021,
+          "legacy": "201911"
+        },
+        {
+          "candidate": "20200202",
+          "claim_id": 300035,
+          "legacy": "202002"
+        }
+      ]
+    }
+  ],
+  "contract_sha256": "fe7cd0f20bc59600fd21d1297c03cd962a6abdb467df42c1b4118810c015e3f3",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 0,
+        "legacy": 5,
+        "partition": "lob_code='HOM', status='OPEN '"
+      },
+      {
+        "candidate": 231,
+        "legacy": 231,
+        "partition": "lob_code='HOM', status='OPEN'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 11,
+        "partition": "lob_code='HOM', status='Open'"
+      },
+      {
+        "candidate": 19,
+        "legacy": 19,
+        "partition": "lob_code='HOM', status='REOPENED'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 1,
+        "partition": "lob_code='HOM', status='Reopened'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 3,
+        "partition": "lob_code='HOM', status='open'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 6,
+        "partition": "lob_code='MOT', status='OPEN '"
+      },
+      {
+        "candidate": 409,
+        "legacy": 409,
+        "partition": "lob_code='MOT', status='OPEN'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 22,
+        "partition": "lob_code='MOT', status='Open'"
+      },
+      {
+        "candidate": 39,
+        "legacy": 39,
+        "partition": "lob_code='MOT', status='REOPENED'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 1,
+        "partition": "lob_code='MOT', status='Reopened'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 9,
+        "partition": "lob_code='MOT', status='open'"
+      },
+      {
+        "candidate": 63,
+        "legacy": 63,
+        "partition": "lob_code='TRV', status='OPEN'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 1,
+        "partition": "lob_code='TRV', status='Open'"
+      },
+      {
+        "candidate": 2,
+        "legacy": 2,
+        "partition": "lob_code='TRV', status='REOPENED'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 1,
+        "partition": "lob_code='TRV', status='open'"
+      }
+    ],
+    "candidate": 763,
+    "legacy": 823
+  },
+  "duration_seconds": 3.995,
+  "error": null,
+  "explanation": "MISMATCH: the legacy output has 823 rows and the candidate 763. Row counts differ in 10 partitions: lob_code='HOM', status='OPEN ' (5 vs 0), lob_code='HOM', status='Open' (11 vs 0), lob_code='HOM', status='Reopened' (1 vs 0), lob_code='HOM', status='open' (3 vs 0). 60 legacy rows have no partner in the candidate and 0 candidate rows have none in the legacy output. 763 matched rows differ in: reported_period (763). Totals differ (legacy vs candidate): claim_id 248594498 vs 230468376; policy_id 437355285 vs 405439162; days_open 285214 vs 266084; n_payments 1979 vs 1842. case_split filter on status: 49 legacy rows are missing from the candidate, and their status values differ only in letter case from values the candidate side keeps (e.g. 'Open' vs 'OPEN'). The legacy engine's comparison (a filter or join) treats them as equal. trailing_space_split filter on status: 11 legacy rows are missing from the candidate, and their status values differ only in trailing spaces from values the candidate side keeps (e.g. 'OPEN ' vs 'OPEN'). The legacy engine's comparison (a filter or join) treats them as equal. truncated_string in reported_period: on all 763 rows that differ in reported_period, one value is a truncated copy of the other (e.g. legacy '201902' vs candidate '20190213').",
+  "extra_samples": [],
+  "golden_sha256": "88c8666437935bb67f9c1fe30679770d9e064ef4f046d699881fe8842effcb19",
+  "job_id": "T04",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "claim_id"
+  ],
+  "missing_samples": [
+    {
+      "as_of_date": "2025-12-31",
+      "claim_id": 300075,
+      "claim_number": "CLM-2020-00075",
+      "claim_ref": "MOT/CLM-2020-00075/H101",
+      "current_reserve": "277.83",
+      "days_open": 2034,
+      "expense_reserve": "38.61",
+      "handler_code": "H101",
+      "incurred": "478.27",
+      "indemnity_reserve": "239.22",
+      "lob_code": "MOT",
+      "loss_date": "2020-05-17",
+      "loss_date_text": "17/05/2020",
+      "n_payments": 1,
+      "policy_id": 538892,
+      "policy_number": "MOT/2019/538892",
+      "reported_date": "2020-06-06",
+      "reported_period": "202006",
+      "status": "Reopened",
+      "total_paid": "200.44"
+    },
+    {
+      "as_of_date": "2025-12-31",
+      "claim_id": 300478,
+      "claim_number": "CLM-2022-00478",
+      "claim_ref": "MOT/CLM-2022-00478/H111",
+      "current_reserve": "1159.32",
+      "days_open": 1318,
+      "expense_reserve": "163.19",
+      "handler_code": "H111",
+      "incurred": "3527.24",
+      "indemnity_reserve": "996.13",
+      "lob_code": "MOT",
+      "loss_date": "2022-05-04",
+      "loss_date_text": "04/05/2022",
+      "n_payments": 2,
+      "policy_id": 525854,
+      "policy_number": "MOT/2021/525854",
+      "reported_date": "2022-05-23",
+      "reported_period": "202205",
+      "status": "Open",
+      "total_paid": "2367.92"
+    },
+    {
+      "as_of_date": "2025-12-31",
+      "claim_id": 300577,
+      "claim_number": "CLM-2022-00577",
+      "claim_ref": "HOM/CLM-2022-00577/H139",
+      "current_reserve": "1173.45",
+      "days_open": 1210,
+      "expense_reserve": "88.25",
+      "handler_code": "H139",
+      "incurred": "1173.45",
+      "indemnity_reserve": "1085.20",
+      "lob_code": "HOM",
+      "loss_date": "2022-09-03",
+      "loss_date_text": "03/09/2022",
+      "n_payments": 0,
+      "policy_id": 527572,
+      "policy_number": "HOM/2022/527572",
+      "reported_date": "2022-09-08",
+      "reported_period": "202209",
+      "status": "Reopened",
+      "total_paid": "0.00"
+    },
+    {
+      "as_of_date": "2025-12-31",
+      "claim_id": 300739,
+      "claim_number": "CLM-2023-00739",
+      "claim_ref": "HOM/CLM-2023-00739/H104",
+      "current_reserve": "1192.72",
+      "days_open": 1047,
+      "expense_reserve": "176.22",
+      "handler_code": "H104",
+      "incurred": "3014.36",
+      "indemnity_reserve": "1016.50",
+      "lob_code": "HOM",
+      "loss_date": "2023-02-09",
+      "loss_date_text": "09/02/2023",
+      "n_payments": 3,
+      "policy_id": 501549,
+      "policy_number": "HOM/2022/501549",
+      "reported_date": "2023-02-18",
+      "reported_period": "202302",
+      "status": "Open",
+      "total_paid": "1821.64"
+    },
+    {
+      "as_of_date": "2025-12-31",
+      "claim_id": 300886,
+      "claim_number": "CLM-2023-00886",
+      "claim_ref": "MOT/CLM-2023-00886/H108",
+      "current_reserve": "623.59",
+      "days_open": 935,
+      "expense_reserve": "0.00",
+      "handler_code": "H108",
+      "incurred": "693.86",
+      "indemnity_reserve": "623.59",
+      "lob_code": "MOT",
+      "loss_date": "2023-06-03",
+      "loss_date_text": "03/06/2023",
+      "n_payments": 1,
+      "policy_id": 524212,
+      "policy_number": "MOT/2023/524212",
+      "reported_date": "2023-06-10",
+      "reported_period": "202306",
+      "status": "Open",
+      "total_paid": "70.27"
+    }
+  ],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 0,
+    "missing": 60,
+    "value_diff": 763
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [
+    {
+      "column": "status",
+      "explanation": "case_split filter on status: 49 legacy rows are missing from the candidate, and their status values differ only in letter case from values the candidate side keeps (e.g. 'Open' vs 'OPEN'). The legacy engine's comparison (a filter or join) treats them as equal.",
+      "kind": "case_split",
+      "n_rows": 49,
+      "suspected_traps": [
+        "TSQL-01",
+        "TSQL-19"
+      ]
+    },
+    {
+      "column": "status",
+      "explanation": "trailing_space_split filter on status: 11 legacy rows are missing from the candidate, and their status values differ only in trailing spaces from values the candidate side keeps (e.g. 'OPEN ' vs 'OPEN'). The legacy engine's comparison (a filter or join) treats them as equal.",
+      "kind": "trailing_space_split",
+      "n_rows": 11,
+      "suspected_traps": [
+        "TSQL-02",
+        "TSQL-15"
+      ]
+    },
+    {
+      "column": "reported_period",
+      "explanation": "truncated_string in reported_period: on all 763 rows that differ in reported_period, one value is a truncated copy of the other (e.g. legacy '201902' vs candidate '20190213').",
+      "kind": "truncated_string",
+      "n_rows": 763,
+      "suspected_traps": [
+        "TSQL-06",
+        "TSQL-15",
+        "TSQL-16"
+      ]
+    }
+  ],
+  "started_at": "2026-11-12T03:19:13.501621Z",
+  "status": "MISMATCH",
+  "table": "rpt.claims_summary",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "230468376",
+      "column": "claim_id",
+      "legacy": "248594498",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "405439162",
+      "column": "policy_id",
+      "legacy": "437355285",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "266084",
+      "column": "days_open",
+      "legacy": "285214",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "1842",
+      "column": "n_payments",
+      "legacy": "1979",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "4058834.37",
+      "column": "total_paid",
+      "legacy": "4267583.98",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "4968218.02",
+      "column": "indemnity_reserve",
+      "legacy": "5253371.37",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "256380.11",
+      "column": "expense_reserve",
+      "legacy": "271669.04",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "5224598.13",
+      "column": "current_reserve",
+      "legacy": "5525040.41",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "9283432.5",
+      "column": "incurred",
+      "legacy": "9792624.39",
+      "matches": false,
+      "policy": "exact",
+      "rel_tolerance": null
+    }
+  ]
+}

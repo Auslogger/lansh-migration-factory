@@ -1,0 +1,389 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "contract",
+      "reason": null,
+      "value": "customer_id"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "contract",
+      "reason": null,
+      "value": "customer_segment"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "contract",
+      "reason": null,
+      "value": "policy_id"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "contract",
+      "reason": null,
+      "value": "policy_number"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "contract",
+      "reason": null,
+      "value": "policy_sk"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "contract",
+      "reason": null,
+      "value": "broker_code"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "contract",
+      "reason": null,
+      "value": "broker_name"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "contract",
+      "reason": null,
+      "value": "lob_code"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "contract",
+      "reason": null,
+      "value": "product_code"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "contract",
+      "reason": null,
+      "value": "product_name"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "contract",
+      "reason": null,
+      "value": "cancellation_date"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "contract",
+      "reason": null,
+      "value": "expiry_date"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "contract",
+      "reason": null,
+      "value": "inception_date"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "contract",
+      "reason": null,
+      "value": "status"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "contract",
+      "reason": null,
+      "value": "annual_premium"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "contract",
+      "reason": null,
+      "value": "currency"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "contract",
+      "reason": null,
+      "value": "ncd_years"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "contract",
+      "reason": null,
+      "value": "valid_from"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "contract",
+      "reason": null,
+      "value": "vehicle_reg"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 20,
+      "provenance": "contract",
+      "reason": null,
+      "value": "is_current"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 20,
+      "provenance": "contract",
+      "reason": null,
+      "value": "load_ts"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 20,
+      "provenance": "contract",
+      "reason": null,
+      "value": "source_snapshot_date"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 20,
+      "provenance": "contract",
+      "reason": null,
+      "value": "valid_to"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 62,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 62,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 67,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 67,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "10"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 67,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "DIRECT-SALES"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 87,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 92,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 92,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 95,
+      "provenance": "contract",
+      "reason": null,
+      "value": "status"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 96,
+      "provenance": "contract",
+      "reason": null,
+      "value": "broker_code"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 97,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 97,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 98,
+      "provenance": "contract",
+      "reason": null,
+      "value": "vehicle_reg"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 104,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 106,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 116,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 117,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "N"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 122,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 128,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 138,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "9999-12-31"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 139,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 147,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 147,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 148,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 148,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "3"
+    }
+  ],
+  "violations": []
+}

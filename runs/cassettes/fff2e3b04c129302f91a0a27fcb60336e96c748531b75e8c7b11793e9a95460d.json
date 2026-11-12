@@ -1,0 +1,320 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:08:34.438372Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T02",
+    "json_schema": {
+      "$defs": {
+        "TrapFindingAnswer": {
+          "additionalProperties": false,
+          "description": "One place where a known engine difference (a trap card) affects this job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "Why the trap matters at these lines, in one or two sentences.",
+              "title": "Note",
+              "type": "string"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "line_start",
+            "line_end",
+            "confidence",
+            "note"
+          ],
+          "title": "TrapFindingAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The traps a careful reviewer finds in the job, beyond those the rules already found.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/TrapFindingAnswer"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScanAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T02: usp_load_dim_policy (tsql), file estate/tsql/T02_usp_load_dim_policy.sql.\nPolicy dimension with type-2 history, loaded once per policy snapshot.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : dw.usp_load_dim_policy\n  3 |   Purpose  : Policy dimension for finance, actuarial and broker reporting. One\n  4 |              row per version of a policy term, with its product, broker and\n  5 |              customer segment. A new version starts whenever the status,\n  6 |              broker, annual premium or vehicle registration changes from one\n  7 |              policy snapshot to the next (type 2 history).\n  8 |   Run by   : POL_SNAPSHOT_LOAD, once per policy snapshot, oldest first:\n  9 |              EXEC dw.usp_load_dim_policy @SnapshotDate = '<snapshot date>'\n 10 |   Output   : dw.dim_policy. Keeps history, so the procedure never truncates\n 11 |              it. Deploying this script recreates the table empty: reload every\n 12 |              snapshot in date order afterwards.\n 13 |   Author   : MOB\n 14 | \n 15 |   Change log\n 16 |     2014-02-10  MOB   Initial version, one row per policy (CR-0655)\n 17 |     2015-06-22  MOB   Broker name from the broker register (CR-0790)\n 18 |     2016-09-05  TF    Direct business reported as broker DIRECT-SALES (CR-0961)\n 19 |     2017-03-13  TF    Type 2 history with MERGE, surrogate key policy_sk\n 20 |                       (CR-1077)\n 21 |     2018-10-01  PH    Vehicle registration tracked for motor (CR-1388)\n 22 |     2019-07-15  PH    Customer segment from dw.dim_customer (CR-1610)\n 23 |     2020-02-03  TF    Refuse a snapshot older than the last one loaded\n 24 |                       (INC-2105)\n 25 |     2021-06-14  KB    Logging through etl.usp_log_step (CR-2003)\n 26 | ==============================================================================*/\n 27 | SET NOCOUNT ON;\n 28 | GO\n 29 | IF OBJECT_ID(N'dw.dim_policy', N'U') IS NOT NULL\n 30 |     DROP TABLE dw.dim_policy;\n 31 | \n 32 | CREATE TABLE dw.dim_policy (\n 33 |     policy_sk             INT IDENTITY(1,1) NOT NULL,\n 34 |     policy_id             INT            NOT NULL,\n 35 |     policy_number         VARCHAR(20)    NOT NULL,\n 36 |     customer_id           INT            NOT NULL,\n 37 |     customer_segment      CHAR(4)        NULL,\n 38 |     product_code          VARCHAR(10)    NOT NULL,\n 39 |     product_name          NVARCHAR(60)   NOT NULL,\n 40 |     lob_code              VARCHAR(5)     NOT NULL,\n 41 |     broker_code           VARCHAR(12)    NOT NULL,\n 42 |     broker_name           NVARCHAR(80)   NULL,\n 43 |     status                VARCHAR(12)    NOT NULL,\n 44 |     inception_date        DATE           NOT NULL,\n 45 |     expiry_date           DATE           NOT NULL,\n 46 |     cancellation_date     DATE           NULL,\n 47 |     annual_premium        DECIMAL(12,2)  NOT NULL,\n 48 |     currency              CHAR(3)        NOT NULL,\n 49 |     vehicle_reg           VARCHAR(12)    NULL,\n 50 |     ncd_years             INT            NULL,\n 51 |     valid_from            DATE           NOT NULL,\n 52 |     valid_to              DATE           NOT NULL,   -- 9999-12-31 while current\n 53 |     is_current            CHAR(1)        NOT NULL,   -- Y / N\n 54 |     source_snapshot_date  DATE           NOT NULL,\n 55 |     load_ts               DATETIME2(3)   NOT NULL,\n 56 |     CONSTRAINT pk_dim_policy PRIMARY KEY CLUSTERED (policy_sk)\n 57 | );\n 58 | \n 59 | CREATE NONCLUSTERED INDEX ix_dim_policy_policy_id ON dw.dim_policy (policy_id, is_current);\n 60 | GO\n 61 | CREATE OR ALTER PROCEDURE dw.usp_load_dim_policy\n 62 |     @SnapshotDate DATE\n 63 | AS\n 64 | BEGIN\n 65 |     SET NOCOUNT ON;\n 66 | \n 67 |     DECLARE @job_name     VARCHAR(128) = 'dw.usp_load_dim_policy',\n 68 |             @rows         INT,\n 69 |             @closed       INT,\n 70 |             @last_loaded  DATE,\n 71 |             @err_msg      NVARCHAR(4000),\n 72 |             @err_no       INT;\n 73 | \n 74 |     BEGIN TRY\n 75 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 76 | \n 77 |         /* Oldest snapshot first: loading an older snapshot after a newer one\n 78 |            would reopen versions that are already closed (INC-2105) */\n 79 |         SELECT  @last_loaded = MAX(d.source_snapshot_date)\n 80 |         FROM    dw.dim_policy d;\n 81 | \n 82 |         IF @SnapshotDate < @last_loaded\n 83 |             THROW 50001, 'dw.dim_policy already holds a later policy snapshot', 1;\n 84 | \n 85 |         IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n 86 | \n 87 |         /* 1. This snapshot's policies with product, broker and customer segment */\n 88 |         SELECT  p.policy_id,\n 89 |                 p.policy_number,\n 90 |                 p.customer_id,\n 91 |                 c.segment_code                          AS customer_segment,\n 92 |                 pr.product_code,\n 93 |                 pr.product_name,\n 94 |                 pr.lob_code,\n 95 |                 ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,\n 96 |                 b.broker_name,\n 97 |                 p.status,\n 98 |                 p.inception_date,\n 99 |                 p.expiry_date,\n100 |                 p.cancellation_date,\n101 |                 p.annual_premium,\n102 |                 p.currency,\n103 |                 p.vehicle_reg,\n104 |                 p.ncd_years\n105 |         INTO    #src\n106 |         FROM    stg.policy_snapshots p WITH (NOLOCK)\n107 |         JOIN    stg.products pr WITH (NOLOCK)\n108 |                 ON pr.product_code = p.product_code\n109 |         LEFT JOIN stg.brokers b WITH (NOLOCK)\n110 |                ON b.broker_code = p.broker_code\n111 |         LEFT JOIN dw.dim_customer c WITH (NOLOCK)\n112 |                ON c.customer_id = p.customer_id\n113 |         WHERE   p.snapshot_date = @SnapshotDate;\n114 | \n115 |         SET @rows = @@ROWCOUNT;\n116 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'policy snapshot', @status = 'INFO', @rows_affected = @rows;\n117 | \n118 |         IF @rows = 0\n119 |             THROW 50002, 'No policies found for this snapshot date', 1;\n120 | \n121 |         CREATE CLUSTERED INDEX ix_src_policy_id ON #src (policy_id);\n122 | \n123 |         BEGIN TRANSACTION;\n124 | \n125 |         /* 2. Close the current version of policies whose status, broker, premium\n126 |               or vehicle registration has changed since the last snapshot */\n127 |         MERGE dw.dim_policy AS tgt\n128 |         USING #src AS src\n129 |            ON tgt.policy_id = src.policy_id\n130 |           AND tgt.is_current = 'Y'\n131 |         WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n132 |                           OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')\n133 |                           OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)\n134 |                           OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))\n135 |         THEN UPDATE\n136 |              SET    tgt.valid_to   = DATEADD(DAY, -1, @SnapshotDate),\n137 |                     tgt.is_current = 'N';\n138 | \n139 |         SET @closed = @@ROWCOUNT;\n140 | \n141 |         /* 3. Open a current version for new policies and for those closed above */\n142 |         INSERT INTO dw.dim_policy\n143 |                (policy_id, policy_number, customer_id, customer_segment, product_code,\n144 |                 product_name, lob_code, broker_code, broker_name, status, inception_date,\n145 |                 expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n146 |                 ncd_years, valid_from, valid_to, is_current, source_snapshot_date, load_ts)\n147 |         SELECT  s.policy_id, s.policy_number, s.customer_id, s.customer_segment, s.product_code,\n148 |                 s.product_name, s.lob_code, s.broker_code, s.broker_name, s.status,\n149 |                 s.inception_date, s.expiry_date, s.cancellation_date, s.annual_premium,\n150 |                 s.currency, s.vehicle_reg, s.ncd_years,\n151 |                 @SnapshotDate,\n152 |                 '9999-12-31',\n153 |                 'Y',\n154 |                 @SnapshotDate,\n155 |                 SYSDATETIME()\n156 |         FROM    #src s\n157 |         WHERE   NOT EXISTS (SELECT 1\n158 |                             FROM   dw.dim_policy d\n159 |                             WHERE  d.policy_id = s.policy_id\n160 |                               AND  d.is_current = 'Y')\n161 |         ORDER BY s.policy_id;\n162 | \n163 |         SET @rows = @@ROWCOUNT;\n164 | \n165 |         COMMIT TRANSACTION;\n166 | \n167 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions closed', @status = 'INFO', @rows_affected = @closed;\n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'versions opened', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nInput tables:\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n- stg.brokers: broker_code CHAR(6), broker_name NVARCHAR(80), region VARCHAR(20), commission_rate DECIMAL(5,4), status VARCHAR(10), appointed_date DATE, _row_seq INT\n- stg.products: product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), term_months INT, levy_rate DECIMAL(5,4), launched_on DATE, withdrawn_on DATE, _row_seq INT\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n\nOutput tables:\n- dw.dim_policy: policy_sk INT, policy_id INT, policy_number VARCHAR(20), customer_id INT, customer_segment CHAR(4), product_code VARCHAR(10), product_name NVARCHAR(60), lob_code VARCHAR(5), broker_code VARCHAR(12), broker_name NVARCHAR(80), status VARCHAR(12), inception_date DATE, expiry_date DATE, cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), vehicle_reg VARCHAR(12), ncd_years INT, valid_from DATE, valid_to DATE, is_current CHAR(1), source_snapshot_date DATE, load_ts DATETIME2(3)\n\nTrap cards:\n- TSQL-01 (semantic) Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins. Legacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged. Spark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\n- TSQL-02 (semantic) Comparisons ignore trailing spaces; CHAR(n) pads with spaces. Legacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count. Spark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\n- TSQL-03 (semantic) Integer division truncates. Legacy: INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3. The result type follows the operands, so the fraction is lost before any later cast, e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b. Spark: Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.\n- TSQL-04 (semantic) DATEDIFF counts boundaries crossed, not elapsed periods. Legacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference. Spark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\n- TSQL-05 (semantic) + concatenation with NULL yields NULL. Legacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty. Spark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\n- TSQL-06 (semantic) ISNULL takes the type of its first argument; NULL treated as equal in change checks. Legacy: ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead. Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and '' as the same value. Spark: coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it never truncates.\n- TSQL-07 (semantic) DECIMAL precision and scale, and ROUND on computed values. Legacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds. Spark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\n- TSQL-08 (semantic) TOP and TOP WITH TIES. Legacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one. Spark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\n- TSQL-09 (construct) CROSS APPLY / OUTER APPLY with TOP 1. Legacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs. Spark: Spark has no APPLY; a lateral subquery or a window replaces it.\n- TSQL-10 (construct) UPDATE ... FROM. Legacy: UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source row; with several matches, which one wins is undefined. Spark: DataFrames are immutable; an update becomes a join plus a select.\n- TSQL-11 (construct) MERGE and type-2 history. Legacy: MERGE matches target and source rows and updates, inserts or deletes in one statement. Type-2 history closes the current version (valid_to, is_current) of changed rows and inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY order, continuing from the table's highest value. Spark: Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute the new state as a whole table from the previous state and the batch.\n- TSQL-12 (construct) Cursors and WHILE loops. Legacy: A cursor processes rows one at a time in its ORDER BY order; variables carry state between rows (running totals, last values). NULL arithmetic inside the loop propagates: SET @total = @total + NULL makes @total NULL for the rest of the loop. Spark: Spark is set-based; loops become aggregations or ordered windows.\n- TSQL-13 (construct) Temp tables. Legacy: #temp tables hold intermediate results for the session. Spark: Intermediate results are DataFrames or temporary views.\n- TSQL-14 (semantic) LIKE character classes. Legacy: T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual. Spark: Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.\n- TSQL-15 (semantic) LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT. Legacy: LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters. Spark: length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and returns n characters.\n- TSQL-16 (semantic) CONVERT style codes. Legacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm. Spark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\n- TSQL-17 (construct) PIVOT. Legacy: PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the source and turns listed values into columns; values not listed are dropped; missing combinations give NULL. Spark: groupBy(...).pivot(col, values).agg(...) does the same when the values are listed; the grouping columns must be stated explicitly.\n- TSQL-18 (semantic) EOMONTH and DATEADD at month-end. Legacy: DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1, '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a month-end. EOMONTH(d, n) returns the last day of the month n months away. Spark: add_months clamps the same way but also moves a last-day-of-month input to the target month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.\n- TSQL-19 (semantic) Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings. Legacy: Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order. Spark: Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.\n\nRule candidates:\n- TSQL-02 line 37: customer_segment      CHAR(4)        NULL,\n- TSQL-07 line 47: annual_premium        DECIMAL(12,2)  NOT NULL,\n- TSQL-02 line 48: currency              CHAR(3)        NOT NULL,\n- TSQL-02 line 53: is_current            CHAR(1)        NOT NULL,   -- Y / N\n- TSQL-19 line 79: SELECT  @last_loaded = MAX(d.source_snapshot_date)\n- TSQL-06 line 95: ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,\n- TSQL-01 line 130: AND tgt.is_current = 'Y'\n- TSQL-02 line 130: AND tgt.is_current = 'Y'\n- TSQL-06 line 131: WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n- TSQL-06 line 132: OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')\n- TSQL-06 line 133: OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)\n- TSQL-06 line 134: OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))\n- TSQL-01 line 137: tgt.is_current = 'N';\n- TSQL-02 line 137: tgt.is_current = 'N';\n- TSQL-01 line 160: AND  d.is_current = 'Y')\n- TSQL-02 line 160: AND  d.is_current = 'Y')\n",
+    "system_prompt": "You are the trap-scan agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark 4.2 and must reproduce every legacy output exactly, bugs included.\n\nA trap is a place where the legacy engine and Spark behave differently. A semantic trap changes the result if the code is translated naively (a case-insensitive text comparison, integer division, a NULL concatenation). A construct trap is a construct Spark lacks (a cursor, a temp table, a MERGE, a macro loop) that changes only the shape of the code.\n\nYou get the job's code with line numbers, the schemas of its inputs and output, the trap cards (the known engine differences) and candidate findings from deterministic rules.\n\nReturn every trap occurrence in this job that a translator must handle:\n- confirm the candidates that are real, using the schemas: a comparison arms a text trap only if the column is text; integer division only if both operands are integers;\n- leave out candidates that are not real (they are dropped);\n- add occurrences the rules missed, such as joins on text columns, NULL propagation in loops, or variables whose length a first assignment fixes;\n- report each occurrence at the narrowest line range that shows it, and the same trap at different places separately; include latent occurrences that today's data may not trigger;\n- use only trap ids from the cards; set confidence to how sure you are that it is real.\n"
+  },
+  "request_sha256": "fff2e3b04c129302f91a0a27fcb60336e96c748531b75e8c7b11793e9a95460d",
+  "response": {
+    "duration_api_ms": 29289,
+    "duration_ms": 29495,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 10089,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 10089,
+        "cacheReadInputTokens": 1309,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1458218,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 3242,
+        "provider": "firstParty",
+        "thinkingTokens": 1378,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.95,
+          "line_end": 95,
+          "line_start": 95,
+          "note": "ISNULL takes the type of p.broker_code, which is VARCHAR(10), so 'DIRECT-SALES' (12 chars) is cut to 'DIRECT-SAL'. A Spark coalesce would write the full literal.",
+          "trap_id": "TSQL-06"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 108,
+          "line_start": 107,
+          "note": "The product join compares VARCHAR product_code values case-insensitively, so case variants still match. A Spark join drops them, and with them the policy row, because this is an inner join.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.5,
+          "line_end": 108,
+          "line_start": 107,
+          "note": "The product_code join ignores trailing spaces. In Spark, a code with trailing spaces fails the inner join and the policy is lost.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 110,
+          "line_start": 109,
+          "note": "stg.brokers.broker_code is CHAR(6) and gets padded, while policy broker_code is VARCHAR(10). SQL Server ignores the padding when matching. In Spark the padded values do not match, so broker_name becomes NULL.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 110,
+          "line_start": 109,
+          "note": "The broker join on text matches case variants under the CI collation. A Spark binary join misses them, so broker_name is NULL.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.45,
+          "line_end": 37,
+          "line_start": 37,
+          "note": "customer_segment is CHAR(4), copied from CHAR(4) segment_code, so legacy values are padded to 4 characters. Spark strings never pad, so shorter codes come out without trailing spaces.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 105,
+          "line_start": 85,
+          "note": "The #src temp table holds the snapshot batch. In Spark it becomes a DataFrame or a temporary view.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 137,
+          "line_start": 127,
+          "note": "This MERGE closes the current version of changed policies (valid_to = snapshot - 1, is_current = 'N'). Spark has to rebuild the whole dimension from its previous state and the batch.",
+          "trap_id": "TSQL-11"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 161,
+          "line_start": 142,
+          "note": "The insert opens new current versions. The IDENTITY key policy_sk is assigned in policy_id order, continuing from the table's highest existing value, and Spark must reproduce that.",
+          "trap_id": "TSQL-11"
+        },
+        {
+          "confidence": 0.4,
+          "line_end": 131,
+          "line_start": 131,
+          "note": "The status change check uses ISNULL(..., ''), so a NULL status and '' count as equal and no new version opens.",
+          "trap_id": "TSQL-06"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 131,
+          "line_start": 131,
+          "note": "The status <> check is case-insensitive, so a change of letter case only (e.g. 'Active' to 'ACTIVE') opens no new version in legacy. Spark would open one.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 131,
+          "line_start": 131,
+          "note": "The status <> check ignores trailing spaces, so a change in trailing spaces alone does not close the version in legacy.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.4,
+          "line_end": 132,
+          "line_start": 132,
+          "note": "The broker_code change check treats NULL and '' as the same value. Also, the source side has already been truncated to 'DIRECT-SAL' by the ISNULL at line 95, and Spark must compare against that truncated value.",
+          "trap_id": "TSQL-06"
+        },
+        {
+          "confidence": 0.7,
+          "line_end": 132,
+          "line_start": 132,
+          "note": "The broker_code <> check is case-insensitive, so a broker code that changes only in letter case does not trigger a new version in legacy.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.55,
+          "line_end": 132,
+          "line_start": 132,
+          "note": "The broker_code <> check ignores trailing spaces, so a code that differs only by trailing spaces does not count as a change.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.45,
+          "line_end": 133,
+          "line_start": 133,
+          "note": "ISNULL(annual_premium, 0) treats a NULL premium and 0 as equal, so that difference opens no new version.",
+          "trap_id": "TSQL-06"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "vehicle_reg is nullable. ISNULL(..., '') makes NULL and '' equal, so moving between NULL and empty opens no new version. Spark null-safe comparisons would treat it as a change.",
+          "trap_id": "TSQL-06"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "The vehicle_reg <> check is case-insensitive, so a registration that changes only in case ('ab12cde' to 'AB12CDE') is not a change in legacy.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.6,
+          "line_end": 134,
+          "line_start": 134,
+          "note": "The vehicle_reg <> check ignores trailing spaces, so a registration with added trailing spaces is not seen as changed.",
+          "trap_id": "TSQL-02"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1458218,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 10089,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 10089,
+      "cache_read_input_tokens": 1309,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 10089,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 10089,
+          "cache_read_input_tokens": 1309,
+          "input_tokens": 2,
+          "output_tokens": 3242,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 3242,
+      "output_tokens_details": {
+        "thinking_tokens": 1378
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

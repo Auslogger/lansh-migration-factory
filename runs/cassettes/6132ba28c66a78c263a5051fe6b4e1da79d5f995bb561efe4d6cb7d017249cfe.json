@@ -1,0 +1,286 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:29:04.040701Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T03",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T03: usp_build_fact_premium_earned. Written and earned premium in EUR per premium transaction.\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       dw.usp_build_fact_premium_earned\n  3 |   Purpose   Premium fact for finance: one row per premium transaction, converted\n  4 |             to EUR at the rate published on or before the booking date, with\n  5 |             the premium earned as at the reporting date.\n  6 |   Author    MOD\n  7 |   Run by    FIN_MONTH_END, after dw.usp_load_dim_policy\n  8 |   Output    dw.fact_premium_earned (full refresh)\n  9 | \n 10 |   Change log\n 11 |     2016-01-11  MOD  Initial version (CR-0904)\n 12 |     2016-07-04  MOD  Sterling and dollar business converted to EUR (CR-0977)\n 13 |     2018-03-19  PK   Policy surrogate key and line of business from dim_policy (CR-1290)\n 14 |     2019-09-30  PK   Daily rate and monthly instalment for the cash-flow model (CR-1510)\n 15 |     2021-02-15  MOD  First instalment due date for the direct debit file (CR-1618)\n 16 |     2023-05-08  JMcK Earned percentage for the finance dashboard (INC-2301)\n 17 | ==============================================================================*/\n 18 | SET NOCOUNT ON;\n 19 | GO\n 20 | IF OBJECT_ID(N'dw.fact_premium_earned', N'U') IS NULL\n 21 | CREATE TABLE dw.fact_premium_earned (\n 22 |     txn_id                  INT            NOT NULL,\n 23 |     policy_id               INT            NOT NULL,\n 24 |     policy_sk               INT            NOT NULL,\n 25 |     lob_code                VARCHAR(5)     NOT NULL,\n 26 |     txn_type                VARCHAR(4)     NOT NULL,\n 27 |     txn_date                DATE           NOT NULL,\n 28 |     effective_from          DATE           NOT NULL,\n 29 |     effective_to            DATE           NOT NULL,\n 30 |     currency                CHAR(3)        NOT NULL,\n 31 |     amount                  DECIMAL(12,2)  NOT NULL,\n 32 |     fx_rate                 DECIMAL(18,8)  NOT NULL,\n 33 |     written_eur             DECIMAL(14,2)  NOT NULL,\n 34 |     term_days               INT            NOT NULL,\n 35 |     earned_days             INT            NOT NULL,\n 36 |     earned_pct              DECIMAL(5,2)   NOT NULL,\n 37 |     earned_eur              DECIMAL(14,2)  NOT NULL,\n 38 |     unearned_eur            DECIMAL(14,2)  NOT NULL,\n 39 |     daily_rate_eur          DECIMAL(12,4)  NOT NULL,\n 40 |     monthly_instalment_eur  DECIMAL(14,2)  NOT NULL,\n 41 |     first_due_date          DATE           NOT NULL,\n 42 |     as_of_date              DATE           NOT NULL,\n 43 |     CONSTRAINT pk_dw_fact_premium_earned PRIMARY KEY (txn_id)\n 44 | );\n 45 | GO\n 46 | CREATE OR ALTER PROCEDURE dw.usp_build_fact_premium_earned\n 47 |     @AsOfDate DATE\n 48 | AS\n 49 | BEGIN\n 50 |     SET NOCOUNT ON;\n 51 | \n 52 |     DECLARE @job_name  VARCHAR(128) = 'dw.usp_build_fact_premium_earned',\n 53 |             @rows      INT,\n 54 |             @err_msg   NVARCHAR(4000),\n 55 |             @err_no    INT;\n 56 | \n 57 |     BEGIN TRY\n 58 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 59 | \n 60 |         /* Transactions with their EUR rate: EUR as is, other currencies at the\n 61 |            latest rate on or before the booking date (later row wins on revisions) */\n 62 |         IF OBJECT_ID('tempdb..#txn') IS NOT NULL DROP TABLE #txn;\n 63 | \n 64 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)) AS txn_type, t.txn_date,\n 65 |                 t.effective_from, t.effective_to, t.currency, t.amount,\n 66 |                 CAST(1 AS DECIMAL(18,8)) AS fx_rate\n 67 |         INTO    #txn\n 68 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 69 |         WHERE   t.currency = 'EUR'\n 70 |           AND   t.txn_date <= @AsOfDate;\n 71 | \n 72 |         INSERT INTO #txn (txn_id, policy_id, txn_type, txn_date, effective_from, effective_to,\n 73 |                           currency, amount, fx_rate)\n 74 |         SELECT  t.txn_id, t.policy_id, UPPER(RTRIM(t.txn_type)), t.txn_date,\n 75 |                 t.effective_from, t.effective_to, t.currency, t.amount, fx.rate_to_eur\n 76 |         FROM    stg.premium_transactions t WITH (NOLOCK)\n 77 |         CROSS APPLY (SELECT TOP 1 r.rate_to_eur\n 78 |                      FROM   stg.fx_rates r WITH (NOLOCK)\n 79 |                      WHERE  r.currency = t.currency\n 80 |                        AND  r.rate_date <= t.txn_date\n 81 |                      ORDER BY r.rate_date DESC, r._row_seq DESC) fx\n 82 |         WHERE   t.currency <> 'EUR'\n 83 |           AND   t.txn_date <= @AsOfDate;\n 84 | \n 85 |         SELECT @rows = COUNT(*) FROM #txn;\n 86 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'transactions', @status = 'INFO', @rows_affected = @rows;\n 87 | \n 88 |         /* Days of cover and days earned by the reporting date */\n 89 |         IF OBJECT_ID('tempdb..#earn') IS NOT NULL DROP TABLE #earn;\n 90 | \n 91 |         SELECT  x.*,\n 92 |                 CAST(ROUND(x.amount * x.fx_rate, 2) AS DECIMAL(14,2)) AS written_eur,\n 93 |                 DATEDIFF(DAY, x.effective_from, x.effective_to) + 1  AS term_days,\n 94 |                 CASE WHEN @AsOfDate < x.effective_from THEN 0\n 95 |                      WHEN @AsOfDate >= x.effective_to  THEN DATEDIFF(DAY, x.effective_from, x.effective_to) + 1\n 96 |                      ELSE DATEDIFF(DAY, x.effective_from, @AsOfDate) + 1\n 97 |                 END AS earned_days\n 98 |         INTO    #earn\n 99 |         FROM    #txn x;\n100 | \n101 |         BEGIN TRANSACTION;\n102 | \n103 |         TRUNCATE TABLE dw.fact_premium_earned;\n104 | \n105 |         INSERT INTO dw.fact_premium_earned\n106 |                (txn_id, policy_id, policy_sk, lob_code, txn_type, txn_date, effective_from,\n107 |                 effective_to, currency, amount, fx_rate, written_eur, term_days, earned_days,\n108 |                 earned_pct, earned_eur, unearned_eur, daily_rate_eur, monthly_instalment_eur,\n109 |                 first_due_date, as_of_date)\n110 |         SELECT  e.txn_id,\n111 |                 e.policy_id,\n112 |                 p.policy_sk,\n113 |                 p.lob_code,\n114 |                 e.txn_type,\n115 |                 e.txn_date,\n116 |                 e.effective_from,\n117 |                 e.effective_to,\n118 |                 e.currency,\n119 |                 e.amount,\n120 |                 e.fx_rate,\n121 |                 e.written_eur,\n122 |                 e.term_days,\n123 |                 e.earned_days,\n124 |                 e.earned_days * 100 / e.term_days,\n125 |                 ROUND(e.written_eur * e.earned_days / 365, 2),\n126 |                 e.written_eur - ROUND(e.written_eur * e.earned_days / 365, 2),\n127 |                 ROUND(e.written_eur / e.term_days, 4, 1),\n128 |                 ROUND(e.written_eur / ISNULL(NULLIF(e.term_days / 30, 0), 1), 2),\n129 |                 DATEADD(MONTH, 1, EOMONTH(e.effective_from)),\n130 |                 @AsOfDate\n131 |         FROM    #earn e\n132 |         JOIN    dw.dim_policy p WITH (NOLOCK)\n133 |                 ON p.policy_id = e.policy_id\n134 |                AND p.is_current = 'Y';\n135 | \n136 |         SET @rows = @@ROWCOUNT;\n137 | \n138 |         COMMIT TRANSACTION;\n139 | \n140 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'dw.fact_premium_earned', @status = 'INFO', @rows_affected = @rows;\n141 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n142 |     END TRY\n143 |     BEGIN CATCH\n144 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n145 | \n146 |         SELECT  @err_msg = ERROR_MESSAGE(),\n147 |                 @err_no  = ERROR_NUMBER();\n148 | \n149 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n150 |              @message = @err_msg, @error_number = @err_no;\n151 |         THROW;\n152 |     END CATCH\n153 | END;\n154 | GO\n\nViews for impact queries:\n- stg_premium_transactions (stg.premium_transactions): txn_id int, policy_id int, txn_type string, txn_date date, effective_from date, effective_to date, amount decimal(12,2), currency string, _row_seq int\n- stg_fx_rates (stg.fx_rates): rate_date date, currency string, rate_to_eur decimal(18,8), source string, _row_seq int\n- dw_dim_policy (dw.dim_policy): policy_sk int, policy_id int, policy_number string, customer_id int, customer_segment string, product_code string, product_name string, lob_code string, broker_code string, broker_name string, status string, inception_date date, expiry_date date, cancellation_date date, annual_premium decimal(12,2), currency string, vehicle_reg string, ncd_years int, valid_from date, valid_to date, is_current string, source_snapshot_date date, load_ts timestamp_ntz\n- golden_dw_fact_premium_earned (the legacy output dw.fact_premium_earned): txn_id int, policy_id int, policy_sk int, lob_code string, txn_type string, txn_date date, effective_from date, effective_to date, currency string, amount decimal(12,2), fx_rate decimal(18,8), written_eur decimal(14,2), term_days int, earned_days int, earned_pct decimal(5,2), earned_eur decimal(14,2), unearned_eur decimal(14,2), daily_rate_eur decimal(12,4), monthly_instalment_eur decimal(14,2), first_due_date date, as_of_date date\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "6132ba28c66a78c263a5051fe6b4e1da79d5f995bb561efe4d6cb7d017249cfe",
+  "response": {
+    "duration_api_ms": 64201,
+    "duration_ms": 64543,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4885,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4885,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.18080220000000002,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 7072,
+        "provider": "firstParty",
+        "thinkingTokens": 3803,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": "earned_eur",
+          "confidence": 0.8,
+          "description": "earned_eur = ROUND(written_eur * earned_days / 365, 2) and unearned_eur = written_eur - that. The denominator is hard-coded at 365 while term_days is computed right above. Leap-year terms (366 days), short-term policies and terms over a year are earned wrongly; a fully earned 366-day policy shows earned > written and negative unearned.",
+          "evidence_lines": [
+            93,
+            125,
+            126
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.earned_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,6)) * g.earned_days / g.term_days, 2)",
+          "intended_behaviour": "earned_eur = ROUND(written_eur * earned_days / term_days, 2), so a fully earned policy earns exactly written_eur; unearned_eur = written_eur - earned_eur.",
+          "title": "Earned premium pro-rated over a fixed 365 days instead of the policy term"
+        },
+        {
+          "amount_column": "earned_pct",
+          "confidence": 0.75,
+          "description": "earned_pct = e.earned_days * 100 / e.term_days, where every operand is INT, so SQL Server does integer division and drops the fraction (e.g. 182*100/365 = 49 instead of 49.86) before storing into DECIMAL(5,2).",
+          "evidence_lines": [
+            36,
+            124
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(CAST(g.earned_pct AS DECIMAL(10,4)) - ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.earned_pct <> ROUND(CAST(g.earned_days AS DECIMAL(20,6)) * 100 / g.term_days, 2)",
+          "intended_behaviour": "earned_pct = ROUND(earned_days * 100.0 / term_days, 2), keeping two decimals.",
+          "title": "Earned percentage truncated by integer division"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.45,
+          "description": "first_due_date = DATEADD(MONTH, 1, EOMONTH(effective_from)). This takes the last day of the effective month and adds a month, giving the end of next month sometimes (31 Jan -> 29 Feb) and not other times (28 Feb -> 28 Mar, 30 Apr -> 30 May). It is neither the 1st of the next month nor reliably the end of next month.",
+          "evidence_lines": [
+            129
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM golden_dw_fact_premium_earned g WHERE g.first_due_date <> DATE_ADD(LAST_DAY(g.effective_from), 1)",
+          "intended_behaviour": "Most likely the first day of the month after the effective month: DATEADD(DAY, 1, EOMONTH(effective_from)), or else EOMONTH(effective_from, 1).",
+          "title": "First instalment due date: month added to month-end gives an inconsistent date"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.5,
+          "description": "The non-EUR branch uses CROSS APPLY to the latest rate with rate_date <= txn_date. A transaction whose currency has no rate on or before its booking date (or has a NULL currency, which fails both = 'EUR' and <> 'EUR') produces no row at all, so the written premium disappears from the fact table without any error or log.",
+          "evidence_lines": [
+            69,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND (t.currency IS NULL OR UPPER(RTRIM(t.currency)) <> 'EUR') AND (f.min_rd IS NULL OR f.min_rd > t.txn_date)",
+          "intended_behaviour": "Every transaction should be in the fact (full premium population). A missing rate should fall back (e.g. the earliest available rate) or fail/log the job rather than drop the premium.",
+          "title": "Non-EUR transactions without an FX rate on/before booking date silently dropped"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.3,
+          "description": "The final INSERT inner-joins to dw.dim_policy on is_current = 'Y'. Transactions for policies with no current version (not yet loaded, or the version-closing logic left none current) are silently excluded from the premium fact.",
+          "evidence_lines": [
+            132,
+            133,
+            134
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected FROM stg_premium_transactions t LEFT JOIN (SELECT UPPER(RTRIM(currency)) AS cur, MIN(rate_date) AS min_rd FROM stg_fx_rates GROUP BY UPPER(RTRIM(currency))) f ON f.cur = UPPER(RTRIM(t.currency)) LEFT JOIN (SELECT DISTINCT policy_id FROM dw_dim_policy WHERE is_current = 'Y') p ON p.policy_id = t.policy_id WHERE t.txn_date <= DATE'2025-12-31' AND p.policy_id IS NULL AND (UPPER(RTRIM(t.currency)) = 'EUR' OR (f.min_rd IS NOT NULL AND f.min_rd <= t.txn_date))",
+          "intended_behaviour": "All premium transactions up to the as-of date should be reported; a missing policy should map to an unknown member or be logged, not dropped.",
+          "title": "Transactions dropped when the policy has no current dim_policy row"
+        },
+        {
+          "amount_column": "daily_rate_eur",
+          "confidence": 0.2,
+          "description": "daily_rate_eur = ROUND(written_eur / term_days, 4, 1); the third argument 1 truncates rather than rounds, unlike every other amount in the job, so the daily rate is consistently understated.",
+          "evidence_lines": [
+            127
+          ],
+          "impact_query": "SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(g.daily_rate_eur - ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4))), 0) AS amount_affected FROM golden_dw_fact_premium_earned g WHERE g.term_days <> 0 AND g.daily_rate_eur <> ROUND(CAST(g.written_eur AS DECIMAL(20,8)) / g.term_days, 4)",
+          "intended_behaviour": "ROUND(written_eur / term_days, 4) with normal rounding.",
+          "title": "Daily rate truncated instead of rounded"
+        }
+      ]
+    },
+    "total_cost_usd": 0.18080220000000002,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4885,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4885,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4885,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4885,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 7072,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 7072,
+      "output_tokens_details": {
+        "thinking_tokens": 3803
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

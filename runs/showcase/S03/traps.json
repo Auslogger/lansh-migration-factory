@@ -1,0 +1,72 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 28,
+    "line_start": 23,
+    "note": "Each band includes its lower bound and excludes its upper one (-<), and '1000 - high' includes 1000. LOW does not match a missing numeric, so a missing written_eur falls to OTHER and gets 'UNKNOWN'. The CASE WHEN must spell out every boundary and send NULL to 'UNKNOWN'.",
+    "snippet": "low  -< 0    = 'NEGATIVE'\n    0    -< 250  = '0-249'\n    250  -< 500  = '250-499'\n    500  -< 1000 = '500-999'\n    1000 - high  = '1000+'\n    other        = 'UNKNOWN';",
+    "trap_id": "SAS-12"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 34,
+    "line_start": 32,
+    "note": "NODUPKEY keeps each policy's first transaction in load order (the stable sort), and that row sets the band. Spark needs a window ordered by load order (_row_seq), not dropDuplicates.",
+    "snippet": "proc sort data=dw.fact_premium_earned(keep=policy_id lob_code written_eur)\n          out=work.opening nodupkey;\n  by policy_id;",
+    "trap_id": "SAS-09"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 52,
+    "line_start": 50,
+    "note": "A one-to-many MERGE with an IN= subset is a left join from txn to policy_band. lob_code and prem_band come only from policy_band and stay missing for unmatched keys.",
+    "snippet": "merge work.txn(in=t) work.policy_band;\n  by policy_id;\n  if t;",
+    "trap_id": "SAS-05"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 61,
+    "line_start": 55,
+    "note": "PROC MEANS NWAY with CLASS drops rows whose lob_code or prem_band is missing, but a Spark groupBy keeps NULL groups. Those groups must be filtered out. N() and SUM() are named by the OUTPUT statement.",
+    "snippet": "proc means data=work.txn_band noprint nway;\n  class lob_code prem_band;\n  var written_eur earned_eur;\n  output out=work.premium_sums(drop=_type_ _freq_)\n         n(written_eur)=n_transactions sum(written_eur)=written_eur\n         sum(earned_eur)=earned_eur;\nrun;",
+    "trap_id": "SAS-14"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 67,
+    "line_start": 63,
+    "note": "The second PROC MEANS NWAY counts policies per lob_code/prem_band and also excludes missing class values, which Spark's groupBy would keep.",
+    "snippet": "proc means data=work.policy_band noprint nway;\n  class lob_code prem_band;\n  var policy_id;\n  output out=work.policy_counts(drop=_type_ _freq_) n(policy_id)=n_policies;\nrun;",
+    "trap_id": "SAS-14"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 72,
+    "line_start": 71,
+    "note": "A MERGE with no IN= keeps keys from both inputs, so it acts as a full outer join on lob_code and prem_band. Columns missing on one side stay missing, and the output is ordered by the BY keys.",
+    "snippet": "merge work.policy_counts work.premium_sums;\n  by lob_code prem_band;",
+    "trap_id": "SAS-05"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "S03",
+    "line_end": 74,
+    "line_start": 73,
+    "note": "&as_of is a SAS date number (days since 1960-01-01). In Spark it must be turned into a DATE, e.g. date_add('1960-01-01', as_of).",
+    "snippet": "format as_of_date yymmdd10.;\n  as_of_date = &as_of;",
+    "trap_id": "SAS-03"
+  }
+]

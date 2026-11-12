@@ -1,0 +1,73 @@
+[
+  {
+    "confidence": 0.55,
+    "defect_id": "S03-D1",
+    "description": "Both PROC MEANS steps use CLASS lob_code prem_band without the MISSING option, so SAS discards every observation whose class variable is missing. lob_code comes from each policy's first-loaded transaction (work.policy_band), so when that row has a blank lob_code, all of that policy's transactions and the policy itself are left out of rpt.premium_band_summary. Written and earned premium are understated.",
+    "evidence_lines": [
+      37,
+      40,
+      50,
+      56,
+      64,
+      71
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE pb.lob_code IS NULL OR TRIM(pb.lob_code) = ''",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE pb.lob_code IS NULL OR TRIM(pb.lob_code) = ''",
+    "intended_behaviour": "Every transaction should be reported. Policies with a missing line of business should appear in their own (blank or UNKNOWN) lob_code group, for example via the CLASS ... / MISSING option, rather than being dropped.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "Policies with missing lob_code silently dropped by PROC MEANS CLASS"
+  },
+  {
+    "confidence": 0.35,
+    "defect_id": "S03-D2",
+    "description": "The as_of parameter is only stamped onto the output (line 74). Nothing filters dw.fact_premium_earned to transactions on or before the reporting date, so transactions dated after 2025-12-31 are counted in n_transactions, written_eur and earned_eur.",
+    "evidence_lines": [
+      32,
+      44,
+      74
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.lob_code, pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE t.txn_date > DATE'2025-12-31' AND pb.lob_code IS NOT NULL AND TRIM(pb.lob_code) <> ''",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH o AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn FROM dw_fact_premium_earned), pb AS (SELECT policy_id, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS prem_band FROM o WHERE rn = 1) SELECT COUNT(DISTINCT pb.lob_code, pb.prem_band) AS rows_affected, COALESCE(ABS(SUM(t.written_eur)), 0) AS amount_affected FROM dw_fact_premium_earned t JOIN pb ON t.policy_id = pb.policy_id WHERE t.txn_date > DATE'2025-12-31' AND pb.lob_code IS NOT NULL AND TRIM(pb.lob_code) <> ''",
+    "intended_behaviour": "Only transactions with txn_date on or before &as_of (2025-12-31) should be included in the report as at that date.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "No as-of cut-off: transactions after the reporting date included"
+  },
+  {
+    "confidence": 0.25,
+    "defect_id": "S03-D3",
+    "description": "PROC SORT NODUPKEY BY policy_id keeps whichever transaction was loaded first for each policy, and that row's written_eur (and lob_code) sets the band for all the policy's transactions. If the load order differs from transaction order, a later endorsement, cancellation or negative adjustment can set the band, and the policy moves to a different band (or line of business), possibly NEGATIVE.",
+    "evidence_lines": [
+      31,
+      32,
+      33,
+      34,
+      40
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "written_eur",
+      "measured_on": "golden:S03",
+      "query": "WITH r AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn_load, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY txn_date ASC NULLS LAST, _row_seq) AS rn_date FROM dw_fact_premium_earned), b AS (SELECT policy_id, rn_load, rn_date, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS band FROM r WHERE rn_load = 1 OR rn_date = 1), p AS (SELECT policy_id, MAX(CASE WHEN rn_load = 1 THEN lob_code END) AS l_lob, MAX(CASE WHEN rn_load = 1 THEN band END) AS l_band, MAX(CASE WHEN rn_date = 1 THEN lob_code END) AS i_lob, MAX(CASE WHEN rn_date = 1 THEN band END) AS i_band FROM b GROUP BY policy_id), d AS (SELECT * FROM p WHERE NOT (l_lob <=> i_lob AND l_band <=> i_band)), g AS (SELECT l_lob AS lob, l_band AS band FROM d WHERE l_lob IS NOT NULL AND TRIM(l_lob) <> '' UNION SELECT i_lob, i_band FROM d WHERE i_lob IS NOT NULL AND TRIM(i_lob) <> '') SELECT (SELECT COUNT(*) FROM g) AS rows_affected, COALESCE((SELECT SUM(ABS(t.written_eur)) FROM dw_fact_premium_earned t JOIN d ON t.policy_id = d.policy_id), 0) AS amount_affected",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH r AS (SELECT policy_id, lob_code, written_eur, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY _row_seq) AS rn_load, ROW_NUMBER() OVER (PARTITION BY policy_id ORDER BY txn_date ASC NULLS LAST, _row_seq) AS rn_date FROM dw_fact_premium_earned), b AS (SELECT policy_id, rn_load, rn_date, lob_code, CASE WHEN written_eur IS NULL THEN 'UNKNOWN' WHEN written_eur < 0 THEN 'NEGATIVE' WHEN written_eur < 250 THEN '0-249' WHEN written_eur < 500 THEN '250-499' WHEN written_eur < 1000 THEN '500-999' ELSE '1000+' END AS band FROM r WHERE rn_load = 1 OR rn_date = 1), p AS (SELECT policy_id, MAX(CASE WHEN rn_load = 1 THEN lob_code END) AS l_lob, MAX(CASE WHEN rn_load = 1 THEN band END) AS l_band, MAX(CASE WHEN rn_date = 1 THEN lob_code END) AS i_lob, MAX(CASE WHEN rn_date = 1 THEN band END) AS i_band FROM b GROUP BY policy_id), d AS (SELECT * FROM p WHERE NOT (l_lob <=> i_lob AND l_band <=> i_band)), g AS (SELECT l_lob AS lob, l_band AS band FROM d WHERE l_lob IS NOT NULL AND TRIM(l_lob) <> '' UNION SELECT i_lob, i_band FROM d WHERE i_lob IS NOT NULL AND TRIM(i_lob) <> '') SELECT (SELECT COUNT(*) FROM g) AS rows_affected, COALESCE((SELECT SUM(ABS(t.written_eur)) FROM dw_fact_premium_earned t JOIN d ON t.policy_id = d.policy_id), 0) AS amount_affected",
+    "intended_behaviour": "Band each policy on its true opening transaction: the earliest txn_date, with load order breaking ties.",
+    "job_id": "S03",
+    "source": "llm",
+    "title": "Policy band taken from first-loaded row, not the earliest (opening) transaction"
+  }
+]

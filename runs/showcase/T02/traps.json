@@ -1,0 +1,192 @@
+[
+  {
+    "confidence": 0.45,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 37,
+    "line_start": 37,
+    "note": "customer_segment is CHAR(4), copied from CHAR(4) segment_code, so legacy values are padded to 4 characters. Spark strings never pad, so shorter codes come out without trailing spaces.",
+    "snippet": "customer_segment      CHAR(4)        NULL,",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 105,
+    "line_start": 85,
+    "note": "The #src temp table holds the snapshot batch. In Spark it becomes a DataFrame or a temporary view.",
+    "snippet": "IF OBJECT_ID('tempdb..#src') IS NOT NULL DROP TABLE #src;\n\n        /* 1. This snapshot's policies with product, broker and customer segment */\n        SELECT  p.policy_id,\n                p.policy_number,\n                p.customer_id,\n                c.segment_code                          AS cust\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 95,
+    "line_start": 95,
+    "note": "ISNULL takes the type of p.broker_code, which is VARCHAR(10), so 'DIRECT-SALES' (12 chars) is cut to 'DIRECT-SAL'. A Spark coalesce would write the full literal.",
+    "snippet": "ISNULL(p.broker_code, 'DIRECT-SALES')   AS broker_code,",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 108,
+    "line_start": 107,
+    "note": "The product join compares VARCHAR product_code values case-insensitively, so case variants still match. A Spark join drops them, and with them the policy row, because this is an inner join.",
+    "snippet": "JOIN    stg.products pr WITH (NOLOCK)\n                ON pr.product_code = p.product_code",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 108,
+    "line_start": 107,
+    "note": "The product_code join ignores trailing spaces. In Spark, a code with trailing spaces fails the inner join and the policy is lost.",
+    "snippet": "JOIN    stg.products pr WITH (NOLOCK)\n                ON pr.product_code = p.product_code",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 110,
+    "line_start": 109,
+    "note": "The broker join on text matches case variants under the CI collation. A Spark binary join misses them, so broker_name is NULL.",
+    "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK)\n               ON b.broker_code = p.broker_code",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 110,
+    "line_start": 109,
+    "note": "stg.brokers.broker_code is CHAR(6) and gets padded, while policy broker_code is VARCHAR(10). SQL Server ignores the padding when matching. In Spark the padded values do not match, so broker_name becomes NULL.",
+    "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK)\n               ON b.broker_code = p.broker_code",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 137,
+    "line_start": 127,
+    "note": "This MERGE closes the current version of changed policies (valid_to = snapshot - 1, is_current = 'N'). Spark has to rebuild the whole dimension from its previous state and the batch.",
+    "snippet": "MERGE dw.dim_policy AS tgt\n        USING #src AS src\n           ON tgt.policy_id = src.policy_id\n          AND tgt.is_current = 'Y'\n        WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')\n                          OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_co\u2026",
+    "trap_id": "TSQL-11"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 131,
+    "line_start": 131,
+    "note": "The status <> check is case-insensitive, so a change of letter case only (e.g. 'Active' to 'ACTIVE') opens no new version in legacy. Spark would open one.",
+    "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 131,
+    "line_start": 131,
+    "note": "The status <> check ignores trailing spaces, so a change in trailing spaces alone does not close the version in legacy.",
+    "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 131,
+    "line_start": 131,
+    "note": "The status change check uses ISNULL(..., ''), so a NULL status and '' count as equal and no new version opens.",
+    "snippet": "WHEN MATCHED AND (   ISNULL(src.status, '')        <> ISNULL(tgt.status, '')",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 132,
+    "line_start": 132,
+    "note": "The broker_code <> check is case-insensitive, so a broker code that changes only in letter case does not trigger a new version in legacy.",
+    "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.55,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 132,
+    "line_start": 132,
+    "note": "The broker_code <> check ignores trailing spaces, so a code that differs only by trailing spaces does not count as a change.",
+    "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 132,
+    "line_start": 132,
+    "note": "The broker_code change check treats NULL and '' as the same value. Also, the source side has already been truncated to 'DIRECT-SAL' by the ISNULL at line 95, and Spark must compare against that truncated value.",
+    "snippet": "OR ISNULL(src.broker_code, '')   <> ISNULL(tgt.broker_code, '')",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.45,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 133,
+    "line_start": 133,
+    "note": "ISNULL(annual_premium, 0) treats a NULL premium and 0 as equal, so that difference opens no new version.",
+    "snippet": "OR ISNULL(src.annual_premium, 0) <> ISNULL(tgt.annual_premium, 0)",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "The vehicle_reg <> check is case-insensitive, so a registration that changes only in case ('ab12cde' to 'AB12CDE') is not a change in legacy.",
+    "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "The vehicle_reg <> check ignores trailing spaces, so a registration with added trailing spaces is not seen as changed.",
+    "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 134,
+    "line_start": 134,
+    "note": "vehicle_reg is nullable. ISNULL(..., '') makes NULL and '' equal, so moving between NULL and empty opens no new version. Spark null-safe comparisons would treat it as a change.",
+    "snippet": "OR ISNULL(src.vehicle_reg, '')   <> ISNULL(tgt.vehicle_reg, ''))",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "T02",
+    "line_end": 161,
+    "line_start": 142,
+    "note": "The insert opens new current versions. The IDENTITY key policy_sk is assigned in policy_id order, continuing from the table's highest existing value, and Spark must reproduce that.",
+    "snippet": "INSERT INTO dw.dim_policy\n               (policy_id, policy_number, customer_id, customer_segment, product_code,\n                product_name, lob_code, broker_code, broker_name, status, inception_date,\n                expiry_date, cancellation_date, annual_premium, currency, vehicle_reg,\n         \u2026",
+    "trap_id": "TSQL-11"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "adjudication": {
+    "X1-BUG": {
+      "defect_id": "X1-D1",
+      "genuine": true,
+      "note": "Claims paid limited to claims notified in the same year (lines 93-112): the planted bug at line 110 and the filter it inherits at 98-99, diagnosed as planted. Impact measured on the golden output: 87 rows, EUR 1,388,119.21."
+    },
+    "X2-BUG": {
+      "defect_id": "X2-D1",
+      "genuine": true,
+      "note": "Latest reserve picked across all reserve types (line 76's partition omits reserve_type): the planted bug, diagnosed as planted. Impact measured: 43 rows, EUR 683,219.73; the author's check, re-verified on the recalibrated estate, also counts 43."
+    }
+  },
+  "bug_impact": {
+    "X1_bug": 120,
+    "X2_bug": 43
+  }
+}

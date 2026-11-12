@@ -1,0 +1,310 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 18,
+        "line_start": 18,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 43,
+        "line_start": 20,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 48,
+        "line_start": 45,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 49,
+        "line_start": 49,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 55,
+        "line_start": 51,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 5,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 57,
+        "line_start": 57,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 6,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 58,
+        "line_start": 58,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 61,
+        "line_start": 61,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 8,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 74,
+        "line_start": 63,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 76,
+        "line_start": 76,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 77,
+        "line_start": 77,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 11,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 81,
+        "line_start": 81,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 95,
+        "line_start": 83,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 97,
+        "line_start": 97,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 98,
+        "line_start": 98,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 101,
+        "line_start": 101,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 16,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 115,
+        "line_start": 103,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 117,
+        "line_start": 117,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 118,
+        "line_start": 118,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 123,
+        "line_start": 121,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 125,
+        "line_start": 125,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 127,
+        "line_start": 127,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 22,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 159,
+        "line_start": 129,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 23,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 161,
+        "line_start": 161,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 24,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 163,
+        "line_start": 163,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 25,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 165,
+        "line_start": 165,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 166,
+        "line_start": 166,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 27,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 167,
+        "line_start": 167,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 28,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 168,
+        "line_start": 168,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 29,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 169,
+        "line_start": 169,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 30,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 172,
+        "line_start": 171,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 31,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 175,
+        "line_start": 174,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 32,
+        "job_id": "T04",
+        "kind": "statement",
+        "line_end": 176,
+        "line_start": 176,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 33,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 177,
+        "line_start": 177,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 34,
+        "job_id": "T04",
+        "kind": "other",
+        "line_end": 178,
+        "line_start": 178,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "T04",
+    "reads": [
+      "stg.claim_payments",
+      "stg.claim_reserves",
+      "stg.claims",
+      "stg.policy_snapshots"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.claims_summary"
+    ]
+  },
+  "stats": {
+    "blocks": 35,
+    "lineage_edges": 47,
+    "rule_candidates": 37,
+    "sqlglot_agreeing_columns": 20,
+    "sqlglot_traced_columns": 20,
+    "statements_unparsed": 0,
+    "trap_findings": 15
+  },
+  "warnings": [
+    "lineage agent notes: 1) Possible legacy bug (row fan-out): #money LEFT JOINs both claim_payments and #reserve on claim_id before GROUP BY (lines 109-115). A claim can have up to two reserve rows (INDEMNITY and EXPENSE), so SUM(p.amount) counts each payment once per reserve row, and total_paid and incurred can come out doubled. The migration must reproduce this behaviour to match the legacy output; n_payments is not affected because it uses COUNT(DISTINCT). 2) claim_ref is NULL whenever handler_code is NULL, because string concatenation with + returns NULL by default (CONCAT_NULL_YIELDS_NULL). 3) policy_number comes from the single latest snapshot_date on or before @AsOfDate across the whole table, picked into the variable @snapshot_date (lines 121-123). If a policy is missing from that snapshot, policy_number is NULL; the job does not fall back to an earlier snapshot. 4) Reserve types other than INDEMNITY or EXPENSE are dropped, and the reserve_date filter only changes the reserve values, not which claim rows appear. 5) The PARTITION BY claim_id, reserve_type in the reserve ROW_NUMBER is listed as a ranks edge with lower confidence (0.6). 6) The joins to #money and #reserve keep every open claim, so the output has one row per claim from stg.claims that passes the filters on lines 73-74."
+  ]
+}

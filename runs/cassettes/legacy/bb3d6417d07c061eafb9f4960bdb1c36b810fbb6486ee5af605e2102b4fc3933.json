@@ -1,0 +1,88 @@
+{
+  "job_id": "X1",
+  "outputs": [
+    {
+      "columns": [
+        "as_of_date",
+        "broker_code",
+        "broker_name",
+        "broker_status",
+        "lob_code",
+        "policies_in_force",
+        "gwp_eur",
+        "claims_notified",
+        "claims_paid_eur",
+        "paid_to_written",
+        "review_flag"
+      ],
+      "rows": [
+        [
+          "2025-12-31",
+          "AB",
+          "AB Insurance Services",
+          "ACTIVE",
+          "HOME",
+          "1",
+          "0.00",
+          "0",
+          "0.00",
+          null,
+          "N"
+        ],
+        [
+          "2025-12-31",
+          "BRK003",
+          "Celtic Cover",
+          "ACTIVE",
+          "TRAVL",
+          "1",
+          "0.00",
+          "0",
+          "0.00",
+          null,
+          "N"
+        ],
+        [
+          "2025-12-31",
+          "BRK01",
+          "Atlantic Brokers",
+          "ACTIVE",
+          "MOTOR",
+          "1",
+          "0.00",
+          "0",
+          "0.00",
+          null,
+          "N"
+        ],
+        [
+          "2025-12-31",
+          "BRK2",
+          "Harbour Insurance Ltd",
+          "INACTIVE",
+          "HOME",
+          "1",
+          "0.00",
+          "0",
+          "0.00",
+          null,
+          "N"
+        ],
+        [
+          "2025-12-31",
+          "DIRECT",
+          "Direct Business",
+          "ACTIVE",
+          "MOTOR",
+          "1",
+          "0.00",
+          "0",
+          "0.00",
+          null,
+          "N"
+        ]
+      ],
+      "table": "rpt.broker_production"
+    }
+  ]
+}

@@ -1,0 +1,1665 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:44:44.083819Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S04",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S04: risk_scoring.sas. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /******************************************************************************\n  2 |   Program  : risk_scoring.sas\n  3 |   Purpose  : Customer risk score and referral tier by line of business for\n  4 |              underwriting. Claims experience (claim count, recoveries and\n  5 |              severity against the line's average) plus the line's loss ratio,\n  6 |              loaded for the policyholder's age and county.\n  7 |   Inputs   : dw.claims_enriched, rpt.premium_band_summary, dw.dim_customer\n  8 |   Output   : rpt.risk_scores (rebuilt on every run)\n  9 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n 10 |   Author   : TF\n 11 | \n 12 |   Change log\n 13 |     2015-06-02  TF    Initial version (motor only)\n 14 |     2016-11-21  TF    Home and travel added; scoring per line in a macro\n 15 |                       (CR-0998)\n 16 |     2018-04-09  GH    Age and county loadings from the pricing review (CR-1302)\n 17 |     2020-01-27  GH    Line loss ratio from premium_bands.sas (CR-1544)\n 18 |     2022-09-12  TF    Referral tiers for the underwriting queue (CR-2011)\n 19 | ******************************************************************************/\n 20 | \n 21 | /* policyholder loadings: age at the reporting date and county */\n 22 | data work.cust(keep=customer_id age age_load county_load);\n 23 |   set dw.dim_customer(keep=customer_id date_of_birth county);\n 24 |   age = int((&as_of - date_of_birth) / 365.25);\n 25 |   if missing(age) then age_load = 1.00;\n 26 |   else if age < 25 then age_load = 1.40;\n 27 |   else if age >= 70 then age_load = 1.25;\n 28 |   else age_load = 1.00;\n 29 |   select (upcase(strip(county)));\n 30 |     when ('DUBLIN') county_load = 1.15;\n 31 |     when ('CORK', 'LIMERICK', 'GALWAY') county_load = 1.05;\n 32 |     otherwise county_load = 1.00;\n 33 |   end;\n 34 | run;\n 35 | \n 36 | /* claims experience per customer and line of business */\n 37 | proc sql;\n 38 |   create table work.experience as\n 39 |   select customer_id, lob_code,\n 40 |          count(*)          as n_claims,\n 41 |          sum(total_paid)   as paid,\n 42 |          sum(n_recoveries) as n_recoveries\n 43 |   from   dw.claims_enriched\n 44 |   group  by customer_id, lob_code;\n 45 | quit;\n 46 | \n 47 | /* loss ratio per line: paid on the claims book over earned premium */\n 48 | proc sql;\n 49 |   create table work.lob_ratio as\n 50 |   select e.lob_code, sum(e.paid) / p.earned as loss_ratio\n 51 |   from   work.experience e,\n 52 |          (select lob_code, sum(earned_eur) as earned\n 53 |           from   rpt.premium_band_summary\n 54 |           group  by lob_code) p\n 55 |   where  e.lob_code = p.lob_code\n 56 |   group  by e.lob_code, p.earned;\n 57 | quit;\n 58 | \n 59 | /* each customer against the average for the line */\n 60 | %macro score_lines(lobs);\n 61 |   %local i lob;\n 62 |   %do i = 1 %to %sysfunc(countw(&lobs));\n 63 |     %let lob = %scan(&lobs, &i);\n 64 |     proc sql;\n 65 |       create table work.score_&lob as\n 66 |       select x.customer_id, x.lob_code, x.n_claims, x.paid, x.n_recoveries,\n 67 |              x.paid / mean(x.paid) as severity\n 68 |       from   work.experience x\n 69 |       where  x.lob_code = \"&lob\";\n 70 |     quit;\n 71 |   %end;\n 72 | %mend score_lines;\n 73 | \n 74 | %score_lines(MOT HOM TRV);\n 75 | \n 76 | proc sql;\n 77 |   create table work.scoring as\n 78 |   select s.*, c.age, c.age_load, c.county_load, r.loss_ratio\n 79 |   from   (select * from work.score_mot\n 80 |           union all\n 81 |           select * from work.score_hom\n 82 |           union all\n 83 |           select * from work.score_trv) s\n 84 |          left join work.cust c on c.customer_id = s.customer_id\n 85 |          left join work.lob_ratio r on r.lob_code = s.lob_code\n 86 |   order  by s.customer_id, s.lob_code;\n 87 | quit;\n 88 | \n 89 | /* points, loadings and the referral tier */\n 90 | data rpt.risk_scores(keep=customer_id lob_code n_claims paid n_recoveries severity age\n 91 |                           age_load county_load loss_ratio points score tier as_of_date);\n 92 |   set work.scoring;\n 93 |   sev_points = 0;\n 94 |   if severity >= 2 then sev_points = 10;\n 95 |   else if severity >= 1 then sev_points = 5;\n 96 |   lob_points = round(2.5 * loss_ratio, 0.5);\n 97 |   points = 12.5 * min(n_claims, 4) + 7.5 * n_recoveries + sev_points + lob_points;\n 98 |   score  = round(points * age_load * county_load, 0.01);\n 99 |   if score >= 35 then tier = 'HIGH';\n100 |   else if score >= 22 then tier = 'MEDIUM';\n101 |   else tier = 'LOW';\n102 |   format as_of_date yymmdd10.;\n103 |   as_of_date = &as_of;\n104 | run;\n\nInput tables:\n- dw.claims_enriched: claim_id num 8 format=BEST, claim_number char 20 format=$CHAR, policy_id num 8 format=BEST, customer_id num 8 format=BEST, lob_code char 5 format=$CHAR, loss_date num 8 format=YYMMDD, reported_date num 8 format=YYMMDD, status char 12 format=$CHAR, n_payments num 8, n_recoveries num 8, total_paid num 8, indemnity_amt num 8, expense_amt num 8, recovery_amt num 8, first_payment_date num 8 format=DATE, last_payment_date num 8 format=DATE, recovery_flag num 8, has_payment num 8, gross_paid num 8, net_paid num 8\n- rpt.premium_band_summary: lob_code char 5 format=$CHAR, prem_band char 8, n_policies num 8, n_transactions num 8, written_eur num 8 format=BEST, earned_eur num 8 format=BEST, as_of_date num 8 format=YYMMDD\n- dw.dim_customer: customer_id INT NOT NULL, first_name NVARCHAR(40) NOT NULL, last_name NVARCHAR(60) NOT NULL, full_name NVARCHAR(101) NOT NULL, initials NVARCHAR(2) NOT NULL, email VARCHAR(120), email_shared_count INT NOT NULL, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12) NOT NULL, eircode VARCHAR(10), eircode_valid CHAR(1) NOT NULL, segment_code CHAR(4), is_standard_segment CHAR(1) NOT NULL, marketing_opt_in CHAR(1) NOT NULL, customer_since DATE NOT NULL, source_system VARCHAR(10) NOT NULL, version_count INT NOT NULL, record_updated_at DATETIME2(0) NOT NULL, as_of_date DATE NOT NULL\n\nSemantic traps to test (one case per distinct trap id):\n- SAS-03 (Dates are numbers of days since 1 January 1960) at lines 24-24: Age comes from plain arithmetic on SAS day counts (&as_of minus date_of_birth, divided by 365.25). In Spark, date_of_birth is a DATE and as_of must be turned into a date, so this needs datediff or date functions.\n- SAS-10 (PROC SQL remerges summary statistics) at lines 66-69: mean(x.paid) is mixed with ungrouped columns, so SAS remerges the mean over the rows the WHERE keeps (one line of business) back onto every row. Spark needs a window or a join to the per-line average of paid.\n- SAS-15 (ROUND to a unit, with fuzz, on computed values; everything is an 8-byte double) at lines 96-96: round(2.5*loss_ratio, 0.5) rounds to the nearest half, half away from zero, with fuzz. F.round takes decimal places, so this needs something like floor(x*2+0.5)/2 plus fuzz handling.\n- SAS-15 (ROUND to a unit, with fuzz, on computed values; everything is an 8-byte double) at lines 98-98: round(points*age_load*county_load, 0.01) is applied to a computed double. SAS's fuzz rounds near-half values up, but Spark's F.round on the binary value can round them down.\n- SAS-11 (A character variable's length is fixed by its first assignment) at lines 99-100: The first assignment, 'HIGH', fixes tier at length 4, so 'MEDIUM' is silently cut to 'MEDI' (the output schema has tier as char 4). Spark must reproduce 'MEDI' on purpose.\n- SAS-03 (Dates are numbers of days since 1 January 1960) at lines 102-103: as_of_date is the number &as_of (a SAS day count) shown with yymmdd10. In Spark it must be converted from days since 1960-01-01 to a date.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy SAS 9.4 jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "1c0257528c280e3cd298206e5071092ac4a6f0c43f4ec32ccb1a896792bfeae8",
+  "response": {
+    "duration_api_ms": 141530,
+    "duration_ms": 141901,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4085,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4085,
+        "cacheReadInputTokens": 1416,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.3999312,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 18348,
+        "provider": "firstParty",
+        "thinkingTokens": 5192,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Line 24: dates of birth near the 25 and 70 boundaries at AsOfDate 2025-12-31. SAS divides the day count by 365.25 and truncates, so DOB 2000-12-31 (25 by the calendar) gets age 24 and the 1.40 load. DOB 1955-12-31 gives age 70. A month- or year-based translation (months_between, year difference) gets 25 for 2000-12-31 and changes age_load. Also includes a null DOB (load 1.00) and ordinary ages.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "1",
+                  "customer_since": "2020-01-01",
+                  "date_of_birth": "2000-12-31",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Aoife",
+                  "full_name": "Aoife Byrne",
+                  "initials": "AB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Byrne",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "2",
+                  "customer_since": "2020-01-01",
+                  "date_of_birth": "2001-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Brian",
+                  "full_name": "Brian Walsh",
+                  "initials": "BW",
+                  "is_standard_segment": "Y",
+                  "last_name": "Walsh",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "3",
+                  "customer_since": "2010-01-01",
+                  "date_of_birth": "1955-12-31",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ciara",
+                  "full_name": "Ciara Ryan",
+                  "initials": "CR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Ryan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "4",
+                  "customer_since": "2010-01-01",
+                  "date_of_birth": "1956-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Declan",
+                  "full_name": "Declan Kelly",
+                  "initials": "DK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kelly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "5",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1985-06-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Eimear",
+                  "full_name": "Eimear Doyle",
+                  "initials": "ED",
+                  "is_standard_segment": "Y",
+                  "last_name": "Doyle",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Kerry",
+                  "customer_id": "6",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": null,
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Fionn",
+                  "full_name": "Fionn Nolan",
+                  "initials": "FN",
+                  "is_standard_segment": "Y",
+                  "last_name": "Nolan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "101",
+                  "claim_number": "CL101",
+                  "customer_id": "1",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "102",
+                  "claim_number": "CL102",
+                  "customer_id": "2",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "103",
+                  "claim_number": "CL103",
+                  "customer_id": "3",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "104",
+                  "claim_number": "CL104",
+                  "customer_id": "4",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "105",
+                  "claim_number": "CL105",
+                  "customer_id": "5",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "106",
+                  "claim_number": "CL106",
+                  "customer_id": "6",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "4000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "4000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "4000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "4000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "4000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "C",
+                  "written_eur": "4000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "4000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "D",
+                  "written_eur": "4000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "4000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "E",
+                  "written_eur": "4000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-03"
+        },
+        {
+          "description": "Lines 66-69: severity is paid divided by the remerged mean of paid within one line. MOT customers paid 100, 300 and 800 (line mean 400, so severity 0.25, 0.75 and 2.0). HOM customers paid 2000 and 1000 (mean 1500). One TRV customer has severity 1. A naive translation that uses the overall mean, or no remerge (paid/paid = 1), gets different severity and sev_points.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "11",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1980-03-10",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Gav",
+                  "full_name": "Gav Lynch",
+                  "initials": "GL",
+                  "is_standard_segment": "Y",
+                  "last_name": "Lynch",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "12",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1975-07-20",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Hugh",
+                  "full_name": "Hugh Burke",
+                  "initials": "HB",
+                  "is_standard_segment": "Y",
+                  "last_name": "Burke",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "13",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1990-01-05",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Isla",
+                  "full_name": "Isla Quinn",
+                  "initials": "IQ",
+                  "is_standard_segment": "Y",
+                  "last_name": "Quinn",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "14",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1965-11-11",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Jack",
+                  "full_name": "Jack Moore",
+                  "initials": "JM",
+                  "is_standard_segment": "Y",
+                  "last_name": "Moore",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "15",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1988-04-04",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Kate",
+                  "full_name": "Kate Power",
+                  "initials": "KP",
+                  "is_standard_segment": "Y",
+                  "last_name": "Power",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Mayo",
+                  "customer_id": "16",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1970-09-09",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Liam",
+                  "full_name": "Liam Hayes",
+                  "initials": "LH",
+                  "is_standard_segment": "Y",
+                  "last_name": "Hayes",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "201",
+                  "claim_number": "CL201",
+                  "customer_id": "11",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100"
+                },
+                {
+                  "claim_id": "202",
+                  "claim_number": "CL202",
+                  "customer_id": "12",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "300"
+                },
+                {
+                  "claim_id": "203",
+                  "claim_number": "CL203",
+                  "customer_id": "13",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "500"
+                },
+                {
+                  "claim_id": "204",
+                  "claim_number": "CL204",
+                  "customer_id": "13",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "300"
+                },
+                {
+                  "claim_id": "205",
+                  "claim_number": "CL205",
+                  "customer_id": "14",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "1",
+                  "status": "CLOSED",
+                  "total_paid": "2000"
+                },
+                {
+                  "claim_id": "206",
+                  "claim_number": "CL206",
+                  "customer_id": "15",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "1000"
+                },
+                {
+                  "claim_id": "207",
+                  "claim_number": "CL207",
+                  "customer_id": "16",
+                  "lob_code": "TRV",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "50"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "5000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "5000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "5000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "5000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "6000",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "6000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "6000",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "6000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "1000",
+                  "lob_code": "TRV",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "1000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-10"
+        },
+        {
+          "description": "Line 96: the line loss ratios put 2.5*loss_ratio exactly on a half-unit boundary (MOT about 0.3 → 0.75, HOM 0.1 → 0.25, TRV 0.7 → 1.75), with decimal paid sums that carry binary error. SAS round(x, 0.5) rounds halves away from zero with fuzz (0.75 → 1.0, 0.25 → 0.5, 1.75 → 2.0). A naive F.round(x, 0.5)/bround, or a floor without fuzz, gets a different lob_points.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "41",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1980-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Mary",
+                  "full_name": "Mary Daly",
+                  "initials": "MD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Daly",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "42",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1981-02-02",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Niall",
+                  "full_name": "Niall Shea",
+                  "initials": "NS",
+                  "is_standard_segment": "Y",
+                  "last_name": "Shea",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "43",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1982-03-03",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Orla",
+                  "full_name": "Orla Healy",
+                  "initials": "OH",
+                  "is_standard_segment": "Y",
+                  "last_name": "Healy",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "44",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1983-04-04",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Paul",
+                  "full_name": "Paul Foley",
+                  "initials": "PF",
+                  "is_standard_segment": "Y",
+                  "last_name": "Foley",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "45",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1984-05-05",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Rose",
+                  "full_name": "Rose Casey",
+                  "initials": "RC",
+                  "is_standard_segment": "Y",
+                  "last_name": "Casey",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Sligo",
+                  "customer_id": "46",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1985-06-06",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Sean",
+                  "full_name": "Sean Tobin",
+                  "initials": "ST",
+                  "is_standard_segment": "Y",
+                  "last_name": "Tobin",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "401",
+                  "claim_number": "CL401",
+                  "customer_id": "41",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100.1"
+                },
+                {
+                  "claim_id": "402",
+                  "claim_number": "CL402",
+                  "customer_id": "42",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "99.9"
+                },
+                {
+                  "claim_id": "403",
+                  "claim_number": "CL403",
+                  "customer_id": "43",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100"
+                },
+                {
+                  "claim_id": "404",
+                  "claim_number": "CL404",
+                  "customer_id": "44",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "0.1"
+                },
+                {
+                  "claim_id": "405",
+                  "claim_number": "CL405",
+                  "customer_id": "44",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "0.2"
+                },
+                {
+                  "claim_id": "406",
+                  "claim_number": "CL406",
+                  "customer_id": "45",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "99.7"
+                },
+                {
+                  "claim_id": "407",
+                  "claim_number": "CL407",
+                  "customer_id": "46",
+                  "lob_code": "TRV",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "700"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "400",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "400"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "600",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "600"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "300",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "300"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "700",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "700"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "1000",
+                  "lob_code": "TRV",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "1000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-15"
+        },
+        {
+          "description": "Line 98: points multiplied by binary loads land on half-cents. Young Dublin customers give 12.5*1.4*1.15 = 20.125 and 17.5*1.4*1.15 = 28.175. A Dublin customer aged 40 gives 12.5*1.15 = 14.375 and 37.5*1.15 = 43.125. The binary products sit just below the half, so Spark F.round goes down where SAS's fuzzed round goes up. A Galway customer over 70 gives 45.9375 as a control. The line loss ratio is small, so lob_points is 0.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Dublin",
+                  "customer_id": "21",
+                  "customer_since": "2022-01-01",
+                  "date_of_birth": "2003-05-05",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Tara",
+                  "full_name": "Tara Kane",
+                  "initials": "TK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kane",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Dublin",
+                  "customer_id": "22",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1985-05-05",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ugo",
+                  "full_name": "Ugo Reid",
+                  "initials": "UR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Reid",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": " dublin ",
+                  "customer_id": "23",
+                  "customer_since": "2023-01-01",
+                  "date_of_birth": "2004-08-08",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Vera",
+                  "full_name": "Vera Carr",
+                  "initials": "VC",
+                  "is_standard_segment": "Y",
+                  "last_name": "Carr",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Galway",
+                  "customer_id": "24",
+                  "customer_since": "2000-01-01",
+                  "date_of_birth": "1950-02-02",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Will",
+                  "full_name": "Will Egan",
+                  "initials": "WE",
+                  "is_standard_segment": "Y",
+                  "last_name": "Egan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "DUBLIN",
+                  "customer_id": "25",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1985-09-09",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Zoe",
+                  "full_name": "Zoe Flynn",
+                  "initials": "ZF",
+                  "is_standard_segment": "Y",
+                  "last_name": "Flynn",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "301",
+                  "claim_number": "CL301",
+                  "customer_id": "21",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100"
+                },
+                {
+                  "claim_id": "302",
+                  "claim_number": "CL302",
+                  "customer_id": "22",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100"
+                },
+                {
+                  "claim_id": "303",
+                  "claim_number": "CL303",
+                  "customer_id": "23",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "400"
+                },
+                {
+                  "claim_id": "304",
+                  "claim_number": "CL304",
+                  "customer_id": "24",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "600"
+                },
+                {
+                  "claim_id": "305",
+                  "claim_number": "CL305",
+                  "customer_id": "24",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "400"
+                },
+                {
+                  "claim_id": "306",
+                  "claim_number": "CL306",
+                  "customer_id": "25",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "1",
+                  "status": "CLOSED",
+                  "total_paid": "200"
+                },
+                {
+                  "claim_id": "307",
+                  "claim_number": "CL307",
+                  "customer_id": "25",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "200"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "C",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "D",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "E",
+                  "written_eur": "20000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-15"
+        },
+        {
+          "description": "Lines 99-100: scores fall in all three tiers. One customer is LOW (12.5), three are MEDIUM (25, 23 for a Dublin customer with a recovery, 25) and one is HIGH (60). SAS fixes tier at length 4 from 'HIGH', so the medium rows come out as 'MEDI'. A naive translation writes 'MEDIUM'.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Louth",
+                  "customer_id": "31",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1980-01-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Amy",
+                  "full_name": "Amy Roche",
+                  "initials": "AR",
+                  "is_standard_segment": "Y",
+                  "last_name": "Roche",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Louth",
+                  "customer_id": "32",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1979-02-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Ben",
+                  "full_name": "Ben Duffy",
+                  "initials": "BD",
+                  "is_standard_segment": "Y",
+                  "last_name": "Duffy",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Louth",
+                  "customer_id": "33",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1978-03-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Cian",
+                  "full_name": "Cian Gill",
+                  "initials": "CG",
+                  "is_standard_segment": "Y",
+                  "last_name": "Gill",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Dublin",
+                  "customer_id": "34",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1977-04-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Dara",
+                  "full_name": "Dara Hogan",
+                  "initials": "DH",
+                  "is_standard_segment": "Y",
+                  "last_name": "Hogan",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Louth",
+                  "customer_id": "35",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1976-05-15",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Emma",
+                  "full_name": "Emma Joyce",
+                  "initials": "EJ",
+                  "is_standard_segment": "Y",
+                  "last_name": "Joyce",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "501",
+                  "claim_number": "CL501",
+                  "customer_id": "31",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "100"
+                },
+                {
+                  "claim_id": "502",
+                  "claim_number": "CL502",
+                  "customer_id": "32",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "200"
+                },
+                {
+                  "claim_id": "503",
+                  "claim_number": "CL503",
+                  "customer_id": "32",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "200"
+                },
+                {
+                  "claim_id": "504",
+                  "claim_number": "CL504",
+                  "customer_id": "33",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "375"
+                },
+                {
+                  "claim_id": "505",
+                  "claim_number": "CL505",
+                  "customer_id": "33",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "375"
+                },
+                {
+                  "claim_id": "506",
+                  "claim_number": "CL506",
+                  "customer_id": "33",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "375"
+                },
+                {
+                  "claim_id": "507",
+                  "claim_number": "CL507",
+                  "customer_id": "33",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "375"
+                },
+                {
+                  "claim_id": "508",
+                  "claim_number": "CL508",
+                  "customer_id": "34",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "1",
+                  "status": "CLOSED",
+                  "total_paid": "200"
+                },
+                {
+                  "claim_id": "509",
+                  "claim_number": "CL509",
+                  "customer_id": "35",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "150"
+                },
+                {
+                  "claim_id": "510",
+                  "claim_number": "CL510",
+                  "customer_id": "35",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "150"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "C",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "D",
+                  "written_eur": "20000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "20000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "E",
+                  "written_eur": "20000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-11"
+        },
+        {
+          "description": "Lines 102-103: as_of_date is the SAS day count for 2025-12-31 (23740) shown with yymmdd10. Every output row carries it. A naive translation that writes the raw number, or counts days from the 1970 epoch, gives a wrong date. The rows use several lines and customers, including one with no customer match (customer 99 is absent from dim_customer), so the left join still produces rows.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Cork",
+                  "customer_id": "51",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1960-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Fay",
+                  "full_name": "Fay Kehoe",
+                  "initials": "FK",
+                  "is_standard_segment": "Y",
+                  "last_name": "Kehoe",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Limerick",
+                  "customer_id": "52",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1970-01-01",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Gus",
+                  "full_name": "Gus Lane",
+                  "initials": "GL",
+                  "is_standard_segment": "Y",
+                  "last_name": "Lane",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": null,
+                  "customer_id": "53",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1995-12-31",
+                  "eircode_valid": "N",
+                  "email_shared_count": "0",
+                  "first_name": "Ivy",
+                  "full_name": "Ivy Mann",
+                  "initials": "IM",
+                  "is_standard_segment": "Y",
+                  "last_name": "Mann",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "MUNSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Galway",
+                  "customer_id": "54",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": null,
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Jon",
+                  "full_name": "Jon Nash",
+                  "initials": "JN",
+                  "is_standard_segment": "Y",
+                  "last_name": "Nash",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "CONNACHT",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "county": "Wexford",
+                  "customer_id": "55",
+                  "customer_since": "2015-01-01",
+                  "date_of_birth": "1988-07-07",
+                  "eircode_valid": "Y",
+                  "email_shared_count": "0",
+                  "first_name": "Kim",
+                  "full_name": "Kim Owens",
+                  "initials": "KO",
+                  "is_standard_segment": "Y",
+                  "last_name": "Owens",
+                  "marketing_opt_in": "N",
+                  "record_updated_at": "2025-12-01T00:00:00",
+                  "region": "LEINSTER",
+                  "source_system": "CRM",
+                  "version_count": "1"
+                }
+              ],
+              "table": "dw.dim_customer"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "601",
+                  "claim_number": "CL601",
+                  "customer_id": "51",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "250"
+                },
+                {
+                  "claim_id": "602",
+                  "claim_number": "CL602",
+                  "customer_id": "52",
+                  "lob_code": "MOT",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "750"
+                },
+                {
+                  "claim_id": "603",
+                  "claim_number": "CL603",
+                  "customer_id": "53",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "OPEN",
+                  "total_paid": "1200"
+                },
+                {
+                  "claim_id": "604",
+                  "claim_number": "CL604",
+                  "customer_id": "54",
+                  "lob_code": "HOM",
+                  "n_payments": "1",
+                  "n_recoveries": "1",
+                  "status": "CLOSED",
+                  "total_paid": "800"
+                },
+                {
+                  "claim_id": "605",
+                  "claim_number": "CL605",
+                  "customer_id": "55",
+                  "lob_code": "TRV",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "90"
+                },
+                {
+                  "claim_id": "606",
+                  "claim_number": "CL606",
+                  "customer_id": "99",
+                  "lob_code": "TRV",
+                  "n_payments": "1",
+                  "n_recoveries": "0",
+                  "status": "CLOSED",
+                  "total_paid": "110"
+                }
+              ],
+              "table": "dw.claims_enriched"
+            },
+            {
+              "rows": [
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "5000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "5000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "5000",
+                  "lob_code": "MOT",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "5000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "8000",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "8000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "8000",
+                  "lob_code": "HOM",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "B",
+                  "written_eur": "8000"
+                },
+                {
+                  "as_of_date": "2025-12-31",
+                  "earned_eur": "2000",
+                  "lob_code": "TRV",
+                  "n_policies": "10",
+                  "n_transactions": "10",
+                  "prem_band": "A",
+                  "written_eur": "2000"
+                }
+              ],
+              "table": "rpt.premium_band_summary"
+            }
+          ],
+          "trap_id": "SAS-03"
+        }
+      ]
+    },
+    "total_cost_usd": 0.3999312,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4085,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4085,
+      "cache_read_input_tokens": 1416,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4085,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4085,
+          "cache_read_input_tokens": 1416,
+          "input_tokens": 2,
+          "output_tokens": 18348,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 18348,
+      "output_tokens_details": {
+        "thinking_tokens": 5192
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,40 @@
+{
+  "approach": "sqlglot_only",
+  "candidate_sha256": null,
+  "code_sha256": "8ca34553b9aae2f9666bc1703b0898848a86eda42da35bcadf2089618b520f51",
+  "column_diffs": [],
+  "contract_sha256": null,
+  "counts": null,
+  "duration_seconds": 0.0,
+  "error": "pyspark.errors.exceptions.captured.AnalysisException: [WRONG_NUM_ARGS.WITHOUT_SUGGESTION] The `round` requires [1, 2] parameters but the actual number is 3. Please, refer to 'https://spark.apache.org/docs/latest/sql-ref-functions.html' for a fix. SQLSTATE: 42605; line 1 pos 576",
+  "explanation": "The job did not produce its outputs: pyspark.errors.exceptions.captured.AnalysisException: [WRONG_NUM_ARGS.WITHOUT_SUGGESTION] The `round` requires [1, 2] parameters but the actual number is 3. Please, refer to 'https://spark.apache.org/docs/latest/sql-ref-functions.html' for a fix. SQLSTATE: 42605; line 1 pos 576",
+  "extra_samples": [],
+  "golden_sha256": null,
+  "job_id": "T03",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 0,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T03:19:03.385248Z",
+  "status": "ERROR",
+  "table": "dw.fact_premium_earned",
+  "totals": []
+}

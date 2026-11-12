@@ -1,0 +1,1565 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      66,
+      84,
+      105,
+      110,
+      127
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "accident_year",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "YEAR(loss_date); PIVOT group key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      67,
+      85,
+      106,
+      110,
+      128
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(lob_code)); PIVOT group key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      126,
+      136
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "@AsOfDate literal into column",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      129
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) where dev_year=0, ISNULL(...,0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      107,
+      112,
+      129
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      107,
+      112,
+      129
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year = DATEDIFF(YEAR, loss_date, payment_date) picks pivot column [0]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      129
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d0, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      130
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=1, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      107,
+      112,
+      130
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [1]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      107,
+      112,
+      130
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [1]; CASE WHEN YEAR(loss_date)+1 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      130
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+1 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      130
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d1, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      131
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=2, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      107,
+      112,
+      131
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [2]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      107,
+      112,
+      131
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [2]; CASE WHEN YEAR(loss_date)+2 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      131
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+2 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      131
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d2, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      132
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=3, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      107,
+      112,
+      132
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [3]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      107,
+      112,
+      132
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [3]; CASE WHEN YEAR(loss_date)+3 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      132
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+3 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      132
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d3, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      133
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=4, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      108,
+      112,
+      133
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [4]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      108,
+      112,
+      133
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [4]; CASE WHEN YEAR(loss_date)+4 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      133
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+4 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      133
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d4, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      134
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=5, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      108,
+      112,
+      134
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [5]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      108,
+      112,
+      134
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [5]; CASE WHEN YEAR(loss_date)+5 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      134
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+5 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      134
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d5, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      87,
+      110,
+      112,
+      135
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "PIVOT SUM(amount) for dev_year=6, ISNULL(...,0) inside CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      86,
+      108,
+      112,
+      135
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [6]",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      66,
+      86,
+      108,
+      112,
+      135
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_year bucket [6]; CASE WHEN YEAR(loss_date)+6 <= YEAR(@AsOfDate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      52,
+      135
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "CASE WHEN accident_year+6 <= YEAR(@AsOfDate) ELSE NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      135
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "dev_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "ISNULL(d6, 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      145
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "cumulative_0 = dev_0 (SUM amount, dev_year 0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      145
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_0 dev_year bucket",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      145
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_0 dev_year bucket",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      129,
+      145
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_0",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_0 ISNULL(d0,0)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      146
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + dev_1 (UPDATE after insert)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      146
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      146
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      146
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_1 CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      146
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_1",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      131,
+      147
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + .. + dev_2",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      147
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      131,
+      147
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      131,
+      147
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_n CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      131,
+      147
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_2",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      131,
+      132,
+      148
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + .. + dev_3",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      148
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      131,
+      132,
+      148
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      131,
+      132,
+      148
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_n CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      131,
+      132,
+      148
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_3",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      131,
+      132,
+      133,
+      149
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + .. + dev_4",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      149
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      131,
+      132,
+      133,
+      149
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      131,
+      132,
+      133,
+      149
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_n CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      131,
+      132,
+      133,
+      149
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_4",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      150
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + .. + dev_5",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      150
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      131,
+      132,
+      133,
+      134,
+      150
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      131,
+      132,
+      133,
+      134,
+      150
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_n CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      150
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_5",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.92,
+    "evidence_lines": [
+      87,
+      112,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      151
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "dev_0 + .. + dev_6",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      86,
+      112,
+      151
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n dev_year buckets",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      66,
+      86,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      151
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via dev_n buckets and accident_year CASE",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      52,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      151
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "NULL via dev_n CASE after as-at year",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      151
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "derives",
+    "output_column": "cumulative_6",
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "via ISNULL(...,0) in dev_n",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      70,
+      71
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "YEAR(loss_date) BETWEEN YEAR(@AsOfDate)-6 AND YEAR(@AsOfDate) AND loss_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      52,
+      70,
+      71,
+      92
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "accident-year window, loss_date <= @AsOfDate, payment_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      70
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "seven-year window offset @as_at_yr - 6",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      64,
+      91
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "INNER JOIN p.claim_id = cl.claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      90,
+      91
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "INNER JOIN p.claim_id = cl.claim_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      92,
+      93
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "payment_date <= @AsOfDate AND payment_date > loss_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      94
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "T06",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "rpt.loss_triangle_paid",
+    "source": "llm",
+    "transform": "amount IS NOT NULL",
+    "verified": true
+  }
+]

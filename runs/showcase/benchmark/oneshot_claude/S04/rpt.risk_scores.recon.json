@@ -1,0 +1,253 @@
+{
+  "approach": "oneshot_claude",
+  "candidate_sha256": "f4c6afe20483f51973d71fdab09728285b1e486c713d07c95d26b71abd3afcb2",
+  "code_sha256": "efec5b3ddf0ec884868b86b111662ec5c2e785784d9e094d051d7782088dda0a",
+  "column_diffs": [
+    {
+      "column": "score",
+      "n_rows": 129,
+      "policy": "float_rel",
+      "samples": [
+        {
+          "candidate": "pii:3739fac21a",
+          "customer_id": 100017.0,
+          "legacy": "pii:75b0ae3beb",
+          "lob_code": "MOT"
+        },
+        {
+          "candidate": "pii:533a05668b",
+          "customer_id": 100084.0,
+          "legacy": "pii:a2c5700983",
+          "lob_code": "TRV"
+        },
+        {
+          "candidate": "pii:81c749c072",
+          "customer_id": 100579.0,
+          "legacy": "pii:dd16116f39",
+          "lob_code": "MOT"
+        },
+        {
+          "candidate": "pii:641edb14af",
+          "customer_id": 100659.0,
+          "legacy": "pii:51e95d03da",
+          "lob_code": "TRV"
+        },
+        {
+          "candidate": "pii:641edb14af",
+          "customer_id": 100824.0,
+          "legacy": "pii:51e95d03da",
+          "lob_code": "TRV"
+        }
+      ]
+    },
+    {
+      "column": "tier",
+      "n_rows": 654,
+      "policy": "blank_is_null",
+      "samples": [
+        {
+          "candidate": "pii:7c48dd672a",
+          "customer_id": 100017.0,
+          "legacy": "pii:0001c4b8f7",
+          "lob_code": "MOT"
+        },
+        {
+          "candidate": "pii:7c48dd672a",
+          "customer_id": 100118.0,
+          "legacy": "pii:0001c4b8f7",
+          "lob_code": "HOM"
+        },
+        {
+          "candidate": "pii:7c48dd672a",
+          "customer_id": 100133.0,
+          "legacy": "pii:0001c4b8f7",
+          "lob_code": "HOM"
+        },
+        {
+          "candidate": "pii:7c48dd672a",
+          "customer_id": 100144.0,
+          "legacy": "pii:0001c4b8f7",
+          "lob_code": "MOT"
+        },
+        {
+          "candidate": "pii:7c48dd672a",
+          "customer_id": 100147.0,
+          "legacy": "pii:0001c4b8f7",
+          "lob_code": "TRV"
+        }
+      ]
+    }
+  ],
+  "contract_sha256": "782e914649f237d0d2490f2875f04950c9adb653fcfa33f38514f2f68d626437",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 160,
+        "legacy": 160,
+        "partition": "tier='HIGH'"
+      },
+      {
+        "candidate": 1831,
+        "legacy": 1831,
+        "partition": "tier='LOW'"
+      },
+      {
+        "candidate": 0,
+        "legacy": 654,
+        "partition": "tier='MEDI'"
+      },
+      {
+        "candidate": 654,
+        "legacy": 0,
+        "partition": "tier='MEDIUM'"
+      }
+    ],
+    "candidate": 2645,
+    "legacy": 2645
+  },
+  "duration_seconds": 1.652,
+  "error": null,
+  "explanation": "MISMATCH: the legacy output has 2,645 rows and the candidate 2,645. Row counts differ in 2 partitions: tier='MEDI' (654 vs 0), tier='MEDIUM' (0 vs 654). 719 matched rows differ in: score (129), tier (654). Totals differ (legacy vs candidate): score 55003.30999999925 vs 55002.01999999931. truncated_string in tier: on all 654 rows that differ in tier, one value is a truncated copy of the other.",
+  "extra_samples": [],
+  "golden_sha256": "71253df912139772cc0b108ce5fab25a10cc5afdaf1f4e2ce22d26d7023e0513",
+  "job_id": "S04",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "customer_id",
+    "lob_code"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 1926,
+    "missing": 0,
+    "value_diff": 719
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [
+    {
+      "column": "tier",
+      "explanation": "truncated_string in tier: on all 654 rows that differ in tier, one value is a truncated copy of the other.",
+      "kind": "truncated_string",
+      "n_rows": 654,
+      "suspected_traps": [
+        "SAS-11"
+      ]
+    }
+  ],
+  "started_at": "2026-11-12T03:08:42.870733Z",
+  "status": "MISMATCH",
+  "table": "rpt.risk_scores",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "291480785.0",
+      "column": "customer_id",
+      "legacy": "291480785.0",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2911.0",
+      "column": "n_claims",
+      "legacy": "2911.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "12027486.519999992",
+      "column": "paid",
+      "legacy": "12027486.519999988",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "218.0",
+      "column": "n_recoveries",
+      "legacy": "218.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2644.9999999999995",
+      "column": "severity",
+      "legacy": "2644.999999999999",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "140368.0",
+      "column": "age",
+      "legacy": "140368.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2881.200000000009",
+      "column": "age_load",
+      "legacy": "2881.2000000000103",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2780.050000000052",
+      "column": "county_load",
+      "legacy": "2780.0500000000507",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "1706.27357392757",
+      "column": "loss_ratio",
+      "legacy": "1706.2735739276122",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "48141.5",
+      "column": "points",
+      "legacy": "48141.5",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "55002.01999999931",
+      "column": "score",
+      "legacy": "55003.30999999925",
+      "matches": false,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    }
+  ]
+}

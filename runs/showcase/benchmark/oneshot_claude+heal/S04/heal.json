@@ -1,0 +1,40 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "code_sha256_after": "b01e9b901a99a292727daae12485d23d68fcde25c39344b9345aac9a147afd09",
+      "code_sha256_before": "efec5b3ddf0ec884868b86b111662ec5c2e785784d9e094d051d7782088dda0a",
+      "diagnosis": "The module has two separate faults.\n\n1) tier (654 rows, all 'MEDIUM' vs 'MEDI'). This is trap SAS-11. The DATA step that builds rpt.risk_scores has no LENGTH statement for tier. SAS fixes a character variable's length at compile time from the first assignment in source order, which is tier = 'HIGH', so tier is $4. The later 'MEDIUM' is silently cut to 'MEDI', and 'LOW' fits. The candidate emits the full 'MEDIUM'.\n\n2) score (129 rows; legacy total is 1.29 higher, about 0.01 per row). The score is round(points * age_load * county_load, 0.01). Many of these products should land exactly on a half cent (for example 27.5 * 1.4 * 1.15 = 44.275). In binary floating point they come out a hair below it, e.g. 44.27499999999999. SAS ROUND applies a small tolerance around the halfway point, so it rounds those values up. Spark's F.round(x, 2) works on the stored double, which is just below the half, so it rounds down. Every differing row is 0.01 low in the candidate, which matches the totals. points, and so lob_points, already reconcile.",
+      "duration_seconds": 58.066,
+      "guardrails_passed": true,
+      "job_id": "S04",
+      "kept": true,
+      "llm_call_ids": [
+        "ea78174f35074efa93cf564631fc7305"
+      ],
+      "patch_summary": "- tier: every assigned value is truncated to the 4-character length fixed by the first assignment ('HIGH') using substring(1, 4). The line is marked LANSH-DEFECT, since 'MEDIUM' becoming 'MEDI' looks like a bug.\n- score: added a sas_round(x, unit) helper that copies SAS ROUND's tolerance at the halfway point. It divides by the unit, snaps to 7 decimals so values a hair below a half become exactly a half, rounds half up with sign, then multiplies back by the unit. score uses it.\n- lob_points also uses sas_round for consistency. This only changes values within about 1e-7 of a half, where SAS would round the same way, so lob_points values that already match stay the same.\n- Rewrote the docstring in the LANSH template. The legacy SHA-256 hash was not in the input, so that line says \"not provided\".\n- Everything else is unchanged.",
+      "recon_status_after": "MATCH",
+      "report_after": "attempt-1",
+      "report_before": "translation",
+      "score_after": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "score_before": [
+        0,
+        0,
+        0,
+        719
+      ],
+      "started_at": "2026-11-12T03:24:25.594158Z",
+      "suspected_traps": [
+        "SAS-11"
+      ]
+    }
+  ],
+  "escalation": null,
+  "job_id": "S04",
+  "status": "MATCH"
+}

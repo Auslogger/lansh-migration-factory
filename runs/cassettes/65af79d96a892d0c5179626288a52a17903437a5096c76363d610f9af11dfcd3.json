@@ -1,0 +1,267 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:05:41.691999Z",
+  "request": {
+    "agent": "defect_reviewer",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T06",
+    "json_schema": {
+      "$defs": {
+        "DefectAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected bug in the legacy logic, with a query that measures its impact.",
+          "properties": {
+            "amount_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column whose amount the bug changes; null if none.",
+              "title": "Amount Column"
+            },
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "description": {
+              "description": "What the legacy code does.",
+              "title": "Description",
+              "type": "string"
+            },
+            "evidence_lines": {
+              "description": "Lines of the legacy file that show the bug.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Evidence Lines",
+              "type": "array"
+            },
+            "impact_query": {
+              "description": "One Spark SQL SELECT over the views listed in the prompt that returns exactly one row with rows_affected (the output rows the bug changes) and, where the bug changes an amount, amount_affected (the total change).",
+              "title": "Impact Query",
+              "type": "string"
+            },
+            "intended_behaviour": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended Behaviour",
+              "type": "string"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "intended_behaviour",
+            "evidence_lines",
+            "impact_query",
+            "amount_column",
+            "confidence"
+          ],
+          "title": "DefectAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suspected legacy bugs in one job; an empty list when it looks correct.",
+      "properties": {
+        "defects": {
+          "items": {
+            "$ref": "#/$defs/DefectAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        }
+      },
+      "required": [
+        "defects"
+      ],
+      "title": "DefectReviewAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T06: usp_loss_triangle. Paid loss development triangle by accident year and line of business.\nParameters: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_loss_triangle\n  3 |   Purpose  : Paid loss development triangle for the actuarial reserving team.\n  4 |              One row per accident year and line of business, with the amount\n  5 |              paid in each development year (dev_0 .. dev_6) and the cumulative\n  6 |              paid to date (cumulative_0 .. cumulative_6) as at @AsOfDate. Feeds\n  7 |              the chain-ladder workbook for the quarterly reserving review.\n  8 |   Author   : CNM\n  9 | \n 10 |   Change log\n 11 |     2019-04-08  CNM   Initial version (CR-0862)\n 12 |     2019-10-21  CNM   Travel added to the triangle (CR-0947)\n 13 |     2020-09-14  PD    Payments keyed with a date before the loss left out\n 14 |                       (INC-2318)\n 15 |     2021-02-01  PD    Unkeyed payments (NULL amount) left out\n 16 |     2022-01-17  EOS   Seven accident years. Cells after the as-at date now NULL\n 17 |                       instead of 0, as the workbook expects (CR-1405)\n 18 |     2023-06-26  EOS   lob_code trimmed and upper-cased before grouping\n 19 |                       (INC-2851)\n 20 | ==============================================================================*/\n 21 | SET NOCOUNT ON;\n 22 | GO\n 23 | IF OBJECT_ID(N'rpt.loss_triangle_paid', N'U') IS NULL\n 24 | CREATE TABLE rpt.loss_triangle_paid (\n 25 |     accident_year  INT            NOT NULL,\n 26 |     lob_code       VARCHAR(5)     NOT NULL,\n 27 |     dev_0          DECIMAL(14,2)  NULL,\n 28 |     dev_1          DECIMAL(14,2)  NULL,\n 29 |     dev_2          DECIMAL(14,2)  NULL,\n 30 |     dev_3          DECIMAL(14,2)  NULL,\n 31 |     dev_4          DECIMAL(14,2)  NULL,\n 32 |     dev_5          DECIMAL(14,2)  NULL,\n 33 |     dev_6          DECIMAL(14,2)  NULL,\n 34 |     cumulative_0   DECIMAL(14,2)  NULL,\n 35 |     cumulative_1   DECIMAL(14,2)  NULL,\n 36 |     cumulative_2   DECIMAL(14,2)  NULL,\n 37 |     cumulative_3   DECIMAL(14,2)  NULL,\n 38 |     cumulative_4   DECIMAL(14,2)  NULL,\n 39 |     cumulative_5   DECIMAL(14,2)  NULL,\n 40 |     cumulative_6   DECIMAL(14,2)  NULL,\n 41 |     as_of_date     DATE           NOT NULL,\n 42 |     CONSTRAINT pk_loss_triangle_paid PRIMARY KEY (accident_year, lob_code)\n 43 | );\n 44 | GO\n 45 | CREATE OR ALTER PROCEDURE rpt.usp_loss_triangle\n 46 |     @AsOfDate DATE\n 47 | AS\n 48 | BEGIN\n 49 |     SET NOCOUNT ON;\n 50 | \n 51 |     DECLARE @job_name VARCHAR(128) = 'rpt.usp_loss_triangle',\n 52 |             @as_at_yr INT          = YEAR(@AsOfDate),\n 53 |             @rows     INT;\n 54 | \n 55 |     BEGIN TRY\n 56 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Start',\n 57 |              @status = 'STARTED';\n 58 | \n 59 |         ------------------------------------------------------------------\n 60 |         -- 1. Claims with a loss in the last seven accident years\n 61 |         ------------------------------------------------------------------\n 62 |         IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n 63 | \n 64 |         SELECT c.claim_id,\n 65 |                c.loss_date,\n 66 |                YEAR(c.loss_date)        AS accident_year,\n 67 |                UPPER(RTRIM(c.lob_code)) AS lob_code\n 68 |         INTO   #claims\n 69 |         FROM   stg.claims AS c WITH (NOLOCK)\n 70 |         WHERE  YEAR(c.loss_date) BETWEEN @as_at_yr - 6 AND @as_at_yr\n 71 |           AND  c.loss_date <= @AsOfDate;\n 72 | \n 73 |         SET @rows = @@ROWCOUNT;\n 74 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Load #claims',\n 75 |              @status = 'INFO', @rows_affected = @rows;\n 76 | \n 77 |         ------------------------------------------------------------------\n 78 |         -- 2. Payments to the as-at date, with their development year\n 79 |         ------------------------------------------------------------------\n 80 |         IF OBJECT_ID('tempdb..#paid') IS NOT NULL DROP TABLE #paid;\n 81 | \n 82 |         SELECT cl.claim_id,\n 83 |                p.payment_id,\n 84 |                cl.accident_year,\n 85 |                cl.lob_code,\n 86 |                DATEDIFF(YEAR, cl.loss_date, p.payment_date) AS dev_year,\n 87 |                p.amount\n 88 |         INTO   #paid\n 89 |         FROM   #claims AS cl\n 90 |         INNER JOIN stg.claim_payments AS p WITH (NOLOCK)\n 91 |                 ON p.claim_id = cl.claim_id\n 92 |         WHERE  p.payment_date <= @AsOfDate\n 93 |           AND  p.payment_date >  cl.loss_date   -- dated before the loss = keying error\n 94 |           AND  p.amount IS NOT NULL;            -- not keyed yet\n 95 | \n 96 |         SET @rows = @@ROWCOUNT;\n 97 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Load #paid',\n 98 |              @status = 'INFO', @rows_affected = @rows;\n 99 | \n100 |         ------------------------------------------------------------------\n101 |         -- 3. One column per development year\n102 |         ------------------------------------------------------------------\n103 |         IF OBJECT_ID('tempdb..#tri') IS NOT NULL DROP TABLE #tri;\n104 | \n105 |         SELECT pv.accident_year,\n106 |                pv.lob_code,\n107 |                pv.[0] AS d0, pv.[1] AS d1, pv.[2] AS d2, pv.[3] AS d3,\n108 |                pv.[4] AS d4, pv.[5] AS d5, pv.[6] AS d6\n109 |         INTO   #tri\n110 |         FROM  (SELECT accident_year, lob_code, dev_year, amount\n111 |                FROM   #paid) AS src\n112 |         PIVOT (SUM(amount) FOR dev_year IN ([0], [1], [2], [3], [4], [5], [6])) AS pv;\n113 | \n114 |         SET @rows = @@ROWCOUNT;\n115 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Pivot #tri',\n116 |              @status = 'INFO', @rows_affected = @rows;\n117 | \n118 |         ------------------------------------------------------------------\n119 |         -- 4. Reload the triangle. Nothing paid yet = 0; a cell after the\n120 |         --    as-at date stays NULL.\n121 |         ------------------------------------------------------------------\n122 |         TRUNCATE TABLE rpt.loss_triangle_paid;\n123 | \n124 |         INSERT INTO rpt.loss_triangle_paid\n125 |                (accident_year, lob_code, dev_0, dev_1, dev_2, dev_3, dev_4, dev_5, dev_6,\n126 |                 as_of_date)\n127 |         SELECT t.accident_year,\n128 |                t.lob_code,\n129 |                ISNULL(t.d0, 0),\n130 |                CASE WHEN t.accident_year + 1 <= @as_at_yr THEN ISNULL(t.d1, 0) END,\n131 |                CASE WHEN t.accident_year + 2 <= @as_at_yr THEN ISNULL(t.d2, 0) END,\n132 |                CASE WHEN t.accident_year + 3 <= @as_at_yr THEN ISNULL(t.d3, 0) END,\n133 |                CASE WHEN t.accident_year + 4 <= @as_at_yr THEN ISNULL(t.d4, 0) END,\n134 |                CASE WHEN t.accident_year + 5 <= @as_at_yr THEN ISNULL(t.d5, 0) END,\n135 |                CASE WHEN t.accident_year + 6 <= @as_at_yr THEN ISNULL(t.d6, 0) END,\n136 |                @AsOfDate\n137 |         FROM   #tri AS t;\n138 | \n139 |         SET @rows = @@ROWCOUNT;\n140 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Insert rpt.loss_triangle_paid',\n141 |              @status = 'INFO', @rows_affected = @rows;\n142 | \n143 |         -- cumulative paid (NULL after the as-at date, same as dev_n)\n144 |         UPDATE rpt.loss_triangle_paid\n145 |            SET cumulative_0 = dev_0,\n146 |                cumulative_1 = dev_0 + dev_1,\n147 |                cumulative_2 = dev_0 + dev_1 + dev_2,\n148 |                cumulative_3 = dev_0 + dev_1 + dev_2 + dev_3,\n149 |                cumulative_4 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4,\n150 |                cumulative_5 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4 + dev_5,\n151 |                cumulative_6 = dev_0 + dev_1 + dev_2 + dev_3 + dev_4 + dev_5 + dev_6;\n152 | \n153 |         SET @rows = @@ROWCOUNT;\n154 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Cumulative paid',\n155 |              @status = 'INFO', @rows_affected = @rows;\n156 | \n157 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'End',\n158 |              @status = 'SUCCESS';\n159 |     END TRY\n160 |     BEGIN CATCH\n161 |         DECLARE @err_msg NVARCHAR(4000) = ERROR_MESSAGE(),\n162 |                 @err_no  INT            = ERROR_NUMBER();\n163 | \n164 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'Error',\n165 |              @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n166 |         THROW;\n167 |     END CATCH;\n168 | END;\n169 | GO\n\nViews for impact queries:\n- stg_claims (stg.claims): claim_id int, claim_number string, policy_id int, customer_id int, lob_code string, loss_date date, reported_date date, status string, closed_date date, cause_code string, handler_code string, description string, _row_seq int\n- stg_claim_payments (stg.claim_payments): payment_id int, claim_id int, payment_date date, amount decimal(12,2), payment_type string, payee_type string, _row_seq int\n- golden_rpt_loss_triangle_paid (the legacy output rpt.loss_triangle_paid): accident_year int, lob_code string, dev_0 decimal(14,2), dev_1 decimal(14,2), dev_2 decimal(14,2), dev_3 decimal(14,2), dev_4 decimal(14,2), dev_5 decimal(14,2), dev_6 decimal(14,2), cumulative_0 decimal(14,2), cumulative_1 decimal(14,2), cumulative_2 decimal(14,2), cumulative_3 decimal(14,2), cumulative_4 decimal(14,2), cumulative_5 decimal(14,2), cumulative_6 decimal(14,2), as_of_date date\n\nSuspected bugs the translator marked while reproducing them:\n(none)\n",
+    "system_prompt": "You are the defect reviewer agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark. LANSH reproduces every legacy behaviour exactly, bugs included, and asks a person to decide what to do about each suspected bug, so finding them matters.\n\nRead the job and list the places where the code most likely does not do what its author intended: wrong comparisons or boundaries, joins that multiply rows, gaps or overlaps in bands, wrong date columns, missing values handled wrongly, truncation, hard-coded constants that should vary. Ignore style, performance and things that are merely unusual. For each, write one Spark SQL SELECT over the views listed that measures the impact on the legacy output: it must return exactly one row with rows_affected (the output rows the bug changes) and, when the bug changes an amount, amount_affected (the total change, positive). Compare what the legacy output holds with what the intended logic would give. Use only the views and columns listed.\n"
+  },
+  "request_sha256": "65af79d96a892d0c5179626288a52a17903437a5096c76363d610f9af11dfcd3",
+  "response": {
+    "duration_api_ms": 44732,
+    "duration_ms": 45047,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5139,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5139,
+        "cacheReadInputTokens": 1371,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1426342,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 5062,
+        "provider": "firstParty",
+        "thinkingTokens": 2706,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "defects": [
+        {
+          "amount_column": "dev_0",
+          "confidence": 0.8,
+          "description": "The INC-2318 filter keeps only payments where p.payment_date > cl.loss_date. Any payment dated on the loss date itself is treated as a keying error and dropped. These payments would all land in dev_0, so dev_0 and every cumulative_n are understated. If all of a group's payments are same-day, the accident-year/LOB row is missing from the output entirely.",
+          "evidence_lines": [
+            13,
+            14,
+            93
+          ],
+          "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+          "intended_behaviour": "The comment and change log say only payments dated BEFORE the loss are keying errors, so the filter should be p.payment_date >= cl.loss_date. That keeps same-day payments in dev_0.",
+          "title": "Same-day payments (payment_date = loss_date) dropped"
+        },
+        {
+          "amount_column": "dev_0",
+          "confidence": 0.45,
+          "description": "Line 67 uses UPPER(RTRIM(lob_code)), which removes trailing spaces only. A lob_code with leading spaces (e.g. ' MOT') makes its own row in the triangle, separate from the clean code, so that LOB's paid amounts are split across two rows.",
+          "evidence_lines": [
+            18,
+            19,
+            67
+          ],
+          "impact_query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+          "intended_behaviour": "INC-2851 says lob_code is to be trimmed before grouping, so it should be UPPER(LTRIM(RTRIM(lob_code))) (TRIM) and each LOB should have one row per accident year.",
+          "title": "lob_code only right-trimmed; leading spaces split LOB groups"
+        },
+        {
+          "amount_column": "dev_0",
+          "confidence": 0.3,
+          "description": "#claims takes every row of stg.claims and does not deduplicate by claim_id (the staging table has a _row_seq column, which suggests one claim can be loaded more than once). Each payment is then joined to every copy of its claim, so its amount is counted twice or more in the dev and cumulative cells.",
+          "evidence_lines": [
+            64,
+            69,
+            89,
+            90,
+            91
+          ],
+          "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+          "intended_behaviour": "Each claim should appear once, for example by keeping only the latest _row_seq per claim_id, so that every payment is counted exactly once.",
+          "title": "Duplicate claim rows in staging multiply payments"
+        },
+        {
+          "amount_column": null,
+          "confidence": 0.3,
+          "description": "The triangle is built by pivoting #paid only. An accident year/LOB that has claims in scope but no qualifying payments gets no row, even though the step-4 comment says 'Nothing paid yet = 0'. The chain-ladder workbook ends up missing those rows instead of getting zero-filled rows.",
+          "evidence_lines": [
+            105,
+            110,
+            111,
+            112,
+            119,
+            120,
+            137
+          ],
+          "impact_query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+          "intended_behaviour": "Drive the triangle from the distinct accident-year/LOB pairs in #claims and LEFT JOIN the pivoted payments, so pairs with nothing paid show 0 in the elapsed cells and NULL after the as-at date.",
+          "title": "Accident year / LOB with claims but no payments missing from triangle"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1426342,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5139,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5139,
+      "cache_read_input_tokens": 1371,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5139,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5139,
+          "cache_read_input_tokens": 1371,
+          "input_tokens": 2,
+          "output_tokens": 5062,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 5062,
+      "output_tokens_details": {
+        "thinking_tokens": 2706
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

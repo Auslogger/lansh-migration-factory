@@ -1,0 +1,197 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "90"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 35,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "CLOSED"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 52,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 68,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "NOW"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 68,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "PRIOR"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 70,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "period"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 71,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "as_at"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 95,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 98,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "NOW"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 99,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "PRIOR"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 110,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 110,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 116,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 117,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "19000101"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 117,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": "yyyyMMdd"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 133,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 145,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "25000"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 145,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "NEW"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 146,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.10"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 146,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "DETERIORATING"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 147,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.90"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 147,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "IMPROVING"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 148,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "STABLE"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 153,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "25000"
+    }
+  ],
+  "violations": []
+}

@@ -1,0 +1,88 @@
+wave: 1
+job_ids:
+- S01
+- T01
+- T04
+- T05
+- T06
+- X1
+- X2
+depends_on_waves: []
+trigger: 'cron: 0 2 * * *'
+databricks_workflow:
+  name: lansh-wave-1
+  schedule:
+    quartz_cron_expression: 0 0 2 * * ?
+    timezone_id: Europe/Dublin
+  trigger_after: null
+  tasks:
+  - task_key: S01
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - S01
+    depends_on: []
+  - task_key: T01
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - T01
+    depends_on: []
+  - task_key: T04
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - T04
+    depends_on: []
+  - task_key: T05
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - T05
+    depends_on: []
+  - task_key: T06
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - T06
+    depends_on: []
+  - task_key: X1
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - X1
+    depends_on: []
+  - task_key: X2
+    python_wheel_task:
+      package_name: lansh
+      entry_point: lansh
+      parameters:
+      - operate
+      - run
+      - --job
+      - X2
+    depends_on: []

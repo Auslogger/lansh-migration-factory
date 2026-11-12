@@ -1,0 +1,221 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 24,
+      "provenance": "legacy",
+      "reason": null,
+      "value": ""
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 54,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "INDEMNITY"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 55,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "EXPENSE"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 56,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "RECOVERY"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 69,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 69,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 70,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 71,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 75,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 80,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 81,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 81,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 83,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 90,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 90,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 94,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 98,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 121,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 121,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 121,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 133,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 134,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 135,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 141,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 142,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0.0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 142,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1.0"
+    }
+  ],
+  "violations": []
+}

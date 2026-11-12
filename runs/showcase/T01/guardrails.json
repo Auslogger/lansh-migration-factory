@@ -1,0 +1,493 @@
+{
+  "literals": [
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Dublin"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Kildare"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Louth"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Meath"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Wexford"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 15,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Wicklow"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Carlow"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Cork"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Kerry"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Kilkenny"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Limerick"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Tipperary"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 16,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Waterford"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Clare"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Galway"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Mayo"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 17,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Roscommon"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Cavan"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Donegal"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Leitrim"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Monaghan"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 18,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Sligo"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Laois"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Longford"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Offaly"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 19,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Westmeath"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 45,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 57,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 65,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "EAST"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 66,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "SOUTH"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 67,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "WEST"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 68,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "NORTH-WEST"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 69,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "MIDLANDS"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 70,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "UNKNOWN"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 76,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "7"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 76,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 77,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 77,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 77,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 77,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "8"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 77,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 78,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "N"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 86,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 89,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 92,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "0"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 93,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 103,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 103,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 105,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 105,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "4"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 108,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "N"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 108,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "STD"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 108,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "Y"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 109,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 109,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 112,
+      "provenance": "trap_card",
+      "reason": null,
+      "value": " "
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 112,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "1"
+    },
+    {
+      "accepted_by": null,
+      "decision_id": null,
+      "line": 112,
+      "provenance": "legacy",
+      "reason": null,
+      "value": "N"
+    }
+  ],
+  "violations": []
+}

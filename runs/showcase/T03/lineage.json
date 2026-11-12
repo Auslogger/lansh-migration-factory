@@ -1,0 +1,1014 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      64,
+      74,
+      110
+    ],
+    "input_column": "txn_id",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "txn_id",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      64,
+      74,
+      111
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      112,
+      132
+    ],
+    "input_column": "policy_sk",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "policy_sk",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct from current dim_policy row",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      113,
+      132
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct from current dim_policy row",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      64,
+      74,
+      114
+    ],
+    "input_column": "txn_type",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "txn_type",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(txn_type))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      64,
+      74,
+      115
+    ],
+    "input_column": "txn_date",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "txn_date",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      65,
+      75,
+      116
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "effective_from",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      65,
+      75,
+      117
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "effective_to",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      65,
+      75,
+      118
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "currency",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      65,
+      75,
+      119
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "amount",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      75,
+      77,
+      78,
+      81,
+      120
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "fx_rate",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "latest rate_to_eur on or before txn_date for non-EUR transactions (CROSS APPLY TOP 1)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      66,
+      120
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "fx_rate",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CAST(1 AS DECIMAL(18,8)) for EUR transactions",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      92,
+      121
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "written_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      75,
+      92,
+      121
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "written_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      93,
+      122
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "term_days",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      93,
+      122
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "term_days",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      123
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_days",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      95,
+      123
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_days",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      123
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_days",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "CASE on @AsOfDate against the cover period",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      94,
+      95,
+      96,
+      124
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_pct",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "earned_days * 100 / term_days (integer division)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      95,
+      124
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_pct",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "earned_days * 100 / term_days (integer division)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      124
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_pct",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "earned_days * 100 / term_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      124
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_pct",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "multiplier 100",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      125
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur * earned_days / 365, 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      125
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur * earned_days / 365, 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      125
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      95,
+      125
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      125
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      125
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "earned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "divisor 365 (fixed year, not term_days)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      126
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      126
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      126
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      95,
+      126
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      94,
+      95,
+      96,
+      126
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via earned_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      126
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "unearned_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "divisor 365",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      127
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "daily_rate_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      127
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "daily_rate_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      127
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "daily_rate_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via term_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      127
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "daily_rate_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via term_days",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      128
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "monthly_instalment_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      92,
+      128
+    ],
+    "input_column": "rate_to_eur",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "monthly_instalment_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      128
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "monthly_instalment_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via term_days / 30 (integer division)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      93,
+      128
+    ],
+    "input_column": "effective_to",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "monthly_instalment_eur",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "via term_days / 30 (integer division)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      129
+    ],
+    "input_column": "effective_from",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "first_due_date",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "DATEADD(MONTH, 1, EOMONTH(effective_from))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.99,
+    "evidence_lines": [
+      130
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "@AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      69,
+      82
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "currency = 'EUR' branch / currency <> 'EUR' branch",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      70,
+      83
+    ],
+    "input_column": "txn_date",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "txn_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      70,
+      83
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "txn_date <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      79
+    ],
+    "input_column": "currency",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "r.currency = t.currency in CROSS APPLY (non-EUR rows with no rate are dropped)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      80
+    ],
+    "input_column": "rate_date",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "r.rate_date <= t.txn_date in CROSS APPLY",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      77,
+      81
+    ],
+    "input_column": "rate_date",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "TOP 1 ORDER BY rate_date DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      77,
+      81
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "stg.fx_rates",
+    "job_id": "T03",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "TOP 1 tie-break ORDER BY _row_seq DESC",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.96,
+    "evidence_lines": [
+      132,
+      133
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.premium_transactions",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "JOIN dim_policy ON p.policy_id = e.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.96,
+    "evidence_lines": [
+      132,
+      133
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "JOIN ON p.policy_id = e.policy_id",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      134
+    ],
+    "input_column": "is_current",
+    "input_kind": "column",
+    "input_table": "dw.dim_policy",
+    "job_id": "T03",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.fact_premium_earned",
+    "source": "llm",
+    "transform": "p.is_current = 'Y'",
+    "verified": true
+  }
+]

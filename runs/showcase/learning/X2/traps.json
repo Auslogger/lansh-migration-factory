@@ -1,0 +1,122 @@
+[
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 56,
+    "line_start": 56,
+    "note": "Temp table #clm holds the filtered claims; it becomes a DataFrame.",
+    "snippet": "INTO #clm",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 59,
+    "line_start": 59,
+    "note": "c.status is VARCHAR(12) and is compared before the trim and upper-case. Under the CI collation, 'Closed' and 'closed' count as CLOSED and are dropped once closed more than 90 days ago. Spark's binary <> would keep them.",
+    "snippet": "AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.85,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 59,
+    "line_start": 59,
+    "note": "The raw status is compared untrimmed. SQL Server treats 'CLOSED ' as equal to 'CLOSED', but Spark does not, so old closed claims padded with trailing spaces would stay in the Spark result.",
+    "snippet": "AND (c.status <> 'CLOSED' OR c.closed_date > @PriorDate);",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 68,
+    "line_start": 68,
+    "note": "Temp table #paid holds the payment aggregates; it becomes a DataFrame.",
+    "snippet": "INTO #paid",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 78,
+    "line_start": 78,
+    "note": "Temp table #res holds the reserve rows ranked per period; it becomes a DataFrame.",
+    "snippet": "INTO #res",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 82,
+    "line_start": 81,
+    "note": "CROSS APPLY (VALUES ...) multiplies each reserve row into a NOW and a PRIOR period. Spark has no APPLY, so this becomes a cross join with a two-row DataFrame, followed by the reserve_date <= as_at filter.",
+    "snippet": "CROSS APPLY (VALUES ('NOW', @AsOfDate), ('PRIOR', @PriorDate)) d (period, as_at)\n        WHERE r.reserve_date <= d.as_at;",
+    "trap_id": "TSQL-09"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 87,
+    "line_start": 87,
+    "note": "Temp table #os holds the outstanding reserves now and 90 days ago; it becomes a DataFrame.",
+    "snippet": "INTO #os",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 96,
+    "line_start": 96,
+    "note": "Temp table #ract holds the reserve activity; it becomes a DataFrame.",
+    "snippet": "INTO #ract",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 109,
+    "line_start": 108,
+    "note": "ISNULL takes the DATE type of its first argument, so '19000101' becomes the date 1900-01-01. In Spark, coalesce(date, '19000101') widens to string or fails to cast that literal, so the replacement must be written as a typed date literal.",
+    "snippet": "CASE WHEN ISNULL(p.last_payment_date, '19000101') > ISNULL(a.last_reserve_date, '19000101')\n                    THEN p.last_payment_date ELSE a.last_reserve_date END AS last_activity_date",
+    "trap_id": "TSQL-06"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 110,
+    "line_start": 110,
+    "note": "Temp table #inc holds the incurred amounts; it becomes a DataFrame.",
+    "snippet": "INTO #inc",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 127,
+    "line_start": 127,
+    "note": "DATEDIFF(DAY, start, end) on DATE values gives the day difference. Spark's datediff takes its arguments in reverse order (end, start), so they must be swapped to avoid a negated result.",
+    "snippet": "DATEDIFF(DAY, i.last_activity_date, @AsOfDate),",
+    "trap_id": "TSQL-04"
+  },
+  {
+    "confidence": 0.65,
+    "detector": "llm",
+    "job_id": "X2",
+    "line_end": 130,
+    "line_start": 129,
+    "note": "incurred_90d_ago * 1.10 and * 0.90 are exact DECIMAL multiplications in T-SQL. In PySpark, F.lit(1.10) is a double, which can put a claim on the boundary into the wrong DETERIORATING/IMPROVING/STABLE category. Use decimal literals.",
+    "snippet": "WHEN i.incurred_amount > i.incurred_90d_ago * 1.10 THEN 'DETERIORATING'\n                    WHEN i.incurred_amount < i.incurred_90d_ago * 0.90 THEN 'IMPROVING'",
+    "trap_id": "TSQL-07"
+  }
+]

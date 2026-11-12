@@ -1,0 +1,278 @@
+{
+  "job_id": "X2",
+  "table": "gold.large_loss_watchlist",
+  "legacy_table": "rpt.large_loss_watchlist",
+  "layer": "gold",
+  "grain": "One row per claim (open, reopened, or closed within the last 90 days) whose incurred amount (paid to date plus latest outstanding reserve) is at least EUR 25,000 as at the as-of date.",
+  "keys": [
+    "claim_id"
+  ],
+  "columns": [
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_number",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(20)",
+      "nullable": false,
+      "max_length": 20,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "policy_id",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "claim_status",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(12)",
+      "nullable": false,
+      "max_length": 12,
+      "tags": [],
+      "description": "Trimmed and upper-cased from the source status.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reported_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "closed_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "paid_to_date",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "outstanding_reserve",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "incurred_amount",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "paid_to_date + outstanding_reserve as at as_of_date; always >= 25000.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "incurred_90d_ago",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Paid to date plus latest reserve as at as_of_date minus 90 days.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "movement_90d",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "incurred_amount - incurred_90d_ago.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "reserve_changes_90d",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "Count of reserve records dated within the last 90 days.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "days_since_last_activity",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Days from the later of the last keyed payment date or last reserve date to as_of_date; NULL if there was no activity.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "watch_category",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(15)",
+      "nullable": false,
+      "max_length": 15,
+      "tags": [],
+      "description": "NEW if incurred_90d_ago < 25000; DETERIORATING if up more than 10%; IMPROVING if down more than 10%; else STABLE.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [
+    "watch_category",
+    "lob_code"
+  ],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 79,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

@@ -1,0 +1,454 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:34:58.230385Z",
+  "request": {
+    "agent": "lineage",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "S03",
+    "json_schema": {
+      "$defs": {
+        "LineageEdgeAnswer": {
+          "additionalProperties": false,
+          "description": "One way an input influences an output of the job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "input_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the input column; for a parameter edge, the parameter name such as @AsOfDate; else null.",
+              "title": "Input Column"
+            },
+            "input_kind": {
+              "description": "column: a column of one of the job's input tables; parameter: a job parameter such as @AsOfDate; constant: a literal in the code; generated: a value the engine makes, such as an IDENTITY key or a load timestamp.",
+              "enum": [
+                "column",
+                "parameter",
+                "constant",
+                "generated"
+              ],
+              "title": "Input Kind",
+              "type": "string"
+            },
+            "input_table": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "For a column edge, the job INPUT table it belongs to, schema-qualified (trace through temp tables and work data sets back to the job's inputs); else null.",
+              "title": "Input Table"
+            },
+            "kind": {
+              "description": "derives: the input's value flows into the output column; filters: it decides which rows appear (WHERE, JOIN ON, HAVING, IN=, subsetting IF); ranks: it decides which row survives (ORDER BY in a ROW_NUMBER, NODUPKEY, FIRST./LAST.).",
+              "enum": [
+                "derives",
+                "filters",
+                "ranks"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "lines": {
+              "description": "Line numbers in the legacy file that show the edge.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Lines",
+              "type": "array"
+            },
+            "output_column": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The output column the edge feeds; null for an edge that decides which rows appear (a filter) or which row survives (a ranking).",
+              "title": "Output Column"
+            },
+            "output_table": {
+              "description": "The job's output table, schema-qualified, e.g. rpt.claims_summary.",
+              "title": "Output Table",
+              "type": "string"
+            },
+            "transform": {
+              "description": "A few words on the logic, e.g. 'UPPER(RTRIM(lob_code))'.",
+              "title": "Transform",
+              "type": "string"
+            }
+          },
+          "required": [
+            "output_table",
+            "output_column",
+            "input_kind",
+            "input_table",
+            "input_column",
+            "kind",
+            "transform",
+            "lines",
+            "confidence"
+          ],
+          "title": "LineageEdgeAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Column-level lineage of one legacy job, traced back to the job's input tables.",
+      "properties": {
+        "edges": {
+          "description": "Every derives edge for every output column, plus the filters and ranks that decide the output's rows.",
+          "items": {
+            "$ref": "#/$defs/LineageEdgeAnswer"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a reviewer should know, such as a column whose lineage is uncertain. Empty when there is nothing to add.",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edges",
+        "notes"
+      ],
+      "title": "LineageAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job S03: premium_bands.sas (sas), file estate/sas/S03_premium_bands.sas.\nEarned premium summarised by premium band.\nParameters: AsOfDate (in SAS, the macro variable &as_of).\n\nCode:\n 1 | /******************************************************************************\n 2 |   Program  : premium_bands.sas\n 3 |   Purpose  : Written and earned premium by line of business and premium band\n 4 |              for the pricing committee. Each policy is banded once, on the\n 5 |              premium of its first transaction as loaded, and all of its\n 6 |              transactions are reported in that band.\n 7 |   Inputs   : dw.fact_premium_earned\n 8 |   Output   : rpt.premium_band_summary (rebuilt on every run)\n 9 |   Params   : as_of - reporting date (SAS date), set by the scheduler\n10 |   Author   : RN\n11 | \n12 |   Change log\n13 |     2016-02-22  RN    Initial version\n14 |     2017-05-08  RN    Top band split: 1000 and over (CR-1077)\n15 |     2019-10-14  CB    Transactions reported in their policy's band, not their\n16 |                       own (CR-1520)\n17 |     2022-03-07  CB    Policy count per band (CR-1951)\n18 | ******************************************************************************/\n19 | \n20 | /* premium bands used by pricing since 2017 */\n21 | proc format;\n22 |   value premband\n23 |     low  -< 0    = 'NEGATIVE'\n24 |     0    -< 250  = '0-249'\n25 |     250  -< 500  = '250-499'\n26 |     500  -< 1000 = '500-999'\n27 |     1000 - high  = '1000+'\n28 |     other        = 'UNKNOWN';\n29 | run;\n30 | \n31 | /* one row per policy: its opening transaction, as loaded */\n32 | proc sort data=dw.fact_premium_earned(keep=policy_id lob_code written_eur)\n33 |           out=work.opening nodupkey;\n34 |   by policy_id;\n35 | run;\n36 | \n37 | data work.policy_band(keep=policy_id lob_code prem_band);\n38 |   set work.opening;\n39 |   length prem_band $8;\n40 |   prem_band = put(written_eur, premband.);\n41 | run;\n42 | \n43 | /* every transaction, in its policy's band */\n44 | proc sort data=dw.fact_premium_earned(keep=policy_id written_eur earned_eur)\n45 |           out=work.txn;\n46 |   by policy_id;\n47 | run;\n48 | \n49 | data work.txn_band;\n50 |   merge work.txn(in=t) work.policy_band;\n51 |   by policy_id;\n52 |   if t;\n53 | run;\n54 | \n55 | proc means data=work.txn_band noprint nway;\n56 |   class lob_code prem_band;\n57 |   var written_eur earned_eur;\n58 |   output out=work.premium_sums(drop=_type_ _freq_)\n59 |          n(written_eur)=n_transactions sum(written_eur)=written_eur\n60 |          sum(earned_eur)=earned_eur;\n61 | run;\n62 | \n63 | proc means data=work.policy_band noprint nway;\n64 |   class lob_code prem_band;\n65 |   var policy_id;\n66 |   output out=work.policy_counts(drop=_type_ _freq_) n(policy_id)=n_policies;\n67 | run;\n68 | \n69 | data rpt.premium_band_summary(keep=lob_code prem_band n_policies n_transactions\n70 |                                    written_eur earned_eur as_of_date);\n71 |   merge work.policy_counts work.premium_sums;\n72 |   by lob_code prem_band;\n73 |   format as_of_date yymmdd10.;\n74 |   as_of_date = &as_of;\n75 | run;\n\nInput tables:\n- dw.fact_premium_earned: txn_id INT, policy_id INT, policy_sk INT, lob_code VARCHAR(5), txn_type VARCHAR(4), txn_date DATE, effective_from DATE, effective_to DATE, currency CHAR(3), amount DECIMAL(12,2), fx_rate DECIMAL(18,8), written_eur DECIMAL(14,2), term_days INT, earned_days INT, earned_pct DECIMAL(5,2), earned_eur DECIMAL(14,2), unearned_eur DECIMAL(14,2), daily_rate_eur DECIMAL(12,4), monthly_instalment_eur DECIMAL(14,2), first_due_date DATE, as_of_date DATE, _row_seq num 8\n\nOutput tables:\n- rpt.premium_band_summary: lob_code char 5 format=$CHAR, prem_band char 8, n_policies num 8, n_transactions num 8, written_eur num 8 format=BEST, earned_eur num 8 format=BEST, as_of_date num 8 format=YYMMDD\n",
+    "system_prompt": "You are the lineage agent of LANSH, a factory that migrates legacy SAS 9.4 jobs to PySpark and proves each migrated output matches the legacy output record for record.\n\nMap the job's column-level lineage, from its input tables to its output tables:\n- for every output column, list every input column whose value flows into it (derives), tracing through temp tables, variables, cursors, work data sets and macros back to the job's INPUT tables (never name a temp table or work data set as an input);\n- list the input columns that decide which rows appear in an output (filters: WHERE, JOIN ON, HAVING, IN= and subsetting IF conditions) and which row survives (ranks: the ORDER BY of a ROW_NUMBER, NODUPKEY, FIRST./LAST.), with output_column null;\n- a job parameter (@AsOfDate, &as_of) is a parameter edge; a literal value is a constant edge; an IDENTITY key or load timestamp is a generated edge;\n- name only tables and columns listed in the schemas; give the lines that show each edge.\n"
+  },
+  "request_sha256": "41cce3fc94e10ca8354834c86824f30d5f24db1b918b2c584c1e56514e52c1ab",
+  "response": {
+    "duration_api_ms": 22145,
+    "duration_ms": 22400,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 2301,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 2301,
+        "cacheReadInputTokens": 1862,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0701484,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 2568,
+        "provider": "firstParty",
+        "thinkingTokens": 676,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "edges": [
+        {
+          "confidence": 0.95,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            32,
+            33,
+            37,
+            50,
+            56,
+            64,
+            71,
+            72
+          ],
+          "output_column": "lob_code",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "lob_code of the policy's first row as loaded (NODUPKEY), merged onto every transaction; used as a CLASS grouping key"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "written_eur",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            32,
+            40,
+            56,
+            64,
+            72
+          ],
+          "output_column": "prem_band",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "put(written_eur, premband.) on the policy's first row as loaded; used as a CLASS grouping key"
+        },
+        {
+          "confidence": 0.85,
+          "input_column": null,
+          "input_kind": "constant",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            23,
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "output_column": "prem_band",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "band labels from the premband format, e.g. 'NEGATIVE', '0-249', '1000+', 'UNKNOWN'"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            32,
+            34,
+            63,
+            65,
+            66
+          ],
+          "output_column": "n_policies",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "n(policy_id) over one row per policy (NODUPKEY), grouped by lob_code and prem_band"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "written_eur",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            44,
+            57,
+            59
+          ],
+          "output_column": "n_transactions",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "n(written_eur): count of non-missing written_eur per lob_code and prem_band"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "written_eur",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            44,
+            57,
+            59
+          ],
+          "output_column": "written_eur",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "sum(written_eur) per lob_code and prem_band"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "earned_eur",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "derives",
+          "lines": [
+            44,
+            57,
+            60
+          ],
+          "output_column": "earned_eur",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "sum(earned_eur) per lob_code and prem_band"
+        },
+        {
+          "confidence": 0.95,
+          "input_column": "@AsOfDate",
+          "input_kind": "parameter",
+          "input_table": null,
+          "kind": "derives",
+          "lines": [
+            74
+          ],
+          "output_column": "as_of_date",
+          "output_table": "rpt.premium_band_summary",
+          "transform": "as_of_date = &as_of"
+        },
+        {
+          "confidence": 0.9,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "ranks",
+          "lines": [
+            32,
+            33,
+            34
+          ],
+          "output_column": null,
+          "output_table": "rpt.premium_band_summary",
+          "transform": "PROC SORT NODUPKEY BY policy_id keeps the first row for each policy"
+        },
+        {
+          "confidence": 0.55,
+          "input_column": "_row_seq",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "ranks",
+          "lines": [
+            5,
+            31,
+            32,
+            33
+          ],
+          "output_column": null,
+          "output_table": "rpt.premium_band_summary",
+          "transform": "implicit load order decides which duplicate NODUPKEY keeps (the first as loaded)"
+        },
+        {
+          "confidence": 0.75,
+          "input_column": "policy_id",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "filters",
+          "lines": [
+            50,
+            51,
+            52
+          ],
+          "output_column": null,
+          "output_table": "rpt.premium_band_summary",
+          "transform": "merge BY policy_id with if t keeps only transactions (match to the policy band)"
+        },
+        {
+          "confidence": 0.7,
+          "input_column": "lob_code",
+          "input_kind": "column",
+          "input_table": "dw.fact_premium_earned",
+          "kind": "filters",
+          "lines": [
+            55,
+            56,
+            63,
+            64
+          ],
+          "output_column": null,
+          "output_table": "rpt.premium_band_summary",
+          "transform": "PROC MEANS CLASS without MISSING drops rows where lob_code is missing"
+        }
+      ],
+      "notes": "The only input is dw.fact_premium_earned. lob_code and prem_band come from each policy's first row. PROC SORT NODUPKEY keeps the first row it meets for each policy_id, so which row that is depends on the order the rows were loaded. I have taken that load order to be _row_seq, but the code never names that column, so this edge is an inference (confidence 0.55). For the PySpark port, rebuild the first row as ROW_NUMBER over policy_id ordered by _row_seq.\n\nThe match on policy_id with `if t` almost never drops a row, because both sides come from the same table. PROC MEANS has no MISSING option, so it drops any row where lob_code or prem_band is missing. prem_band is never missing: the format sends missing written_eur to 'UNKNOWN' (via OTHER).\n\nn_transactions counts only non-missing written_eur values. It is not a row count.\n\nThe final merge on lob_code and prem_band is a full match and drops nothing."
+    },
+    "total_cost_usd": 0.0701484,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 2301,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 2301,
+      "cache_read_input_tokens": 1862,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 2301,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 2301,
+          "cache_read_input_tokens": 1862,
+          "input_tokens": 2,
+          "output_tokens": 2568,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 2568,
+      "output_tokens_details": {
+        "thinking_tokens": 676
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,264 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:14:05.216866Z",
+  "request": {
+    "agent": "trap_scan",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T08",
+    "json_schema": {
+      "$defs": {
+        "TrapFindingAnswer": {
+          "additionalProperties": false,
+          "description": "One place where a known engine difference (a trap card) affects this job.",
+          "properties": {
+            "confidence": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Confidence",
+              "type": "number"
+            },
+            "line_end": {
+              "minimum": 1,
+              "title": "Line End",
+              "type": "integer"
+            },
+            "line_start": {
+              "minimum": 1,
+              "title": "Line Start",
+              "type": "integer"
+            },
+            "note": {
+              "description": "Why the trap matters at these lines, in one or two sentences.",
+              "title": "Note",
+              "type": "string"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "line_start",
+            "line_end",
+            "confidence",
+            "note"
+          ],
+          "title": "TrapFindingAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The traps a careful reviewer finds in the job, beyond those the rules already found.",
+      "properties": {
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/TrapFindingAnswer"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "findings"
+      ],
+      "title": "TrapScanAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T08: usp_fraud_flags (tsql), file estate/tsql/T08_usp_fraud_flags.sql.\nRule-based fraud indicators for recently notified claims.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job       rpt.usp_fraud_flags\n  3 |   Purpose   Fraud indicators for the Special Investigations Unit (SIU): one row\n  4 |             per claim notified in the twelve months to the reporting date, with\n  5 |             the indicator flags, a score and a referral band for the SIU\n  6 |             worklist and case tool.\n  7 |   Author    MOB\n  8 |   Run by    SIU_WEEKLY, after the claims and policy extracts and dw.dim_customer\n  9 |             have loaded\n 10 |   Output    rpt.claim_fraud_flags (full refresh)\n 11 | \n 12 |   Change log\n 13 |     2016-05-09  MOB   Initial version: early notification and new customer\n 14 |                       indicators (CR-0954)\n 15 |     2016-11-21  MOB   Motor claims: registration not in the Irish format\n 16 |                       (CR-1012)\n 17 |     2017-04-03  SB    Claim keyed against a policy from another line of\n 18 |                       business (INC-1530)\n 19 |     2018-08-27  SB    fraud_score and referral bands agreed with SIU (CR-1377)\n 20 |     2019-02-11  NF    Policy dates from the latest policy extract on or before\n 21 |                       the reporting date, not the old policy master (CR-1529)\n 22 |     2020-06-15  NF    loss_day_key and reason text for the SIU case tool\n 23 |                       (CR-1810)\n 24 |     2021-10-04  SB    lob_code upper-cased for the SIU dashboard (INC-2389)\n 25 | ==============================================================================*/\n 26 | SET NOCOUNT ON;\n 27 | GO\n 28 | IF OBJECT_ID(N'rpt.claim_fraud_flags', N'U') IS NULL\n 29 | CREATE TABLE rpt.claim_fraud_flags (\n 30 |     claim_id                 INT            NOT NULL,\n 31 |     claim_number             VARCHAR(20)    NOT NULL,\n 32 |     policy_id                INT            NOT NULL,\n 33 |     policy_number            VARCHAR(20)    NULL,\n 34 |     customer_id              INT            NOT NULL,\n 35 |     lob_code                 VARCHAR(5)     NOT NULL,\n 36 |     loss_date                DATE           NOT NULL,\n 37 |     reported_date            DATE           NOT NULL,\n 38 |     early_notification_flag  INT            NOT NULL,\n 39 |     invalid_reg_flag         INT            NOT NULL,\n 40 |     new_customer_flag        INT            NOT NULL,\n 41 |     lob_mismatch_flag        INT            NOT NULL,\n 42 |     fraud_score              INT            NOT NULL,\n 43 |     fraud_band               VARCHAR(6)     NOT NULL,  -- HIGH / MEDIUM / LOW\n 44 |     loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n 45 |     reason_text              VARCHAR(100)   NOT NULL,\n 46 |     as_of_date               DATE           NOT NULL,\n 47 |     CONSTRAINT pk_rpt_claim_fraud_flags PRIMARY KEY (claim_id)\n 48 | );\n 49 | GO\n 50 | CREATE OR ALTER PROCEDURE rpt.usp_fraud_flags\n 51 |     @AsOfDate DATE\n 52 | AS\n 53 | BEGIN\n 54 |     SET NOCOUNT ON;\n 55 | \n 56 |     DECLARE @job_name       VARCHAR(128) = 'rpt.usp_fraud_flags',\n 57 |             @rows           INT,\n 58 |             @snapshot_date  DATE,\n 59 |             @err_msg        NVARCHAR(4000),\n 60 |             @err_no         INT;\n 61 | \n 62 |     BEGIN TRY\n 63 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n 64 | \n 65 |         /* Policy details from the latest policy extract on or before the reporting date */\n 66 |         SELECT  @snapshot_date = MAX(ps.snapshot_date)\n 67 |         FROM    stg.policy_snapshots ps WITH (NOLOCK)\n 68 |         WHERE   ps.snapshot_date <= @AsOfDate;\n 69 | \n 70 |         /* 1. Claims notified in the twelve months to the reporting date, with the\n 71 |               policy they were made under and when the policyholder became a customer */\n 72 |         IF OBJECT_ID('tempdb..#claims') IS NOT NULL DROP TABLE #claims;\n 73 | \n 74 |         SELECT  c.claim_id,\n 75 |                 c.claim_number,\n 76 |                 c.policy_id,\n 77 |                 c.customer_id,\n 78 |                 c.lob_code,\n 79 |                 c.loss_date,\n 80 |                 c.reported_date,\n 81 |                 p.policy_number,\n 82 |                 p.inception_date,\n 83 |                 p.expiry_date,\n 84 |                 p.vehicle_reg,\n 85 |                 dc.customer_since\n 86 |         INTO    #claims\n 87 |         FROM    stg.claims c WITH (NOLOCK)\n 88 |         LEFT JOIN stg.policy_snapshots p WITH (NOLOCK)\n 89 |                ON p.policy_id = c.policy_id\n 90 |               AND p.snapshot_date = @snapshot_date\n 91 |         LEFT JOIN dw.dim_customer dc WITH (NOLOCK)\n 92 |                ON dc.customer_id = c.customer_id\n 93 |         WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n 94 |           AND   c.reported_date <= @AsOfDate;\n 95 | \n 96 |         SET @rows = @@ROWCOUNT;\n 97 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claims notified', @status = 'INFO', @rows_affected = @rows;\n 98 | \n 99 |         /* 2. SIU indicators, one point each (CR-0954, CR-1012, INC-1530) */\n100 |         IF OBJECT_ID('tempdb..#flags') IS NOT NULL DROP TABLE #flags;\n101 | \n102 |         SELECT  f.*,\n103 |                 f.early_notification_flag + f.invalid_reg_flag\n104 |                   + f.new_customer_flag + f.lob_mismatch_flag     AS fraud_score\n105 |         INTO    #flags\n106 |         FROM   (SELECT  cl.claim_id,\n107 |                         -- claim notified within 30 days of the cover starting\n108 |                         CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n109 |                              THEN 1 ELSE 0 END                    AS early_notification_flag,\n110 |                         -- motor: registration not in the Irish format, e.g. 191-D-12345\n111 |                         CASE WHEN cl.lob_code = 'MOT'\n112 |                               AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n113 |                              THEN 1 ELSE 0 END                    AS invalid_reg_flag,\n114 |                         -- customer for less than six months at the date of loss\n115 |                         CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n116 |                              THEN 1 ELSE 0 END                    AS new_customer_flag,\n117 |                         -- policy number starts with its line of business (MOT/2024/500001)\n118 |                         CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n119 |                              THEN 1 ELSE 0 END                    AS lob_mismatch_flag\n120 |                 FROM    #claims cl) f;\n121 | \n122 |         SET @rows = @@ROWCOUNT;\n123 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'indicators', @status = 'INFO', @rows_affected = @rows;\n124 | \n125 |         /* 3. Reload the SIU table: bands agreed with SIU (CR-1377) */\n126 |         BEGIN TRANSACTION;\n127 | \n128 |         TRUNCATE TABLE rpt.claim_fraud_flags;\n129 | \n130 |         INSERT INTO rpt.claim_fraud_flags\n131 |                (claim_id, claim_number, policy_id, policy_number, customer_id, lob_code,\n132 |                 loss_date, reported_date, early_notification_flag, invalid_reg_flag,\n133 |                 new_customer_flag, lob_mismatch_flag, fraud_score, fraud_band,\n134 |                 loss_day_key, reason_text, as_of_date)\n135 |         SELECT  cl.claim_id,\n136 |                 cl.claim_number,\n137 |                 cl.policy_id,\n138 |                 cl.policy_number,\n139 |                 cl.customer_id,\n140 |                 UPPER(RTRIM(cl.lob_code)),\n141 |                 cl.loss_date,\n142 |                 cl.reported_date,\n143 |                 f.early_notification_flag,\n144 |                 f.invalid_reg_flag,\n145 |                 f.new_customer_flag,\n146 |                 f.lob_mismatch_flag,\n147 |                 f.fraud_score,\n148 |                 CASE WHEN f.fraud_score >= 2 THEN 'HIGH'\n149 |                      WHEN f.fraud_score = 1  THEN 'MEDIUM'\n150 |                      ELSE 'LOW'\n151 |                 END,\n152 |                 CONVERT(CHAR(8), cl.loss_date, 112),\n153 |                 'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n154 |                     + CASE WHEN f.fraud_score = 0 THEN ' - no indicators' ELSE ' -' END\n155 |                     + CASE WHEN f.early_notification_flag = 1 THEN ' EARLY'   ELSE '' END\n156 |                     + CASE WHEN f.invalid_reg_flag        = 1 THEN ' REG'     ELSE '' END\n157 |                     + CASE WHEN f.new_customer_flag       = 1 THEN ' NEWCUST' ELSE '' END\n158 |                     + CASE WHEN f.lob_mismatch_flag       = 1 THEN ' LOB'     ELSE '' END,\n159 |                 @AsOfDate\n160 |         FROM    #claims cl\n161 |         JOIN    #flags f\n162 |                 ON f.claim_id = cl.claim_id;\n163 | \n164 |         SET @rows = @@ROWCOUNT;\n165 | \n166 |         COMMIT TRANSACTION;\n167 | \n168 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claim_fraud_flags', @status = 'INFO', @rows_affected = @rows;\n169 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n170 |     END TRY\n171 |     BEGIN CATCH\n172 |         IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n173 | \n174 |         SELECT  @err_msg = ERROR_MESSAGE(),\n175 |                 @err_no  = ERROR_NUMBER();\n176 | \n177 |         EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n178 |              @message = @err_msg, @error_number = @err_no;\n179 |         THROW;\n180 |     END CATCH\n181 | END;\n182 | GO\n\nInput tables:\n- stg.claims: claim_id INT, claim_number VARCHAR(20), policy_id INT, customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, status VARCHAR(12), closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200), _row_seq INT\n- stg.policy_snapshots: snapshot_date DATE, policy_id INT, policy_number VARCHAR(20), customer_id INT, product_code VARCHAR(10), broker_code VARCHAR(10), inception_date DATE, expiry_date DATE, status VARCHAR(12), cancellation_date DATE, annual_premium DECIMAL(12,2), currency CHAR(3), sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10), vehicle_reg VARCHAR(12), ncd_years INT, _row_seq INT\n- dw.dim_customer: customer_id INT, first_name NVARCHAR(40), last_name NVARCHAR(60), full_name NVARCHAR(101), initials NVARCHAR(2), email VARCHAR(120), email_shared_count INT, date_of_birth DATE, age_at_join INT, address_line1 NVARCHAR(100), town NVARCHAR(50), county VARCHAR(30), region VARCHAR(12), eircode VARCHAR(10), eircode_valid CHAR(1), segment_code CHAR(4), is_standard_segment CHAR(1), marketing_opt_in CHAR(1), customer_since DATE, source_system VARCHAR(10), version_count INT, record_updated_at DATETIME2(0), as_of_date DATE\n\nOutput tables:\n- rpt.claim_fraud_flags: claim_id INT, claim_number VARCHAR(20), policy_id INT, policy_number VARCHAR(20), customer_id INT, lob_code VARCHAR(5), loss_date DATE, reported_date DATE, early_notification_flag INT, invalid_reg_flag INT, new_customer_flag INT, lob_mismatch_flag INT, fraud_score INT, fraud_band VARCHAR(6), loss_day_key CHAR(8), reason_text VARCHAR(100), as_of_date DATE\n\nTrap cards:\n- TSQL-01 (semantic) Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins. Legacy: Under a case-insensitive collation such as SQL_Latin1_General_CP1_CI_AS, text compares equal regardless of letter case (and of trailing spaces, see TSQL-02): state = 'ACTIVE' also matches 'Active' and 'active'; GROUP BY, DISTINCT, PARTITION BY and join keys put case variants together. The stored value is returned unchanged. Spark: Spark compares strings in binary order: 'Active' <> 'ACTIVE', so a filter drops case variants, a GROUP BY splits them into separate groups and a join misses them.\n- TSQL-02 (semantic) Comparisons ignore trailing spaces; CHAR(n) pads with spaces. Legacy: SQL Server pads the shorter string with spaces before comparing, so 'WEST ' = 'WEST' (also in IN, GROUP BY and joins). CHAR(n) and NCHAR(n) values are stored and returned padded to n characters: 'AB' in a CHAR(4) column is 'AB '. LEN() ignores trailing spaces (TSQL-15). Leading spaces always count. Spark: Spark compares strings exactly, so 'WEST ' <> 'WEST', and its string type never pads. A value read from a CHAR source column keeps whatever spaces it was stored with.\n- TSQL-03 (semantic) Integer division truncates. Legacy: INT / INT is integer division in T-SQL, truncating toward zero: 7 / 2 = 3, -7 / 2 = -3. The result type follows the operands, so the fraction is lost before any later cast, e.g. CAST(qty / pack_size AS DECIMAL(9,2)) or 100 * a / b. Spark: Spark's / always returns a double (7 / 2 = 3.5); DIV is integer division.\n- TSQL-04 (semantic) DATEDIFF counts boundaries crossed, not elapsed periods. Legacy: DATEDIFF(datepart, a, b) counts the datepart boundaries crossed between a and b: DATEDIFF(year, '2025-12-31', '2026-01-01') = 1 and DATEDIFF(month, '2025-01-31', '2025-02-01') = 1. DATEDIFF(week, ...) counts Sundays crossed, whatever SET DATEFIRST says. DATEDIFF(day, ...) on DATE values equals the day difference. Spark: datediff(end, start) counts days (arguments reversed); months_between returns a fraction with its own month-end rule; floor(months/12) counts elapsed years, not boundaries.\n- TSQL-05 (semantic) + concatenation with NULL yields NULL. Legacy: With CONCAT_NULL_YIELDS_NULL ON (the default), 'A' + NULL is NULL, so a whole concatenation is NULL when any part is. CONCAT() and CONCAT_WS() treat NULL as empty. Spark: Spark's + is arithmetic only; concat() returns NULL when any argument is NULL, while concat_ws() skips NULLs and format_string writes 'null'.\n- TSQL-06 (semantic) ISNULL takes the type of its first argument; NULL treated as equal in change checks. Legacy: ISNULL(a, b) returns a's data type, so the replacement b is converted to it: a VARCHAR(5) column with ISNULL(col, 'UNKNOWN') returns 'UNKNO' (truncated), and ISNULL(int_col, 0.5) returns 0. COALESCE uses the highest-precedence type instead. Change detection written as ISNULL(src, '') <> ISNULL(tgt, '') treats NULL and '' as the same value. Spark: coalesce() keeps the replacement as written ('UNKNOWN') and widens types; it never truncates.\n- TSQL-07 (semantic) DECIMAL precision and scale, and ROUND on computed values. Legacy: DECIMAL arithmetic follows fixed precision and scale rules (e.g. division keeps at least 6 decimal places, results are capped at 38 digits and the scale shrinks to fit); intermediate results are rounded at each step to their result type. ROUND(x, n) rounds half away from zero; ROUND(x, n, 1) truncates. Assigning to a DECIMAL(p,s) column rounds. Spark: Spark's decimal rules are similar but not identical (scale reduction, and doubles if an operand is a double literal); F.round on a double rounds the binary value, so a computed 2.675 (really 2.67499...) rounds to 2.67; bround is half-even.\n- TSQL-08 (semantic) TOP and TOP WITH TIES. Legacy: TOP n returns n rows in ORDER BY order (arbitrary among ties unless the ORDER BY is unique); TOP n WITH TIES also returns every row tied with the last one. Spark: limit(n) after orderBy returns exactly n rows; ties need a rank window.\n- TSQL-09 (construct) CROSS APPLY / OUTER APPLY with TOP 1. Legacy: CROSS APPLY (SELECT TOP 1 ... WHERE inner.k = outer.k ORDER BY ...) picks one inner row per outer row and drops outer rows with no match; OUTER APPLY keeps them with NULLs. Spark: Spark has no APPLY; a lateral subquery or a window replaces it.\n- TSQL-10 (construct) UPDATE ... FROM. Legacy: UPDATE t SET ... FROM t JOIN s ON ... updates each target row from one matching source row; with several matches, which one wins is undefined. Spark: DataFrames are immutable; an update becomes a join plus a select.\n- TSQL-11 (construct) MERGE and type-2 history. Legacy: MERGE matches target and source rows and updates, inserts or deletes in one statement. Type-2 history closes the current version (valid_to, is_current) of changed rows and inserts a new current version; IDENTITY keys are assigned in the INSERT's ORDER BY order, continuing from the table's highest value. Spark: Spark has no MERGE on DataFrames (Delta MERGE exists for tables); the job must compute the new state as a whole table from the previous state and the batch.\n- TSQL-12 (construct) Cursors and WHILE loops. Legacy: A cursor processes rows one at a time in its ORDER BY order; variables carry state between rows (running totals, last values). NULL arithmetic inside the loop propagates: SET @total = @total + NULL makes @total NULL for the rest of the loop. Spark: Spark is set-based; loops become aggregations or ordered windows.\n- TSQL-13 (construct) Temp tables. Legacy: #temp tables hold intermediate results for the session. Spark: Intermediate results are DataFrames or temporary views.\n- TSQL-14 (semantic) LIKE character classes. Legacy: T-SQL LIKE supports character classes: '[0-9]' matches one digit, '[A-Z]' one letter (case-insensitively under a CI collation), '[^0-9]' a non-digit; % and _ as usual. Spark: Spark's LIKE has only % and _; '[0-9]' matches the literal text '[0-9]'.\n- TSQL-15 (semantic) LEN ignores trailing spaces; SUBSTRING from 0; LEFT and RIGHT. Legacy: LEN(x) does not count trailing spaces (DATALENGTH does). SUBSTRING(x, 0, n) returns n-1 characters, because position 0 is before the string. LEFT/RIGHT count characters. Spark: length() counts trailing spaces; substring(x, 0, n) is treated like position 1 and returns n characters.\n- TSQL-16 (semantic) CONVERT style codes. Legacy: CONVERT(type, date, style) formats dates by style: 101 mm/dd/yyyy, 103 dd/mm/yyyy, 104 dd.mm.yyyy, 105 dd-mm-yyyy, 106 dd mon yyyy, 111 yyyy/mm/dd, 112 yyyymmdd, 120 yyyy-mm-dd hh:mi:ss, 121 with milliseconds, 23 yyyy-mm-dd. Converting into a shorter CHAR(n)/VARCHAR(n) silently keeps the first n characters: CONVERT(CHAR(6), d, 112) is yyyymm. Spark: A cast to string gives yyyy-MM-dd; date_format needs a Java pattern; nothing truncates.\n- TSQL-17 (construct) PIVOT. Legacy: PIVOT (aggregate(value) FOR col IN ([a], [b])) groups by every other column of the source and turns listed values into columns; values not listed are dropped; missing combinations give NULL. Spark: groupBy(...).pivot(col, values).agg(...) does the same when the values are listed; the grouping columns must be stated explicitly.\n- TSQL-18 (semantic) EOMONTH and DATEADD at month-end. Legacy: DATEADD(month, n, d) clamps to the last day of the target month: DATEADD(month, 1, '2024-01-31') = '2024-02-29'; adding months to an earlier date never moves to a month-end. EOMONTH(d, n) returns the last day of the month n months away. Spark: add_months clamps the same way but also moves a last-day-of-month input to the target month's last day (add_months('2024-02-29', 1) = '2024-03-31'); last_day(d) is EOMONTH.\n- TSQL-19 (semantic) Text ordering under collations (accents, case) in ORDER BY, MIN, MAX and rankings. Legacy: Under SQL_Latin1_General_CP1_CI_AS, text sorts case-insensitively with accent rules (Á sorts with A); MIN/MAX on text and ORDER BY text in a ranking follow that order. Spark: Spark sorts strings by code point: 'Zoe' < 'aoife' and 'Á' sorts after 'Z'.\n\nRule candidates:\n- TSQL-02 line 44: loss_day_key             CHAR(8)        NOT NULL,  -- yyyymmdd, day key in the case tool\n- TSQL-19 line 66: SELECT  @snapshot_date = MAX(ps.snapshot_date)\n- TSQL-18 line 93: WHERE   c.reported_date >  DATEADD(MONTH, -12, @AsOfDate)\n- TSQL-04 line 108: CASE WHEN DATEDIFF(DAY, cl.expiry_date, cl.reported_date) BETWEEN 0 AND 30\n- TSQL-01 line 111: CASE WHEN cl.lob_code = 'MOT'\n- TSQL-02 line 111: CASE WHEN cl.lob_code = 'MOT'\n- TSQL-14 line 112: AND cl.vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'\n- TSQL-04 line 115: CASE WHEN DATEDIFF(DAY, cl.customer_since, cl.loss_date) < 180\n- TSQL-15 line 118: CASE WHEN SUBSTRING(cl.policy_number, 0, 4) <> cl.lob_code\n- TSQL-02 line 152: CONVERT(CHAR(8), cl.loss_date, 112),\n- TSQL-16 line 152: CONVERT(CHAR(8), cl.loss_date, 112),\n- TSQL-05 line 153: 'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n- TSQL-16 line 153: 'Notified ' + CONVERT(VARCHAR(10), cl.reported_date, 103)\n",
+    "system_prompt": "You are the trap-scan agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark 4.2 and must reproduce every legacy output exactly, bugs included.\n\nA trap is a place where the legacy engine and Spark behave differently. A semantic trap changes the result if the code is translated naively (a case-insensitive text comparison, integer division, a NULL concatenation). A construct trap is a construct Spark lacks (a cursor, a temp table, a MERGE, a macro loop) that changes only the shape of the code.\n\nYou get the job's code with line numbers, the schemas of its inputs and output, the trap cards (the known engine differences) and candidate findings from deterministic rules.\n\nReturn every trap occurrence in this job that a translator must handle:\n- confirm the candidates that are real, using the schemas: a comparison arms a text trap only if the column is text; integer division only if both operands are integers;\n- leave out candidates that are not real (they are dropped);\n- add occurrences the rules missed, such as joins on text columns, NULL propagation in loops, or variables whose length a first assignment fixes;\n- report each occurrence at the narrowest line range that shows it, and the same trap at different places separately; include latent occurrences that today's data may not trigger;\n- use only trap ids from the cards; set confidence to how sure you are that it is real.\n"
+  },
+  "request_sha256": "06f1c85b952ddcef063de7501c92ded5d3eb55c2426406f66b1fc8351ea2e418",
+  "response": {
+    "duration_api_ms": 21368,
+    "duration_ms": 21579,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 9861,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 9861,
+        "cacheReadInputTokens": 1309,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.1263378,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 2359,
+        "provider": "firstParty",
+        "thinkingTokens": 1073,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "findings": [
+        {
+          "confidence": 0.7,
+          "line_end": 93,
+          "line_start": 93,
+          "note": "DATEADD(MONTH,-12,@AsOfDate) only clamps to a month-end when it has to. Spark add_months also moves a month-end input to a month-end, so @AsOfDate = 2025-02-28 gives 2024-02-29 instead of 2024-02-28 and the 12-month window changes. Latent: only month-end reporting dates trigger it.",
+          "trap_id": "TSQL-18"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 111,
+          "line_start": 111,
+          "note": "lob_code is VARCHAR(5). Under the CI collation, 'mot' and 'Mot' match 'MOT', so those claims get the motor registration check; a plain Spark equality would skip them. The later UPPER() suggests mixed-case values really exist.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.8,
+          "line_end": 111,
+          "line_start": 111,
+          "note": "lob_code is VARCHAR(5), and the RTRIM at line 140 shows it can carry trailing spaces. 'MOT ' = 'MOT' in SQL Server but not in Spark.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 112,
+          "line_start": 112,
+          "note": "The LIKE pattern uses the [0-9] and [A-Z] character classes, and [A-Z] is case-insensitive under the CI collation. Spark LIKE would read them as literal text, so it must become an rlike with case-insensitive letters.",
+          "trap_id": "TSQL-14"
+        },
+        {
+          "confidence": 0.95,
+          "line_end": 118,
+          "line_start": 118,
+          "note": "SUBSTRING(policy_number, 0, 4) returns only 3 characters in T-SQL. Spark substring(x, 0, 4) returns 4, which would change every lob_mismatch_flag.",
+          "trap_id": "TSQL-15"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 118,
+          "line_start": 118,
+          "note": "The <> compares text with text: a substring of policy_number (VARCHAR) against lob_code (VARCHAR). Under the CI collation, a case difference such as 'mot' vs 'MOT' is not a mismatch; in Spark it is.",
+          "trap_id": "TSQL-01"
+        },
+        {
+          "confidence": 0.75,
+          "line_end": 118,
+          "line_start": 118,
+          "note": "SQL Server ignores trailing spaces when comparing, so a lob_code of 'MOT ' equals the 3-character prefix 'MOT'. Spark would raise the mismatch flag.",
+          "trap_id": "TSQL-02"
+        },
+        {
+          "confidence": 0.85,
+          "line_end": 152,
+          "line_start": 152,
+          "note": "CONVERT style 112 gives yyyymmdd and needs date_format 'yyyyMMdd'. A plain cast would give yyyy-MM-dd, which also breaks the CHAR(8) key.",
+          "trap_id": "TSQL-16"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 153,
+          "line_start": 153,
+          "note": "CONVERT style 103 gives dd/mm/yyyy in the reason text and needs date_format 'dd/MM/yyyy'. A string cast would give yyyy-MM-dd.",
+          "trap_id": "TSQL-16"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 86,
+          "line_start": 72,
+          "note": "The #claims temp table holds the claims enriched with policy and customer data; in Spark it becomes a DataFrame.",
+          "trap_id": "TSQL-13"
+        },
+        {
+          "confidence": 0.9,
+          "line_end": 105,
+          "line_start": 100,
+          "note": "The #flags temp table holds the indicator flags and score; in Spark it becomes a DataFrame.",
+          "trap_id": "TSQL-13"
+        }
+      ]
+    },
+    "total_cost_usd": 0.1263378,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 9861,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 9861,
+      "cache_read_input_tokens": 1309,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 9861,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 9861,
+          "cache_read_input_tokens": 1309,
+          "input_tokens": 2,
+          "output_tokens": 2359,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 2359,
+      "output_tokens_details": {
+        "thinking_tokens": 1073
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

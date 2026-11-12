@@ -1,0 +1,644 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      28,
+      31,
+      88,
+      89
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "claim_id",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough (merge BY key)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      28,
+      88
+    ],
+    "input_column": "claim_number",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "claim_number",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      28,
+      88
+    ],
+    "input_column": "policy_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "policy_id",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      28,
+      88
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "customer_id",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      28,
+      92
+    ],
+    "input_column": "lob_code",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "lob_code",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "upcase(strip(lob_code))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      29,
+      88
+    ],
+    "input_column": "loss_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "loss_date",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      29,
+      88
+    ],
+    "input_column": "reported_date",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "reported_date",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "passthrough",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      29,
+      93
+    ],
+    "input_column": "status",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "status",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "upcase(strip(status))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      46,
+      52,
+      53,
+      63,
+      79
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "n_payments",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "count of payments per claim (n_payments + 1)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      53,
+      96,
+      97
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "n_payments",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "0 when claim has no payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      73,
+      75
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "n_recoveries",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "count of payments with amount < 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      54,
+      96,
+      98
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "n_recoveries",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "0 when no payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      64
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sum(amount) per claim",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      55,
+      96,
+      99
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "total_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "0 when no payments",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      68
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "indemnity_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sum(amount) where ptype='INDEMNITY'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      67,
+      68
+    ],
+    "input_column": "payment_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "indemnity_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "upcase(strip(payment_type))='INDEMNITY' selects amounts",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      69
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "expense_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sum(amount) where ptype='EXPENSE'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      67,
+      69
+    ],
+    "input_column": "payment_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "expense_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "upcase(strip(payment_type))='EXPENSE' selects amounts",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      70
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "recovery_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sum(amount) where ptype='RECOVERY'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      67,
+      70
+    ],
+    "input_column": "payment_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "recovery_amt",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "upcase(strip(payment_type))='RECOVERY' selects amounts",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      52,
+      60
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "first_payment_date",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "payment_date of first payment per claim (by _row_seq)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      78,
+      79
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "last_payment_date",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "payment_date of last payment per claim (by _row_seq)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      73,
+      74
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "recovery_flag",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "1 if any amount < 0",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      59,
+      74,
+      100
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "recovery_flag",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "0/1 literals",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      88,
+      95
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "has_payment",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "in= flag p: claim has matching payment summary",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      68,
+      69,
+      103
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "gross_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "indemnity_amt + expense_amt",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      67,
+      103
+    ],
+    "input_column": "payment_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "gross_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "type split feeding indemnity+expense",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      68,
+      69,
+      70,
+      104
+    ],
+    "input_column": "amount",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "net_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sum(indemnity_amt, expense_amt, recovery_amt)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      67,
+      104
+    ],
+    "input_column": "payment_type",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "derives",
+    "output_column": "net_paid",
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "type split feeding net sum",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      36
+    ],
+    "input_column": "payment_date",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "where payment_date <= &as_of",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      36
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "S01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "payment_date <= &as_of",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      88,
+      89,
+      90
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claims",
+    "job_id": "S01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "merge by claim_id; if c (left join from claims)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.7,
+    "evidence_lines": [
+      88,
+      89
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "merge by claim_id join key",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.9,
+    "evidence_lines": [
+      38,
+      52,
+      60,
+      78,
+      79
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "sort by claim_id _row_seq; first./last.claim_id choose first/last payment_date",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.75,
+    "evidence_lines": [
+      38,
+      46,
+      52,
+      79
+    ],
+    "input_column": "claim_id",
+    "input_kind": "column",
+    "input_table": "stg.claim_payments",
+    "job_id": "S01",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.claims_enriched",
+    "source": "llm",
+    "transform": "by claim_id grouping for first./last.",
+    "verified": true
+  }
+]

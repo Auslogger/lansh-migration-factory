@@ -1,0 +1,19 @@
+{
+  "approach": "lansh",
+  "cost_usd_equivalent": 1.2773,
+  "duration_seconds": 40.234,
+  "ended_at": "2026-11-12T02:46:07.370191Z",
+  "heal_attempts": 0,
+  "input_tokens": 54810,
+  "job_id": "T08",
+  "llm_calls": 6,
+  "llm_live_calls": 0,
+  "output_tokens": 47607,
+  "reviewer_seconds": 0.003,
+  "run_id": "dev-estate",
+  "sla": [],
+  "stage": null,
+  "started_at": "2026-11-12T02:45:27.135986Z",
+  "status": "MATCH",
+  "wave": null
+}

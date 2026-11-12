@@ -1,0 +1,163 @@
+{
+  "approach": "lansh",
+  "candidate_sha256": "4b0e5bcd090ab8cf4516322ac0e5ce5b28c78e7cdb1d09288759f8a1c5b2f2a9",
+  "code_sha256": "b01e9b901a99a292727daae12485d23d68fcde25c39344b9345aac9a147afd09",
+  "column_diffs": [],
+  "contract_sha256": "782e914649f237d0d2490f2875f04950c9adb653fcfa33f38514f2f68d626437",
+  "counts": {
+    "by_partition": [
+      {
+        "candidate": 160,
+        "legacy": 160,
+        "partition": "tier='HIGH'"
+      },
+      {
+        "candidate": 1831,
+        "legacy": 1831,
+        "partition": "tier='LOW'"
+      },
+      {
+        "candidate": 654,
+        "legacy": 654,
+        "partition": "tier='MEDI'"
+      }
+    ],
+    "candidate": 2645,
+    "legacy": 2645
+  },
+  "duration_seconds": 1.187,
+  "error": null,
+  "explanation": "MATCH: all 2,645 rows agree record for record, compared on the keys ['customer_id', 'lob_code']; counts, totals and every compared column agree under their policies.",
+  "extra_samples": [],
+  "golden_sha256": "71253df912139772cc0b108ce5fab25a10cc5afdaf1f4e2ce22d26d7023e0513",
+  "job_id": "S04",
+  "key_integrity": {
+    "candidate_duplicate_keys": 0,
+    "candidate_null_keys": 0,
+    "legacy_duplicate_keys": 0,
+    "legacy_null_keys": 0
+  },
+  "keys": [
+    "customer_id",
+    "lob_code"
+  ],
+  "missing_samples": [],
+  "mode": "isolated",
+  "rows": {
+    "extra": 0,
+    "matched": 2645,
+    "missing": 0,
+    "value_diff": 0
+  },
+  "run_id": "dev-estate",
+  "schema_diff": {
+    "extra_columns": [],
+    "missing_columns": [],
+    "type_mismatches": []
+  },
+  "signatures": [],
+  "started_at": "2026-11-12T03:25:22.451769Z",
+  "status": "MATCH",
+  "table": "rpt.risk_scores",
+  "totals": [
+    {
+      "abs_tolerance": null,
+      "candidate": "291480785.0",
+      "column": "customer_id",
+      "legacy": "291480785.0",
+      "matches": true,
+      "policy": "exact",
+      "rel_tolerance": null
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2911.0",
+      "column": "n_claims",
+      "legacy": "2911.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "12027486.519999992",
+      "column": "paid",
+      "legacy": "12027486.519999988",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "218.0",
+      "column": "n_recoveries",
+      "legacy": "218.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2644.9999999999995",
+      "column": "severity",
+      "legacy": "2644.999999999999",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "140368.0",
+      "column": "age",
+      "legacy": "140368.0",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2881.200000000009",
+      "column": "age_load",
+      "legacy": "2881.2000000000103",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "2780.050000000052",
+      "column": "county_load",
+      "legacy": "2780.0500000000507",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "1706.27357392757",
+      "column": "loss_ratio",
+      "legacy": "1706.2735739276122",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "48141.5",
+      "column": "points",
+      "legacy": "48141.5",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    },
+    {
+      "abs_tolerance": null,
+      "candidate": "55003.30999999942",
+      "column": "score",
+      "legacy": "55003.30999999925",
+      "matches": true,
+      "policy": "float_rel",
+      "rel_tolerance": 1e-09
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "job_id": "T06",
+  "table": "gold.loss_triangle_paid",
+  "legacy_table": "rpt.loss_triangle_paid",
+  "layer": "gold",
+  "grain": "One row per accident year and line of business: the paid loss development triangle as at the run's as-of date.",
+  "keys": [
+    "accident_year",
+    "lob_code"
+  ],
+  "columns": [
+    {
+      "name": "accident_year",
+      "data_type": "int",
+      "legacy_type": "INT",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "lob_code",
+      "data_type": "string",
+      "legacy_type": "VARCHAR(5)",
+      "nullable": false,
+      "max_length": 5,
+      "tags": [],
+      "description": "Line of business, trimmed and upper-cased before grouping.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_0",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Amount paid in the accident year itself (development year 0). Uses DATEDIFF(YEAR), so it counts calendar-year boundaries crossed, not elapsed years. 0 if nothing was paid.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_1",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Amount paid in development year n. NULL when accident_year + n is after the as-at year, otherwise 0 if nothing was paid. dev_2 to dev_6 follow the same rule.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_2",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_3",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_4",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_5",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "dev_6",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_0",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_1",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_2",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_3",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_4",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_5",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": null,
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "cumulative_6",
+      "data_type": "decimal(14,2)",
+      "legacy_type": "DECIMAL(14,2)",
+      "nullable": true,
+      "max_length": null,
+      "tags": [],
+      "description": "Total of dev_0 through dev_n. NULL when any of those cells is NULL, so it goes NULL at the same point as dev_n. The other cumulative_n columns follow the same rule.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    },
+    {
+      "name": "as_of_date",
+      "data_type": "date",
+      "legacy_type": "DATE",
+      "nullable": false,
+      "max_length": null,
+      "tags": [],
+      "description": "The @AsOfDate run parameter. It is the same on every row.",
+      "policy": {
+        "kind": "exact",
+        "reason": null,
+        "rel_tolerance": null,
+        "abs_tolerance": null,
+        "references": null
+      }
+    }
+  ],
+  "partition_columns": [],
+  "sla": {
+    "max_runtime_seconds": 600.0,
+    "expected_rows": 21,
+    "row_tolerance_pct": 10.0
+  },
+  "version": 1
+}

@@ -1,0 +1,191 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T01:04:19.857187Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T04",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T04: usp_build_claims_summary. Open claims with paid, reserve and incurred to date.\nOutput table rpt.claims_summary, 823 rows in the legacy output.\n\nColumns:\n- claim_id INT: 823 distinct, 0 NULL\n- claim_number VARCHAR(20): 823 distinct, 0 NULL\n- claim_ref VARCHAR(40): 715 distinct, 109 NULL\n- policy_id INT: 813 distinct, 0 NULL\n- policy_number VARCHAR(20): 813 distinct, 0 NULL\n- lob_code VARCHAR(5): 3 distinct, 0 NULL\n- status VARCHAR(12): 6 distinct, 0 NULL\n- handler_code VARCHAR(8): 41 distinct, 109 NULL\n- loss_date DATE: 503 distinct, 0 NULL\n- loss_date_text VARCHAR(10): 503 distinct, 0 NULL\n- reported_date DATE: 495 distinct, 0 NULL\n- reported_period CHAR(6): 65 distinct, 0 NULL\n- days_open INT: 495 distinct, 0 NULL\n- n_payments INT: 6 distinct, 0 NULL\n- total_paid DECIMAL(14,2): 663 distinct, 0 NULL\n- indemnity_reserve DECIMAL(14,2): 823 distinct, 0 NULL\n- expense_reserve DECIMAL(14,2): 363 distinct, 0 NULL\n- current_reserve DECIMAL(14,2): 823 distinct, 0 NULL\n- incurred DECIMAL(14,2): 823 distinct, 0 NULL\n- as_of_date DATE: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['claim_id']\n- ['claim_number']\n\nLegacy code:\n/*==============================================================================\n  Job       rpt.usp_build_claims_summary\n  Purpose   Open claims summary for the claims MI pack: one row per claim that\n            is open or reopened at the reporting date, with paid, case reserve\n            and incurred to date.\n  Author    JMcK\n  Run by    CLM_MI_NIGHTLY, after the claims extracts have loaded\n  Output    rpt.claims_summary (full refresh)\n\n  Change log\n    2014-09-03  JMcK  Initial version (CR-0871)\n    2015-02-17  JMcK  Policy number from the policy extract (CR-0933)\n    2017-06-26  AOS   Claim reference for the handler worklist (CR-1188)\n    2018-11-05  RD    Case reserves by type, current reserve and incurred (CR-1402)\n    2020-03-30  AOS   Reopened claims reported with the open book (INC-2207)\n    2021-08-12  RD    Days open and reported period for the ageing tabs (CR-1655)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claims_summary', N'U') IS NULL\nCREATE TABLE rpt.claims_summary (\n    claim_id           INT            NOT NULL,\n    claim_number       VARCHAR(20)    NOT NULL,\n    claim_ref          VARCHAR(40)    NULL,      -- LOB/claim number/handler\n    policy_id          INT            NOT NULL,\n    policy_number      VARCHAR(20)    NULL,\n    lob_code           VARCHAR(5)     NOT NULL,\n    status             VARCHAR(12)    NOT NULL,\n    handler_code       VARCHAR(8)     NULL,\n    loss_date          DATE           NOT NULL,\n    loss_date_text     VARCHAR(10)    NOT NULL,  -- dd/mm/yyyy for the MI pack\n    reported_date      DATE           NOT NULL,\n    reported_period    CHAR(6)        NOT NULL,  -- yyyymm\n    days_open          INT            NOT NULL,\n    n_payments         INT            NOT NULL,\n    total_paid         DECIMAL(14,2)  NOT NULL,\n    indemnity_reserve  DECIMAL(14,2)  NOT NULL,\n    expense_reserve    DECIMAL(14,2)  NOT NULL,\n    current_reserve    DECIMAL(14,2)  NOT NULL,\n    incurred           DECIMAL(14,2)  NOT NULL,\n    as_of_date         DATE           NOT NULL,\n    CONSTRAINT pk_rpt_claims_summary PRIMARY KEY (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_build_claims_summary\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name       VARCHAR(128) = 'rpt.usp_build_claims_summary',\n            @rows           INT,\n            @snapshot_date  DATE,\n            @err_msg        NVARCHAR(4000),\n            @err_no         INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        /* Open book: claims open or reopened and notified by the reporting date */\n        IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n\n        SELECT  c.claim_id,\n                c.claim_number,\n                c.policy_id,\n                UPPER(RTRIM(c.lob_code))    AS lob_code,\n                c.status,\n                c.handler_code,\n                c.loss_date,\n                c.reported_date\n        INTO    #open_claims\n        FROM    stg.claims c WITH (NOLOCK)\n        WHERE   c.status IN ('OPEN', 'REOPENED')\n          AND   c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims', @status = 'INFO', @rows_affected = @rows;\n\n        /* Case reserve per claim and reserve type: the latest entry on or before\n           the reporting date (a second entry on the same day is a correction) */\n        IF OBJECT_ID('tempdb..#reserve') IS NOT NULL DROP TABLE #reserve;\n\n        SELECT  x.claim_id,\n                x.reserve_type,\n                x.reserve_amount\n        INTO    #reserve\n        FROM   (SELECT  r.claim_id,\n                        r.reserve_type,\n                        r.reserve_amount,\n                        ROW_NUMBER() OVER (PARTITION BY r.claim_id, r.reserve_type\n                                           ORDER BY r.reserve_date DESC, r.reserve_id DESC) AS rn\n                FROM    stg.claim_reserves r WITH (NOLOCK)\n                JOIN    #open_claims oc ON oc.claim_id = r.claim_id\n                WHERE   r.reserve_date <= @AsOfDate) x\n        WHERE   x.rn = 1;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'case reserves', @status = 'INFO', @rows_affected = @rows;\n\n        /* Paid to date and case reserves per claim */\n        IF OBJECT_ID('tempdb..#money') IS NOT NULL DROP TABLE #money;\n\n        SELECT  oc.claim_id,\n                COUNT(DISTINCT p.payment_id)    AS n_payments,\n                ISNULL(SUM(p.amount), 0)        AS total_paid,\n                ISNULL(MAX(CASE WHEN r.reserve_type = 'INDEMNITY' THEN r.reserve_amount END), 0) AS indemnity_reserve,\n                ISNULL(MAX(CASE WHEN r.reserve_type = 'EXPENSE'   THEN r.reserve_amount END), 0) AS expense_reserve\n        INTO    #money\n        FROM    #open_claims oc\n        LEFT JOIN stg.claim_payments p WITH (NOLOCK)\n               ON p.claim_id = oc.claim_id\n              AND p.payment_date <= @AsOfDate\n        LEFT JOIN #reserve r\n               ON r.claim_id = oc.claim_id\n        GROUP BY oc.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'paid and reserves', @status = 'INFO', @rows_affected = @rows;\n\n        /* Policy number from the latest policy extract on or before the reporting date */\n        SELECT  @snapshot_date = MAX(ps.snapshot_date)\n        FROM    stg.policy_snapshots ps WITH (NOLOCK)\n        WHERE   ps.snapshot_date <= @AsOfDate;\n\n        BEGIN TRANSACTION;\n\n        TRUNCATE TABLE rpt.claims_summary;\n\n        INSERT INTO rpt.claims_summary\n               (claim_id, claim_number, claim_ref, policy_id, policy_number, lob_code,\n                status, handler_code, loss_date, loss_date_text, reported_date,\n                reported_period, days_open, n_payments, total_paid, indemnity_reserve,\n                expense_reserve, current_reserve, incurred, as_of_date)\n        SELECT  oc.claim_id,\n                oc.claim_number,\n                oc.lob_code + '/' + oc.claim_number + '/' + oc.handler_code,\n                oc.policy_id,\n                ps.policy_number,\n                oc.lob_code,\n                oc.status,\n                oc.handler_code,\n                oc.loss_date,\n                CONVERT(VARCHAR(10), oc.loss_date, 103),\n                oc.reported_date,\n                CONVERT(CHAR(6), oc.reported_date, 112),\n                DATEDIFF(DAY, oc.reported_date, @AsOfDate),\n                m.n_payments,\n                m.total_paid,\n                m.indemnity_reserve,\n                m.expense_reserve,\n                m.indemnity_reserve + m.expense_reserve,\n                m.total_paid + m.indemnity_reserve + m.expense_reserve,\n                @AsOfDate\n        FROM    #open_claims oc\n        JOIN    #money m\n                ON m.claim_id = oc.claim_id\n        LEFT JOIN stg.policy_snapshots ps WITH (NOLOCK)\n               ON ps.policy_id = oc.policy_id\n              AND ps.snapshot_date = @snapshot_date;\n\n        SET @rows = @@ROWCOUNT;\n\n        COMMIT TRANSACTION;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'rpt.claims_summary', @status = 'INFO', @rows_affected = @rows;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n\n        SELECT  @err_msg = ERROR_MESSAGE(),\n                @err_no  = ERROR_NUMBER();\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'FAILED',\n             @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "850de6c03c427af06d9a9fb85062096460f46d32ff51c62b4282c37ff5c263c9",
+  "response": {
+    "duration_api_ms": 15886,
+    "duration_ms": 16167,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 5516,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 5516,
+        "cacheReadInputTokens": 0,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.06403600000000001,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 995,
+        "provider": "firstParty",
+        "thinkingTokens": 119,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "as_of_date": "The @AsOfDate run parameter. Constant for the whole run.",
+        "claim_ref": "lob_code + '/' + claim_number + '/' + handler_code. It is NULL whenever handler_code is NULL, because T-SQL string concatenation returns NULL if any part is NULL (109 rows).",
+        "current_reserve": "indemnity_reserve + expense_reserve.",
+        "days_open": "Whole days from reported_date to @AsOfDate (DATEDIFF DAY).",
+        "expense_reserve": "Latest EXPENSE reserve on or before @AsOfDate, chosen the same way. 0 if none.",
+        "incurred": "total_paid + current_reserve, including the inflated total_paid.",
+        "indemnity_reserve": "Latest INDEMNITY reserve on or before @AsOfDate. Ties on the date go to the highest reserve_id. 0 if none.",
+        "lob_code": "UPPER(RTRIM()) of the source lob_code.",
+        "loss_date_text": "loss_date formatted dd/mm/yyyy (CONVERT style 103).",
+        "n_payments": "COUNT(DISTINCT payment_id) of payments dated on or before @AsOfDate.",
+        "policy_number": "Comes from the latest policy snapshot on or before @AsOfDate. Left join, so it can be NULL.",
+        "reported_period": "yyyymm from reported_date (CONVERT style 112 cut to 6 characters).",
+        "status": "Filtered with IN ('OPEN','REOPENED'), but the output has 6 distinct values. A case- or space-insensitive collation is probably letting variants such as 'open' or 'Open ' through, so the Spark filter must compare the same way.",
+        "total_paid": "SUM of payment amounts on or before @AsOfDate, 0 if none. Legacy fan-out: payments are joined to the reserve rows (up to one per reserve type) before summing, so the sum is multiplied by the number of reserve rows the claim has. Reproduce this, don't fix it."
+      },
+      "grain": "One row per claim with status OPEN or REOPENED and reported on or before the reporting date (@AsOfDate), with paid to date, latest case reserves and incurred as at that date.",
+      "keys": [
+        "claim_id"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "status"
+      ]
+    },
+    "total_cost_usd": 0.06403600000000001,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 5516,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 5516,
+      "cache_read_input_tokens": 0,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 5516,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 5516,
+          "cache_read_input_tokens": 0,
+          "input_tokens": 2,
+          "output_tokens": 995,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 995,
+      "output_tokens_details": {
+        "thinking_tokens": 119
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

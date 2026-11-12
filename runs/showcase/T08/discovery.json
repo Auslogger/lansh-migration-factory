@@ -1,0 +1,277 @@
+{
+  "discovery": {
+    "blocks": [
+      {
+        "index": 0,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 26,
+        "line_start": 26,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 1,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 48,
+        "line_start": 28,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 2,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 53,
+        "line_start": 50,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 3,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 54,
+        "line_start": 54,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 4,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 60,
+        "line_start": 56,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 5,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 62,
+        "line_start": 62,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 6,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 63,
+        "line_start": 63,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 7,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 68,
+        "line_start": 66,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 8,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 72,
+        "line_start": 72,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 9,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 94,
+        "line_start": 74,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 10,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 96,
+        "line_start": 96,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 11,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 97,
+        "line_start": 97,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 12,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 100,
+        "line_start": 100,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 13,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 120,
+        "line_start": 102,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 14,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 122,
+        "line_start": 122,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 15,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 123,
+        "line_start": 123,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 16,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 126,
+        "line_start": 126,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 17,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 128,
+        "line_start": 128,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 18,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 162,
+        "line_start": 130,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 19,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 164,
+        "line_start": 164,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 20,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 166,
+        "line_start": 166,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 21,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 168,
+        "line_start": 168,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 22,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 169,
+        "line_start": 169,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 23,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 170,
+        "line_start": 170,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 24,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 171,
+        "line_start": 171,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 25,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 172,
+        "line_start": 172,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 26,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 175,
+        "line_start": 174,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 27,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 178,
+        "line_start": 177,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 28,
+        "job_id": "T08",
+        "kind": "statement",
+        "line_end": 179,
+        "line_start": 179,
+        "sqlglot_parsed": true
+      },
+      {
+        "index": 29,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 180,
+        "line_start": 180,
+        "sqlglot_parsed": null
+      },
+      {
+        "index": 30,
+        "job_id": "T08",
+        "kind": "other",
+        "line_end": 181,
+        "line_start": 181,
+        "sqlglot_parsed": null
+      }
+    ],
+    "flags": [],
+    "job_id": "T08",
+    "reads": [
+      "dw.dim_customer",
+      "stg.claims",
+      "stg.policy_snapshots"
+    ],
+    "status": "parsed",
+    "writes": [
+      "rpt.claim_fraud_flags"
+    ]
+  },
+  "stats": {
+    "blocks": 31,
+    "lineage_edges": 49,
+    "rule_candidates": 20,
+    "sqlglot_agreeing_columns": 0,
+    "sqlglot_traced_columns": 0,
+    "statements_unparsed": 0,
+    "trap_findings": 11
+  },
+  "warnings": [
+    "lineage agent notes: 1) The policy and customer joins (lines 88-92) are LEFT JOINs. They decide which policy and customer values get attached, but they never drop a claim. They are recorded as filters at 0.85 confidence. If either join matches more than one row (e.g. duplicate policy_id within a snapshot, or a dw.dim_customer that is not one row per customer), a claim is repeated and the claim_id primary key is broken. 2) The join between #flags and #claims (line 162) is on claim_id, and both sides come from the same row set, so it neither filters nor adds rows. No separate edge is given for it. 3) Legacy behaviours the PySpark version must copy exactly: (a) early_notification_flag uses expiry_date, not inception_date as the comment says. inception_date is read into #claims but never used. (b) SUBSTRING(policy_number,0,4) returns only the first 3 characters (T-SQL start 0). If policy_number is NULL the <> test is UNKNOWN, so the flag is 0. (c) If vehicle_reg is NULL, NOT LIKE is UNKNOWN, so invalid_reg_flag is 0. If customer_since is NULL, new_customer_flag is 0. (d) The 'MOT' test and the lob mismatch test compare against the raw lob_code, not the upper-cased one. Under the default case-insensitive collation 'mot' still matches 'MOT', and trailing blanks are ignored. Spark compares case- and blank-sensitively, so its results can differ. (e) The LIKE pattern uses a T-SQL character class ([0-9], [A-Z]) and needs translating to a regex. (f) The reason_text date uses style 103 (dd/mm/yyyy). (g) If no snapshot is on or before @AsOfDate, @snapshot_date is NULL and every policy column is NULL."
+  ]
+}

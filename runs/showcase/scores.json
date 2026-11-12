@@ -1,0 +1,534 @@
+{
+  "adjudication": {
+    "BUG-01": {
+      "defect_id": "T01-D1",
+      "genuine": true,
+      "note": "Keeps the oldest CRM version: the planted bug, diagnosed as planted."
+    },
+    "BUG-02": {
+      "defect_id": "T03-D1",
+      "genuine": true,
+      "note": "Earned over a fixed 365 days instead of the term: as planted; impact 21,145 rows, the key's own count."
+    },
+    "BUG-03": {
+      "defect_id": "T04-D1",
+      "genuine": true,
+      "note": "Payments counted once per reserve row: as planted; impact 289 rows and EUR 1,288,029.36, the key's own figures."
+    },
+    "BUG-04": {
+      "defect_id": "T05-D1",
+      "genuine": true,
+      "note": "Exactly 30 days falls in no band: as planted; impact 31 rows, the key's own count."
+    },
+    "BUG-05": {
+      "defect_id": "T06-D1",
+      "genuine": true,
+      "note": "Payments on the loss date dropped: as planted; impact EUR 390,467.67, the key's own amount."
+    },
+    "BUG-07": {
+      "defect_id": "T08-D1",
+      "genuine": true,
+      "note": "Early notification measured from expiry, not inception: as planted; impact 146 rows, the key's own count."
+    },
+    "BUG-08": {
+      "defect_id": "S01-D5",
+      "genuine": false,
+      "note": "S01-D5 flags the same line (if amount < 0) as the wrong way to identify recoveries, but for negative corrections, not for missing amounts; it measures 0 rows where the planted bug affects 86. Not the planted diagnosis."
+    },
+    "BUG-10": {
+      "defect_id": "S04-D2",
+      "genuine": false,
+      "note": "S04-D2 cites the tier lines but describes missing inputs falling to LOW; the 'MEDI' length truncation (654 rows) was reproduced exactly but not flagged as a bug."
+    }
+  },
+  "jobs": {
+    "S01": {
+      "armed_semantic": 5,
+      "armed_semantic_detected": 5,
+      "bug_matches": {
+        "BUG-08": "S01-D5"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 7,
+      "defects_confirmed": 7,
+      "detected_traps": 7,
+      "findings": 17,
+      "job_id": "S01",
+      "labelled_traps": 7,
+      "missed": [],
+      "true_findings": 14,
+      "unconfirmed": [
+        "finding SAS-03 lines 36-36",
+        "finding SAS-02 lines 64-64",
+        "finding SAS-01 lines 88-89"
+      ]
+    },
+    "S03": {
+      "armed_semantic": 2,
+      "armed_semantic_detected": 2,
+      "bug_matches": {},
+      "bugs": 0,
+      "bugs_detected": 0,
+      "defects": 3,
+      "defects_confirmed": 3,
+      "detected_traps": 4,
+      "findings": 7,
+      "job_id": "S03",
+      "labelled_traps": 4,
+      "missed": [],
+      "true_findings": 5,
+      "unconfirmed": [
+        "finding SAS-05 lines 71-72",
+        "finding SAS-03 lines 73-74"
+      ]
+    },
+    "S04": {
+      "armed_semantic": 4,
+      "armed_semantic_detected": 4,
+      "bug_matches": {
+        "BUG-10": "S04-D2"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 5,
+      "defects_confirmed": 3,
+      "detected_traps": 6,
+      "findings": 7,
+      "job_id": "S04",
+      "labelled_traps": 6,
+      "missed": [],
+      "true_findings": 5,
+      "unconfirmed": [
+        "finding SAS-03 lines 24-24",
+        "finding SAS-03 lines 102-103",
+        "defect S04-D3 lines 22-84",
+        "defect S04-D5 lines 9-44"
+      ]
+    },
+    "T01": {
+      "armed_semantic": 8,
+      "armed_semantic_detected": 8,
+      "bug_matches": {
+        "BUG-01": "T01-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 4,
+      "defects_confirmed": 4,
+      "detected_traps": 10,
+      "findings": 24,
+      "job_id": "T01",
+      "labelled_traps": 10,
+      "missed": [],
+      "true_findings": 20,
+      "unconfirmed": [
+        "finding TSQL-02 lines 44-44",
+        "finding TSQL-05 lines 123-123",
+        "finding TSQL-05 lines 124-124",
+        "finding TSQL-01 lines 148-148"
+      ]
+    },
+    "T02": {
+      "armed_semantic": 7,
+      "armed_semantic_detected": 7,
+      "bug_matches": {},
+      "bugs": 0,
+      "bugs_detected": 0,
+      "defects": 5,
+      "defects_confirmed": 4,
+      "detected_traps": 14,
+      "findings": 19,
+      "job_id": "T02",
+      "labelled_traps": 14,
+      "missed": [],
+      "true_findings": 17,
+      "unconfirmed": [
+        "finding TSQL-02 lines 37-37",
+        "finding TSQL-02 lines 134-134"
+      ]
+    },
+    "T03": {
+      "armed_semantic": 4,
+      "armed_semantic_detected": 4,
+      "bug_matches": {
+        "BUG-02": "T03-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 6,
+      "defects_confirmed": 5,
+      "detected_traps": 9,
+      "findings": 20,
+      "job_id": "T03",
+      "labelled_traps": 9,
+      "missed": [],
+      "true_findings": 13,
+      "unconfirmed": [
+        "finding TSQL-02 lines 69-69",
+        "finding TSQL-08 lines 77-81",
+        "finding TSQL-02 lines 79-79",
+        "finding TSQL-02 lines 82-82",
+        "finding TSQL-07 lines 128-128",
+        "finding TSQL-01 lines 134-134",
+        "finding TSQL-02 lines 134-134",
+        "defect T03-D5 lines 132-134"
+      ]
+    },
+    "T04": {
+      "armed_semantic": 5,
+      "armed_semantic_detected": 5,
+      "bug_matches": {
+        "BUG-03": "T04-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 4,
+      "defects_confirmed": 4,
+      "detected_traps": 10,
+      "findings": 15,
+      "job_id": "T04",
+      "labelled_traps": 10,
+      "missed": [],
+      "true_findings": 12,
+      "unconfirmed": [
+        "finding TSQL-02 lines 90-91",
+        "finding TSQL-02 lines 106-106",
+        "finding TSQL-02 lines 107-107"
+      ]
+    },
+    "T05": {
+      "armed_semantic": 3,
+      "armed_semantic_detected": 3,
+      "bug_matches": {
+        "BUG-04": "T05-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 4,
+      "defects_confirmed": 4,
+      "detected_traps": 5,
+      "findings": 10,
+      "job_id": "T05",
+      "labelled_traps": 5,
+      "missed": [],
+      "true_findings": 9,
+      "unconfirmed": [
+        "finding TSQL-04 lines 141-141"
+      ]
+    },
+    "T06": {
+      "armed_semantic": 1,
+      "armed_semantic_detected": 1,
+      "bug_matches": {
+        "BUG-05": "T06-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 4,
+      "defects_confirmed": 4,
+      "detected_traps": 3,
+      "findings": 5,
+      "job_id": "T06",
+      "labelled_traps": 3,
+      "missed": [],
+      "true_findings": 5,
+      "unconfirmed": []
+    },
+    "T08": {
+      "armed_semantic": 8,
+      "armed_semantic_detected": 8,
+      "bug_matches": {
+        "BUG-07": "T08-D1"
+      },
+      "bugs": 1,
+      "bugs_detected": 1,
+      "defects": 5,
+      "defects_confirmed": 5,
+      "detected_traps": 13,
+      "findings": 11,
+      "job_id": "T08",
+      "labelled_traps": 14,
+      "missed": [
+        "TSQL-05 lines 153-158"
+      ],
+      "true_findings": 11,
+      "unconfirmed": []
+    }
+  },
+  "reproduction": {
+    "T01": [
+      {
+        "check_id": "T01_BUG01_oldest_version_kept",
+        "legacy": 3223,
+        "migrated": 3223,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL01_email_shared_case",
+        "legacy": 192,
+        "migrated": 192,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL01_region_county_case",
+        "legacy": 1098,
+        "migrated": 1098,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL02_email_shared_padding",
+        "legacy": 56,
+        "migrated": 56,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL02_region_county_padding",
+        "legacy": 418,
+        "migrated": 418,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL02_segment_char_padding",
+        "legacy": 10866,
+        "migrated": 10866,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL04_age_at_join_year_boundaries",
+        "legacy": 8436,
+        "migrated": 8436,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL15_eircode_len_trailing_space",
+        "legacy": 571,
+        "migrated": 571,
+        "same": true
+      },
+      {
+        "check_id": "T01_TSQL15_initials_substring_from_0",
+        "legacy": 20000,
+        "migrated": 20000,
+        "same": true
+      }
+    ],
+    "T02": [
+      {
+        "check_id": "T02_TSQL01_broker_join_case",
+        "legacy": 1656,
+        "migrated": 1656,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL01_product_join_case",
+        "legacy": 402,
+        "migrated": 402,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL01_status_case_change_ignored",
+        "legacy": 263,
+        "migrated": 263,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL02_broker_join_padding",
+        "legacy": 3857,
+        "migrated": 3857,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL02_product_join_padding",
+        "legacy": 478,
+        "migrated": 478,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL06_direct_sales_truncated",
+        "legacy": 37801,
+        "migrated": 37801,
+        "same": true
+      },
+      {
+        "check_id": "T02_TSQL06_vehicle_reg_null_equals_empty",
+        "legacy": 128,
+        "migrated": 128,
+        "same": true
+      }
+    ],
+    "T03": [
+      {
+        "check_id": "T03_BUG02_earned_divides_by_365",
+        "legacy": 21145,
+        "migrated": 21145,
+        "same": true
+      },
+      {
+        "check_id": "T03_TSQL03_integer_division",
+        "legacy": 67489,
+        "migrated": 67489,
+        "same": true
+      },
+      {
+        "check_id": "T03_TSQL07_round_truncates",
+        "legacy": 32841,
+        "migrated": 32841,
+        "same": true
+      },
+      {
+        "check_id": "T03_TSQL09_cross_apply_drops_unrated",
+        "legacy": 7,
+        "migrated": 7,
+        "same": true
+      },
+      {
+        "check_id": "T03_TSQL18_month_end_dateadd",
+        "legacy": 26779,
+        "migrated": 26779,
+        "same": true
+      }
+    ],
+    "T04": [
+      {
+        "check_id": "T04_BUG03_paid_counted_per_reserve_row",
+        "legacy": 289,
+        "migrated": 289,
+        "same": true
+      },
+      {
+        "check_id": "T04_TSQL01_status_filter_ignores_case",
+        "legacy": 49,
+        "migrated": 49,
+        "same": true
+      },
+      {
+        "check_id": "T04_TSQL02_status_filter_ignores_trailing_spaces",
+        "legacy": 11,
+        "migrated": 11,
+        "same": true
+      },
+      {
+        "check_id": "T04_TSQL05_claim_ref_null_without_handler",
+        "legacy": 109,
+        "migrated": 109,
+        "same": true
+      },
+      {
+        "check_id": "T04_TSQL16_convert_style_codes",
+        "legacy": 823,
+        "migrated": 823,
+        "same": true
+      }
+    ],
+    "T05": [
+      {
+        "check_id": "T05_BUG04_thirty_days_unbanded",
+        "legacy": 31,
+        "migrated": 31,
+        "same": true
+      },
+      {
+        "check_id": "T05_TSQL01_open_status_case_variants",
+        "legacy": 49,
+        "migrated": 49,
+        "same": true
+      },
+      {
+        "check_id": "T05_TSQL02_open_status_trailing_spaces",
+        "legacy": 11,
+        "migrated": 11,
+        "same": true
+      },
+      {
+        "check_id": "T05_TSQL04_weeks_open_counts_sundays",
+        "legacy": 361,
+        "migrated": 361,
+        "same": true
+      },
+      {
+        "check_id": "T05_TSQL12_null_amount_voids_total",
+        "legacy": 18,
+        "migrated": 18,
+        "same": true
+      }
+    ],
+    "T06": [
+      {
+        "check_id": "T06_BUG05_loss_date_payments_dropped",
+        "legacy": 19,
+        "migrated": 19,
+        "same": true
+      },
+      {
+        "check_id": "T06_TSQL04_dev_year_counts_calendar_years",
+        "legacy": 18,
+        "migrated": 18,
+        "same": true
+      }
+    ],
+    "T08": [
+      {
+        "check_id": "T08_BUG07_early_flag_uses_expiry_date",
+        "legacy": 146,
+        "migrated": 146,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL01_lob_code_compared_ignoring_case",
+        "legacy": 29,
+        "migrated": 29,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL01_motor_test_ignores_case",
+        "legacy": 3,
+        "migrated": 3,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL02_lob_code_compared_ignoring_trailing_spaces",
+        "legacy": 20,
+        "migrated": 20,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL02_motor_test_ignores_trailing_spaces",
+        "legacy": 1,
+        "migrated": 1,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL14_like_character_classes",
+        "legacy": 614,
+        "migrated": 614,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL15_substring_from_position_zero",
+        "legacy": 1041,
+        "migrated": 1041,
+        "same": true
+      },
+      {
+        "check_id": "T08_TSQL16_convert_style_codes",
+        "legacy": 1042,
+        "migrated": 1042,
+        "same": true
+      }
+    ]
+  },
+  "totals": {
+    "armed_semantic": 47,
+    "armed_semantic_detected": 47,
+    "bugs": 8,
+    "bugs_detected": 8,
+    "bugs_detected_adjudicated": 6,
+    "defects": 47,
+    "defects_confirmed": 43,
+    "detected_traps": 81,
+    "findings": 135,
+    "labelled_traps": 82,
+    "true_findings": 111
+  }
+}

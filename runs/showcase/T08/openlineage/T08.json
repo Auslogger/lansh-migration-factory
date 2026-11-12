@@ -1,0 +1,879 @@
+{
+  "eventTime": "2026-11-12T02:46:27.559317+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "loss_date",
+              "type": "date"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "closed_date",
+              "type": "date"
+            },
+            {
+              "name": "cause_code",
+              "type": "string"
+            },
+            {
+              "name": "handler_code",
+              "type": "string"
+            },
+            {
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.claims",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "snapshot_date",
+              "type": "date"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "inception_date",
+              "type": "date"
+            },
+            {
+              "name": "expiry_date",
+              "type": "date"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "cancellation_date",
+              "type": "date"
+            },
+            {
+              "name": "annual_premium",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "sum_insured",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "payment_frequency",
+              "type": "string"
+            },
+            {
+              "name": "vehicle_reg",
+              "type": "string"
+            },
+            {
+              "name": "ncd_years",
+              "type": "int"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.policy_snapshots",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "string"
+            },
+            {
+              "name": "last_name",
+              "type": "string"
+            },
+            {
+              "name": "full_name",
+              "type": "string"
+            },
+            {
+              "name": "initials",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "email_shared_count",
+              "type": "int"
+            },
+            {
+              "name": "date_of_birth",
+              "type": "date"
+            },
+            {
+              "name": "age_at_join",
+              "type": "int"
+            },
+            {
+              "name": "address_line1",
+              "type": "string"
+            },
+            {
+              "name": "town",
+              "type": "string"
+            },
+            {
+              "name": "county",
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "name": "eircode",
+              "type": "string"
+            },
+            {
+              "name": "eircode_valid",
+              "type": "string"
+            },
+            {
+              "name": "segment_code",
+              "type": "string"
+            },
+            {
+              "name": "is_standard_segment",
+              "type": "string"
+            },
+            {
+              "name": "marketing_opt_in",
+              "type": "string"
+            },
+            {
+              "name": "customer_since",
+              "type": "date"
+            },
+            {
+              "name": "source_system",
+              "type": "string"
+            },
+            {
+              "name": "version_count",
+              "type": "int"
+            },
+            {
+              "name": "record_updated_at",
+              "type": "timestamp_ntz"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_customer",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T08.usp_fraud_flags",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "claim_id": {
+              "inputFields": [
+                {
+                  "field": "claim_id",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "claim_number": {
+              "inputFields": [
+                {
+                  "field": "claim_number",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "customer_id": {
+              "inputFields": [
+                {
+                  "field": "customer_id",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "early_notification_flag": {
+              "inputFields": [
+                {
+                  "field": "expiry_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN DATEDIFF(DAY, expiry_date, reported_date) BETWEEN 0 AND 30 THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "fraud_band": {
+              "inputFields": [
+                {
+                  "field": "expiry_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score >=2 HIGH / =1 MEDIUM / else LOW",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "vehicle_reg",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "customer_since",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on fraud_score",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "fraud_score": {
+              "inputFields": [
+                {
+                  "field": "expiry_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (early_notification)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (early_notification)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (invalid_reg, lob_mismatch)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "vehicle_reg",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (invalid_reg)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "customer_since",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (new_customer)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (new_customer)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "sum of the four flags (lob_mismatch)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "invalid_reg_flag": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN lob_code='MOT' AND vehicle_reg NOT LIKE pattern THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "vehicle_reg",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "vehicle_reg NOT LIKE '[0-9][0-9]%-[A-Z]%-[0-9]%'",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(RTRIM(lob_code))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_mismatch_flag": {
+              "inputFields": [
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN SUBSTRING(policy_number,0,4) <> lob_code THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "loss_date": {
+              "inputFields": [
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "loss_day_key": {
+              "inputFields": [
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CONVERT(CHAR(8), loss_date, 112) yyyymmdd",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "new_customer_flag": {
+              "inputFields": [
+                {
+                  "field": "customer_since",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE WHEN DATEDIFF(DAY, customer_since, loss_date) < 180 THEN 1 ELSE 0",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_id": {
+              "inputFields": [
+                {
+                  "field": "policy_id",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_number": {
+              "inputFields": [
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy from the LEFT JOINed snapshot (NULL if no match)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reason_text": {
+              "inputFields": [
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "'Notified ' + CONVERT(VARCHAR(10), reported_date, 103) + flag tags",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "expiry_date",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' EARLY' tag / score tag",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "lob_code",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' REG' / ' LOB' tags",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "vehicle_reg",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' REG' tag",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "customer_since",
+                  "name": "silver.dim_customer",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' NEWCUST' tag",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "loss_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' NEWCUST' tag",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "policy_number",
+                  "name": "bronze.policy_snapshots",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "' LOB' tag",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reported_date": {
+              "inputFields": [
+                {
+                  "field": "reported_date",
+                  "name": "bronze.claims",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct copy via #claims",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "claim_id",
+              "type": "int"
+            },
+            {
+              "name": "claim_number",
+              "type": "string"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "loss_date",
+              "type": "date"
+            },
+            {
+              "name": "reported_date",
+              "type": "date"
+            },
+            {
+              "name": "early_notification_flag",
+              "type": "int"
+            },
+            {
+              "name": "invalid_reg_flag",
+              "type": "int"
+            },
+            {
+              "name": "new_customer_flag",
+              "type": "int"
+            },
+            {
+              "name": "lob_mismatch_flag",
+              "type": "int"
+            },
+            {
+              "name": "fraud_score",
+              "type": "int"
+            },
+            {
+              "name": "fraud_band",
+              "type": "string"
+            },
+            {
+              "name": "loss_day_key",
+              "type": "string"
+            },
+            {
+              "name": "reason_text",
+              "type": "string"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "gold.claim_fraud_flags",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T02:46:27.559317+00:00",
+        "nominalStartTime": "2026-11-12T02:46:07.371649+00:00"
+      }
+    },
+    "runId": "95aef7d2-8849-5fdc-817d-b531e8a8b5d3"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}

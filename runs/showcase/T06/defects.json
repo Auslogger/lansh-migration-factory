@@ -1,0 +1,96 @@
+[
+  {
+    "confidence": 0.8,
+    "defect_id": "T06-D1",
+    "description": "The INC-2318 filter keeps only payments where p.payment_date > cl.loss_date. Any payment dated on the loss date itself is treated as a keying error and dropped. These payments would all land in dev_0, so dev_0 and every cumulative_n are understated. If all of a group's payments are same-day, the accident-year/LOB row is missing from the output entirely.",
+    "evidence_lines": [
+      13,
+      14,
+      93
+    ],
+    "impact": {
+      "amount_affected": "390467.67",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+      "rows_affected": 19
+    },
+    "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), sd AS (SELECT cl.ay, cl.lob, p.amount FROM cl JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date = cl.loss_date AND p.payment_date <= DATE'2025-12-31' AND p.amount IS NOT NULL), g AS (SELECT ay, lob, SUM(amount) AS amt FROM sd GROUP BY ay, lob) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(ABS(amt)), 0) AS amount_affected FROM g",
+    "intended_behaviour": "The comment and change log say only payments dated BEFORE the loss are keying errors, so the filter should be p.payment_date >= cl.loss_date. That keeps same-day payments in dev_0.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Same-day payments (payment_date = loss_date) dropped"
+  },
+  {
+    "confidence": 0.45,
+    "defect_id": "T06-D2",
+    "description": "Line 67 uses UPPER(RTRIM(lob_code)), which removes trailing spaces only. A lob_code with leading spaces (e.g. ' MOT') makes its own row in the triangle, separate from the clean code, so that LOB's paid amounts are split across two rows.",
+    "evidence_lines": [
+      18,
+      19,
+      67
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH g AS (SELECT accident_year, lob_code, TRIM(lob_code) AS t, COALESCE(dev_0,0)+COALESCE(dev_1,0)+COALESCE(dev_2,0)+COALESCE(dev_3,0)+COALESCE(dev_4,0)+COALESCE(dev_5,0)+COALESCE(dev_6,0) AS tot FROM golden_rpt_loss_triangle_paid), bad AS (SELECT DISTINCT accident_year, t FROM g WHERE lob_code LIKE ' %'), aff AS (SELECT g.* FROM g JOIN bad ON g.accident_year = bad.accident_year AND g.t = bad.t) SELECT COUNT(*) AS rows_affected, COALESCE(SUM(CASE WHEN lob_code LIKE ' %' THEN ABS(tot) ELSE 0 END), 0) AS amount_affected FROM aff",
+    "intended_behaviour": "INC-2851 says lob_code is to be trimmed before grouping, so it should be UPPER(LTRIM(RTRIM(lob_code))) (TRIM) and each LOB should have one row per accident year.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "lob_code only right-trimmed; leading spaces split LOB groups"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "T06-D3",
+    "description": "#claims takes every row of stg.claims and does not deduplicate by claim_id (the staging table has a _row_seq column, which suggests one claim can be loaded more than once). Each payment is then joined to every copy of its claim, so its amount is counted twice or more in the dev and cumulative cells.",
+    "evidence_lines": [
+      64,
+      69,
+      89,
+      90,
+      91
+    ],
+    "impact": {
+      "amount_affected": "0.00",
+      "amount_column": "dev_0",
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH cl AS (SELECT claim_id, loss_date, YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31'), dup AS (SELECT claim_id FROM cl GROUP BY claim_id HAVING COUNT(*) > 1), x AS (SELECT cl.ay, cl.lob, p.payment_id, p.amount FROM cl JOIN dup ON dup.claim_id = cl.claim_id JOIN stg_claim_payments p ON p.claim_id = cl.claim_id WHERE p.payment_date <= DATE'2025-12-31' AND p.payment_date > cl.loss_date AND p.amount IS NOT NULL), pk AS (SELECT payment_id, MAX(amount) AS amount, COUNT(*) AS k FROM x GROUP BY payment_id) SELECT (SELECT COUNT(*) FROM (SELECT DISTINCT ay, lob FROM x) d) AS rows_affected, (SELECT COALESCE(SUM(ABS(amount) * (k - 1)), 0) FROM pk) AS amount_affected",
+    "intended_behaviour": "Each claim should appear once, for example by keeping only the latest _row_seq per claim_id, so that every payment is counted exactly once.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Duplicate claim rows in staging multiply payments"
+  },
+  {
+    "confidence": 0.3,
+    "defect_id": "T06-D4",
+    "description": "The triangle is built by pivoting #paid only. An accident year/LOB that has claims in scope but no qualifying payments gets no row, even though the step-4 comment says 'Nothing paid yet = 0'. The chain-ladder workbook ends up missing those rows instead of getting zero-filled rows.",
+    "evidence_lines": [
+      105,
+      110,
+      111,
+      112,
+      119,
+      120,
+      137
+    ],
+    "impact": {
+      "amount_affected": null,
+      "amount_column": null,
+      "measured_on": "golden:T06",
+      "query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+      "rows_affected": 0
+    },
+    "impact_query": "WITH cl AS (SELECT DISTINCT YEAR(loss_date) AS ay, UPPER(RTRIM(lob_code)) AS lob FROM stg_claims WHERE YEAR(loss_date) BETWEEN 2019 AND 2025 AND loss_date <= DATE'2025-12-31' AND lob_code IS NOT NULL) SELECT COUNT(*) AS rows_affected FROM cl LEFT ANTI JOIN golden_rpt_loss_triangle_paid g ON g.accident_year = cl.ay AND g.lob_code = cl.lob",
+    "intended_behaviour": "Drive the triangle from the distinct accident-year/LOB pairs in #claims and LEFT JOIN the pivoted payments, so pairs with nothing paid show 0 in the elapsed cells and NULL after the as-at date.",
+    "job_id": "T06",
+    "source": "llm",
+    "title": "Accident year / LOB with claims but no payments missing from triangle"
+  }
+]

@@ -1,0 +1,3217 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:41:09.122713Z",
+  "request": {
+    "agent": "test_author",
+    "effort": "medium",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "medium",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "X1",
+    "json_schema": {
+      "$defs": {
+        "TestCaseAnswer": {
+          "additionalProperties": false,
+          "description": "A small input set that shows one trap changing the job's result.",
+          "properties": {
+            "description": {
+              "description": "What the rows set up, and what a naive translation would get wrong on them.",
+              "title": "Description",
+              "type": "string"
+            },
+            "tables": {
+              "description": "Rows for every input table the job needs to produce a non-empty result.",
+              "items": {
+                "$ref": "#/$defs/TestTableAnswer"
+              },
+              "title": "Tables",
+              "type": "array"
+            },
+            "trap_id": {
+              "pattern": "^(TSQL|SAS)-[0-9]{2}$",
+              "title": "Trap Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "trap_id",
+            "description",
+            "tables"
+          ],
+          "title": "TestCaseAnswer",
+          "type": "object"
+        },
+        "TestTableAnswer": {
+          "additionalProperties": false,
+          "description": "Rows of one input table for a test, every value written as text.",
+          "properties": {
+            "rows": {
+              "description": "5 to 20 rows. Each row maps column names to values as text: dates as YYYY-MM-DD, numbers as plain decimals, null for NULL. Columns left out are NULL.",
+              "items": {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              "title": "Rows",
+              "type": "array"
+            },
+            "table": {
+              "description": "The input table, schema-qualified, e.g. stg.claims.",
+              "title": "Table",
+              "type": "string"
+            }
+          },
+          "required": [
+            "table",
+            "rows"
+          ],
+          "title": "TestTableAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Test inputs, one case per semantic trap found in the job.",
+      "properties": {
+        "cases": {
+          "items": {
+            "$ref": "#/$defs/TestCaseAnswer"
+          },
+          "title": "Cases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cases"
+      ],
+      "title": "TestAuthorAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job X1: usp_broker_production. Parameters per run, in order: AsOfDate=2025-12-31.\n\nCode:\n  1 | /*==============================================================================\n  2 |   Job      : rpt.usp_broker_production\n  3 |   Purpose  : Broker production report for distribution MI. One row per broker\n  4 |              and line of business as at @AsOfDate: policies in force, gross\n  5 |              written premium in EUR booked in the calendar year, claims notified\n  6 |              and claims paid in the year, and a review flag for brokers whose\n  7 |              paid-to-written ratio for the year is above 0.75.\n  8 |   Author   : PdeB\n  9 |   Change log\n 10 |     2014-02-10  PdeB  Initial version (CR-0412)\n 11 |     2015-09-03  PdeB  GBP/USD premium converted to EUR at the ECB rate (CR-0688)\n 12 |     2017-11-20  SOK   Direct business reported under broker code DIRECT (CR-1047)\n 13 |     2019-05-14  AMcG  Inactive brokers kept when they still have business (INC-2231)\n 14 |     2021-03-08  SOK   Paid-to-written review flag for distribution (CR-1590)\n 15 |     2022-06-27  AMcG  Broker codes trimmed and upper-cased (INC-3118)\n 16 | ==============================================================================*/\n 17 | SET NOCOUNT ON;\n 18 | GO\n 19 | IF OBJECT_ID(N'rpt.broker_production', N'U') IS NULL\n 20 | CREATE TABLE rpt.broker_production (\n 21 |     as_of_date         DATE           NOT NULL,\n 22 |     broker_code        VARCHAR(10)    NOT NULL,\n 23 |     broker_name        NVARCHAR(80)   NULL,\n 24 |     broker_status      VARCHAR(10)    NULL,\n 25 |     lob_code           VARCHAR(5)     NOT NULL,\n 26 |     policies_in_force  INT            NOT NULL,\n 27 |     gwp_eur            DECIMAL(14,2)  NOT NULL,\n 28 |     claims_notified    INT            NOT NULL,\n 29 |     claims_paid_eur    DECIMAL(14,2)  NOT NULL,\n 30 |     paid_to_written    DECIMAL(12,4)  NULL,\n 31 |     review_flag        CHAR(1)        NOT NULL\n 32 | );\n 33 | GO\n 34 | CREATE OR ALTER PROCEDURE rpt.usp_broker_production\n 35 |     @AsOfDate DATE\n 36 | AS\n 37 | BEGIN\n 38 |     SET NOCOUNT ON;\n 39 | \n 40 |     DECLARE @job       VARCHAR(128) = 'rpt.usp_broker_production';\n 41 |     DECLARE @YearStart DATE         = DATEFROMPARTS(YEAR(@AsOfDate), 1, 1);\n 42 |     DECLARE @rows      INT;\n 43 | \n 44 |     BEGIN TRY\n 45 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'start', @status = 'STARTED';\n 46 | \n 47 |         -- policy attributes from the latest snapshot on or before the as-of date\n 48 |         SELECT x.policy_id, x.broker_code, x.lob_code, x.inception_date, x.expiry_date, x.cancellation_date\n 49 |         INTO #pol\n 50 |         FROM (\n 51 |             SELECT s.policy_id,\n 52 |                    ISNULL(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n 53 |                    UPPER(RTRIM(p.lob_code)) AS lob_code,\n 54 |                    s.inception_date, s.expiry_date, s.cancellation_date,\n 55 |                    ROW_NUMBER() OVER (PARTITION BY s.policy_id\n 56 |                                       ORDER BY s.snapshot_date DESC, s._row_seq DESC) AS rn\n 57 |             FROM stg.policy_snapshots s WITH (NOLOCK)\n 58 |             INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code\n 59 |             WHERE s.snapshot_date <= @AsOfDate\n 60 |         ) x\n 61 |         WHERE x.rn = 1;\n 62 |         SET @rows = @@ROWCOUNT;\n 63 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'policies', @status = 'INFO', @rows_affected = @rows;\n 64 | \n 65 |         -- policies in force on the as-of date\n 66 |         SELECT p.broker_code, p.lob_code, COUNT(*) AS policies_in_force\n 67 |         INTO #inforce\n 68 |         FROM #pol p\n 69 |         WHERE p.inception_date <= @AsOfDate\n 70 |           AND p.expiry_date >= @AsOfDate\n 71 |           AND (p.cancellation_date IS NULL OR p.cancellation_date > @AsOfDate)\n 72 |         GROUP BY p.broker_code, p.lob_code;\n 73 | \n 74 |         -- premium booked in the year, at the latest rate published on or before the booking date\n 75 |         SELECT p.broker_code, p.lob_code,\n 76 |                SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\n 77 |         INTO #gwp\n 78 |         FROM stg.premium_transactions t WITH (NOLOCK)\n 79 |         INNER JOIN #pol p ON p.policy_id = t.policy_id\n 80 |         OUTER APPLY (\n 81 |             SELECT TOP 1 f.rate_to_eur\n 82 |             FROM stg.fx_rates f WITH (NOLOCK)\n 83 |             WHERE f.currency = t.currency\n 84 |               AND f.rate_date <= t.txn_date\n 85 |             ORDER BY f.rate_date DESC, f._row_seq DESC\n 86 |         ) fx\n 87 |         WHERE t.txn_date >= @YearStart\n 88 |           AND t.txn_date <= @AsOfDate\n 89 |         GROUP BY p.broker_code, p.lob_code;\n 90 |         SET @rows = @@ROWCOUNT;\n 91 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'premium', @status = 'INFO', @rows_affected = @rows;\n 92 | \n 93 |         -- claims notified in the year\n 94 |         SELECT c.claim_id, p.broker_code, p.lob_code\n 95 |         INTO #clm\n 96 |         FROM stg.claims c WITH (NOLOCK)\n 97 |         INNER JOIN #pol p ON p.policy_id = c.policy_id\n 98 |         WHERE c.reported_date >= @YearStart\n 99 |           AND c.reported_date <= @AsOfDate;\n100 | \n101 |         SELECT c.broker_code, c.lob_code, COUNT(*) AS claims_notified\n102 |         INTO #notified\n103 |         FROM #clm c\n104 |         GROUP BY c.broker_code, c.lob_code;\n105 | \n106 |         -- claims paid in the year, recoveries netted off, unkeyed amounts ignored\n107 |         SELECT c.broker_code, c.lob_code, SUM(ISNULL(cp.amount, 0)) AS claims_paid_eur\n108 |         INTO #paid\n109 |         FROM stg.claim_payments cp WITH (NOLOCK)\n110 |         INNER JOIN #clm c ON c.claim_id = cp.claim_id\n111 |         WHERE cp.payment_date >= @YearStart\n112 |           AND cp.payment_date <= @AsOfDate\n113 |         GROUP BY c.broker_code, c.lob_code;\n114 |         SET @rows = @@ROWCOUNT;\n115 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'claims', @status = 'INFO', @rows_affected = @rows;\n116 | \n117 |         SELECT broker_code, lob_code INTO #keys FROM #inforce\n118 |         UNION SELECT broker_code, lob_code FROM #gwp\n119 |         UNION SELECT broker_code, lob_code FROM #notified\n120 |         UNION SELECT broker_code, lob_code FROM #paid;\n121 | \n122 |         -- paid-to-written ratio over all lines of the broker\n123 |         SELECT k.broker_code,\n124 |                CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written\n125 |         INTO #ratio\n126 |         FROM #keys k\n127 |         LEFT JOIN #gwp g   ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n128 |         LEFT JOIN #paid pd ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n129 |         GROUP BY k.broker_code;\n130 | \n131 |         TRUNCATE TABLE rpt.broker_production;\n132 | \n133 |         INSERT INTO rpt.broker_production\n134 |             (as_of_date, broker_code, broker_name, broker_status, lob_code, policies_in_force,\n135 |              gwp_eur, claims_notified, claims_paid_eur, paid_to_written, review_flag)\n136 |         SELECT @AsOfDate,\n137 |                k.broker_code,\n138 |                b.broker_name,\n139 |                UPPER(RTRIM(b.status)),\n140 |                k.lob_code,\n141 |                ISNULL(i.policies_in_force, 0),\n142 |                CAST(ISNULL(g.gwp_eur, 0) AS DECIMAL(14,2)),\n143 |                ISNULL(n.claims_notified, 0),\n144 |                CAST(ISNULL(pd.claims_paid_eur, 0) AS DECIMAL(14,2)),\n145 |                r.paid_to_written,\n146 |                CASE WHEN r.paid_to_written > 0.75 THEN 'Y' ELSE 'N' END\n147 |         FROM #keys k\n148 |         LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code\n149 |         LEFT JOIN #inforce i  ON i.broker_code = k.broker_code AND i.lob_code = k.lob_code\n150 |         LEFT JOIN #gwp g      ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n151 |         LEFT JOIN #notified n ON n.broker_code = k.broker_code AND n.lob_code = k.lob_code\n152 |         LEFT JOIN #paid pd    ON pd.broker_code = k.broker_code AND pd.lob_code = k.lob_code\n153 |         LEFT JOIN #ratio r    ON r.broker_code = k.broker_code;\n154 |         SET @rows = @@ROWCOUNT;\n155 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'load rpt.broker_production', @status = 'INFO', @rows_affected = @rows;\n156 | \n157 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'SUCCESS';\n158 |     END TRY\n159 |     BEGIN CATCH\n160 |         DECLARE @msg NVARCHAR(4000) = ERROR_MESSAGE(), @err INT = ERROR_NUMBER();\n161 |         EXEC etl.usp_log_step @job_name = @job, @step_name = 'end', @status = 'FAILED',\n162 |              @message = @msg, @error_number = @err;\n163 |         THROW;\n164 |     END CATCH\n165 | END;\n166 | GO\n\nInput tables:\n- stg.policy_snapshots: snapshot_date DATE NOT NULL, policy_id INT NOT NULL, policy_number VARCHAR(20) NOT NULL, customer_id INT NOT NULL, product_code VARCHAR(10) NOT NULL, broker_code VARCHAR(10), inception_date DATE NOT NULL, expiry_date DATE NOT NULL, status VARCHAR(12) NOT NULL, cancellation_date DATE, annual_premium DECIMAL(12,2) NOT NULL, currency CHAR(3) NOT NULL, sum_insured DECIMAL(14,2), payment_frequency VARCHAR(10) NOT NULL, vehicle_reg VARCHAR(12), ncd_years INT\n- stg.products: product_code VARCHAR(10) NOT NULL, product_name NVARCHAR(60) NOT NULL, lob_code VARCHAR(5) NOT NULL, term_months INT, levy_rate DECIMAL(5,4) NOT NULL, launched_on DATE NOT NULL, withdrawn_on DATE\n- stg.premium_transactions: txn_id INT NOT NULL, policy_id INT NOT NULL, txn_type VARCHAR(4) NOT NULL, txn_date DATE NOT NULL, effective_from DATE NOT NULL, effective_to DATE NOT NULL, amount DECIMAL(12,2) NOT NULL, currency CHAR(3) NOT NULL\n- stg.fx_rates: rate_date DATE NOT NULL, currency CHAR(3) NOT NULL, rate_to_eur DECIMAL(18,8) NOT NULL, source VARCHAR(10) NOT NULL\n- stg.claims: claim_id INT NOT NULL, claim_number VARCHAR(20) NOT NULL, policy_id INT NOT NULL, customer_id INT NOT NULL, lob_code VARCHAR(5) NOT NULL, loss_date DATE NOT NULL, reported_date DATE NOT NULL, status VARCHAR(12) NOT NULL, closed_date DATE, cause_code VARCHAR(10), handler_code VARCHAR(8), description NVARCHAR(200)\n- stg.claim_payments: payment_id INT NOT NULL, claim_id INT NOT NULL, payment_date DATE NOT NULL, amount DECIMAL(12,2), payment_type VARCHAR(12) NOT NULL, payee_type VARCHAR(12)\n- stg.brokers: broker_code CHAR(6) NOT NULL, broker_name NVARCHAR(80) NOT NULL, region VARCHAR(20), commission_rate DECIMAL(5,4) NOT NULL, status VARCHAR(10) NOT NULL, appointed_date DATE NOT NULL\n\nSemantic traps to test (one case per distinct trap id):\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 58-58: The products join compares the raw VARCHAR product_code values without any normalisation. Under the CI collation, case variants match; in Spark they would not, so policies would drop out of the inner join.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 58-58: The product_code join ignores trailing spaces in SQL Server. Spark needs an rtrim on both sides or padded codes miss the inner join.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 76-76: t.currency is CHAR(3) text, so currency = 'EUR' also matches 'eur'/'Eur' under the CI collation. A binary comparison in Spark would route those rows to the fx rate instead.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 76-76: currency is CHAR(3) and the comparison ignores trailing spaces (e.g. 'EUR ' or a padded short code). Spark compares exactly.\n- TSQL-07 (DECIMAL precision and scale, and ROUND on computed values) at lines 76-76: amount DECIMAL(12,2) * rate DECIMAL(18,8), summed. The result's precision and scale must match legacy before the final rounding to 2dp.\n- TSQL-08 (TOP and TOP WITH TIES) at lines 81-85: TOP 1 ordered by rate_date DESC, _row_seq DESC. The order is deterministic as long as _row_seq is unique per date, and the Spark window must use the same tie-break.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 83-83: The fx lookup matches f.currency = t.currency, two text columns from different sources, case-insensitively. In Spark, case variants would find no rate and the premium would come out NULL.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 83-83: The CHAR(3) currency match ignores trailing spaces in SQL Server. Spark matches exactly unless both sides are trimmed.\n- TSQL-07 (DECIMAL precision and scale, and ROUND on computed values) at lines 124-124: DECIMAL(38,2)/DECIMAL(38,2) division is cut down to scale 6 in SQL Server and then rounded to DECIMAL(12,4), so the value is rounded twice. Spark's decimal division and cast must give the same ratio, which feeds the 0.75 flag.\n- TSQL-07 (DECIMAL precision and scale, and ROUND on computed values) at lines 142-142: The high-scale gwp sum is cast to DECIMAL(14,2), rounding half away from zero. Spark must cast the decimal and must not round a double.\n- TSQL-07 (DECIMAL precision and scale, and ROUND on computed values) at lines 144-144: Claims paid is cast to DECIMAL(14,2). Spark must keep decimal types (not double) so the result matches.\n- TSQL-01 (Case-insensitive collation in =, IN, GROUP BY, DISTINCT, PARTITION BY and joins) at lines 148-148: stg.brokers.broker_code is not normalised, but k.broker_code is upper-cased. The CI join still matches lower- or mixed-case broker codes; a binary Spark join would lose broker_name and status.\n- TSQL-02 (Comparisons ignore trailing spaces; CHAR(n) pads with spaces) at lines 148-148: stg.brokers.broker_code is CHAR(6), so it is padded with spaces and may also carry stored trailing spaces. SQL Server's join ignores them, while Spark needs rtrim on b.broker_code to match the trimmed key.\n",
+    "system_prompt": "You are the test author agent of LANSH, a factory that migrates legacy T-SQL (SQL Server 2022) jobs to PySpark and must reproduce their output exactly. For each semantic trap you are given, write one small input set (5 to 20 rows per table) on which a naive translation of this job would give a different result from the legacy engine, while the job still produces output rows.\n\n- Use only the job's input tables and their columns; respect each column's legacy type and length (a VARCHAR(5) value has at most 5 characters) and fill every NOT NULL column.\n- Write every value as text: dates YYYY-MM-DD, datetimes YYYY-MM-DDTHH:MM:SS, numbers as plain decimals; use null for NULL. Leave _row_seq out: the rows' order is their _row_seq.\n- Include the related rows the job needs to produce output (for example, a claim's payments) and rows on both sides of the trap (the variant that a naive translation mishandles, and the canonical value).\n- The expected output is computed by running the legacy job itself on your rows, so never state expected values.\n"
+  },
+  "request_sha256": "dba91cc9edb94cf08926f9dfe0dbf10f43966145388c48e6997f54ad1ba92f45",
+  "response": {
+    "duration_api_ms": 260591,
+    "duration_ms": 261296,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 7673,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 7673,
+        "cacheReadInputTokens": 1067,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.7727854000000001,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 35559,
+        "provider": "firstParty",
+        "thinkingTokens": 8312,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "cases": [
+        {
+          "description": "Line 58: the snapshots carry product_code in different cases ('mot01', 'Mot01', 'hom01', 'pRODUCT' style), but stg.products only has upper-case codes. Under the CI collation, SQL Server joins all of them, so they count in policies_in_force. A binary Spark join drops them. Policies 1, 4 and 6 are the upper-case controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "mot01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "Mot01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "hom01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "80.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "106",
+                  "expiry_date": "2026-06-30",
+                  "inception_date": "2025-07-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "6",
+                  "policy_number": "POL0006",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "90.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "107",
+                  "expiry_date": "2026-07-31",
+                  "inception_date": "2025-08-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "7",
+                  "policy_number": "POL0007",
+                  "product_code": "trV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 58: some snapshot product_codes carry trailing spaces ('MOT01 ', 'MOT01  ', 'HOM01 '), and one products row is stored as 'PET01 ' while its snapshot says 'PET01'. SQL Server ignores the trailing spaces, so every policy joins. A Spark equality without rtrim loses policies 2, 3, 5 and 6. Policies 1 and 4 are the unpadded controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01 ",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "MOT01 ",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01  ",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01 ",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "120.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "106",
+                  "expiry_date": "2026-06-30",
+                  "inception_date": "2025-07-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "6",
+                  "policy_number": "POL0006",
+                  "product_code": "PET01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Line 76: premium transactions in currency 'eur', 'Eur' and 'eUR'. Under CI, they match currency = 'EUR' and are taken at a factor of 1. fx_rates also holds an EUR rate of 1.1. A binary CASE sends these rows to the fx lookup, where they either find no rate (the premium becomes NULL and drops out) or get the 1.1 rate. Either way gwp_eur changes. The 'EUR' and 'GBP' rows are controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "500.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "600.00",
+                  "currency": "eur",
+                  "effective_from": "2025-04-01",
+                  "effective_to": "2026-03-31",
+                  "policy_id": "2",
+                  "txn_date": "2025-04-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "700.00",
+                  "currency": "Eur",
+                  "effective_from": "2025-05-01",
+                  "effective_to": "2026-04-30",
+                  "policy_id": "3",
+                  "txn_date": "2025-05-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "300.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "4",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "350.00",
+                  "currency": "eUR",
+                  "effective_from": "2025-06-01",
+                  "effective_to": "2026-05-31",
+                  "policy_id": "5",
+                  "txn_date": "2025-06-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "25.00",
+                  "currency": "eur",
+                  "effective_from": "2025-08-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-08-01",
+                  "txn_id": "6",
+                  "txn_type": "MTA"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-06-30",
+                  "rate_to_eur": "1.18000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-06-30",
+                  "rate_to_eur": "0.93000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "EUR",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.10000000",
+                  "source": "TEST"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 76: currency is CHAR(3), so a full 'EUR' cannot also carry a trailing space within the column length. The case uses padded short codes instead: 'US ' and 'GB ' are compared against 'EUR' in the CASE and then go to the fx lookup, where fx_rates has 'US' and 'GB' without padding. The 'EUR' rows are controls, and fx_rates holds an EUR rate of 1.1 so that any EUR row wrongly sent to the fx rate shows up. A Spark comparison that does not trim padded CHAR values does not match these rows the way SQL Server does.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "500.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "600.00",
+                  "currency": "US ",
+                  "effective_from": "2025-04-01",
+                  "effective_to": "2026-03-31",
+                  "policy_id": "2",
+                  "txn_date": "2025-04-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "700.00",
+                  "currency": "GB ",
+                  "effective_from": "2025-05-01",
+                  "effective_to": "2026-04-30",
+                  "policy_id": "3",
+                  "txn_date": "2025-05-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "300.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "4",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "350.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-06-01",
+                  "effective_to": "2026-05-31",
+                  "policy_id": "5",
+                  "txn_date": "2025-06-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GB",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "US",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "EUR",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.10000000",
+                  "source": "TEST"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Line 76: amount DECIMAL(12,2) times rate DECIMAL(18,8), summed per broker and LOB. For BRK001/MOTOR, 0.50*1.001 plus 0.50*1.009 sums to exactly 1.005. For BRK001/HOME, three 333.33*0.33333333 pieces sum to 333.3299966667. The other rows use high-scale rates and a negative adjustment. If the math is done in double, sums like 1.005 drift below the half and round to 1.00 instead of the decimal 1.01.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "1.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "101",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "999.99",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "102",
+                  "expiry_date": "2026-01-14",
+                  "inception_date": "2025-01-15",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "1234.57",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "103",
+                  "expiry_date": "2026-06-14",
+                  "inception_date": "2025-06-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "200.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "10.05",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "105",
+                  "expiry_date": "2026-06-14",
+                  "inception_date": "2025-06-15",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "0.50",
+                  "currency": "GBP",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-14",
+                  "policy_id": "1",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "0.50",
+                  "currency": "GBP",
+                  "effective_from": "2025-07-01",
+                  "effective_to": "2026-01-14",
+                  "policy_id": "1",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "2",
+                  "txn_type": "MTA"
+                },
+                {
+                  "amount": "333.33",
+                  "currency": "USD",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-14",
+                  "policy_id": "2",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "333.33",
+                  "currency": "USD",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-01-14",
+                  "policy_id": "2",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "4",
+                  "txn_type": "MTA"
+                },
+                {
+                  "amount": "333.33",
+                  "currency": "USD",
+                  "effective_from": "2025-04-01",
+                  "effective_to": "2026-01-14",
+                  "policy_id": "2",
+                  "txn_date": "2025-04-01",
+                  "txn_id": "5",
+                  "txn_type": "MTA"
+                },
+                {
+                  "amount": "1234.57",
+                  "currency": "USD",
+                  "effective_from": "2025-07-01",
+                  "effective_to": "2026-06-14",
+                  "policy_id": "3",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "6",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "-0.01",
+                  "currency": "USD",
+                  "effective_from": "2025-08-01",
+                  "effective_to": "2026-06-14",
+                  "policy_id": "3",
+                  "txn_date": "2025-08-01",
+                  "txn_id": "7",
+                  "txn_type": "MTA"
+                },
+                {
+                  "amount": "200.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "4",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "8",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "10.05",
+                  "currency": "GBP",
+                  "effective_from": "2025-07-01",
+                  "effective_to": "2026-06-14",
+                  "policy_id": "5",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "9",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.00100000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "1.00900000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.33333333",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "0.85123457",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "CHF",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.05000000",
+                  "source": "ECB"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-07"
+        },
+        {
+          "description": "Lines 81-85: fx_rates has two GBP rows dated 2025-03-01 (1.15, then 1.17) and two USD rows dated 2025-03-01 (0.90, then 0.92). The TOP 1 picks the row with the higher _row_seq on the tied date. There is also a GBP rate dated after one transaction, which must not be used, and an earlier GBP rate for a February transaction. A Spark window that does not break ties by _row_seq DESC, or uses a non-deterministic first(), can pick the wrong rate.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "101",
+                  "expiry_date": "2026-03-14",
+                  "inception_date": "2025-03-15",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "102",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "103",
+                  "expiry_date": "2026-03-19",
+                  "inception_date": "2025-03-20",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "104",
+                  "expiry_date": "2026-02-14",
+                  "inception_date": "2025-02-15",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "100.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-15",
+                  "effective_to": "2026-03-14",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-15",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "100.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "2",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "100.00",
+                  "currency": "USD",
+                  "effective_from": "2025-03-20",
+                  "effective_to": "2026-03-19",
+                  "policy_id": "3",
+                  "txn_date": "2025-03-20",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "100.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-02-15",
+                  "effective_to": "2026-02-14",
+                  "policy_id": "4",
+                  "txn_date": "2025-02-15",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "100.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-05-01",
+                  "effective_to": "2026-04-30",
+                  "policy_id": "5",
+                  "txn_date": "2025-05-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-02-01",
+                  "rate_to_eur": "1.10000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-03-01",
+                  "rate_to_eur": "1.15000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-03-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB_FIX"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-04-01",
+                  "rate_to_eur": "1.20000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-03-01",
+                  "rate_to_eur": "0.90000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-03-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB_FIX"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.95000000",
+                  "source": "ECB"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-08"
+        },
+        {
+          "description": "Line 83: the transaction currencies 'gbp' and 'Gbp' must match fx 'GBP', and transaction 'USD' must match fx rows stored as 'Usd' and 'usd'. Under CI, SQL Server finds the latest rate for each. A binary Spark match finds no rate, so the premium is NULL and those groups get gwp 0. The 'GBP' and 'EUR' rows are controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "104",
+                  "expiry_date": "2026-06-30",
+                  "inception_date": "2025-07-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "105",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "150.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "106",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "6",
+                  "policy_number": "POL0006",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "500.00",
+                  "currency": "gbp",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "600.00",
+                  "currency": "Gbp",
+                  "effective_from": "2025-04-01",
+                  "effective_to": "2026-03-31",
+                  "policy_id": "2",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "700.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-05-01",
+                  "effective_to": "2026-04-30",
+                  "policy_id": "3",
+                  "txn_date": "2025-05-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "300.00",
+                  "currency": "USD",
+                  "effective_from": "2025-07-01",
+                  "effective_to": "2026-06-30",
+                  "policy_id": "4",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "350.00",
+                  "currency": "USD",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "5",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "150.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "6",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "6",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "1.18000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "Usd",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "usd",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "0.93000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "CHF",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.05000000",
+                  "source": "ECB"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 83: CHAR(3) padded short codes. Transaction 'GB ' must match fx 'GB', transaction 'GB' must match the later fx 'GB ' row, and transaction 'US' must match fx 'US '. SQL Server ignores the trailing spaces and finds the rate. An exact Spark match finds none, so the premium is NULL. The 'GBP' and 'EUR' rows are controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "102",
+                  "expiry_date": "2026-06-30",
+                  "inception_date": "2025-07-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "104",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "500.00",
+                  "currency": "GB ",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "600.00",
+                  "currency": "GB",
+                  "effective_from": "2025-07-01",
+                  "effective_to": "2026-06-30",
+                  "policy_id": "2",
+                  "txn_date": "2025-07-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "700.00",
+                  "currency": "US",
+                  "effective_from": "2025-05-01",
+                  "effective_to": "2026-04-30",
+                  "policy_id": "3",
+                  "txn_date": "2025-05-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "300.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "4",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "350.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "5",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GB",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.17000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GB ",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "1.18000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "US ",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.92000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.16000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "0.91000000",
+                  "source": "ECB"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        },
+        {
+          "description": "Line 124: the broker-level paid/written ratio sits right at the 0.75 threshold. BRK001: 15000.99/20000 = 0.7500495, which is rounded to 6dp by the division and then to 4dp by the cast. BRK002: 7500.01/10000 = 0.750001, which rounds to 0.7500, so the flag is N even though the raw value is above 0.75. BRK003 spans two LOBs, 7500.50/10000 = 0.75005, which rounds half up to 0.7501, so Y. BRK004 is exactly 0.75. A null payment and a payment after the as-of date are excluded. A double or unrounded ratio flips the flags.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "20000.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "10000.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "6000.00",
+                  "broker_code": "BRK003",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "4000.00",
+                  "broker_code": "BRK003",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "3.00",
+                  "broker_code": "BRK004",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "20000.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "1",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "10000.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "2",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "2",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "6000.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "3",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "4000.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "4",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "3.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-02-01",
+                  "effective_to": "2026-01-31",
+                  "policy_id": "5",
+                  "txn_date": "2025-02-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM0001",
+                  "closed_date": null,
+                  "customer_id": "101",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-04-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM0002",
+                  "closed_date": null,
+                  "customer_id": "102",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-04-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-04-03",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM0003",
+                  "closed_date": "2025-09-01",
+                  "customer_id": "103",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-05-02",
+                  "status": "CLOSED"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM0004",
+                  "closed_date": null,
+                  "customer_id": "104",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-05-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-05-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM0005",
+                  "closed_date": null,
+                  "customer_id": "105",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-06-01",
+                  "policy_id": "5",
+                  "reported_date": "2025-06-02",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "15000.99",
+                  "claim_id": "1",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "1",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-07-01",
+                  "payment_id": "2",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "7500.01",
+                  "claim_id": "2",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "3",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "4000.00",
+                  "claim_id": "3",
+                  "payee_type": "GARAGE",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "4",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "3500.50",
+                  "claim_id": "4",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "5",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "2.25",
+                  "claim_id": "5",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2025-07-01",
+                  "payment_id": "6",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "999.00",
+                  "claim_id": "2",
+                  "payee_type": "CLAIMANT",
+                  "payment_date": "2026-01-05",
+                  "payment_id": "7",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-07"
+        },
+        {
+          "description": "Line 142: each group's high-scale gwp lands exactly on a half cent. 1.00*1.125 = 1.125 should give 1.13, -1.00*1.125 = -1.125 should give -1.13 (half away from zero), 5.00*1.125 = 5.625 should give 5.63, and 3.00*1.165 = 3.495 and 1.00*1.165 = 1.165 should give 3.50 and 1.17. Banker's rounding or rounding through a double gives 1.12, -1.12, 5.62, 3.49 and 1.16. The EUR group is the control.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "1.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "1.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "102",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "5.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "GBP",
+                  "customer_id": "103",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "3.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "104",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "1.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "USD",
+                  "customer_id": "105",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "100.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "106",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "6",
+                  "policy_number": "POL0006",
+                  "product_code": "PET01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "1.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "1",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "1",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "-1.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "2",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "2",
+                  "txn_type": "CAN"
+                },
+                {
+                  "amount": "5.00",
+                  "currency": "GBP",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "3",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "3",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "3.00",
+                  "currency": "USD",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "4",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "4",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "1.00",
+                  "currency": "USD",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "5",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "5",
+                  "txn_type": "NB"
+                },
+                {
+                  "amount": "100.00",
+                  "currency": "EUR",
+                  "effective_from": "2025-03-01",
+                  "effective_to": "2026-02-28",
+                  "policy_id": "6",
+                  "txn_date": "2025-03-01",
+                  "txn_id": "6",
+                  "txn_type": "NB"
+                }
+              ],
+              "table": "stg.premium_transactions"
+            },
+            {
+              "rows": [
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.12500000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.16500000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "GBP",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "1.20000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "USD",
+                  "rate_date": "2025-06-01",
+                  "rate_to_eur": "0.90000000",
+                  "source": "ECB"
+                },
+                {
+                  "currency": "CHF",
+                  "rate_date": "2025-01-01",
+                  "rate_to_eur": "1.05000000",
+                  "source": "ECB"
+                }
+              ],
+              "table": "stg.fx_rates"
+            }
+          ],
+          "trap_id": "TSQL-07"
+        },
+        {
+          "description": "Line 144: claims paid summed as decimal. Claim 1 has ten payments of 0.10, which sum to 0.9999999999999999 in double. Claim 2 has 100.00, a -25.50 recovery and a NULL amount. Claim 3 has three payments of 1.15, which sum to 3.4499999999999997 in double. Decimal gives exactly 1.00 and 3.45. Double plus truncation or a cast can give 0.99 and 3.44. Claim 4 has no payments, and claim 5 was reported in 2024 and is excluded.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "400.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "450.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "90.00",
+                  "broker_code": "BRK002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2024-06-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "claim_id": "1",
+                  "claim_number": "CLM0001",
+                  "closed_date": null,
+                  "customer_id": "101",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "1",
+                  "reported_date": "2025-03-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "2",
+                  "claim_number": "CLM0002",
+                  "closed_date": null,
+                  "customer_id": "102",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "2",
+                  "reported_date": "2025-03-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "3",
+                  "claim_number": "CLM0003",
+                  "closed_date": null,
+                  "customer_id": "103",
+                  "lob_code": "MOTOR",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "3",
+                  "reported_date": "2025-03-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "4",
+                  "claim_number": "CLM0004",
+                  "closed_date": null,
+                  "customer_id": "104",
+                  "lob_code": "HOME",
+                  "loss_date": "2025-03-01",
+                  "policy_id": "4",
+                  "reported_date": "2025-03-02",
+                  "status": "OPEN"
+                },
+                {
+                  "claim_id": "5",
+                  "claim_number": "CLM0005",
+                  "closed_date": null,
+                  "customer_id": "105",
+                  "lob_code": "TRAVL",
+                  "loss_date": "2024-11-01",
+                  "policy_id": "5",
+                  "reported_date": "2024-11-05",
+                  "status": "OPEN"
+                }
+              ],
+              "table": "stg.claims"
+            },
+            {
+              "rows": [
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-01",
+                  "payment_id": "1",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-02",
+                  "payment_id": "2",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-03",
+                  "payment_id": "3",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-04",
+                  "payment_id": "4",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-05",
+                  "payment_id": "5",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-06",
+                  "payment_id": "6",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-07",
+                  "payment_id": "7",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-08",
+                  "payment_id": "8",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-09",
+                  "payment_id": "9",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "0.10",
+                  "claim_id": "1",
+                  "payment_date": "2025-04-10",
+                  "payment_id": "10",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "100.00",
+                  "claim_id": "2",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "11",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "-25.50",
+                  "claim_id": "2",
+                  "payment_date": "2025-06-01",
+                  "payment_id": "12",
+                  "payment_type": "RECOVERY"
+                },
+                {
+                  "amount": null,
+                  "claim_id": "2",
+                  "payment_date": "2025-06-15",
+                  "payment_id": "13",
+                  "payment_type": "INDEMNITY"
+                },
+                {
+                  "amount": "1.15",
+                  "claim_id": "3",
+                  "payment_date": "2025-05-01",
+                  "payment_id": "14",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "1.15",
+                  "claim_id": "3",
+                  "payment_date": "2025-05-02",
+                  "payment_id": "15",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "1.15",
+                  "claim_id": "3",
+                  "payment_date": "2025-05-03",
+                  "payment_id": "16",
+                  "payment_type": "FEE"
+                },
+                {
+                  "amount": "50.00",
+                  "claim_id": "5",
+                  "payment_date": "2025-02-01",
+                  "payment_id": "17",
+                  "payment_type": "INDEMNITY"
+                }
+              ],
+              "table": "stg.claim_payments"
+            }
+          ],
+          "trap_id": "TSQL-07"
+        },
+        {
+          "description": "Line 148: the report key broker_code is trimmed and upper-cased, but stg.brokers stores 'brk001', 'Brk002', 'bRK003' and 'direct'. Under CI, SQL Server joins them and fills broker_name and status. A binary Spark join leaves both NULL. BRK004 is the exact-match control. Policy 2's snapshot code is lower case, and policy 4 has a NULL broker_code, which becomes DIRECT.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK001",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": "brk002",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "Brk003",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": null,
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "BRK004",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "appointed_date": "2010-01-01",
+                  "broker_code": "brk001",
+                  "broker_name": "Atlantic Brokers",
+                  "commission_rate": "0.1000",
+                  "region": "NORTH",
+                  "status": "active"
+                },
+                {
+                  "appointed_date": "2012-05-01",
+                  "broker_code": "Brk002",
+                  "broker_name": "Harbour Insurance Ltd",
+                  "commission_rate": "0.1200",
+                  "region": "SOUTH",
+                  "status": "Inactive"
+                },
+                {
+                  "appointed_date": "2015-03-01",
+                  "broker_code": "bRK003",
+                  "broker_name": "Celtic Cover",
+                  "commission_rate": "0.0900",
+                  "region": "WEST",
+                  "status": "ACTIVE"
+                },
+                {
+                  "appointed_date": "2017-11-20",
+                  "broker_code": "direct",
+                  "broker_name": "Direct Business",
+                  "commission_rate": "0.0000",
+                  "region": null,
+                  "status": "ACTIVE"
+                },
+                {
+                  "appointed_date": "2018-01-01",
+                  "broker_code": "BRK004",
+                  "broker_name": "Midland Partners",
+                  "commission_rate": "0.1100",
+                  "region": "EAST",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.brokers"
+            }
+          ],
+          "trap_id": "TSQL-01"
+        },
+        {
+          "description": "Line 148: brokers.broker_code is CHAR(6) and holds space-padded values ('BRK01 ', 'BRK2  ', 'AB    ', 'DIRECT') that must match the trimmed keys 'BRK01', 'BRK2' and 'AB'. Policy 2's snapshot code ' BRK2 ' is trimmed in the key. SQL Server ignores the trailing spaces and fills broker_name and status. A Spark join without rtrim on b.broker_code leaves them NULL. BRK003 and DIRECT are full-width controls.",
+          "tables": [
+            {
+              "rows": [
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "MOTOR",
+                  "product_code": "MOT01",
+                  "product_name": "Private Motor",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2010-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "HOME",
+                  "product_code": "HOM01",
+                  "product_name": "Home Buildings",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2012-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "TRAVL",
+                  "product_code": "TRV01",
+                  "product_name": "Travel",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2015-01-01",
+                  "levy_rate": "0.0300",
+                  "lob_code": "PET",
+                  "product_code": "PET01",
+                  "product_name": "Pet",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                },
+                {
+                  "launched_on": "2011-01-01",
+                  "levy_rate": "0.0500",
+                  "lob_code": "LIAB",
+                  "product_code": "LIA01",
+                  "product_name": "Liability",
+                  "term_months": "12",
+                  "withdrawn_on": null
+                }
+              ],
+              "table": "stg.products"
+            },
+            {
+              "rows": [
+                {
+                  "annual_premium": "500.00",
+                  "broker_code": "BRK01",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "101",
+                  "expiry_date": "2026-02-28",
+                  "inception_date": "2025-03-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "1",
+                  "policy_number": "POL0001",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "600.00",
+                  "broker_code": " BRK2 ",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "102",
+                  "expiry_date": "2026-03-31",
+                  "inception_date": "2025-04-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "2",
+                  "policy_number": "POL0002",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "700.00",
+                  "broker_code": "BRK003",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "103",
+                  "expiry_date": "2026-04-30",
+                  "inception_date": "2025-05-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "3",
+                  "policy_number": "POL0003",
+                  "product_code": "TRV01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "300.00",
+                  "broker_code": null,
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "104",
+                  "expiry_date": "2026-01-31",
+                  "inception_date": "2025-02-01",
+                  "payment_frequency": "ANNUAL",
+                  "policy_id": "4",
+                  "policy_number": "POL0004",
+                  "product_code": "MOT01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                },
+                {
+                  "annual_premium": "350.00",
+                  "broker_code": "AB",
+                  "cancellation_date": null,
+                  "currency": "EUR",
+                  "customer_id": "105",
+                  "expiry_date": "2026-05-31",
+                  "inception_date": "2025-06-01",
+                  "payment_frequency": "MONTHLY",
+                  "policy_id": "5",
+                  "policy_number": "POL0005",
+                  "product_code": "HOM01",
+                  "snapshot_date": "2025-12-01",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.policy_snapshots"
+            },
+            {
+              "rows": [
+                {
+                  "appointed_date": "2010-01-01",
+                  "broker_code": "BRK01 ",
+                  "broker_name": "Atlantic Brokers",
+                  "commission_rate": "0.1000",
+                  "region": "NORTH",
+                  "status": "ACTIVE "
+                },
+                {
+                  "appointed_date": "2012-05-01",
+                  "broker_code": "BRK2  ",
+                  "broker_name": "Harbour Insurance Ltd",
+                  "commission_rate": "0.1200",
+                  "region": "SOUTH",
+                  "status": "INACTIVE"
+                },
+                {
+                  "appointed_date": "2015-03-01",
+                  "broker_code": "BRK003",
+                  "broker_name": "Celtic Cover",
+                  "commission_rate": "0.0900",
+                  "region": "WEST",
+                  "status": "ACTIVE"
+                },
+                {
+                  "appointed_date": "2017-11-20",
+                  "broker_code": "DIRECT",
+                  "broker_name": "Direct Business",
+                  "commission_rate": "0.0000",
+                  "region": null,
+                  "status": "ACTIVE"
+                },
+                {
+                  "appointed_date": "2018-01-01",
+                  "broker_code": "AB    ",
+                  "broker_name": "AB Insurance Services",
+                  "commission_rate": "0.1100",
+                  "region": "EAST",
+                  "status": "ACTIVE"
+                }
+              ],
+              "table": "stg.brokers"
+            }
+          ],
+          "trap_id": "TSQL-02"
+        }
+      ]
+    },
+    "total_cost_usd": 0.7727854000000001,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 7673,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 7673,
+      "cache_read_input_tokens": 1067,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 7673,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 7673,
+          "cache_read_input_tokens": 1067,
+          "input_tokens": 2,
+          "output_tokens": 35559,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 35559,
+      "output_tokens_details": {
+        "thinking_tokens": 8312
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

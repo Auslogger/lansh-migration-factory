@@ -1,0 +1,222 @@
+[
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 61,
+    "line_start": 48,
+    "note": "#pol temp table holding the latest policy snapshot; becomes a DataFrame.",
+    "snippet": "SELECT x.policy_id, x.broker_code, x.lob_code, x.inception_date, x.expiry_date, x.cancellation_date\n        INTO #pol\n        FROM (\n            SELECT s.policy_id,\n                   ISNULL(UPPER(LTRIM(RTRIM(s.broker_code))), 'DIRECT') AS broker_code,\n                   UPPER(RTRIM(p.lob_code)) AS\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 58,
+    "line_start": 58,
+    "note": "The products join compares the raw VARCHAR product_code values without any normalisation. Under the CI collation, case variants match; in Spark they would not, so policies would drop out of the inner join.",
+    "snippet": "INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 58,
+    "line_start": 58,
+    "note": "The product_code join ignores trailing spaces in SQL Server. Spark needs an rtrim on both sides or padded codes miss the inner join.",
+    "snippet": "INNER JOIN stg.products p WITH (NOLOCK) ON p.product_code = s.product_code",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 72,
+    "line_start": 66,
+    "note": "#inforce temp table.",
+    "snippet": "SELECT p.broker_code, p.lob_code, COUNT(*) AS policies_in_force\n        INTO #inforce\n        FROM #pol p\n        WHERE p.inception_date <= @AsOfDate\n          AND p.expiry_date >= @AsOfDate\n          AND (p.cancellation_date IS NULL OR p.cancellation_date > @AsOfDate)\n        GROUP BY p.broker_cod\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 89,
+    "line_start": 75,
+    "note": "#gwp temp table.",
+    "snippet": "SELECT p.broker_code, p.lob_code,\n               SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur\n        INTO #gwp\n        FROM stg.premium_transactions t WITH (NOLOCK)\n        INNER JOIN #pol p ON p.policy_id = t.policy_id\n        OUTER APPLY (\n            SE\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 76,
+    "line_start": 76,
+    "note": "t.currency is CHAR(3) text, so currency = 'EUR' also matches 'eur'/'Eur' under the CI collation. A binary comparison in Spark would route those rows to the fx rate instead.",
+    "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 76,
+    "line_start": 76,
+    "note": "currency is CHAR(3) and the comparison ignores trailing spaces (e.g. 'EUR ' or a padded short code). Spark compares exactly.",
+    "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.45,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 76,
+    "line_start": 76,
+    "note": "amount DECIMAL(12,2) * rate DECIMAL(18,8), summed. The result's precision and scale must match legacy before the final rounding to 2dp.",
+    "snippet": "SUM(t.amount * CASE WHEN t.currency = 'EUR' THEN 1 ELSE fx.rate_to_eur END) AS gwp_eur",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.95,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 86,
+    "line_start": 80,
+    "note": "OUTER APPLY TOP 1 picks the latest fx rate on or before txn_date and keeps transactions that have no rate. In Spark this must become a left join plus a row_number window.",
+    "snippet": "OUTER APPLY (\n            SELECT TOP 1 f.rate_to_eur\n            FROM stg.fx_rates f WITH (NOLOCK)\n            WHERE f.currency = t.currency\n              AND f.rate_date <= t.txn_date\n            ORDER BY f.rate_date DESC, f._row_seq DESC\n        ) fx",
+    "trap_id": "TSQL-09"
+  },
+  {
+    "confidence": 0.4,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 85,
+    "line_start": 81,
+    "note": "TOP 1 ordered by rate_date DESC, _row_seq DESC. The order is deterministic as long as _row_seq is unique per date, and the Spark window must use the same tie-break.",
+    "snippet": "SELECT TOP 1 f.rate_to_eur\n            FROM stg.fx_rates f WITH (NOLOCK)\n            WHERE f.currency = t.currency\n              AND f.rate_date <= t.txn_date\n            ORDER BY f.rate_date DESC, f._row_seq DESC",
+    "trap_id": "TSQL-08"
+  },
+  {
+    "confidence": 0.7,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 83,
+    "line_start": 83,
+    "note": "The fx lookup matches f.currency = t.currency, two text columns from different sources, case-insensitively. In Spark, case variants would find no rate and the premium would come out NULL.",
+    "snippet": "WHERE f.currency = t.currency",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 83,
+    "line_start": 83,
+    "note": "The CHAR(3) currency match ignores trailing spaces in SQL Server. Spark matches exactly unless both sides are trimmed.",
+    "snippet": "WHERE f.currency = t.currency",
+    "trap_id": "TSQL-02"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 99,
+    "line_start": 94,
+    "note": "#clm temp table.",
+    "snippet": "SELECT c.claim_id, p.broker_code, p.lob_code\n        INTO #clm\n        FROM stg.claims c WITH (NOLOCK)\n        INNER JOIN #pol p ON p.policy_id = c.policy_id\n        WHERE c.reported_date >= @YearStart\n          AND c.reported_date <= @AsOfDate;",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 104,
+    "line_start": 101,
+    "note": "#notified temp table.",
+    "snippet": "SELECT c.broker_code, c.lob_code, COUNT(*) AS claims_notified\n        INTO #notified\n        FROM #clm c\n        GROUP BY c.broker_code, c.lob_code;",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 113,
+    "line_start": 107,
+    "note": "#paid temp table.",
+    "snippet": "SELECT c.broker_code, c.lob_code, SUM(ISNULL(cp.amount, 0)) AS claims_paid_eur\n        INTO #paid\n        FROM stg.claim_payments cp WITH (NOLOCK)\n        INNER JOIN #clm c ON c.claim_id = cp.claim_id\n        WHERE cp.payment_date >= @YearStart\n          AND cp.payment_date <= @AsOfDate\n        GRO\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 120,
+    "line_start": 117,
+    "note": "#keys temp table built by UNION, which removes duplicates; needs union plus distinct in Spark.",
+    "snippet": "SELECT broker_code, lob_code INTO #keys FROM #inforce\n        UNION SELECT broker_code, lob_code FROM #gwp\n        UNION SELECT broker_code, lob_code FROM #notified\n        UNION SELECT broker_code, lob_code FROM #paid;",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.9,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 129,
+    "line_start": 123,
+    "note": "#ratio temp table.",
+    "snippet": "SELECT k.broker_code,\n               CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written\n        INTO #ratio\n        FROM #keys k\n        LEFT JOIN #gwp g   ON g.broker_code = k.broker_code AND g.lob_code = k.lob_code\n        LEFT JOIN\u2026",
+    "trap_id": "TSQL-13"
+  },
+  {
+    "confidence": 0.6,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 124,
+    "line_start": 124,
+    "note": "DECIMAL(38,2)/DECIMAL(38,2) division is cut down to scale 6 in SQL Server and then rounded to DECIMAL(12,4), so the value is rounded twice. Spark's decimal division and cast must give the same ratio, which feeds the 0.75 flag.",
+    "snippet": "CAST(SUM(ISNULL(pd.claims_paid_eur, 0)) / NULLIF(SUM(ISNULL(g.gwp_eur, 0)), 0) AS DECIMAL(12,4)) AS paid_to_written",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.5,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 142,
+    "line_start": 142,
+    "note": "The high-scale gwp sum is cast to DECIMAL(14,2), rounding half away from zero. Spark must cast the decimal and must not round a double.",
+    "snippet": "CAST(ISNULL(g.gwp_eur, 0) AS DECIMAL(14,2)),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.35,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 144,
+    "line_start": 144,
+    "note": "Claims paid is cast to DECIMAL(14,2). Spark must keep decimal types (not double) so the result matches.",
+    "snippet": "CAST(ISNULL(pd.claims_paid_eur, 0) AS DECIMAL(14,2)),",
+    "trap_id": "TSQL-07"
+  },
+  {
+    "confidence": 0.75,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 148,
+    "line_start": 148,
+    "note": "stg.brokers.broker_code is not normalised, but k.broker_code is upper-cased. The CI join still matches lower- or mixed-case broker codes; a binary Spark join would lose broker_name and status.",
+    "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code",
+    "trap_id": "TSQL-01"
+  },
+  {
+    "confidence": 0.8,
+    "detector": "llm",
+    "job_id": "X1",
+    "line_end": 148,
+    "line_start": 148,
+    "note": "stg.brokers.broker_code is CHAR(6), so it is padded with spaces and may also carry stored trailing spaces. SQL Server's join ignores them, while Spark needs rtrim on b.broker_code to match the trimmed key.",
+    "snippet": "LEFT JOIN stg.brokers b WITH (NOLOCK) ON b.broker_code = k.broker_code",
+    "trap_id": "TSQL-02"
+  }
+]

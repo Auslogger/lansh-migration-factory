@@ -1,0 +1,663 @@
+[
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      92
+    ],
+    "input_column": "updated_at",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CAST(updated_at AS DATE) <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      56,
+      92
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "filters",
+    "output_column": null,
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CAST(updated_at AS DATE) <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      101,
+      104
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "ROW_NUMBER() PARTITION BY customer_id, keep version_no = 1",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      102,
+      104
+    ],
+    "input_column": "updated_at",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "ROW_NUMBER() ORDER BY updated_at ASC, keep version_no = 1 (earliest version survives)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      102,
+      104
+    ],
+    "input_column": "_row_seq",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "ranks",
+    "output_column": null,
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "ROW_NUMBER() ORDER BY updated_at, _row_seq ASC tiebreak",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      74,
+      120
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "customer_id",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      75,
+      121
+    ],
+    "input_column": "first_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "first_name",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "RTRIM(first_name)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      76,
+      122
+    ],
+    "input_column": "last_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "last_name",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct (not trimmed)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      123
+    ],
+    "input_column": "first_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "full_name",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      123
+    ],
+    "input_column": "last_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "full_name",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "RTRIM(first_name) + ' ' + RTRIM(last_name)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      123
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "full_name",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "literal N' ' separator",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      124
+    ],
+    "input_column": "first_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "initials",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "UPPER(SUBSTRING(first_name,0,2) + ...) - SUBSTRING from 0 yields first char only",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      124
+    ],
+    "input_column": "last_name",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "initials",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "UPPER(... + SUBSTRING(last_name,0,2)) - first char only",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      77,
+      125
+    ],
+    "input_column": "email",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "email",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.95,
+    "evidence_lines": [
+      126,
+      127
+    ],
+    "input_column": "email",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "email_shared_count",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CASE WHEN email IS NULL THEN 0 ELSE COUNT(*) OVER (PARTITION BY email) over surviving rows",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      126
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "email_shared_count",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "0 when email IS NULL",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      78,
+      128
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "date_of_birth",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      129
+    ],
+    "input_column": "date_of_birth",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "age_at_join",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "DATEDIFF(YEAR, date_of_birth, customer_since) (year-boundary count)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      129
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "age_at_join",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "DATEDIFF(YEAR, date_of_birth, customer_since)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      79,
+      130
+    ],
+    "input_column": "address_line1",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "address_line1",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      80,
+      131
+    ],
+    "input_column": "town",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "town",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      81,
+      132
+    ],
+    "input_column": "county",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "county",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140
+    ],
+    "input_column": "county",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "region",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CASE county IN (...) -> EAST/SOUTH/WEST/NORTH-WEST/MIDLANDS ELSE UNKNOWN",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      134,
+      139
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "region",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "region literals incl. 'UNKNOWN' default",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      82,
+      141
+    ],
+    "input_column": "eircode",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "eircode",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      143,
+      144,
+      145,
+      146
+    ],
+    "input_column": "eircode",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "eircode_valid",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CASE LEN(eircode)=7 -> Y; LEN=8 AND 4th char ' ' -> Y; ELSE N",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      143,
+      145
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "eircode_valid",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "'Y'/'N' literals",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      83,
+      147
+    ],
+    "input_column": "segment_code",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "segment_code",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.97,
+    "evidence_lines": [
+      148
+    ],
+    "input_column": "segment_code",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "is_standard_segment",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "CASE WHEN segment_code = 'STD' THEN 'Y' ELSE 'N'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.8,
+    "evidence_lines": [
+      148
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "is_standard_segment",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "'Y'/'N' literals",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      84,
+      149
+    ],
+    "input_column": "marketing_opt_in",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "marketing_opt_in",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "ISNULL(marketing_opt_in, 'N')",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.85,
+    "evidence_lines": [
+      149
+    ],
+    "input_column": null,
+    "input_kind": "constant",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "marketing_opt_in",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "default 'N'",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      85,
+      150
+    ],
+    "input_column": "customer_since",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "customer_since",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      86,
+      151
+    ],
+    "input_column": "source_system",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "source_system",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "UPPER(RTRIM(source_system))",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.93,
+    "evidence_lines": [
+      89,
+      152
+    ],
+    "input_column": "customer_id",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "version_count",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "COUNT(*) OVER (PARTITION BY customer_id) over versions with updated_at <= @AsOfDate",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      87,
+      153
+    ],
+    "input_column": "updated_at",
+    "input_kind": "column",
+    "input_table": "stg.customers",
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "record_updated_at",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "direct (updated_at of surviving version)",
+    "verified": true
+  },
+  {
+    "agrees_with_sqlglot": null,
+    "confidence": 0.98,
+    "evidence_lines": [
+      56,
+      154
+    ],
+    "input_column": "@AsOfDate",
+    "input_kind": "parameter",
+    "input_table": null,
+    "job_id": "T01",
+    "kind": "derives",
+    "output_column": "as_of_date",
+    "output_table": "dw.dim_customer",
+    "source": "llm",
+    "transform": "@AsOfDate stamped on every row",
+    "verified": true
+  }
+]

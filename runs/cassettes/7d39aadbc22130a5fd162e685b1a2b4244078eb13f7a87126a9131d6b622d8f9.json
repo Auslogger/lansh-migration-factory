@@ -1,0 +1,220 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T03:16:15.484386Z",
+  "request": {
+    "agent": "oneshot_translator",
+    "effort": "high",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "high",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T05",
+    "json_schema": {
+      "$defs": {
+        "DefectMarkerAnswer": {
+          "additionalProperties": false,
+          "description": "A suspected legacy bug that the translation reproduces on purpose.",
+          "properties": {
+            "intended": {
+              "description": "What it was probably meant to do.",
+              "title": "Intended",
+              "type": "string"
+            },
+            "legacy_lines": {
+              "description": "Lines of the legacy file that show it.",
+              "items": {
+                "type": "integer"
+              },
+              "title": "Legacy Lines",
+              "type": "array"
+            },
+            "title": {
+              "description": "A short name for the suspected bug.",
+              "title": "Title",
+              "type": "string"
+            },
+            "what_it_does": {
+              "description": "What the legacy code actually does.",
+              "title": "What It Does",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "legacy_lines",
+            "what_it_does",
+            "intended"
+          ],
+          "title": "DefectMarkerAnswer",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A migrated job module in the LANSH job template, reproducing the legacy job exactly.",
+      "properties": {
+        "code": {
+          "description": "The complete Python module: docstring, imports, and run(spark, inputs, params) returning a dict of output DataFrames.",
+          "title": "Code",
+          "type": "string"
+        },
+        "defects": {
+          "description": "Every suspected legacy bug the code reproduces, each also marked with a '# LANSH-DEFECT' comment on the line that reproduces it.",
+          "items": {
+            "$ref": "#/$defs/DefectMarkerAnswer"
+          },
+          "title": "Defects",
+          "type": "array"
+        },
+        "notes": {
+          "description": "Anything a code reviewer should check. Empty if nothing.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "traps_handled": {
+          "description": "Trap card ids the code handles deliberately, e.g. ['TSQL-01'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Traps Handled",
+          "type": "array"
+        }
+      },
+      "required": [
+        "code",
+        "traps_handled",
+        "defects",
+        "notes"
+      ],
+      "title": "TranslationAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T05: usp_claim_aging (tsql), legacy file estate/tsql/T05_usp_claim_aging.sql (SHA-256 f443e5070182d5b723af38f23dc653d53fc43f8eb322f5cdd5e1f6bd1893b12f).\nAgeing of open claims by time since last activity.\nInvocations, in order: run: AsOfDate=2025-12-31.\n\nLegacy code:\n/*==============================================================================\n  Job      : rpt.usp_claim_aging\n  Purpose  : Ageing of the open claims book for claims operations: each open or\n             re-opened claim is aged on the days since its last activity (its\n             last payment up to the reporting date, or the date it was notified\n             when nothing has been paid yet). Feeds the weekly diary review.\n  Output   : rpt.claim_aging (truncated and reloaded on every run)\n  Author   : BMcG\n\n  Change log\n    2013-10-07  BMcG  Initial version\n    2014-05-19  BMcG  weeks_open added for the handler workload report (CR-0317)\n    2016-02-08  RF    Re-opened claims aged as well (CR-0852)\n    2017-09-25  RF    Payments staged in #pay first; nightly run down from\n                      40 min to 2 min (INC-1904)\n    2019-04-01  NK    Payments dated after the reporting date ignored (CR-1488)\n    2020-11-16  NK    Ageing bands added for the claims MI pack (CR-1951)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claim_aging', N'U') IS NULL\nCREATE TABLE rpt.claim_aging (\n    claim_id             INT            NOT NULL,\n    claim_number         VARCHAR(20)    NOT NULL,\n    lob_code             VARCHAR(5)     NOT NULL,\n    reported_date        DATE           NOT NULL,\n    n_payments           INT            NOT NULL,\n    total_paid           DECIMAL(14,2)  NULL,\n    last_payment_date    DATE           NULL,\n    last_activity_date   DATE           NOT NULL,\n    days_since_activity  INT            NOT NULL,\n    weeks_open           INT            NOT NULL,\n    aging_band           VARCHAR(10)    NOT NULL,\n    as_of_date           DATE           NOT NULL,\n    CONSTRAINT pk_claim_aging PRIMARY KEY CLUSTERED (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_claim_aging\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'rpt.usp_claim_aging',\n            @rows      INT,\n            @claim_id  INT,\n            @reported  DATE,\n            @pay_date  DATE,\n            @amount    DECIMAL(12,2),\n            @n_pay     INT,\n            @total     DECIMAL(14,2),\n            @last_pay  DATE,\n            @last_act  DATE,\n            @days      INT,\n            @weeks     INT,\n            @band      VARCHAR(10),\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n        IF OBJECT_ID('tempdb..#pay') IS NOT NULL DROP TABLE #pay;\n\n        -- 1. open book: open and re-opened claims notified by the reporting date\n        SELECT c.claim_id,\n               c.claim_number,\n               UPPER(RTRIM(c.lob_code)) AS lob_code,\n               c.reported_date\n        INTO   #open_claims\n        FROM   stg.claims AS c WITH (NOLOCK)\n        WHERE  c.status IN ('OPEN', 'REOPENED')\n          AND  c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims',\n             @status = 'INFO', @rows_affected = @rows;\n\n        -- 2. payments on those claims up to the reporting date\n        SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n        INTO   #pay\n        FROM   stg.claim_payments AS p WITH (NOLOCK)\n        INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n        WHERE  p.payment_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        CREATE CLUSTERED INDEX ix_pay ON #pay (claim_id, payment_date, payment_id);\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'payments',\n             @status = 'INFO', @rows_affected = @rows;\n\n        CREATE TABLE #aging (\n            claim_id             INT            NOT NULL PRIMARY KEY,\n            n_payments           INT            NOT NULL,\n            total_paid           DECIMAL(14,2)  NULL,\n            last_payment_date    DATE           NULL,\n            last_activity_date   DATE           NOT NULL,\n            days_since_activity  INT            NOT NULL,\n            weeks_open           INT            NOT NULL,\n            aging_band           VARCHAR(10)    NOT NULL\n        );\n\n        -- 3. age each claim on its payment history\n        DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n            SELECT claim_id, reported_date\n            FROM   #open_claims\n            ORDER  BY claim_id;\n\n        OPEN claim_cur;\n        FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n\n        WHILE @@FETCH_STATUS = 0\n        BEGIN\n            SET @n_pay    = 0;\n            SET @total    = 0;\n            SET @last_pay = NULL;\n\n            DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n                SELECT payment_date, amount\n                FROM   #pay\n                WHERE  claim_id = @claim_id\n                ORDER  BY payment_date, payment_id;\n\n            OPEN pay_cur;\n            FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n\n            WHILE @@FETCH_STATUS = 0\n            BEGIN\n                SET @n_pay    = @n_pay + 1;\n                SET @total    = @total + @amount;\n                SET @last_pay = @pay_date;\n\n                FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n            END\n\n            CLOSE pay_cur;\n            DEALLOCATE pay_cur;\n\n            -- last activity: the last payment, or notification if nothing paid yet\n            SET @last_act = ISNULL(@last_pay, @reported);\n            SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);\n            SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);\n\n            -- ageing band for the MI pack\n            SET @band = CASE WHEN @days < 30 THEN '0-29'\n                             WHEN @days BETWEEN 31 AND 60 THEN '31-60'\n                             WHEN @days > 60 THEN '61+'\n                             ELSE 'UNKNOWN'\n                        END;\n\n            INSERT INTO #aging (claim_id, n_payments, total_paid, last_payment_date,\n                                last_activity_date, days_since_activity, weeks_open, aging_band)\n            VALUES (@claim_id, @n_pay, @total, @last_pay, @last_act, @days, @weeks, @band);\n\n            FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n        END\n\n        CLOSE claim_cur;\n        DEALLOCATE claim_cur;\n\n        SELECT @rows = COUNT(*) FROM #aging;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim loop',\n             @status = 'INFO', @rows_affected = @rows;\n\n        -- 4. reload the report table\n        TRUNCATE TABLE rpt.claim_aging;\n\n        INSERT INTO rpt.claim_aging (claim_id, claim_number, lob_code, reported_date,\n               n_payments, total_paid, last_payment_date, last_activity_date,\n               days_since_activity, weeks_open, aging_band, as_of_date)\n        SELECT o.claim_id, o.claim_number, o.lob_code, o.reported_date,\n               a.n_payments, a.total_paid, a.last_payment_date, a.last_activity_date,\n               a.days_since_activity, a.weeks_open, a.aging_band, @AsOfDate\n        FROM   #aging AS a\n        INNER JOIN #open_claims AS o ON o.claim_id = a.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'load rpt.claim_aging',\n             @status = 'INFO', @rows_affected = @rows;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        SELECT @err_msg = ERROR_MESSAGE(), @err_no = ERROR_NUMBER();\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim aging',\n             @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n\nInput tables:\n- stg.claims: claim_id int (INT), claim_number string (VARCHAR(20)), policy_id int (INT), customer_id int (INT), lob_code string (VARCHAR(5)), loss_date date (DATE), reported_date date (DATE), status string (VARCHAR(12)), closed_date date (DATE), cause_code string (VARCHAR(10)), handler_code string (VARCHAR(8)), description string (NVARCHAR(200)), _row_seq int (INT)\n- stg.claim_payments: payment_id int (INT), claim_id int (INT), payment_date date (DATE), amount decimal(12,2) (DECIMAL(12,2)), payment_type string (VARCHAR(12)), payee_type string (VARCHAR(12)), _row_seq int (INT)\n\nOutput tables:\n- rpt.claim_aging: claim_id int (INT), claim_number string (VARCHAR(20)), lob_code string (VARCHAR(5)), reported_date date (DATE), n_payments int (INT), total_paid decimal(14,2) (DECIMAL(14,2)), last_payment_date date (DATE), last_activity_date date (DATE), days_since_activity int (INT), weeks_open int (INT), aging_band string (VARCHAR(10)), as_of_date date (DATE)\n",
+    "system_prompt": "Translate one legacy T-SQL (SQL Server 2022) job to PySpark 4.2. Your output must reproduce the legacy output EXACTLY, record for record and value for value, bugs included: reconciliation compares every row and column with the legacy engine's own output.\n\nWrite one Python module:\n- Imports only from pyspark (pyspark.sql, pyspark.sql.functions as F, pyspark.sql.types as T, pyspark.sql.Window), datetime, decimal, math, re, functools and typing.\n- Exactly this entry point: def run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n- inputs holds every input table by its legacy name in lower case (e.g. \"stg.claims\"); params holds the parameters as text (e.g. params[\"AsOfDate\"] == \"2025-12-31\").\n- Return a dict from each output's legacy name to a DataFrame with the output's columns. The harness then casts each column to the contract type shown, as the legacy table's insert would (so a decimal(38,6) value stored into decimal(14,2) is rounded half up).\n- Never do I/O or reach engine internals: no spark.read, .write, saveAsTable, spark.conf, RDDs, UDFs, .cache(), getattr, eval, open, os or sys. spark.sql, F.expr and selectExpr only with plain string literals (no f-strings).\n- Use only constants that appear in the legacy code, the parameters, or a trap card's fix guidance (format patterns, collation names). Never hard-code data values.\n- Reproduce every legacy behaviour exactly, including anything that looks like a bug: never fix it. Mark each line that reproduces a suspected bug with a \"# LANSH-DEFECT: <what>\" comment and list the bug in defects.\n- Row order: Spark has none. Wherever the result depends on order (first or last row, a running value, a cursor, NODUPKEY, RETAIN, LAG), sort on the legacy ORDER BY and then _row_seq, which every source table has in its original row order.\n- Spark runs with ANSI mode on: overflow and invalid casts raise errors, and a division by zero raises; use try_divide or a guard only where the legacy engine returns NULL.\n"
+  },
+  "request_sha256": "7d39aadbc22130a5fd162e685b1a2b4244078eb13f7a87126a9131d6b622d8f9",
+  "response": {
+    "duration_api_ms": 42642,
+    "duration_ms": 42871,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4505,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4505,
+        "cacheReadInputTokens": 1842,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.13183640000000002,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 4771,
+        "provider": "firstParty",
+        "thinkingTokens": 2041,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "code": "\"\"\"T05 rpt.usp_claim_aging -> PySpark.\n\nAges the open book (claims with status OPEN or REOPENED, notified on or before\n@AsOfDate) on the days since last activity. Last activity is the last payment\nup to @AsOfDate, or the reported date when nothing has been paid.\nOutput: rpt.claim_aging, truncated and reloaded on every run.\n\"\"\"\nimport datetime\n\nfrom pyspark.sql import DataFrame, SparkSession\nfrom pyspark.sql import functions as F\n\n\ndef run(spark: SparkSession, inputs: dict[str, DataFrame], params: dict[str, str]) -> dict[str, DataFrame]:\n    as_of = datetime.date.fromisoformat(params[\"AsOfDate\"])\n    as_of_lit = F.lit(as_of)\n\n    claims = inputs[\"stg.claims\"]\n    payments = inputs[\"stg.claim_payments\"]\n\n    # 1. open book. The default SQL Server collation is case-insensitive and\n    #    ignores trailing spaces, so IN ('OPEN','REOPENED') matches 'open ' as well.\n    #    A NULL status or reported_date is filtered out.\n    open_claims = (\n        claims\n        .where(F.upper(F.rtrim(F.col(\"status\"))).isin(\"OPEN\", \"REOPENED\"))\n        .where(F.col(\"reported_date\") <= as_of_lit)\n        .select(\n            F.col(\"claim_id\"),\n            F.col(\"claim_number\"),\n            F.upper(F.rtrim(F.col(\"lob_code\"))).alias(\"lob_code\"),\n            F.col(\"reported_date\"),\n        )\n    )\n\n    # 2. payments on those claims up to the reporting date (a NULL payment_date is dropped)\n    pay = (\n        payments.alias(\"p\")\n        .join(open_claims.select(\"claim_id\").alias(\"o\"),\n              F.col(\"p.claim_id\") == F.col(\"o.claim_id\"), \"inner\")\n        .where(F.col(\"p.payment_date\") <= as_of_lit)\n        .select(F.col(\"p.claim_id\").alias(\"claim_id\"),\n                F.col(\"p.payment_id\").alias(\"payment_id\"),\n                F.col(\"p.payment_date\").alias(\"payment_date\"),\n                F.col(\"p.amount\").alias(\"amount\"))\n    )\n\n    # 3. cursor loop, replaced by an aggregate that gives the same result:\n    #    n_pay counts every fetched row; @total = @total + @amount becomes NULL\n    #    for good once any amount is NULL; @last_pay is the payment_date of the\n    #    last row in (payment_date, payment_id) order, i.e. the max payment_date.\n    pay_agg = (\n        pay.groupBy(\"claim_id\")\n        .agg(\n            F.count(F.lit(1)).alias(\"_n\"),\n            F.count(F.col(\"amount\")).alias(\"_nn\"),\n            F.sum(F.col(\"amount\")).alias(\"_s\"),\n            F.max(F.col(\"payment_date\")).alias(\"_last\"),\n        )\n    )\n\n    a = open_claims.join(pay_agg, on=\"claim_id\", how=\"left\")\n\n    n_payments = F.coalesce(F.col(\"_n\"), F.lit(0)).cast(\"int\")\n    total_paid = (\n        F.when(F.col(\"_n\").isNull(), F.lit(0).cast(\"decimal(14,2)\"))  # SET @total = 0 when there are no payments\n        .when(F.col(\"_nn\") < F.col(\"_n\"), F.lit(None).cast(\"decimal(22,2)\"))  # NULL amount turns the running total NULL\n        .otherwise(F.col(\"_s\"))\n    )\n    last_pay = F.col(\"_last\")\n    last_act = F.coalesce(last_pay, F.col(\"reported_date\"))\n    days = F.datediff(as_of_lit, last_act)\n\n    # DATEDIFF(WEEK, ...) counts the Sunday boundaries crossed, whatever DATEFIRST is.\n    # Spark dayofweek: Sunday = 1, so date_sub(d, dayofweek(d) - 1) is the Sunday on or before d.\n    def _week_sunday(c):\n        return F.date_sub(c, F.dayofweek(c) - 1)\n\n    weeks = (F.datediff(_week_sunday(as_of_lit), _week_sunday(F.col(\"reported_date\"))) / 7).cast(\"int\")\n\n    band = (\n        F.when(days < 30, F.lit(\"0-29\"))\n        .when(days.between(31, 60), F.lit(\"31-60\"))  # LANSH-DEFECT: day 30 is in no band and falls through to 'UNKNOWN'\n        .when(days > 60, F.lit(\"61+\"))\n        .otherwise(F.lit(\"UNKNOWN\"))\n    )\n\n    # 4. reload the report table\n    result = a.select(\n        F.col(\"claim_id\"),\n        F.col(\"claim_number\"),\n        F.col(\"lob_code\"),\n        F.col(\"reported_date\"),\n        n_payments.alias(\"n_payments\"),\n        total_paid.alias(\"total_paid\"),\n        last_pay.alias(\"last_payment_date\"),\n        last_act.alias(\"last_activity_date\"),\n        days.alias(\"days_since_activity\"),\n        weeks.alias(\"weeks_open\"),\n        band.alias(\"aging_band\"),\n        as_of_lit.alias(\"as_of_date\"),\n    )\n\n    return {\"rpt.claim_aging\": result}\n",
+      "defects": [
+        {
+          "intended": "Bands with no gap, e.g. 0-29, 30-60 and 61+ (or a '30-60' band), so every non-negative day count gets a real band.",
+          "legacy_lines": [
+            161,
+            162,
+            163,
+            164,
+            165
+          ],
+          "title": "Day 30 falls outside every ageing band",
+          "what_it_does": "The bands are '< 30', 'BETWEEN 31 AND 60' and '> 60'. A claim exactly 30 days since its last activity matches none of them and gets 'UNKNOWN'."
+        }
+      ],
+      "notes": "I don't know the trap-card ids, so traps_handled is empty. These are the traps the code handles on purpose:\n1) The status filter applies UPPER(RTRIM()) to copy the default SQL Server collation, which ignores case and trailing spaces in IN ('OPEN','REOPENED').\n2) The nested cursor is replaced by a single aggregate:\n   - n_payments counts every payment row.\n   - last_payment_date is the max payment_date. This is the last row in (payment_date, payment_id) order, and NULL dates are already filtered out.\n   - total_paid is 0 when a claim has no payments.\n   - total_paid is NULL when any amount is NULL, because `@total + NULL` stays NULL for the rest of the loop. SUM would have skipped the NULL instead. This is plain T-SQL behaviour, so I left it out of the defect list. A reviewer may want to decide whether it was intended.\n3) DATEDIFF(WEEK) counts the Sunday boundaries crossed (it ignores DATEFIRST). The code finds the Sunday on or before each date with dayofweek and divides the day gap between them by 7.\n4) NULL reported_date, payment_date and claim_id never match the filters or joins, just as in the legacy job.\n\nThings I assumed rather than reproduced:\n- stg.claims has unique, non-NULL claim_ids. The legacy job would fail on the #aging and rpt PRIMARY KEYs otherwise.\n- lob_code is not NULL on open claims. The NOT NULL column would make the legacy insert fail.\n- A running total over DECIMAL(14,2) never overflows. The legacy job would raise an error at that point; Spark sums in decimal(22,2) and then the harness casts to decimal(14,2).\n\nThe 'UNKNOWN' band for day 30 is kept deliberately and marked LANSH-DEFECT.",
+      "traps_handled": []
+    },
+    "total_cost_usd": 0.13183640000000002,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4505,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4505,
+      "cache_read_input_tokens": 1842,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4505,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4505,
+          "cache_read_input_tokens": 1842,
+          "input_tokens": 2,
+          "output_tokens": 4771,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 4771,
+      "output_tokens_details": {
+        "thinking_tokens": 2041
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

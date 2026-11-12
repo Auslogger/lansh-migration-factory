@@ -1,0 +1,186 @@
+{
+  "attempts": 1,
+  "cli_version": "2.1.311",
+  "format_version": 1,
+  "recorded_at": "2026-11-12T02:00:55.529491Z",
+  "request": {
+    "agent": "contract",
+    "effort": "low",
+    "flags": [
+      "-p",
+      "--output-format",
+      "json",
+      "--json-schema",
+      "<json_schema>",
+      "--system-prompt",
+      "<system_prompt>",
+      "--model",
+      "opus",
+      "--effort",
+      "low",
+      "--tools",
+      "",
+      "--setting-sources",
+      "",
+      "--no-session-persistence",
+      "--strict-mcp-config"
+    ],
+    "job_id": "T05",
+    "json_schema": {
+      "additionalProperties": false,
+      "description": "The parts of a data contract that need judgement: what a row is, and why.",
+      "properties": {
+        "column_notes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional one-line descriptions of non-obvious output columns, by name.",
+          "title": "Column Notes",
+          "type": "object"
+        },
+        "grain": {
+          "description": "What one row of the output represents, in one sentence.",
+          "title": "Grain",
+          "type": "string"
+        },
+        "keys": {
+          "description": "The output's business key: the smallest set of columns that identifies a row. Choose from the candidate keys listed in the prompt.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "partition_columns": {
+          "description": "At most two low-cardinality columns worth counting rows by, e.g. lob_code; may be empty.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Partition Columns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "grain",
+        "keys",
+        "partition_columns",
+        "column_notes"
+      ],
+      "title": "ContractAnswer",
+      "type": "object"
+    },
+    "model": "opus",
+    "prompt": "Job T05: usp_claim_aging. Ageing of open claims by time since last activity.\nOutput table rpt.claim_aging, 823 rows in the legacy output.\n\nColumns:\n- claim_id INT: 823 distinct, 0 NULL\n- claim_number VARCHAR(20): 823 distinct, 0 NULL\n- lob_code VARCHAR(5): 3 distinct, 0 NULL\n- reported_date DATE: 495 distinct, 0 NULL\n- n_payments INT: 6 distinct, 0 NULL\n- total_paid DECIMAL(14,2): 646 distinct, 23 NULL\n- last_payment_date DATE: 236 distinct, 154 NULL\n- last_activity_date DATE: 308 distinct, 0 NULL\n- days_since_activity INT: 308 distinct, 0 NULL\n- weeks_open INT: 175 distinct, 0 NULL\n- aging_band VARCHAR(10): 4 distinct, 0 NULL\n- as_of_date DATE: 1 distinct, 0 NULL\n\nCandidate keys (unique and never NULL):\n- ['claim_id']\n- ['claim_number']\n\nLegacy code:\n/*==============================================================================\n  Job      : rpt.usp_claim_aging\n  Purpose  : Ageing of the open claims book for claims operations: each open or\n             re-opened claim is aged on the days since its last activity (its\n             last payment up to the reporting date, or the date it was notified\n             when nothing has been paid yet). Feeds the weekly diary review.\n  Output   : rpt.claim_aging (truncated and reloaded on every run)\n  Author   : BMcG\n\n  Change log\n    2013-10-07  BMcG  Initial version\n    2014-05-19  BMcG  weeks_open added for the handler workload report (CR-0317)\n    2016-02-08  RF    Re-opened claims aged as well (CR-0852)\n    2017-09-25  RF    Payments staged in #pay first; nightly run down from\n                      40 min to 2 min (INC-1904)\n    2019-04-01  NK    Payments dated after the reporting date ignored (CR-1488)\n    2020-11-16  NK    Ageing bands added for the claims MI pack (CR-1951)\n==============================================================================*/\nSET NOCOUNT ON;\nGO\nIF OBJECT_ID(N'rpt.claim_aging', N'U') IS NULL\nCREATE TABLE rpt.claim_aging (\n    claim_id             INT            NOT NULL,\n    claim_number         VARCHAR(20)    NOT NULL,\n    lob_code             VARCHAR(5)     NOT NULL,\n    reported_date        DATE           NOT NULL,\n    n_payments           INT            NOT NULL,\n    total_paid           DECIMAL(14,2)  NULL,\n    last_payment_date    DATE           NULL,\n    last_activity_date   DATE           NOT NULL,\n    days_since_activity  INT            NOT NULL,\n    weeks_open           INT            NOT NULL,\n    aging_band           VARCHAR(10)    NOT NULL,\n    as_of_date           DATE           NOT NULL,\n    CONSTRAINT pk_claim_aging PRIMARY KEY CLUSTERED (claim_id)\n);\nGO\nCREATE OR ALTER PROCEDURE rpt.usp_claim_aging\n    @AsOfDate DATE\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DECLARE @job_name  VARCHAR(128) = 'rpt.usp_claim_aging',\n            @rows      INT,\n            @claim_id  INT,\n            @reported  DATE,\n            @pay_date  DATE,\n            @amount    DECIMAL(12,2),\n            @n_pay     INT,\n            @total     DECIMAL(14,2),\n            @last_pay  DATE,\n            @last_act  DATE,\n            @days      INT,\n            @weeks     INT,\n            @band      VARCHAR(10),\n            @err_msg   NVARCHAR(4000),\n            @err_no    INT;\n\n    BEGIN TRY\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'start', @status = 'STARTED';\n\n        IF OBJECT_ID('tempdb..#open_claims') IS NOT NULL DROP TABLE #open_claims;\n        IF OBJECT_ID('tempdb..#pay') IS NOT NULL DROP TABLE #pay;\n\n        -- 1. open book: open and re-opened claims notified by the reporting date\n        SELECT c.claim_id,\n               c.claim_number,\n               UPPER(RTRIM(c.lob_code)) AS lob_code,\n               c.reported_date\n        INTO   #open_claims\n        FROM   stg.claims AS c WITH (NOLOCK)\n        WHERE  c.status IN ('OPEN', 'REOPENED')\n          AND  c.reported_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'open claims',\n             @status = 'INFO', @rows_affected = @rows;\n\n        -- 2. payments on those claims up to the reporting date\n        SELECT p.claim_id, p.payment_id, p.payment_date, p.amount\n        INTO   #pay\n        FROM   stg.claim_payments AS p WITH (NOLOCK)\n        INNER JOIN #open_claims AS o ON o.claim_id = p.claim_id\n        WHERE  p.payment_date <= @AsOfDate;\n\n        SET @rows = @@ROWCOUNT;\n        CREATE CLUSTERED INDEX ix_pay ON #pay (claim_id, payment_date, payment_id);\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'payments',\n             @status = 'INFO', @rows_affected = @rows;\n\n        CREATE TABLE #aging (\n            claim_id             INT            NOT NULL PRIMARY KEY,\n            n_payments           INT            NOT NULL,\n            total_paid           DECIMAL(14,2)  NULL,\n            last_payment_date    DATE           NULL,\n            last_activity_date   DATE           NOT NULL,\n            days_since_activity  INT            NOT NULL,\n            weeks_open           INT            NOT NULL,\n            aging_band           VARCHAR(10)    NOT NULL\n        );\n\n        -- 3. age each claim on its payment history\n        DECLARE claim_cur CURSOR LOCAL FAST_FORWARD FOR\n            SELECT claim_id, reported_date\n            FROM   #open_claims\n            ORDER  BY claim_id;\n\n        OPEN claim_cur;\n        FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n\n        WHILE @@FETCH_STATUS = 0\n        BEGIN\n            SET @n_pay    = 0;\n            SET @total    = 0;\n            SET @last_pay = NULL;\n\n            DECLARE pay_cur CURSOR LOCAL FAST_FORWARD FOR\n                SELECT payment_date, amount\n                FROM   #pay\n                WHERE  claim_id = @claim_id\n                ORDER  BY payment_date, payment_id;\n\n            OPEN pay_cur;\n            FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n\n            WHILE @@FETCH_STATUS = 0\n            BEGIN\n                SET @n_pay    = @n_pay + 1;\n                SET @total    = @total + @amount;\n                SET @last_pay = @pay_date;\n\n                FETCH NEXT FROM pay_cur INTO @pay_date, @amount;\n            END\n\n            CLOSE pay_cur;\n            DEALLOCATE pay_cur;\n\n            -- last activity: the last payment, or notification if nothing paid yet\n            SET @last_act = ISNULL(@last_pay, @reported);\n            SET @days     = DATEDIFF(DAY, @last_act, @AsOfDate);\n            SET @weeks    = DATEDIFF(WEEK, @reported, @AsOfDate);\n\n            -- ageing band for the MI pack\n            SET @band = CASE WHEN @days < 30 THEN '0-29'\n                             WHEN @days BETWEEN 31 AND 60 THEN '31-60'\n                             WHEN @days > 60 THEN '61+'\n                             ELSE 'UNKNOWN'\n                        END;\n\n            INSERT INTO #aging (claim_id, n_payments, total_paid, last_payment_date,\n                                last_activity_date, days_since_activity, weeks_open, aging_band)\n            VALUES (@claim_id, @n_pay, @total, @last_pay, @last_act, @days, @weeks, @band);\n\n            FETCH NEXT FROM claim_cur INTO @claim_id, @reported;\n        END\n\n        CLOSE claim_cur;\n        DEALLOCATE claim_cur;\n\n        SELECT @rows = COUNT(*) FROM #aging;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim loop',\n             @status = 'INFO', @rows_affected = @rows;\n\n        -- 4. reload the report table\n        TRUNCATE TABLE rpt.claim_aging;\n\n        INSERT INTO rpt.claim_aging (claim_id, claim_number, lob_code, reported_date,\n               n_payments, total_paid, last_payment_date, last_activity_date,\n               days_since_activity, weeks_open, aging_band, as_of_date)\n        SELECT o.claim_id, o.claim_number, o.lob_code, o.reported_date,\n               a.n_payments, a.total_paid, a.last_payment_date, a.last_activity_date,\n               a.days_since_activity, a.weeks_open, a.aging_band, @AsOfDate\n        FROM   #aging AS a\n        INNER JOIN #open_claims AS o ON o.claim_id = a.claim_id;\n\n        SET @rows = @@ROWCOUNT;\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'load rpt.claim_aging',\n             @status = 'INFO', @rows_affected = @rows;\n\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'end', @status = 'SUCCESS';\n    END TRY\n    BEGIN CATCH\n        SELECT @err_msg = ERROR_MESSAGE(), @err_no = ERROR_NUMBER();\n        EXEC etl.usp_log_step @job_name = @job_name, @step_name = 'claim aging',\n             @status = 'FAILED', @message = @err_msg, @error_number = @err_no;\n        THROW;\n    END CATCH\nEND;\nGO\n\n",
+    "system_prompt": "You are the contract agent of LANSH, a factory that migrates legacy jobs to PySpark and proves every output matches the legacy output record for record. For one output table, say what one row represents (the grain), choose its business key from the candidate keys you are given (prefer a meaningful business key to a generated one), and name at most two low-cardinality columns worth counting rows by. Comparison policies are not yours to choose.\n"
+  },
+  "request_sha256": "e7e2b98d460600461d437b2ddf2d79b03930d002cd95455a7f1c735091f083ad",
+  "response": {
+    "duration_api_ms": 7238,
+    "duration_ms": 7541,
+    "envelope_keys": [
+      "api_error_status",
+      "duration_api_ms",
+      "duration_ms",
+      "fast_mode_disabled_reason",
+      "fast_mode_state",
+      "first_content_frame_ms",
+      "is_error",
+      "modelUsage",
+      "num_turns",
+      "permission_denials",
+      "queued_turn_count",
+      "result",
+      "result_index",
+      "safety_stops",
+      "session_id",
+      "stop_reason",
+      "structured_output",
+      "subagent_stats",
+      "subtype",
+      "terminal_reason",
+      "time_to_request_ms",
+      "total_cost_usd",
+      "ttft_ms",
+      "ttft_stream_ms",
+      "type",
+      "usage",
+      "uuid"
+    ],
+    "modelUsage": {
+      "claude-opus-5-5": {
+        "cacheCreationEphemeral1hInputTokens": 4315,
+        "cacheCreationEphemeral5mInputTokens": 0,
+        "cacheCreationInputTokens": 4315,
+        "cacheReadInputTokens": 899,
+        "canonicalModel": "claude-opus-5-5",
+        "contextWindow": 1000000,
+        "costBasis": "list",
+        "costUSD": 0.0492678,
+        "inputTokens": 2,
+        "maxOutputTokens": 128000,
+        "outputTokens": 728,
+        "provider": "firstParty",
+        "thinkingTokens": 96,
+        "webSearchRequests": 0
+      }
+    },
+    "num_turns": 2,
+    "structured_output": {
+      "column_notes": {
+        "aging_band": "'0-29' when days < 30, '31-60' for 31-60, '61+' when days > 60. Because of a legacy gap, days = 30 falls through to 'UNKNOWN'.",
+        "as_of_date": "The @AsOfDate parameter of the run. It is the same on every row.",
+        "days_since_activity": "DATEDIFF(DAY, last_activity_date, as_of_date).",
+        "last_activity_date": "ISNULL(last_payment_date, reported_date).",
+        "last_payment_date": "Date of the last payment on or before @AsOfDate, taken from the last row when payments are ordered by payment_date then payment_id. NULL when there are no payments.",
+        "lob_code": "UPPER(RTRIM(stg.claims.lob_code)).",
+        "n_payments": "Count of payments dated on or before @AsOfDate; 0 when there are none.",
+        "total_paid": "Running sum that starts at 0, so it is 0 (not NULL) when there are no payments. If any payment amount is NULL the sum becomes NULL, which explains the 23 NULLs.",
+        "weeks_open": "T-SQL DATEDIFF(WEEK, reported_date, as_of_date): counts how many week boundaries (Sundays) fall between the two dates, not days divided by 7."
+      },
+      "grain": "One row per open or re-opened claim notified on or before the reporting date (@AsOfDate), aged on the days since its last payment up to that date, or since its reported date if nothing has been paid.",
+      "keys": [
+        "claim_id"
+      ],
+      "partition_columns": [
+        "lob_code",
+        "aging_band"
+      ]
+    },
+    "total_cost_usd": 0.0492678,
+    "usage": {
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 4315,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "cache_creation_input_tokens": 4315,
+      "cache_read_input_tokens": 899,
+      "fallback_credit": null,
+      "inference_geo": "global",
+      "input_tokens": 2,
+      "iterations": [
+        {
+          "cache_creation": {
+            "ephemeral_1h_input_tokens": 4315,
+            "ephemeral_5m_input_tokens": 0
+          },
+          "cache_creation_input_tokens": 4315,
+          "cache_read_input_tokens": 899,
+          "input_tokens": 2,
+          "output_tokens": 728,
+          "type": "message"
+        }
+      ],
+      "output_tokens": 728,
+      "output_tokens_details": {
+        "thinking_tokens": 96
+      },
+      "server_tool_use": {
+        "web_fetch_requests": 0,
+        "web_search_requests": 0
+      },
+      "service_tier": "standard",
+      "speed": "standard"
+    }
+  },
+  "retry_reason": null
+}

@@ -1,0 +1,823 @@
+{
+  "eventTime": "2026-11-12T04:09:29.631366+00:00",
+  "eventType": "COMPLETE",
+  "inputs": [
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "txn_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "txn_type",
+              "type": "string"
+            },
+            {
+              "name": "txn_date",
+              "type": "date"
+            },
+            {
+              "name": "effective_from",
+              "type": "date"
+            },
+            {
+              "name": "effective_to",
+              "type": "date"
+            },
+            {
+              "name": "amount",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.premium_transactions",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "rate_date",
+              "type": "date"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "rate_to_eur",
+              "type": "decimal(18,8)"
+            },
+            {
+              "name": "source",
+              "type": "string"
+            },
+            {
+              "name": "_row_seq",
+              "type": "int"
+            }
+          ]
+        }
+      },
+      "name": "bronze.fx_rates",
+      "namespace": "lansh-lakehouse"
+    },
+    {
+      "facets": {
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "policy_sk",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_number",
+              "type": "string"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_segment",
+              "type": "string"
+            },
+            {
+              "name": "product_code",
+              "type": "string"
+            },
+            {
+              "name": "product_name",
+              "type": "string"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_code",
+              "type": "string"
+            },
+            {
+              "name": "broker_name",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "inception_date",
+              "type": "date"
+            },
+            {
+              "name": "expiry_date",
+              "type": "date"
+            },
+            {
+              "name": "cancellation_date",
+              "type": "date"
+            },
+            {
+              "name": "annual_premium",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "vehicle_reg",
+              "type": "string"
+            },
+            {
+              "name": "ncd_years",
+              "type": "int"
+            },
+            {
+              "name": "valid_from",
+              "type": "date"
+            },
+            {
+              "name": "valid_to",
+              "type": "date"
+            },
+            {
+              "name": "is_current",
+              "type": "string"
+            },
+            {
+              "name": "source_snapshot_date",
+              "type": "date"
+            },
+            {
+              "name": "load_ts",
+              "type": "timestamp_ntz"
+            }
+          ]
+        }
+      },
+      "name": "silver.dim_policy",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "job": {
+    "name": "T03.usp_build_fact_premium_earned",
+    "namespace": "lansh"
+  },
+  "outputs": [
+    {
+      "facets": {
+        "columnLineage": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-2-0/ColumnLineageDatasetFacet.json",
+          "fields": {
+            "amount": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "currency": {
+              "inputFields": [
+                {
+                  "field": "currency",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "daily_rate_eur": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur / term_days, 4, 1) (truncate)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via term_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via term_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "earned_days": {
+              "inputFields": [
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CASE on @AsOfDate against the cover period: 0 / full term / DATEDIFF(effective_from, @AsOfDate)+1",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "earned_eur": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur * earned_days / 365, 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur * earned_days / 365, 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via earned_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via earned_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "earned_pct": {
+              "inputFields": [
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "earned_days * 100 / term_days (integer division)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "earned_days * 100 / term_days (integer division)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "effective_from": {
+              "inputFields": [
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "effective_to": {
+              "inputFields": [
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "first_due_date": {
+              "inputFields": [
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEADD(MONTH, 1, EOMONTH(effective_from))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "fx_rate": {
+              "inputFields": [
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "latest rate_to_eur on or before txn_date for non-EUR transactions (CROSS APPLY TOP 1)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "lob_code": {
+              "inputFields": [
+                {
+                  "field": "lob_code",
+                  "name": "silver.dim_policy",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct from current dim_policy row",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "monthly_instalment_eur": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "ROUND(written_eur / ISNULL(NULLIF(term_days/30,0),1), 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via term_days / 30 (integer division)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via term_days / 30 (integer division)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_id": {
+              "inputFields": [
+                {
+                  "field": "policy_id",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "policy_sk": {
+              "inputFields": [
+                {
+                  "field": "policy_sk",
+                  "name": "silver.dim_policy",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct from current dim_policy row",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "term_days": {
+              "inputFields": [
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "DATEDIFF(DAY, effective_from, effective_to) + 1",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "txn_date": {
+              "inputFields": [
+                {
+                  "field": "txn_date",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "txn_id": {
+              "inputFields": [
+                {
+                  "field": "txn_id",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "direct",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "txn_type": {
+              "inputFields": [
+                {
+                  "field": "txn_type",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "UPPER(RTRIM(txn_type))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "unearned_eur": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "written_eur - ROUND(written_eur * earned_days / 365, 2)",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_from",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via earned_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "effective_to",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "via earned_days",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            },
+            "written_eur": {
+              "inputFields": [
+                {
+                  "field": "amount",
+                  "name": "bronze.premium_transactions",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                },
+                {
+                  "field": "rate_to_eur",
+                  "name": "bronze.fx_rates",
+                  "namespace": "lansh-lakehouse",
+                  "transformations": [
+                    {
+                      "description": "CAST(ROUND(amount * fx_rate, 2) AS DECIMAL(14,2))",
+                      "subtype": "TRANSFORMATION",
+                      "type": "DIRECT"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schema": {
+          "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+          "_schemaURL": "https://openlineage.io/spec/facets/1-1-1/SchemaDatasetFacet.json",
+          "fields": [
+            {
+              "name": "txn_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_id",
+              "type": "int"
+            },
+            {
+              "name": "policy_sk",
+              "type": "int"
+            },
+            {
+              "name": "lob_code",
+              "type": "string"
+            },
+            {
+              "name": "txn_type",
+              "type": "string"
+            },
+            {
+              "name": "txn_date",
+              "type": "date"
+            },
+            {
+              "name": "effective_from",
+              "type": "date"
+            },
+            {
+              "name": "effective_to",
+              "type": "date"
+            },
+            {
+              "name": "currency",
+              "type": "string"
+            },
+            {
+              "name": "amount",
+              "type": "decimal(12,2)"
+            },
+            {
+              "name": "fx_rate",
+              "type": "decimal(18,8)"
+            },
+            {
+              "name": "written_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "term_days",
+              "type": "int"
+            },
+            {
+              "name": "earned_days",
+              "type": "int"
+            },
+            {
+              "name": "earned_pct",
+              "type": "decimal(5,2)"
+            },
+            {
+              "name": "earned_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "unearned_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "daily_rate_eur",
+              "type": "decimal(12,4)"
+            },
+            {
+              "name": "monthly_instalment_eur",
+              "type": "decimal(14,2)"
+            },
+            {
+              "name": "first_due_date",
+              "type": "date"
+            },
+            {
+              "name": "as_of_date",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "name": "silver.fact_premium_earned",
+      "namespace": "lansh-lakehouse"
+    }
+  ],
+  "producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+  "run": {
+    "facets": {
+      "nominalTime": {
+        "_producer": "https://github.com/Auslogger/Agentic-Data-Platform-Modernisation",
+        "_schemaURL": "https://openlineage.io/spec/facets/1-0-0/NominalTimeRunFacet.json",
+        "nominalEndTime": "2026-11-12T04:09:29.631366+00:00",
+        "nominalStartTime": "2026-11-12T04:09:04.027107+00:00"
+      }
+    },
+    "runId": "bc4e3316-b2bf-5e01-9261-ff1a1a15285f"
+  },
+  "schemaURL": "https://openlineage.io/spec/2-0-2/OpenLineage.json#/definitions/RunEvent"
+}
