@@ -40,3 +40,7 @@ runs/*
 
 # local archive of earlier copies, never pushed
 docs/other/
+
+# Office lock files and local deck copies
+~$*
+*.local.pptx

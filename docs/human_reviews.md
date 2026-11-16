@@ -6,4 +6,4 @@ The three `human_review.json` records cover 50 showcase, 7 first-run held-out an
 
 This is a retrospective team attestation. Original individual review dates, durations, allocations and contemporaneous reasons were not provided and have not been inferred from the agent’s zero-second recordings. The records substantiate what the team confirmed and exactly which evidence it covers; hashing does not independently authenticate a human identity. The filmed `video` run records its reviewer, reason and timing directly.
 
-The manual baseline was performed without AI. `baseline/timesheet.csv` records T05 at 148 minutes and S01 at 169, both ending at zero reconciliation differences; mean 158.5 minutes per job. This correction does not recreate the original manual work.
+The manual baseline was performed without AI. `baseline/timesheet.csv` records T05 at 148 minutes and S01 at 169, both ending at zero reconciliation differences; mean 158.5 minutes per job.

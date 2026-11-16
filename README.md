@@ -20,7 +20,6 @@ The short version: the proof travels with the migration.
 | Solution deck (EXL template) | [PowerPoint](docs/submission/LANSH_EXL_Submission.pptx) · [PDF](docs/submission/LANSH_EXL_Submission.pdf) |
 | Architecture, one page | [PDF](docs/submission/LANSH_Architecture_B_Control_Room.pdf) · [Azure mapping](docs/architecture.md) |
 | Responsible AI note, one page | [PDF](docs/submission/LANSH_Responsible_AI_B_Control_Room.pdf) |
-| Demo video script | [docs/demo_video_script.md](docs/demo_video_script.md) |
 | AI tools and existing code | [AI_USAGE.md](AI_USAGE.md) · [THIRD_PARTY.md](THIRD_PARTY.md) |
 | All results, with sources | [runs/showcase/scorecard.md](runs/showcase/scorecard.md) |
 
@@ -47,11 +46,26 @@ later edit to the record is detectable with `lansh audit verify`.
 
 ## Run it
 
-You need **Java 21** and **[uv](https://docs.astral.sh/uv/)**. On macOS:
+You need **Java 21**, **[uv](https://docs.astral.sh/uv/)**, `make` and `git`.
+
+**macOS** (Homebrew):
 
 ```bash
 brew install openjdk@21 uv
 ```
+
+**Linux** (Debian/Ubuntu; use your distribution's package manager elsewhere):
+
+```bash
+sudo apt-get update && sudo apt-get install -y openjdk-21-jdk make git curl
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Windows**: use [WSL 2](https://learn.microsoft.com/windows/wsl/install) with Ubuntu,
+because the Makefile needs bash. In PowerShell run `wsl --install -d Ubuntu`, restart,
+open the Ubuntu terminal and follow the Linux steps above. Clone the repository inside
+the Linux file system (for example `~/`), not under `/mnt/c/`, so Spark runs at full
+speed. The UI at <http://localhost:8501> opens in your Windows browser as normal.
 
 Then, from the repository root:
 
@@ -139,7 +153,7 @@ uv run lansh freeze                               # factory matches its recorded
 | `runs/freeze.json` | Hashes of the frozen factory |
 | `baseline/` | Timesheet for the manual migrations |
 | `tests/`, `spikes/` | Tests and the engine feasibility checks they use |
-| `docs/` | Submission pack, architecture, review records and demo script |
+| `docs/` | Submission pack, architecture and review records |
 
 Audit entries keep the paths of the runs they were recorded in: `runs/dev-estate/` is
 published as `runs/showcase/`, `dev-holdout` as `showcase/held-out` and
