@@ -7,6 +7,7 @@ plan §7.2 on its own, from what each job reads and writes.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -183,7 +184,10 @@ def test_scoring_against_an_answer_key() -> None:
     assert "defect T04-D3 lines 90-90" in score.unconfirmed
 
 
-def test_scorecard_traces_every_number(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def _one_job_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """
+    Write a run ``r`` holding T04 at MATCH, and point the scorecard at it.
+    """
     run = tmp_path / "r"
     (run / "T04").mkdir(parents=True)
     report = {"table": "rpt.x", "status": "MATCH", "counts": {"legacy": 10, "candidate": 10},
@@ -197,15 +201,123 @@ def test_scorecard_traces_every_number(tmp_path: Path, monkeypatch: pytest.Monke
         )
     )
     monkeypatch.setattr(scorecard, "RUNS_DIR", tmp_path)
+    monkeypatch.setattr(scorecard, "BASELINE_TIMESHEET", tmp_path / "timesheet.csv")
+
+
+def test_scorecard_traces_every_number(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _one_job_run(tmp_path, monkeypatch)
     card = scorecard.build("r")
     values = {m.name: m.value for m in card.metrics}
     assert values["Jobs reconciled record for record (MATCH, zero unexplained differences)"] == "1"
     assert values["Outputs whose content hash equals the legacy output's"] == "1"
     assert values["API-equivalent cost per job (not billed: subscription)"] == "1.10"
     assert all(m.sources for m in card.metrics)
-    rows = card.business_case["rows"]
-    assert [r["case"] for r in rows] == ["low", "middle", "high"]
+    assert [r["case"] for r in card.business_case["by_hand"]] == ["low", "middle", "high"]
     assert card.business_case["gate_load"]["every gate for every job"] == 8000
+    assert "bias" not in card.business_case  # the run has no S04
+
+
+def test_sensitivity_gives_people_and_cost_per_assumption(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # the default assumptions, with no manual baseline recorded (the deck quotes the baseline's)
+    _one_job_run(tmp_path, monkeypatch)
+    bc = scorecard.build("r").business_case
+    middle = next(r for r in bc["by_hand"] if r["case"] == "middle")
+    assert (middle["people for 4 months"], middle["cost (EUR)"]) == ("21", "1097355")
+    people = {
+        (r["escalated to a person"], r["review minutes per job"]): r["people for 4 months"]
+        for r in bc["rows"]
+    }
+    assert people == {
+        ("15%", "30"): "4.5", ("15%", "60"): "5.8",
+        ("30%", "30"): "7.6", ("30%", "60"): "8.9",
+        ("50%", "30"): "11.8", ("50%", "60"): "13.1",
+    }  # fmt: skip
+    assert any("approved by an agent" in note for note in bc["notes"])
+
+
+def test_manual_baseline_drives_projection(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Sum recorded phases per job and use the measured average in the projection.
+    """
+    _one_job_run(tmp_path, monkeypatch)
+    monkeypatch.setattr(scorecard, "GOLDEN_DIR", tmp_path / "golden")
+    golden = tmp_path / "golden" / "T04"
+    golden.mkdir(parents=True)
+    (golden / "manifest.json").write_text(json.dumps({"capture_seconds": 0}))
+    timesheet = tmp_path / "timesheet.csv"
+    lines = ["job,phase,minutes"]
+    for job, phase, minutes in (
+        ("T05", "understand", 26),
+        ("T05", "translate_and_check", 122),
+        ("S01", "understand", 34),
+        ("S01", "translate_and_check", 135),
+    ):
+        lines.append(f"{job},{phase},{minutes}")
+    timesheet.write_text("\n".join(lines) + "\n")
+    card = scorecard.build("r")
+    bc = card.business_case
+    assert bc["manual_baseline"] == {
+        "minutes_per_job": 158.5,
+        "sources": [
+            {"path": str(timesheet), "sha256": hashlib.sha256(timesheet.read_bytes()).hexdigest()}
+        ],
+    }
+    assert bc["by_hand"][0]["case"] == "manual baseline"
+    assert bc["by_hand"][0]["person-hours"] == "4227"
+    assert bc["rows"][0]["person-hours"] == "1434"
+    assert bc["measured"]["manual_baseline_minutes"] == 158.5
+    json_path, md_path = scorecard.write(card)
+    assert (
+        json.loads(json_path.read_text())["business_case"]["manual_baseline"]
+        == bc["manual_baseline"]
+    )
+    assert "manual baseline" in md_path.read_text()
+
+
+def test_published_scorecard_uses_the_committed_baseline() -> None:
+    """
+    Pin the showcase scorecard to the committed timesheet, and to the figures slide 7 quotes.
+    """
+    timesheet = REPO_ROOT / "baseline" / "timesheet.csv"
+    card = json.loads((REPO_ROOT / "runs" / "showcase" / "scorecard.json").read_text())
+    bc = card["business_case"]
+    assert bc["manual_baseline"]["sources"] == [
+        {
+            "path": "baseline/timesheet.csv",
+            "sha256": hashlib.sha256(timesheet.read_bytes()).hexdigest(),
+        }
+    ]
+    assert bc["manual_baseline"]["minutes_per_job"] == 158.5  # T05 148, S01 169
+    by_hand = bc["by_hand"][0]
+    assert (by_hand["case"], by_hand["people for 4 months"]) == ("manual baseline", "6.9")
+    people = {
+        (r["escalated to a person"], r["review minutes per job"]): r["people for 4 months"]
+        for r in bc["rows"]
+    }
+    assert people == {
+        ("15%", "30"): "2.4", ("15%", "60"): "3.7",
+        ("30%", "30"): "3.4", ("30%", "60"): "4.7",
+        ("50%", "30"): "4.8", ("50%", "60"): "6.1",
+    }  # fmt: skip
+
+
+def test_bias_table_reproduces_from_the_golden_outputs() -> None:
+    # plan step 5.5's "done when": S04's tiers by age band and county, from committed outputs
+    bias = scorecard.bias_table()
+    assert bias is not None
+    under_25 = {"age band": "under 25", "risk scores": 168, "rated HIGH (%)": "14.3"}
+    assert bias["by_age"][0] == under_25
+    assert [b["rated HIGH (%)"] for b in bias["by_age"][1:]] == ["6.6", "4.4", "5.1", "5.6"]
+    assert bias["ages_25_59"] == {"risk scores": 1404, "rated HIGH (%)": "5.3"}
+    county = bias["by_county"]
+    assert county["counties"] == 20
+    assert (county["lowest"]["county"], county["lowest"]["rated HIGH (%)"]) == ("Clare", "1.3")
+    assert (county["highest"]["county"], county["highest"]["rated HIGH (%)"]) == ("Laois", "9.7")
 
 
 def test_showcase_publishes_evidence_without_bulky_data(

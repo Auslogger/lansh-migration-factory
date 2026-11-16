@@ -1,5 +1,8 @@
 # LANSH: Responsible AI note
 
+*Team LANSH: Gregory Korchagin, Vansh Agarwal, Charly Martin Avila · EXL × Trinity Data & AI
+Hackathon 2026, Challenge 03*
+
 LANSH uses Claude agents (Opus 5.5) to migrate legacy data jobs. One rule underpins every
 safeguard: **nothing an agent produces is trusted until a deterministic check has verified it
 and a person has approved it.**
@@ -25,13 +28,19 @@ a decision at H2.** S04's risk score loads for age and county. LANSH traces
 `stg.customers.date_of_birth` through T01 into `age_load`, and a person chooses *reproduce
 as-is* or *reproduce, and flag for a bias review*.
 
+The scorecard measures what that decision is about, on S04's legacy output: under-25s are rated
+HIGH 14.3% of the time (168 risk scores), against 5.3% at ages 25–59; by county, from 1.3% to
+9.7% across the 20 counties with at least 40 scores ([runs/showcase/scorecard.md](../runs/showcase/scorecard.md),
+"Bias"). Whether a loading is justified is a business and legal decision, not LANSH's.
+
 ## Safeguards
 
 - **Verification before trust.**
   - Lineage must name real columns, and sqlglot cross-checks it.
   - Contract keys must be unique in the legacy output.
   - Every output is reconciled record for record against outputs from the real engines.
-  - Tests take their expected values from the legacy engine, never from the model.
+  - T-SQL tests take their expected values from SQL Server, and SAS tests from the contract;
+    never from the model.
   - Bugs are reproduced and flagged with their measured impact, never fixed silently.
 - **Sandboxing.** Generated code must pass:
   - an import allowlist;
@@ -41,6 +50,10 @@ as-is* or *reproduce, and flag for a bias review*.
     a trap card, so a fixer can't hard-code its way to a match.
 
   It then runs in a separate process with a timeout and no credentials.
+- **Prompt injection.** Legacy code is untrusted input, and agents run with no tools: no files,
+  shell or network. An injected instruction can at most steer an answer, and an answer that
+  makes the code wrong fails reconciliation. An answer that leaves something out, such as a
+  lineage edge or a defect, isn't caught deterministically (see the limitations).
 - **People at every stage, with automation-bias controls.**
   - Five gates, passed in order, with hash-pinned evidence shown before any decision.
   - Approving warnings needs a written reason; approvals under 20 seconds are flagged.
@@ -52,9 +65,12 @@ as-is* or *reproduce, and flag for a bias review*.
 
 ## What the runs showed
 
+- **Manual baseline.** T05 and S01 were completed personally, with phase timings recorded in
+  `baseline/timesheet.csv`: 148 and 169 minutes respectively, averaging 158.5 minutes per job.
+  Both finished with zero differences left at final reconciliation.
 - **Why verification matters.** One-shot Claude, the same model without LANSH, ran cleanly on
-  all 10 development jobs, but 2 outputs were silently wrong on 805 rows. In both it had
-  "fixed" legacy behaviour nobody had decided to change. Reconciliation caught both.
+  all 10 development jobs, but 2 outputs silently changed 805 rows. In both it had "fixed"
+  legacy behaviour nobody had decided to change. Reconciliation caught both.
 - **Bugs kept visible.** All 8 planted bugs reproduced exactly, 6 flagged with the planted
   diagnosis; 47 suspected defects went to a decision with their measured impact.
 - **Generalisation, reported as it came out.** Two held-out jobs, written by an isolated agent
@@ -71,5 +87,10 @@ as-is* or *reproduce, and flag for a bias review*.
 - SAS tests check the contract only; each SAS output is still proved against real SAS output.
 - Model output varies. Replay makes the demo reproducible, and reconciliation catches a live
   run's wrong answers.
-- The local worker can't block network access; in production, the cluster's policy does.
+- Checks catch wrong code, not omissions: a missed lineage edge or defect isn't caught
+  deterministically.
+- Every job is proved on one reporting date, 31 December 2025.
 - The manual baseline covers two jobs, so the time comparison is indicative.
+- The local worker can't block network access; in production, the cluster's policy does.
+- In the development runs an agent approved the gates, and the gate log records each approval
+  as the agent's; an agent's approval never counts as a person's sign-off.

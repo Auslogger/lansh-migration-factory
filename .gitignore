@@ -13,10 +13,10 @@ wheels/
 .env
 .authinfo
 
-# EXL material is never committed (plan decision D2). The rest of docs/ is tracked.
-docs/week.py
-
-
+# EXL material is never committed (plan decision D2), nor work unrelated to LANSH.
+# The rest of docs/ is tracked.
+docs/EXL_Trinity_Data_AI_Hackathon_2026.pptx
+docs/week2.py
 
 # Local machine files
 .DS_Store
@@ -35,3 +35,8 @@ estate/golden/_sas_drop/
 runs/*
 !runs/showcase/
 !runs/cassettes/
+# the freeze record: lansh freeze checks the factory against it
+!runs/freeze.json
+
+# local archive of earlier copies, never pushed
+docs/other/

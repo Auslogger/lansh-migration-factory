@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "LANSH: a reconciliation-first agentic migration factory (T-SQL and SAS to PySpark on Delta)"
 readme = "README.md"
 authors = [
-    { name = "Auslogger", email = "6confon6@gmail.com" }
+    { name = "Gregory Korchagin" },
+    { name = "Vansh Agarwal" },
+    { name = "Charly Martin Avila" },
 ]
 requires-python = ">=3.14"
 dependencies = [

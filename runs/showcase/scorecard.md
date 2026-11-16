@@ -35,22 +35,56 @@
 | Held-out jobs reaching MATCH after the post-freeze learning fixes (a second run, not a held-out result) | 2 | of 2 | runs/showcase/learning/X1/metrics.json, runs/showcase/learning/X2/metrics.json |
 | Golden capture per job (both approaches need it) | 0.09 | minutes | estate/golden/S01/manifest.json, estate/golden/S03/manifest.json … |
 | Jobs with warnings in this run (each carries a planted bug by design) | 100 | % | runs/showcase/S01/evidence.json, runs/showcase/S03/evidence.json … |
+| S04 risk scores rated HIGH, customers under 25 (legacy output) | 14.3 | % of 168 | estate/golden/S04/rpt.risk_scores.parquet |
+| S04 risk scores rated HIGH, customers aged 25-59 (legacy output) | 5.3 | % of 1404 | estate/golden/S04/rpt.risk_scores.parquet |
+| S04 risk scores rated HIGH, lowest county (Clare; of 20 counties with 40+ scores) | 1.3 | % | estate/golden/S04/rpt.risk_scores.parquet, estate/golden/T01/dw.dim_customer.parquet |
+| S04 risk scores rated HIGH, highest county (Laois; of 20 counties with 40+ scores) | 9.7 | % | estate/golden/S04/rpt.risk_scores.parquet, estate/golden/T01/dw.dim_customer.parquet |
 
-## Projection onto 1,600 jobs
+## Business case: the client's 1,600 jobs (a projection)
 
-| manual minutes per job | case | manual: person-hours for the estate | LANSH, every gate reviewed: person-hours | LANSH, risk-based gating: person-hours | hours saved | manual: people for 6 / 4 months | LANSH: people for 6 / 4 months |
-|---|---|---|---|---|---|---|---|
-| 240 | low | 6402 | 1629 | 1096 | 83% | 7 / 10.5 | 1.2 / 1.8 |
-| 480 | middle | 12802 | 2589 | 2056 | 84% | 14.1 / 21 | 2.3 / 3.4 |
-| 960 | high | 25602 | 4509 | 3976 | 84% | 28.1 / 42 | 4.4 / 6.5 |
+The notes identify measured inputs and the assumptions used to project them onto the client's estate.
 
-Gate decisions: 8,000 with every gate for every job, 1,600 with risk-based gating.
+### By hand
 
-- LANSH person-hours = reviewer minutes (5 a gate; H2-H4 for jobs with warnings, H1 and H5 per wave of about 20 jobs) + escalation rate x manual minutes + golden capture, per job.
-- Manual minutes per job are assumptions (4, 8 and 16 hours) until the team's manual baseline (plan §9.1) is recorded in baseline/timesheet.csv; the baseline row then appears first.
-- Risk-based gating assumes 30% of a real estate's jobs carry warnings and get per-job review at H2-H4. That is an assumption: in this run 100% did, because every development job has a planted bug.
-- The projection assumes 15% of a real estate's jobs escalate and are migrated by hand (in this run 0% did).
-- For reference, EXL reports a 50% efficiency gain from its Code Harbor tooling on a SAS-to-PySpark migration (plan §9.3); LANSH's figure counts person-hours to a proven, record-for-record MATCH.
+| case | hours per job by hand | person-hours | people for 4 months | people for 6 months | cost (EUR) |
+|---|---|---|---|---|---|
+| manual baseline | 2.6 | 4229 | 6.9 | 4.6 | 362497 |
+| low | 4 | 6402 | 10.5 | 7 | 548783 |
+| middle | 8 | 12802 | 21 | 14.1 | 1097355 |
+| high | 16 | 25602 | 42 | 28.1 | 2194497 |
+
+### Sensitivity: with LANSH
+
+| escalated to a person | review minutes per job | person-hours | people for 4 months | people for 6 months | cost (EUR) |
+|---|---|---|---|---|---|
+| 15% | 30 | 1436 | 2.4 | 1.6 | 123126 |
+| 15% | 60 | 2236 | 3.7 | 2.5 | 191697 |
+| 30% | 30 | 2070 | 3.4 | 2.3 | 177469 |
+| 30% | 60 | 2870 | 4.7 | 3.2 | 246040 |
+| 50% | 30 | 2916 | 4.8 | 3.2 | 249926 |
+| 50% | 60 | 3716 | 6.1 | 4.1 | 318497 |
+
+- LANSH person-hours per job = a person's review minutes + escalation rate x manual minutes (2.6 hours) + golden capture; the estate is 1,600 jobs.
+- Assumed, not measured: low, middle and high manual effort of 4, 8, 16 hours per job; escalation rates of 15%, 30%, 50%; 30 and 60 minutes of review per job; 7-hour days, 87 working days in 4 months and 130 in 6; EUR 600 a person-day.
+- In this run 0% of jobs escalated, and its gates were approved by an agent, so it measures neither the rate nor a person's review time.
+- Gate load for the estate: 8,000 decisions with every gate for every job; 1,600 if only the 30% of jobs with warnings get per-job review (in this run 100% had warnings, since every development job carries a planted bug).
 - Machine time runs in parallel and needs no people; it is reported separately.
 - Claude at API prices for the whole estate: about $1,608 (measured per job here, not billed on a subscription).
+- Manual baseline: 158.5 minutes per job, recorded in the completed manual timesheet at baseline/timesheet.csv. The projection uses this recorded effort.
 - On their first run, 1 of the 2 held-out jobs escalated to a person (stopped by a failing test, not shipped): a sample too small to replace the assumed rate.
+
+## Bias: S04's legacy risk tiers
+
+S04 loads its risk score for age and county. Share of risk scores rated HIGH (one row per customer and line of business), from the golden output:
+
+| age band | risk scores | rated HIGH (%) |
+|---|---|---|
+| under 25 | 168 | 14.3 |
+| 25-34 | 408 | 6.6 |
+| 35-44 | 412 | 4.4 |
+| 45-59 | 584 | 5.1 |
+| 60+ | 1057 | 5.6 |
+
+- Ages 25-59 together: 5.3% of 1404 risk scores.
+- By county (20 counties with at least 40 risk scores, spellings normalised): from 1.3% (Clare) to 9.7% (Laois).
+- LANSH reproduces the score; whether a loading is justified is a business and legal decision, taken at the design gate.

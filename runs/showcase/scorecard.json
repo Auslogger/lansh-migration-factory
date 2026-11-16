@@ -995,6 +995,58 @@
           "sha256": "448f3e19b45dae4f5edcd056e404d5d61354069e98cb2982a946b6340b6bf89e"
         }
       ]
+    },
+    {
+      "name": "S04 risk scores rated HIGH, customers under 25 (legacy output)",
+      "value": "14.3",
+      "unit": "% of 168",
+      "sources": [
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.parquet",
+          "sha256": "fa1a7821a25827e32a6866d66737452b62aef8a02643655b1a5d1353164403b6"
+        }
+      ]
+    },
+    {
+      "name": "S04 risk scores rated HIGH, customers aged 25-59 (legacy output)",
+      "value": "5.3",
+      "unit": "% of 1404",
+      "sources": [
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.parquet",
+          "sha256": "fa1a7821a25827e32a6866d66737452b62aef8a02643655b1a5d1353164403b6"
+        }
+      ]
+    },
+    {
+      "name": "S04 risk scores rated HIGH, lowest county (Clare; of 20 counties with 40+ scores)",
+      "value": "1.3",
+      "unit": "%",
+      "sources": [
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.parquet",
+          "sha256": "fa1a7821a25827e32a6866d66737452b62aef8a02643655b1a5d1353164403b6"
+        },
+        {
+          "path": "estate/golden/T01/dw.dim_customer.parquet",
+          "sha256": "ce3bb44daec8b5e3b3e6e113d77c0b0ae01f47d12fa03643bfeebf7beb85ec78"
+        }
+      ]
+    },
+    {
+      "name": "S04 risk scores rated HIGH, highest county (Laois; of 20 counties with 40+ scores)",
+      "value": "9.7",
+      "unit": "%",
+      "sources": [
+        {
+          "path": "estate/golden/S04/rpt.risk_scores.parquet",
+          "sha256": "fa1a7821a25827e32a6866d66737452b62aef8a02643655b1a5d1353164403b6"
+        },
+        {
+          "path": "estate/golden/T01/dw.dim_customer.parquet",
+          "sha256": "ce3bb44daec8b5e3b3e6e113d77c0b0ae01f47d12fa03643bfeebf7beb85ec78"
+        }
+      ]
     }
   ],
   "business_case": {
@@ -1010,50 +1062,118 @@
         480,
         960
       ],
-      "review_minutes_per_gate": 5.0,
+      "review_minutes_per_job": [
+        30.0,
+        60.0
+      ],
+      "escalation_rates": [
+        0.15,
+        0.3,
+        0.5
+      ],
       "risk_based_share": 0.3,
-      "escalation_rate": 0.15
+      "day_rate_eur": 600.0
     },
     "measured": {
       "escalation_rate_in_this_run": 0.0,
-      "escalation_rate_assumed": 0.15,
       "golden_capture_minutes": 0.09,
       "claude_cost_per_job_usd": 1.0053,
       "claude_cost_for_estate_usd": 1608.46,
       "share_with_warnings_in_this_run": 1.0,
       "risk_based_share_assumed": 0.3,
-      "manual_baseline_minutes": null
+      "manual_baseline_minutes": 158.5
     },
+    "manual_baseline": {
+      "minutes_per_job": 158.5,
+      "sources": [
+        {
+          "path": "baseline/timesheet.csv",
+          "sha256": "8fa8aeac223b587df045e6201da83915c371bc97bade17e0f586a376aef15d2b"
+        }
+      ]
+    },
+    "by_hand": [
+      {
+        "case": "manual baseline",
+        "hours per job by hand": "2.6",
+        "person-hours": "4229",
+        "people for 4 months": "6.9",
+        "people for 6 months": "4.6",
+        "cost (EUR)": "362497"
+      },
+      {
+        "case": "low",
+        "hours per job by hand": "4",
+        "person-hours": "6402",
+        "people for 4 months": "10.5",
+        "people for 6 months": "7",
+        "cost (EUR)": "548783"
+      },
+      {
+        "case": "middle",
+        "hours per job by hand": "8",
+        "person-hours": "12802",
+        "people for 4 months": "21",
+        "people for 6 months": "14.1",
+        "cost (EUR)": "1097355"
+      },
+      {
+        "case": "high",
+        "hours per job by hand": "16",
+        "person-hours": "25602",
+        "people for 4 months": "42",
+        "people for 6 months": "28.1",
+        "cost (EUR)": "2194497"
+      }
+    ],
     "rows": [
       {
-        "manual minutes per job": "240",
-        "case": "low",
-        "manual: person-hours for the estate": "6402",
-        "LANSH, every gate reviewed: person-hours": "1629",
-        "LANSH, risk-based gating: person-hours": "1096",
-        "hours saved": "83%",
-        "manual: people for 6 / 4 months": "7 / 10.5",
-        "LANSH: people for 6 / 4 months": "1.2 / 1.8"
+        "escalated to a person": "15%",
+        "review minutes per job": "30",
+        "person-hours": "1436",
+        "people for 4 months": "2.4",
+        "people for 6 months": "1.6",
+        "cost (EUR)": "123126"
       },
       {
-        "manual minutes per job": "480",
-        "case": "middle",
-        "manual: person-hours for the estate": "12802",
-        "LANSH, every gate reviewed: person-hours": "2589",
-        "LANSH, risk-based gating: person-hours": "2056",
-        "hours saved": "84%",
-        "manual: people for 6 / 4 months": "14.1 / 21",
-        "LANSH: people for 6 / 4 months": "2.3 / 3.4"
+        "escalated to a person": "15%",
+        "review minutes per job": "60",
+        "person-hours": "2236",
+        "people for 4 months": "3.7",
+        "people for 6 months": "2.5",
+        "cost (EUR)": "191697"
       },
       {
-        "manual minutes per job": "960",
-        "case": "high",
-        "manual: person-hours for the estate": "25602",
-        "LANSH, every gate reviewed: person-hours": "4509",
-        "LANSH, risk-based gating: person-hours": "3976",
-        "hours saved": "84%",
-        "manual: people for 6 / 4 months": "28.1 / 42",
-        "LANSH: people for 6 / 4 months": "4.4 / 6.5"
+        "escalated to a person": "30%",
+        "review minutes per job": "30",
+        "person-hours": "2070",
+        "people for 4 months": "3.4",
+        "people for 6 months": "2.3",
+        "cost (EUR)": "177469"
+      },
+      {
+        "escalated to a person": "30%",
+        "review minutes per job": "60",
+        "person-hours": "2870",
+        "people for 4 months": "4.7",
+        "people for 6 months": "3.2",
+        "cost (EUR)": "246040"
+      },
+      {
+        "escalated to a person": "50%",
+        "review minutes per job": "30",
+        "person-hours": "2916",
+        "people for 4 months": "4.8",
+        "people for 6 months": "3.2",
+        "cost (EUR)": "249926"
+      },
+      {
+        "escalated to a person": "50%",
+        "review minutes per job": "60",
+        "person-hours": "3716",
+        "people for 4 months": "6.1",
+        "people for 6 months": "4.1",
+        "cost (EUR)": "318497"
       }
     ],
     "gate_load": {
@@ -1061,14 +1181,59 @@
       "risk-based gating": 1600
     },
     "notes": [
-      "LANSH person-hours = reviewer minutes (5 a gate; H2-H4 for jobs with warnings, H1 and H5 per wave of about 20 jobs) + escalation rate x manual minutes + golden capture, per job.",
-      "Manual minutes per job are assumptions (4, 8 and 16 hours) until the team's manual baseline (plan \u00a79.1) is recorded in baseline/timesheet.csv; the baseline row then appears first.",
-      "Risk-based gating assumes 30% of a real estate's jobs carry warnings and get per-job review at H2-H4. That is an assumption: in this run 100% did, because every development job has a planted bug.",
-      "The projection assumes 15% of a real estate's jobs escalate and are migrated by hand (in this run 0% did).",
-      "For reference, EXL reports a 50% efficiency gain from its Code Harbor tooling on a SAS-to-PySpark migration (plan \u00a79.3); LANSH's figure counts person-hours to a proven, record-for-record MATCH.",
+      "LANSH person-hours per job = a person's review minutes + escalation rate x manual minutes (2.6 hours) + golden capture; the estate is 1,600 jobs.",
+      "Assumed, not measured: low, middle and high manual effort of 4, 8, 16 hours per job; escalation rates of 15%, 30%, 50%; 30 and 60 minutes of review per job; 7-hour days, 87 working days in 4 months and 130 in 6; EUR 600 a person-day.",
+      "In this run 0% of jobs escalated, and its gates were approved by an agent, so it measures neither the rate nor a person's review time.",
+      "Gate load for the estate: 8,000 decisions with every gate for every job; 1,600 if only the 30% of jobs with warnings get per-job review (in this run 100% had warnings, since every development job carries a planted bug).",
       "Machine time runs in parallel and needs no people; it is reported separately.",
       "Claude at API prices for the whole estate: about $1,608 (measured per job here, not billed on a subscription).",
+      "Manual baseline: 158.5 minutes per job, recorded in the completed manual timesheet at baseline/timesheet.csv. The projection uses this recorded effort.",
       "On their first run, 1 of the 2 held-out jobs escalated to a person (stopped by a failing test, not shipped): a sample too small to replace the assumed rate."
-    ]
+    ],
+    "bias": {
+      "by_age": [
+        {
+          "age band": "under 25",
+          "risk scores": 168,
+          "rated HIGH (%)": "14.3"
+        },
+        {
+          "age band": "25-34",
+          "risk scores": 408,
+          "rated HIGH (%)": "6.6"
+        },
+        {
+          "age band": "35-44",
+          "risk scores": 412,
+          "rated HIGH (%)": "4.4"
+        },
+        {
+          "age band": "45-59",
+          "risk scores": 584,
+          "rated HIGH (%)": "5.1"
+        },
+        {
+          "age band": "60+",
+          "risk scores": 1057,
+          "rated HIGH (%)": "5.6"
+        }
+      ],
+      "ages_25_59": {
+        "risk scores": 1404,
+        "rated HIGH (%)": "5.3"
+      },
+      "by_county": {
+        "counties": 20,
+        "min_rows": 40,
+        "lowest": {
+          "county": "Clare",
+          "rated HIGH (%)": "1.3"
+        },
+        "highest": {
+          "county": "Laois",
+          "rated HIGH (%)": "9.7"
+        }
+      }
+    }
   }
 }

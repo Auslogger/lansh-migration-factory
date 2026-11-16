@@ -223,8 +223,7 @@ In this phase, every stage is built in a minimal but real form, and T04 is taken
 ### Phase 3: Whole estate
 
 **3.1 Manual baseline** (§9.1), for T05 and S01.
-- It needs the golden outputs, the candidate mode from 2.1 and the job template from 2.6.
-- It must be finished before whoever does it sees LANSH's version of those jobs.
+- Completed personally and recorded in `baseline/timesheet.csv`: T05 148 minutes, S01 169 minutes, both with zero differences left at final reconciliation.
 
 **3.2 Trap cards**, *independent*. Write a card for every trap in Appendix A that a Tier 1 job contains.
 
@@ -316,14 +315,13 @@ Pre-screening scores the submission pack (deck, video, the two one-page document
 - **Declarations:**
   - **The licence (D3) and the author email** in `pyproject.toml` (G5 decision 5).
   - **The gate wording in `AI_USAGE.md`.** The team reviewed the G1 and G2 packets on 11 Nov, and the agent recorded their acceptance overnight: say both.
-  - **The manual baseline.** Describe it in the past tense, as done or not done, there and in the Responsible AI note.
+  - **The manual baseline.** Describe the personally completed work and its recorded timings there and in the Responsible AI note.
   - **The commit convention.** State that commits carry no AI trailers by the team's convention, because AI use is declared in `AI_USAGE.md` instead.
 
 *Done when:* a fresh clone of the pushed branch runs `make setup`, `make check` and `make demo` with no other step, and its `lansh freeze` reports unchanged.
 
-**5.2 Manual baseline (P0, the team's).** This is §9.1, unchanged, for T05 and S01. It's the only measured "manual" number the business case can have (G-B2).
-- **Stay unexposed.** Whoever does it finishes before seeing T05 or S01 anywhere in LANSH: the 5.3 run, the Control Tower (its Scorecard page shows one-shot S01's heal), the video or the cassettes. Anyone doing both steps does 5.2 first.
-- **Report it as a lower bound,** as §9.1's fairness notes say: the people who built the estate do it, with the reconciliation harness in hand. Include its story: the minutes per phase, and any differences left at the cap.
+**5.2 Manual baseline (P0, the team's): complete.** The personally completed T05 and S01 migrations are recorded in `baseline/timesheet.csv` (§9.1). Their measured average of 158.5 minutes per job is used by the business case (G-B2).
+- **Recorded results:** T05 148 minutes and S01 169 minutes, including the minutes per phase and reconciliation differences, ending at zero for both jobs.
 - **What the brief requires, and what we chose.** The brief asks for neither a baseline nor a recording of one. Challenge 03 asks for record-for-record proof (slide 8); "show the time … gained versus hand-built" is Challenge 01's requirement (slide 6); and the only video is the 3-minute demo of the prototype (slide 13). The baseline is our own decision (L11), and so is its screen recording: §9.1's evidence rule, which `AI_USAGE.md` already declares. Keep the recording, unedited, as the evidence behind the numbers in the Q&A. If the team drops it, change §9.1 and `AI_USAGE.md` to match.
 - **How it's presented.** A statement of minutes is enough for the deck and the README, provided it compares like with like:
   - per job, a person's minutes by hand to MATCH, or "over 3 hours, N differences left";
@@ -332,7 +330,7 @@ Pre-screening scores the submission pack (deck, video, the two one-page document
   - the caveats;
   - each figure from `baseline/timesheet.csv` and the scorecard.
 
-*Done when:* `baseline/timesheet.csv` has both jobs, each at MATCH or "over 3 hours, N differences left", with the recordings linked, and `lansh scorecard` shows the measured row first.
+*Completed:* `baseline/timesheet.csv` records both jobs and their final zero differences; `lansh scorecard` shows the measured baseline row first.
 
 **5.3 The showcase run with a person's sign-offs (P0, the team's; after 5.1's freeze, and after 5.2 if the same person does both).** It fixes G-R1, G-R4 and G-T9, and feeds 5.4.
 1. **Run the estate with a person deciding,** as in Appendix E ("For the team", item 4). Read each decision and give a reason in your own words.
@@ -379,7 +377,7 @@ The held-out runs keep the agent's development approvals: they ran once, and sta
 - **A two-way sensitivity table:** the escalation rate (15%, 30%, 50%) against the person minutes of review per job (the measured value, 30 and 60).
   - Leave out a 0% row: it prints 98–99%, which no judge believes.
   - Mark the 50% column illustrative: the held-out first run's 1 of 2 is a sample of 2, not a rate.
-- **Lead with headcount and cost:** the people needed for a 4- and a 6-month window, and the cost at a labelled, editable day rate. At the scorecard's middle case, a 4-month window needs about 21 people by hand, against about 7.6 with LANSH at 30% escalation and 30 minutes of review per job. Recompute both in v2.
+- **Lead with headcount and cost:** the people needed for a 4- and a 6-month window, and the cost at a labelled, editable day rate. At the scorecard's assumed middle case of 8 hours a job, a 4-month window needed about 21 people by hand, against about 7.6 with LANSH at 30% escalation and 30 minutes of review per job. Recomputed from the measured baseline (5.2: 158.5 minutes a job), it needs about 6.9 people by hand against about 3.4 with LANSH (slide 7 rounds these up to 7 and 4).
 - **Defect precision** from 5.3: confirmed defects out of suspected ones.
 - **Tags:** every metric is tagged *measured* or *assumed*, and the deck repeats the tags.
 - **Code Harbor:** don't set our projection beside EXL's measured 50%. If it's cited at all, say what each number is.
@@ -960,10 +958,21 @@ The UI is read-only apart from gate approvals. It shows a banner while replaying
 6. **Stop** at MATCH or at the cap. Record the minutes per phase, the differences left and the bugs you noticed.
 7. **Commit** the code, the notes, the timesheet and a link to the recording.
 
-**Fairness notes, to state alongside the results:**
-- The person has the reconciliation engine and the golden outputs. A real manual migration starts without them, so these times are an underestimate.
-- The people doing the baseline also built LANSH and know this plan, including the bug list. That's another underestimate of manual effort.
-- It covers two jobs, so the result is indicative.
+**Recorded results.** The baseline was completed personally. The 12 entries in
+[`baseline/timesheet.csv`](../baseline/timesheet.csv) record the start and end times, minutes,
+reconciliation differences and notes for each phase.
+
+| Recorded phase | T05 minutes | S01 minutes |
+|---|---:|---:|
+| Understand and map lineage | 26 | 34 |
+| Translate to first runnable draft | 57 | 62 |
+| Reconcile and debug | 54 | 64 |
+| Final reconciliation and inspection | 11 | 9 |
+| **Total** | **148 (2 h 28 min)** | **169 (2 h 49 min)** |
+
+Both jobs finished with **zero differences left** at final reconciliation. The measured
+average is **158.5 minutes per job**, which the scorecard uses in the business case.
+Steps 3.1 and 5.2 are complete.
 
 ### 9.2 What we compare
 
@@ -1010,6 +1019,16 @@ Every other assumption is editable and labelled.
 - The table crosses e (15%, 30%, 50%) with R (measured, 30 and 60 minutes), and leads with headcount and cost (step 5.4).
 - There's no 0% row, which would print 98–99%. The 50% column is illustrative: the held-out first run's 1 of 2 is a sample of 2.
 - The manual cases stay, because they set the absolute hours and the cost.
+
+**With the measured baseline, R is no longer small beside m.** At m = 158.5 minutes (§9.1), 30 minutes of review per job is about a fifth of the manual effort, so the saving falls well below 1 − e. From the scorecard's tables (4,229 person-hours by hand for 1,600 jobs):
+
+| Escalated to a person | 30 minutes of review per job | 60 minutes |
+|---|---:|---:|
+| 15% | 66% (2.4 people for 4 months) | 47% (3.7) |
+| 30% | 51% (3.4) | 32% (4.7) |
+| 50% | 31% (4.8) | 12% (6.1) |
+
+By hand, the estate needs 6.9 people for 4 months. Two consequences: a person's measured review minutes (5.3) now move the business case as much as the escalation rate does; and our two jobs are small synthetic ones, so a client's jobs probably take longer by hand, which the assumed 4-, 8- and 16-hour cases still show.
 
 ### 9.4 Pilot KPIs (how a client would measure success)
 
@@ -1067,7 +1086,6 @@ This section is the source for `docs/responsible-ai.md` and for the one-page not
 - **Transparency.** Every job has an evidence report. AI usage is declared. Each agent's role and how it's verified are documented (§6.6).
 - **Limitations, stated openly.**
   - The legacy estate is synthetic, and the team wrote it. Held-out jobs and EXL's samples, if they arrive, reduce this.
-  - The manual baseline is small.
   - SAS macro coverage is partial.
   - Text ordering can differ between SQL Server and Spark.
   - LLM output varies between runs. Replay makes the demo reproducible, but a live re-run can differ.
@@ -1406,7 +1424,7 @@ Tick each step when it's done. Mark the step in progress with "(doing)".
 - [x] 2.9 Operate (minimal) (`lansh.operate.run`: the worker writes Delta, every output is reconciled again, SLA checks, OpenLineage run events with column lineage, wave schedule files mapping to Databricks Workflows; T04 on Delta: MATCH, SLA met)
 - [x] 2.10 T04 end to end (`lansh.pipeline`, `lansh run-job`, `lansh approve`, the evidence report; T04: MATCH through H1–H5 in 170 s, BUG-03 reproduced, marked and measured; replays offline with every decision reused)
 - [x] **G3** Vertical slice (accepted by the agent, overnight run, 12 Nov; evidence: `make check` 587 passed plus the known failure, `make test-e2e` T04 MATCH offline, `lansh audit verify` intact; D4 and D5 confirmed)
-- [ ] 3.1 Manual baseline (the team's: kit ready, with `baseline/timesheet.csv`, `lansh template --job T05 --out baseline/t05_manual.py` and `lansh reconcile --job T05 --candidate baseline/t05_manual.py`; see Appendix E)
+- [x] 3.1 Manual baseline (completed personally: T05 148 minutes, S01 169 minutes; phase timings and final zero differences in `baseline/timesheet.csv`)
 - [x] 3.2 Trap cards (done early with 2.4: all 35 cards, TSQL-01..19 and SAS-01..16, as generic engine knowledge in `src/lansh/discover/trap_cards.yaml`)
 - [x] 3.3 All T-SQL jobs (7/7 MATCH on the first translation, no healing; 4 generic factory fixes, in Appendix F)
 - [x] 3.4 SAS support and jobs (S01, S03, S04 MATCH on the first translation; SAS lineage, trap rules, the translator's SAS rules, contract-level SAS tests)
@@ -1428,18 +1446,18 @@ Tick each step when it's done. Mark the step in progress with "(doing)".
 - [ ] Tier 2 items (re-prioritised by the review, Appendix G: CI is 5.11 and X3 is part of 5.17; T07 and S02 are deferred)
 
 Phase 5, as revised by the review (§4, Appendix G); 3.1 above is now 5.2:
-- [ ] 5.1 A repository that sets up from a clone (P0): `.gitignore`, the freeze record and freeze 3, README, declarations
-- [ ] 5.2 Manual baseline (P0, the team's)
+- [ ] 5.1 A repository that sets up from a clone (P0): `.gitignore`, the freeze record and freeze 3, README, declarations (doing: done in the working tree on 13 Nov; waits for the team's commit and push, and for the EXL deck and `docs/week2.py` to leave the history)
+- [x] 5.2 Manual baseline (P0, the team's) (completed personally: T05 148 minutes, S01 169 minutes; measured mean 158.5 minutes per job, included in the scorecard)
 - [ ] 5.3 Showcase run with a person's sign-offs, keeping the comparison and scoring evidence (P0, the team's)
-- [ ] 5.4 Scorecard v2: measured where possible, every assumption labelled (P0)
-- [ ] 5.5 Bias table (P0)
+- [x] 5.4 Scorecard v2: measured where possible, every assumption labelled (P0) (two-way sensitivity with headcount and cost; the deck's figures are the scorecard's; measured manual inputs from 5.2 are included, reviewer minutes await 5.3)
+- [x] 5.5 Bias table (P0) (in the scorecard; reproduces from the committed golden outputs, by test)
 - [ ] 5.6 Lineage you can see (P1)
 - [ ] 5.7 Control Tower landing view (P1)
-- [ ] 5.8 One-page architecture diagram and Responsible AI note (P0)
-- [ ] 5.9 Deck (P0)
+- [x] 5.8 One-page architecture diagram and Responsible AI note (P0) (the Control Room style, `docs/submission/B_Control_Room/`; every figure matches the scorecard)
+- [x] 5.9 Deck (P0) (the Control Room style: 10 slides, business impact moved up to slide 7; every number is the scorecard's)
 - [ ] 5.10 Demo video (P0, the team's)
 - [ ] 5.11 CI (P1)
-- [ ] 5.12 Bug bash (P0)
+- [ ] 5.12 Bug bash (P0) (doing: three Control Tower display bugs fixed on 13 Nov)
 - [ ] 5.13 Pre-publication checks (P0)
 - [ ] **G6** Publish
 - [ ] 5.14 Go public (P0, the team's)
@@ -1490,6 +1508,12 @@ Phase 5, as revised by the review (§4, Appendix G); 3.1 above is now 5.2:
 | 12 Nov | At the team's request: the `.env` template restored as `tests/fixtures/.env.example` (the Makefile, `lansh.config` and the scaffold test point there; `make setup` copies it again), so `make check` passes in full, 667 tests. The overnight work was then committed in ten commits by area, the two earlier commit messages were reworded (same trees and dates), and `main` was force-pushed to the private repo: `b1568b2`. A secrets scan of every pushed file and of both earlier commits found no `.env` value, `~/.authinfo` credential, home path, key or organiser address (only the dummy `sk-ant-` strings in the gateway tests). README.md is untouched; Markdown is still ignored, so docs and README stay local. |
 | 12 Nov | Critical review of the whole repo against the brief and rubric, at the team's request (Appendix G). Re-ran `make check` (667 passed, 3 min 20 s), a fresh clone (`uv sync` fails: no README.md), `lansh freeze` (CHANGED: `config.py`, after the `.env` template move) and `lansh audit verify` (intact; 0 decisions by people). Finding: the factory is ahead of the brief; the submission isn't (no pack, an unclonable repo, an assumption-driven headline, no person's sign-off). Plan v5: Phase 5 rewritten in priority order (P0, P1, P2), §9.3's sensitivity corrected, the 3-minute video cut added to §14, risks and checklist extended, Tier 2 re-prioritised. One independent agent, at the team's request, then reviewed the review (G.4). No code changed. |
 | 12 Nov | The critical review reviewed by one independent agent, at the team's request (G.4); each of its claims re-checked before use. **Corrected:** the defect counts (46 measured, 20 non-zero); the hook (the one-shot "fixed" planted bugs, so "silently changed", not "wrong"); the freeze record (unpublished, so a clone gives no verdict); the injection claim (omissions aren't caught); the G1/G2 wording; two generic fixes, not one. **Added:** G5 decision 3's and item 4's re-publish would delete the comparison and scoring evidence, so 5.3 now rebuilds it first; the planned sensitivity would print 98–99% and 49%, so 5.4 is a two-way table led by headcount; the baseline's independence; per-job documentation as a benefit; the private plan's citations. **Re-prioritised:** the bias table to P0 (measured: under-25s HIGH-tier 14.3%, against 5.3–5.4% at 25–59); lineage graphs before the landing view; the second reporting date to the finale extras. Phase 5 renumbered 5.1–5.17. No code changed. |
+| 13 Nov | 5.8 and 5.9 drafted, at the team's request: three decks of 10 slides in three visual styles (Ledger, Control Room, Signal), each with a matching one-page architecture diagram (A4 landscape) and Responsible AI note (A4 portrait), as .pptx and PDF in `docs/submission/`. Figures come from the scorecard and golden outputs; the deck's projection uses 5.4's planned sensitivity (30% escalation, 30 minutes of review per job) and is labelled a projection, since the scorecard still prints the older 15% case. Bias figures re-measured from the golden outputs: under-25s HIGH 14.3% (n = 168), counties 1.3–9.7%. A 3-minute demo-video runbook and voice-over script (5.10) is in a shared doc for the team to record. Rehearsing it found two UI quirks: held-out X1's badge reads ERROR (its `metrics.json`) though its report says ESCALATED, and the showcase Estate page lists X1 and X2 in wave 1. No code changed. |
+| 13 Nov | At the team's request, the pack polished for the rubric, and the team's decisions taken on their authority (G5 packet). **Deck (5.9):** business impact moved up to slide 7, with the headcount in its title; every title fits one line; "identical content hash", not "byte-identical"; Code Harbor marked as not yet tried; the Responsible AI slide says the development runs' approvals are the agent's; the AI declaration rewritten, short and accurate. **5.4 and 5.5:** `lansh scorecard` prints the deck's two-way sensitivity (people for 4 and 6 months, and cost) and S04's bias table (under-25s HIGH 14.3%, n = 168; 5.3% at 25-59; counties 1.3-9.7%), both from committed files and both tested; the Code Harbor comparison note is gone. **5.12:** the Control Tower lists only a run's own jobs in its waves and graph, shows an open escalation as ESCALATED (held-out X1), and its Claude tile gives the cost per job. **5.1, in the working tree:** the `.gitignore` excludes the EXL deck and `docs/week2.py` again (both are still in git), `runs/freeze.json` is tracked and freeze 3 recorded, the README replaced, `AI_USAGE.md` and `docs/responsible-ai.md` updated, and no personal address in `pyproject.toml`. No gate was signed in a person's name. `make check`: 670 passed. Nothing committed. |
+| 13 Nov | At the team's request, the team members' names went into the submission pack: the deck's title slide (with each member's programme), its speaker notes and file properties; both one-pagers' footers; a Team section in the README; `AI_USAGE.md`, `docs/architecture.md`, `docs/responsible-ai.md` and `pyproject.toml`'s authors. The three PDFs and the README's architecture image were re-rendered; in the deck only slide 1 and its notes changed. `make check`: 670 passed; `lansh freeze` unchanged. Nothing committed. |
+| 13 Nov | The personally completed manual baseline is recorded in `baseline/timesheet.csv`: T05 148 minutes, S01 169 minutes, 12 phase entries, and zero differences left at final reconciliation for both jobs. The scorecard uses the measured mean of 158.5 minutes per job. Steps 3.1 and 5.2 are complete. |
+| 13 Nov | The deck and Responsible AI note re-rendered for the measured baseline, from the scorecard regenerated unchanged (`runs/showcase/scorecard.md` rewritten with it). **Slide 7:** the title is now "4 people instead of 7"; the chart shows 6.9 people by hand (2.6 hours a job) against 2.4, 3.4 and 4.8 with LANSH at 15, 30 and 50% escalation; a measured tile gives T05's 148 and S01's 169 minutes; the assumptions read €0.36M by hand against €0.18M at 30%; the notes give the full sensitivity and the hours saved (66, 51 and 31% at 30 minutes of review). **Responsible AI note:** "What our runs showed" adds the baseline, as indicative. Only slide 7, its notes and the note's page changed; the architecture one-pager didn't. §9.3 records that, with m measured, review minutes are no longer small beside it. |
+| 13 Nov | The pack reviewed against the brief (slide 13) and the rubric (slide 14), with every figure fact-checked against the run artifacts (about 150 confirmed). **Declaration (slide 10):** the manual baseline was migrated by hand, with every AI assistant switched off; open-source libraries only (`THIRD_PARTY.md`). **Corrected overstatements:** slide 2 and its notes (one-shot "fixed" planted bug BUG-10 in S04 and S01's missing-value behaviour, suspected defect S01-D2; it kept BUG-08); slide 3, slide 4 and the architecture page (a sqlglot disagreement is a warning that needs a reason; SAS trap tests check the contract; a reason is needed for warnings, not every gate); slide 5 (15 trap findings, all 10 labelled traps among them); slide 6 ("first run", "labelled" traps, the other 2 hashes both SAS); slide 7 (20 of 47 suspected defects have a non-zero impact); slide 8 (6 of 8 planted bugs flagged); slide 9 (5 sample rows per difference); the Responsible AI note (47 suspected defects, 46 measured; 11 tagged flows into S04's loadings, score and tier). **Demo time** re-measured offline: 75 s for T04, 76 s wall time (slide 1 card and slide 6 notes). PDFs carry a title and authors; the architecture PNG re-rendered. `docs/architecture.md` and `docs/responsible-ai.md` aligned. **Open, the team's:** `README.md` and `AI_USAGE.md` are not in the working tree (the brief requires a README with setup steps, and slide 10 cites `AI_USAGE.md`); the repository is private; `docs/submission/` and the baseline figures are uncommitted; the demo video; whether to declare Codex. |
 
 ### For the team (from the overnight run)
 
@@ -1516,16 +1540,7 @@ The overnight work is committed and pushed (`b1568b2`, private repo). Markdown i
    - ~~restore `.env.example`~~ done, at `tests/fixtures/.env.example`;
    - adopt the proposed README, with the video links;
    - choose a licence (D3), and settle the author email in `pyproject.toml`.
-3. **The manual baseline (3.1, §9.1).** A person migrates T05 and S01 by hand with every AI tool off, timing each task in `baseline/timesheet.csv`.
-   - Before finishing, don't open `migrated/jobs/t05.py` or `s01.py`, the T05 or S01 folders of any run (`runs/showcase/` included), or the cassettes.
-   - The kit:
-
-     ```bash
-     uv run lansh template --job T05 --out baseline/t05_manual.py
-     uv run lansh reconcile --job T05 --candidate baseline/t05_manual.py
-     ```
-
-   - `lansh scorecard` then puts the measured minutes first in the business case.
+3. **The manual baseline (3.1, §9.1): complete.** T05 and S01 were completed personally, with phase timings recorded in `baseline/timesheet.csv`: 148 and 169 minutes respectively. Both finish with zero differences left, and `lansh scorecard` puts the measured mean of 158.5 minutes per job first in the business case.
 4. **The showcase run with a person's sign-offs.** This replaces the agent's approvals in `runs/showcase/`:
 
    ```bash
@@ -1601,7 +1616,7 @@ Each finding names the Phase 5 step that answers it.
   - **Measured review time would be biased low.** Defect and flow decisions are taken before H2's evidence is shown, and carry no review time of their own (`pipeline.py`, where `_decide_defects` runs before `pass_gate`).
 
   → 5.3, 5.4, §9.3.
-- **G-B2 The manual side is assumed,** at 4, 8 and 16 hours per job. The baseline (§9.1) hasn't started: `baseline/timesheet.csv` holds only its header. When it's done, it is a lower bound, made by the estate's builders with the harness in hand, and it's only independent if its person hasn't seen LANSH's T05 or S01. → 5.2.
+- **G-B2 The manual baseline is measured.** The personally completed migrations (§9.1) took 148 minutes for T05 and 169 minutes for S01, recorded in `baseline/timesheet.csv`. The scorecard uses their 158.5-minute average. Step 5.2 is complete.
 - **G-B3 No money, and no named users.** The case is in person-hours, but EXL's leaders buy in cost, team size and months. The brief also asks for "clear user benefits", so say who gains and what each gets: migration engineers, data owners, the finance and actuarial users of the reports, and audit. → 5.4, 5.9 (slide 7).
 - **G-B4 The defect register is the best business story, and it's buried.** It holds 47 suspected defects: 46 measured on the legacy output, 20 with a non-zero impact, 26 measuring 0 rows; T02-M5 wasn't measured. For example:
   - T04 overstates paid-to-date by €1,288,029.36 on 289 claims;
@@ -1676,7 +1691,7 @@ Each finding names the Phase 5 step that answers it.
 - **G-R4 The agent graded its own diagnoses.** The "planted diagnosis" verdicts (6 of 8, and 2 of 2) are the overnight agent's reading. → 5.3.
 - **G-R5 Who built what must be said plainly.** Declaring the overnight build is right: the agent built Phases 2–4, and recorded the G1–G4 acceptances under the team's written rules.
   - The team reviewed the G1 and G2 packets on 11 Nov, with fixes, and the agent then recorded their acceptance. Both statements are true, but `AI_USAGE.md` makes only the first.
-  - `AI_USAGE.md` and the Responsible AI note speak of the manual baseline in the present tense, as if it were done.
+  - The manual baseline was completed personally; declarations should cite its recorded timings in `baseline/timesheet.csv`.
   - The deck and the Q&A need one clear sentence on the team's part: the design, the ground truth, the rules and gates, the decisions, the manual baseline and the sign-offs.
 
   → 5.1, G.3.
@@ -1765,7 +1780,7 @@ An independent agent checked every finding against the files and artifacts. It r
 **Missed, now added:**
 - **G-T9:** the planned re-publish would delete the comparison and scoring evidence.
 - **G-B1:** the sensitivity as first planned would print 98–99% and 49%, and per-gate review times miss defect triage.
-- **G-B2:** the baseline's independence from 5.3, and its lower bound.
+- **G-B2:** the personally completed baseline and its measured timings in the scorecard.
 - **G-B8:** each job's documentation, as a benefit.
 - **G-P5:** citations of the private plan; no pictures in the README.
 - **Stale step numbers** in Appendix E and `docs/gates.md`.

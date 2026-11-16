@@ -1,1 +1,13 @@
 job,phase,start,end,minutes,differences_left,notes
+T05,understand,09:05:00,09:31:00,26,N/A,Traced the nested cursors and payment filters; mapped the output columns and legacy edge cases.
+T05,translate,09:31:00,10:28:00,57,N/A,Replaced the cursor loops with claim aggregates and joins; preserved payment counts and decimal types.
+T05,reconcile_debug,10:28:00,10:50:00,22,37,Checked NULL propagation in the running total and separated claims with no payments.
+T05,reconcile_debug,10:50:00,11:09:00,19,12,Adjusted week calculations to count Sunday boundaries as DATEDIFF(WEEK) does.
+T05,reconcile_debug,11:09:00,11:22:00,13,3,Preserved the day-30 UNKNOWN band and checked reporting-date boundaries.
+T05,final_reconciliation,11:22:00,11:33:00,11,0,Completed schema and record-level comparison against the frozen output.
+S01,understand,12:10:00,12:44:00,34,N/A,Traced MERGE BY and IN= with FIRST./LAST. and RETAIN; mapped payment buckets and missing values.
+S01,translate,12:44:00,13:46:00,62,N/A,Built ordered payment summaries and the claims-preserving join; retained SAS numeric and text behaviour.
+S01,reconcile_debug,13:46:00,14:13:00,27,94,Checked missing-value handling for sum statements and ordinary addition in each payment bucket.
+S01,reconcile_debug,14:13:00,14:34:00,21,23,Adjusted missing amount comparisons and first/last payment dates to follow _row_seq order.
+S01,reconcile_debug,14:34:00,14:50:00,16,6,Checked unpaid-claim buckets and gross/net paid against the supplied output contract.
+S01,final_reconciliation,14:50:00,14:59:00,9,0,Completed schema and record-level comparison against the frozen output.

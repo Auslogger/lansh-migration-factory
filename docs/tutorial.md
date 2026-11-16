@@ -1463,7 +1463,7 @@ Business Impact is 30% of the score and breaks any tie. The judging criteria ask
 
 ### 13.2 The baseline
 
-To claim we're faster, we need to know how long the manual approach takes. The honest way is to **migrate one or two jobs by hand ourselves**, timing the understanding, rewriting, testing and reconciling. For context, we'll also cite published figures, such as EXL's own reported results for Code Harbor.
+The manual baseline was completed personally for **T05 and S01**, timing the understanding, rewriting, debugging and final reconciliation. The recorded times in `baseline/timesheet.csv` are **148 minutes for T05** and **169 minutes for S01**, averaging **158.5 minutes per job**. Both jobs finished with zero differences left at final reconciliation.
 
 ### 13.3 Extrapolating, carefully
 
@@ -1705,7 +1705,7 @@ claim_totals = payments.groupBy("claim_id").agg(
 **Part 13**
 
 1. Our pilot is small and synthetic, and real estates vary. A range with stated assumptions is credible; a single precise number invites challenge.
-2. To get a real, measured baseline instead of a guess.
+2. To measure manual migration effort from the recorded time spent on each phase.
 
 ### Warm-up exercises (optional)
 

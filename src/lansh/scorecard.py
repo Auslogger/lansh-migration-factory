@@ -6,11 +6,16 @@ are the files it was computed from, pinned by SHA-256, so a judge can check any 
 
 The business case projects the run onto the client's estate (slide 8: about 1,200 ETL jobs and
 400 SAS programs, delivered in 4–6 months). Measured inputs come from the run: Claude usage and
-machine time per job, the escalation rate, the golden-capture time. What a run can't measure is
-an **assumption**, labelled as one and editable (:class:`Assumptions`): the minutes a person
-takes to migrate a job by hand (until the team's manual baseline, plan §9.1, replaces it) and
-the minutes a reviewer spends at a gate (development runs are approved by the agent, in no
+machine time per job, the escalation rate, the golden-capture time. The completed manual
+baseline timesheet records the time spent migrating jobs by hand. Projection inputs that
+aren't measured are labelled as **assumptions** and editable (:class:`Assumptions`), including
+the minutes a reviewer spends on a job (development runs are approved by the agent, in no
 time at all, so their review time measures nothing).
+
+Because the saving is roughly one minus the escalation rate, the projection is a two-way
+sensitivity table (plan step 5.4): escalation rate against a person's review minutes per job,
+led by headcount and cost rather than a percentage. A run that includes S04 also gets the bias
+table (step 5.5): S04's legacy risk tiers by age band and by county, from the golden outputs.
 """
 
 from __future__ import annotations
@@ -20,8 +25,11 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
+from math import isfinite
 from pathlib import Path
 from typing import Any
+
+import pyarrow.parquet as pq
 
 from lansh.config import GOLDEN_DIR, REPO_ROOT, RUNS_DIR
 from lansh.contracts import ArtifactRef, Metric
@@ -39,25 +47,28 @@ class Assumptions:
         working_days: The delivery window in working days (4 to 6 months).
         hours_per_day: Productive hours in a person's working day.
         manual_minutes: Minutes to migrate one job by hand to a record-for-record MATCH: low,
-            middle and high. Replaced by the manual baseline when it exists.
-        review_minutes_per_gate: Minutes a person spends on one gate decision for one job.
+            middle and high. The sensitivity table uses the middle case, or the manual
+            baseline when it exists.
+        review_minutes_per_job: A person's minutes of review across one job's gates and
+            decisions, one column of the sensitivity table each.
+        escalation_rates: Shares of a real estate's jobs the factory can't take to MATCH,
+            which a person then migrates by hand. Our estate can't measure the rate: it
+            escalated nothing, and the held-out first run's 1 of 2 is a sample, not a rate.
         risk_based_share: The share of a real estate's jobs that would still get per-job
-            review at H2–H4 under risk-based gating (those with warnings). Our estate can't
-            measure it: every development job carries a planted bug by design, so all of them
-            have warnings. The run's own share is reported beside it.
-        escalation_rate: The share of a real estate's jobs the factory can't take to MATCH,
-            which a person then migrates by hand. Conservative by design, since a synthetic
-            estate written by the team escalates less than a client's would; the run's own
-            rate is reported beside it.
+            review at H2–H4 under risk-based gating (those with warnings), for the gate load.
+            Our estate can't measure it: every development job carries a planted bug by
+            design, so all of them have warnings. The run's own share is reported beside it.
+        day_rate_eur: The cost of a person-day, for the cost columns.
     """
 
     estate_jobs: int = 1600
     working_days: tuple[int, int] = (87, 130)
     hours_per_day: float = 7.0
     manual_minutes: tuple[int, int, int] = (240, 480, 960)
-    review_minutes_per_gate: float = 5.0
+    review_minutes_per_job: tuple[float, ...] = (30.0, 60.0)
+    escalation_rates: tuple[float, ...] = (0.15, 0.30, 0.50)
     risk_based_share: float = 0.3
-    escalation_rate: float = 0.15
+    day_rate_eur: float = 600.0
 
 
 def _ref(path: Path) -> ArtifactRef:
@@ -101,7 +112,7 @@ class Card:
 
 def _baseline_minutes() -> tuple[float | None, list[Path]]:
     """
-    Read the manual baseline's minutes per job, when the team has recorded it (plan §9.1).
+    Average the completed manual timesheet's recorded job totals.
     """
     if not BASELINE_TIMESHEET.exists():
         return None, []
@@ -109,12 +120,90 @@ def _baseline_minutes() -> tuple[float | None, list[Path]]:
     with BASELINE_TIMESHEET.open(encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
             try:
-                per_job[row["job"]] = per_job.get(row["job"], 0.0) + float(row["minutes"])
-            except KeyError, ValueError:
+                minutes = float(row["minutes"])
+                job = row["job"].strip()
+            except KeyError, ValueError, TypeError, AttributeError:
                 continue
+            if not job or not isfinite(minutes) or minutes <= 0:
+                continue
+            per_job[job] = per_job.get(job, 0.0) + minutes
     if not per_job:
         return None, []
     return sum(per_job.values()) / len(per_job), [BASELINE_TIMESHEET]
+
+
+### Bias
+
+AGE_BANDS: tuple[tuple[str, float, float], ...] = (
+    ("under 25", 0, 25),
+    ("25-34", 25, 35),
+    ("35-44", 35, 45),
+    ("45-59", 45, 60),
+    ("60+", 60, 200),
+)
+"""S04's age bands for the bias table, each a label, its lowest age and the age it stops before."""
+
+S04_SCORES = GOLDEN_DIR / "S04" / "rpt.risk_scores.parquet"
+T01_CUSTOMERS = GOLDEN_DIR / "T01" / "dw.dim_customer.parquet"
+
+
+def bias_table(min_rows: int = 40) -> dict[str, Any] | None:
+    """
+    Tabulate S04's legacy risk tiers by age band and by county (plan step 5.5).
+
+    S04 loads its risk score for age and county, so the share of scores rated HIGH in each
+    group is what a person needs when deciding those flows at the design gate. It is read from
+    the legacy output, one row per customer and line of business. County comes from T01's
+    customer dimension, joined on ``customer_id``, with its spellings normalised (``'cork '``
+    and ``'CORK'`` are Cork). LANSH reproduces the score either way; whether a loading is
+    justified is a business and legal decision.
+
+    Args:
+        min_rows: The fewest risk scores a county needs before its share is reported.
+
+    Returns:
+        The share rated HIGH per age band, for ages 25-59 together and the lowest and highest
+        county, or None when the golden outputs aren't there.
+    """
+    if not (S04_SCORES.exists() and T01_CUSTOMERS.exists()):
+        return None
+    scores = pq.read_table(S04_SCORES, columns=["customer_id", "age", "tier"]).to_pylist()
+    county = {
+        int(row["customer_id"]): row["county"].strip().title()
+        for row in pq.read_table(T01_CUSTOMERS, columns=["customer_id", "county"]).to_pylist()
+        if row["county"] and row["county"].strip()
+    }
+
+    def high(rows: list[dict[str, Any]]) -> float:
+        """
+        Give the percentage of these risk scores rated HIGH.
+        """
+        return 100 * sum(r["tier"] == "HIGH" for r in rows) / len(rows)
+
+    aged = [r for r in scores if r["age"] is not None]
+    by_age = []
+    for band, low, stop in AGE_BANDS:
+        rows = [r for r in aged if low <= r["age"] < stop]
+        if rows:
+            by_age.append({"age band": band, "risk scores": len(rows), "rated HIGH (%)": _num(high(rows), 1)})  # fmt: skip
+    middle = [r for r in aged if 25 <= r["age"] < 60]
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for r in scores:
+        name = county.get(int(r["customer_id"]))
+        if name:
+            groups.setdefault(name, []).append(r)
+    shares = {name: high(rows) for name, rows in groups.items() if len(rows) >= min_rows}
+    lowest, highest = min(shares, key=shares.__getitem__), max(shares, key=shares.__getitem__)
+    return {
+        "by_age": by_age,
+        "ages_25_59": {"risk scores": len(middle), "rated HIGH (%)": _num(high(middle), 1)},
+        "by_county": {
+            "counties": len(shares),
+            "min_rows": min_rows,
+            "lowest": {"county": lowest, "rated HIGH (%)": _num(shares[lowest], 1)},
+            "highest": {"county": highest, "rated HIGH (%)": _num(shares[highest], 1)},
+        },
+    }
 
 
 COMPARISONS = {
@@ -370,6 +459,29 @@ def build(
                 f"On their first run, {stopped} of the {len(held)} held-out jobs escalated to a person "
                 "(stopped by a failing test, not shipped): a sample too small to replace the assumed rate."
             )
+    bias = bias_table() if "S04" in jobs else None
+    if bias:
+        card.business_case["bias"] = bias
+        under, middle, county = bias["by_age"][0], bias["ages_25_59"], bias["by_county"]
+        card.add(
+            "S04 risk scores rated HIGH, customers under 25 (legacy output)",
+            under["rated HIGH (%)"],
+            f"% of {under['risk scores']}",
+            [S04_SCORES],
+        )
+        card.add(
+            "S04 risk scores rated HIGH, customers aged 25-59 (legacy output)",
+            middle["rated HIGH (%)"],
+            f"% of {middle['risk scores']}",
+            [S04_SCORES],
+        )
+        for end in ("lowest", "highest"):
+            card.add(
+                f"S04 risk scores rated HIGH, {end} county ({county[end]['county']}; of {county['counties']} counties with {county['min_rows']}+ scores)",
+                county[end]["rated HIGH (%)"],
+                "%",
+                [S04_SCORES, T01_CUSTOMERS],
+            )
     return card
 
 
@@ -387,7 +499,8 @@ def business_case(
         run_dir: The run's folder.
 
     Returns:
-        The projection: rows per approach and case, the gate load, and notes on what is
+        The projection: the estate by hand per manual case, the sensitivity rows (escalation
+        rate against a person's review minutes per job), the gate load, and notes on what is
         measured and what is assumed.
     """
     n = len(jobs)
@@ -397,7 +510,6 @@ def business_case(
     card.add("Golden capture per job (both approaches need it)", capture_min, "minutes", manifests)
     escalated = sum(m.get("status") == "ESCALATED" for m in metrics.values())
     measured_escalation = escalated / n
-    escalation_rate = a.escalation_rate
     warned = [
         j
         for j, e in jobs.items()
@@ -411,28 +523,33 @@ def business_case(
     labels = ["low", "middle", "high"]
     if baseline:
         cases = [baseline, *cases]
-        labels = ["manual baseline (measured)", *labels]
-    review_full = 5 * a.review_minutes_per_gate
-    review_risk = (3 * a.review_minutes_per_gate) * share + 2 * a.review_minutes_per_gate / 20
-    hours_per_fte = [d * a.hours_per_day for d in a.working_days]
-    rows = []
-    for label, manual in zip(labels, cases, strict=True):
-        manual_h = (manual + capture_min) * a.estate_jobs / 60
-        lansh_min = review_risk + escalation_rate * manual + capture_min
-        lansh_h = lansh_min * a.estate_jobs / 60
-        every_gate_h = (review_full + escalation_rate * manual + capture_min) * a.estate_jobs / 60
-        rows.append(
-            {
-                "manual minutes per job": _num(manual, 0),
-                "case": label,
-                "manual: person-hours for the estate": _num(manual_h, 0),
-                "LANSH, every gate reviewed: person-hours": _num(every_gate_h, 0),
-                "LANSH, risk-based gating: person-hours": _num(lansh_h, 0),
-                "hours saved": f"{_num(100 * (1 - lansh_h / manual_h), 0)}%",
-                "manual: people for 6 / 4 months": f"{_num(manual_h / hours_per_fte[1], 1)} / {_num(manual_h / hours_per_fte[0], 1)}",
-                "LANSH: people for 6 / 4 months": f"{_num(lansh_h / hours_per_fte[1], 1)} / {_num(lansh_h / hours_per_fte[0], 1)}",
-            }
-        )
+        labels = ["manual baseline", *labels]
+    # the sensitivity holds the manual effort at its best-supported value
+    manual = baseline or a.manual_minutes[1]
+    four, six = a.working_days
+
+    def sized(hours: float) -> dict[str, str]:
+        """
+        Turn the estate's person-hours into team sizes for each window, and a cost.
+        """
+        return {
+            "person-hours": _num(hours, 0),
+            "people for 4 months": _num(hours / (four * a.hours_per_day), 1),
+            "people for 6 months": _num(hours / (six * a.hours_per_day), 1),
+            "cost (EUR)": _num(hours / a.hours_per_day * a.day_rate_eur, 0),
+        }
+
+    by_hand = [
+        {"case": label, "hours per job by hand": _num(m / 60, 1)}
+        | sized((m + capture_min) * a.estate_jobs / 60)
+        for label, m in zip(labels, cases, strict=True)
+    ]
+    rows = [
+        {"escalated to a person": f"{rate:.0%}", "review minutes per job": _num(review, 0)}
+        | sized((review + rate * manual + capture_min) * a.estate_jobs / 60)
+        for rate in a.escalation_rates
+        for review in a.review_minutes_per_job
+    ]
     shares_from = sorted(run_dir.glob("*/evidence.json"))
     card.add(
         "Jobs with warnings in this run (each carries a planted bug by design)",
@@ -444,11 +561,18 @@ def business_case(
         "every gate for every job": 5 * a.estate_jobs,
         "risk-based gating": round(a.estate_jobs * 3 * share + 2 * a.estate_jobs / 20),
     }
+    rates = ", ".join(f"{r:.0%}" for r in a.escalation_rates)
+    reviews = " and ".join(_num(r, 0) for r in a.review_minutes_per_job)
+    people = next((m.value for m in card.metrics if m.name == "Gate decisions made by people"), "0")
+    review_source = (
+        "its gates were approved by an agent, so it measures neither the rate nor a person's review time"
+        if people == "0"
+        else "a person's review time per job is not yet taken from its gate log"
+    )
     return {
         "assumptions": asdict(a),
         "measured": {
             "escalation_rate_in_this_run": round(measured_escalation, 4),
-            "escalation_rate_assumed": escalation_rate,
             "golden_capture_minutes": round(capture_min, 2),
             "claude_cost_per_job_usd": round(cost, 4),
             "claude_cost_for_estate_usd": round(cost * a.estate_jobs, 2),
@@ -456,19 +580,47 @@ def business_case(
             "risk_based_share_assumed": share,
             "manual_baseline_minutes": baseline,
         },
+        "manual_baseline": (
+            {
+                "minutes_per_job": baseline,
+                "sources": [_ref(p).model_dump(mode="json") for p in baseline_src],
+            }
+            if baseline
+            else None
+        ),
+        "by_hand": by_hand,
         "rows": rows,
         "gate_load": gate_load,
         "notes": [
-            "LANSH person-hours = reviewer minutes (5 a gate; H2-H4 for jobs with warnings, H1 and H5 per wave of about 20 jobs) + escalation rate x manual minutes + golden capture, per job.",
-            "Manual minutes per job are assumptions (4, 8 and 16 hours) until the team's manual baseline (plan §9.1) is recorded in baseline/timesheet.csv; the baseline row then appears first.",
-            f"Risk-based gating assumes {share:.0%} of a real estate's jobs carry warnings and get per-job review at H2-H4. That is an assumption: in this run {measured_share:.0%} did, because every development job has a planted bug.",
-            f"The projection assumes {escalation_rate:.0%} of a real estate's jobs escalate and are migrated by hand (in this run {measured_escalation:.0%} did).",
-            "For reference, EXL reports a 50% efficiency gain from its Code Harbor tooling on a SAS-to-PySpark migration (plan §9.3); LANSH's figure counts person-hours to a proven, record-for-record MATCH.",
+            f"LANSH person-hours per job = a person's review minutes + escalation rate x manual minutes ({_num(manual / 60, 1)} hours) + golden capture; the estate is {a.estate_jobs:,} jobs.",
+            f"Assumed, not measured: low, middle and high manual effort of {', '.join(_num(m / 60, 0) for m in a.manual_minutes)} hours per job; escalation rates of {rates}; {reviews} minutes of review per job; {_num(a.hours_per_day, 0)}-hour days, {four} working days in 4 months and {six} in 6; EUR {_num(a.day_rate_eur, 0)} a person-day.",
+            f"In this run {measured_escalation:.0%} of jobs escalated, and {review_source}.",
+            f"Gate load for the estate: {gate_load['every gate for every job']:,} decisions with every gate for every job; {gate_load['risk-based gating']:,} if only the {share:.0%} of jobs with warnings get per-job review (in this run {measured_share:.0%} had warnings, since every development job carries a planted bug).",
             "Machine time runs in parallel and needs no people; it is reported separately.",
             f"Claude at API prices for the whole estate: about ${cost * a.estate_jobs:,.0f} (measured per job here, not billed on a subscription).",
-            *([f"Manual baseline from {baseline_src[0].name}."] if baseline_src else []),
+            *(
+                [
+                    f"Manual baseline: {_num(baseline, 1)} minutes per job, recorded in the completed manual timesheet at {_ref(baseline_src[0]).path}. The projection uses this recorded effort."
+                ]
+                if baseline
+                else [
+                    "No manual baseline recorded; the projection uses the middle effort assumption."
+                ]
+            ),
         ],
     }
+
+
+def _table(rows: list[dict[str, Any]]) -> list[str]:
+    """
+    Write rows of like dictionaries as the lines of a Markdown table.
+    """
+    header = list(rows[0])
+    return [
+        "| " + " | ".join(header) + " |",
+        "|" + "---|" * len(header),
+        *("| " + " | ".join(str(r[h]) for h in header) + " |" for r in rows),
+    ]
 
 
 def write(card: Card) -> tuple[Path, Path]:
@@ -501,16 +653,37 @@ def write(card: Card) -> tuple[Path, Path]:
         )
     if card.business_case:
         bc = card.business_case
-        lines += ["", "## Projection onto 1,600 jobs", ""]
-        header = list(bc["rows"][0])
-        lines += ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
-        lines += ["| " + " | ".join(str(r[h]) for h in header) + " |" for r in bc["rows"]]
         lines += [
             "",
-            f"Gate decisions: {bc['gate_load']['every gate for every job']:,} with every gate for every job, {bc['gate_load']['risk-based gating']:,} with risk-based gating.",
+            "## Business case: the client's 1,600 jobs (a projection)",
+            "",
+            "The notes identify measured inputs and the assumptions used to project them onto the client's estate.",
+            "",
+            "### By hand",
+            "",
+            *_table(bc["by_hand"]),
+            "",
+            "### Sensitivity: with LANSH",
+            "",
+            *_table(bc["rows"]),
             "",
         ]
         lines += [f"- {note}" for note in bc["notes"]]
+        bias = bc.get("bias")
+        if bias:
+            county = bias["by_county"]
+            lines += [
+                "",
+                "## Bias: S04's legacy risk tiers",
+                "",
+                "S04 loads its risk score for age and county. Share of risk scores rated HIGH (one row per customer and line of business), from the golden output:",
+                "",
+                *_table(bias["by_age"]),
+                "",
+                f"- Ages 25-59 together: {bias['ages_25_59']['rated HIGH (%)']}% of {bias['ages_25_59']['risk scores']} risk scores.",
+                f"- By county ({county['counties']} counties with at least {county['min_rows']} risk scores, spellings normalised): from {county['lowest']['rated HIGH (%)']}% ({county['lowest']['county']}) to {county['highest']['rated HIGH (%)']}% ({county['highest']['county']}).",
+                "- LANSH reproduces the score; whether a loading is justified is a business and legal decision, taken at the design gate.",
+            ]
     md_path = run_dir / "scorecard.md"
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return json_path, md_path

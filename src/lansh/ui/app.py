@@ -64,8 +64,6 @@ def _mtime(path: Path) -> float:
 def _markdown(evidence: Path) -> str:
     """
     Give a job's evidence report as Markdown, rendered from the JSON when the file is missing.
-
-    A clone has no Markdown files: the repository's ``.gitignore`` keeps ``*.md`` out of git.
     """
     path = evidence.parent / "evidence.md"
     if path.exists():
@@ -116,8 +114,15 @@ def load(run_id: str, stamp: float) -> dict[str, Any]:
 def status_of(job: dict[str, Any]) -> str:
     """
     Give a job's headline status: MATCH, MISMATCH, ERROR or ESCALATED.
+
+    A job stopped at a gate with an open escalation is ESCALATED, as its evidence report says,
+    even where its metrics recorded the stop as an ERROR (held-out X1's, at code review).
     """
-    return str(job["metrics"].get("status") or "ERROR")
+    status = job["metrics"].get("status")
+    escalations = job["evidence"].get("escalations") or []
+    if status in (None, "ERROR") and any(e.get("resolved_at") is None for e in escalations):
+        return "ESCALATED"
+    return str(status or "ERROR")
 
 
 def badge(status: str) -> str:
@@ -146,28 +151,42 @@ def estate_page(run_id: str, data: dict[str, Any], log: GateLog) -> None:
         "Suspected defects", sum(len(v["evidence"].get("defects", [])) for v in jobs.values())
     )
     cols[3].metric("Heal attempts", sum(len(v["evidence"].get("heal", [])) for v in jobs.values()))
+    # per job, as the scorecard counts it: the folder's usage log also holds the comparison runs
+    per_job = [v["metrics"].get("cost_usd_equivalent", 0.0) for v in jobs.values()]
     cols[4].metric(
-        "Claude, API-equivalent",
-        f"${sum(u['cost_usd_equivalent'] for u in usage):.2f}",
-        help="What the calls would cost at API prices. Nothing is billed: LANSH runs on a subscription.",
+        "Claude per job, API-equivalent",
+        f"${sum(per_job) / len(per_job):.2f}" if per_job else "—",
+        help=(
+            "What each job's Claude calls would cost at API prices; every call logged in this "
+            f"run's folder, comparison runs included, comes to ${sum(u['cost_usd_equivalent'] for u in usage):.2f}. "
+            "Nothing is billed: LANSH runs on a subscription."
+        ),
     )
     estate = data["estate"]
     if estate:
         st.subheader("Waves")
+        # the estate's plan also places the held-out jobs, which run apart, in their own runs
         for wave in estate["waves"]:
-            cells = [f"{j} {badge(statuses.get(j, '—'))}" for j in wave["job_ids"]]
-            cut = all(log.passed(j, Gate.H5) for j in wave["job_ids"] if j in jobs)
+            in_run = [j for j in wave["job_ids"] if j in jobs]
+            if not in_run:
+                continue
+            cells = [f"{j} {badge(statuses[j])}" for j in in_run]
+            cut = all(log.passed(j, Gate.H5) for j in in_run)
             st.write(
                 f"**Wave {wave['number']}** {'(cut over)' if cut else ''}: " + " · ".join(cells)
             )
         dot = ["digraph { rankdir=LR; node [shape=box, style=rounded];"]
         for wave in estate["waves"]:
             for j in wave["job_ids"]:
+                if j not in jobs:
+                    continue
                 colour = {"MATCH": "palegreen", "MISMATCH": "lightpink"}.get(
                     statuses.get(j, ""), "lightgrey"
                 )
                 dot.append(f'"{j}" [style="rounded,filled", fillcolor={colour}];')
         for e in estate["edges"]:
+            if e["upstream"] not in jobs or e["downstream"] not in jobs:
+                continue
             dot.append(
                 f'"{e["upstream"]}" -> "{e["downstream"]}" [label="{", ".join(e["tables"])}", fontsize=8];'
             )
@@ -503,14 +522,29 @@ def scorecard_page(run_id: str, data: dict[str, Any]) -> None:
             width="stretch",
         )  # fmt: skip
         if card.get("business_case"):
-            st.subheader("Projection onto the client's 1,600 jobs")
-            st.dataframe(
-                pd.DataFrame(card["business_case"]["rows"]),
-                hide_index=True,
-                width="stretch",
-            )
-            for note in card["business_case"].get("notes", []):
+            bc = card["business_case"]
+            st.subheader("Business case: the client's 1,600 jobs (a projection)")
+            if bc.get("by_hand"):
+                st.caption("By hand: manual effort per job")
+                st.dataframe(pd.DataFrame(bc["by_hand"]), hide_index=True, width="stretch")
+                st.caption(
+                    "With LANSH: the escalation rate against a person's review minutes per job"
+                )
+            st.dataframe(pd.DataFrame(bc["rows"]), hide_index=True, width="stretch")
+            for note in bc.get("notes", []):
                 st.caption(note)
+            bias = bc.get("bias")
+            if bias:
+                st.subheader("Bias: S04's legacy risk tiers by age band")
+                st.dataframe(pd.DataFrame(bias["by_age"]), hide_index=True, width="stretch")
+                county = bias["by_county"]
+                st.caption(
+                    f"Ages 25-59 together: {bias['ages_25_59']['rated HIGH (%)']}% rated HIGH. "
+                    f"By county ({county['counties']} counties with at least {county['min_rows']} risk scores): "
+                    f"from {county['lowest']['rated HIGH (%)']}% ({county['lowest']['county']}) "
+                    f"to {county['highest']['rated HIGH (%)']}% ({county['highest']['county']}). "
+                    "LANSH reproduces the score; whether a loading is justified is a business and legal decision."
+                )
     if data["benchmark"]:
         st.subheader("Comparison runs: what the proof loop adds")
         st.caption(

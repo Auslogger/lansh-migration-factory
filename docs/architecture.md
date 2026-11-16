@@ -1,5 +1,8 @@
 # LANSH architecture
 
+*Team LANSH: Gregory Korchagin, Vansh Agarwal, Charly Martin Avila · EXL × Trinity Data & AI
+Hackathon 2026, Challenge 03*
+
 **LANSH is a reconciliation-first migration factory.** It migrates legacy T-SQL and SAS jobs to
 PySpark on Delta, and it accepts a job only once the job's new output matches the legacy
 output record for record, bugs included. Agents propose, deterministic checks verify, and a
@@ -40,9 +43,9 @@ flowchart LR
 
 | Stage | Agents (Claude Opus 5.5) | What checks them deterministically | Gate refuses approval while |
 |---|---|---|---|
-| **Discover** | Lineage; trap scan | Every column named must exist in the schemas; sqlglot traces the same lineage through temp tables; trap ids and lines are checked against the file | there is no verified lineage |
+| **Discover** | Lineage; trap scan | Every column named must exist in the schemas; sqlglot cross-checks T-SQL lineage through temp tables, and a disagreement is a warning that needs a reason; trap ids and lines are checked against the file | there is no verified lineage |
 | **Design** | Contract; defect reviewer | Keys must be unique in the golden output; a tolerance needs an engine-level reason; each defect's impact query runs on golden data | a tolerance has no reason, or a defect or a flow of a protected column has no decision |
-| **Generate** | Translator; test author | Guardrails (allowlisted imports, no I/O, SQL strings parsed, the **literal check**); the legacy engine computes every test's expected values | a guardrail fails, a literal is unexplained, or a test fails |
+| **Generate** | Translator; test author | Guardrails (allowlisted imports, no I/O, SQL strings parsed, the **literal check**); SQL Server computes every T-SQL test's expected values; SAS tests check the contract | a guardrail fails, a literal is unexplained, or a test fails |
 | **Reconcile** | Diagnoser/fixer | Schema, counts, totals, a full outer join on the keys, every column under its policy; diff signatures name the trap | the status isn't MATCH |
 | **Operate** | — | The job runs on Delta with its upstream jobs' migrated outputs as inputs, and every output is reconciled again; SLA checks | a Delta output differs, or an SLA is broken |
 

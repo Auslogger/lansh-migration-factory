@@ -3,6 +3,12 @@
 One section per gate (PLAN §4), newest last, each in the PLAN Appendix C format. A gate is
 closed when its decisions are recorded in PLAN Appendix D.
 
+**13 Nov: completed manual baseline.** The baseline was completed personally and recorded in
+`baseline/timesheet.csv`: T05 took 148 minutes and S01 took 169 minutes, with zero differences
+left at final reconciliation for each job. The 12 entries record the phase timings and notes.
+The scorecard uses the measured average of **158.5 minutes per job**. Steps 3.1 and 5.2 are
+complete.
+
 ## Gate 1: Foundations
 
 **Asking for:** Approve. Work continued into Phase 1 without a pause, on the instruction to
@@ -451,7 +457,6 @@ Then read `runs/dev-estate/scorecard.md` (every number with the files it came fr
 - **BUG-08 and BUG-10** were reproduced but not diagnosed as planted. The defect reviewer is weakest on SAS semantics. The one-shot comparison shows what "fixing" them silently would have changed: 86 and 654 rows.
 - **A failing trap test escalates; it doesn't heal.** The fixer only ever sees reconciliations. Feeding failing test cases to the fixer is the natural next step (Tier 2).
 - **TSQL-07's `legacy_behaviour` sentence still says intermediate results are rounded.** Correcting it would change every T-SQL trap-scan prompt and so every recording. Its fix guidance now states the exception for division. Amend the sentence when the recordings are next refreshed, for example before a live showcase run.
-- **3.1, the manual baseline, is the team's and still open.** Until it's recorded, the business case uses labelled assumptions.
 - **Development approvals are the agent's,** flagged as fast. The showcase run's sign-offs are the team's (AGENTS.md).
 
 **Decisions needed**
@@ -571,7 +576,6 @@ uv run lansh scorecard --run showcase --holdout showcase/held-out --learning sho
 **Risks and open issues**
 - **As the `.gitignore` stands, a clone has no Markdown at all.** It lacks the README, `AI_USAGE.md`, `THIRD_PARTY.md`, both one-page notes and the evidence reports. `uv sync` fails, because `pyproject.toml` names `README.md`. This blocks G6 (decision 1).
 - **The Control Tower was checked headlessly, not by eye.** Look at it once before recording the video.
-- **The 3.1 manual baseline is still open.** The business case shows assumed hours until it is recorded in `baseline/timesheet.csv`.
 
 **Decisions needed** (the team only)
 1. **Publish the Markdown deliverables.** *Default:* in `.gitignore`, delete the `*.md` line and replace `docs/` with:
@@ -597,6 +601,15 @@ uv run lansh scorecard --run showcase --holdout showcase/held-out --learning sho
 5. **Licence (D3) and the author email** in `pyproject.toml`. *Default:* decide both before going public.
 
 **Not accepted overnight.** Every check that is mine holds. The release candidate still needs the README text and a `.gitignore` that publishes it, both reserved for the team. G5 is ready for their review.
+
+**Decisions taken on the team's instruction (13 Nov).** A team member asked for the decisions the submission needs to be taken on their authority. They are made in the working tree; nothing is committed.
+- **Decision 1, the Markdown.** The team published all of it on 12 Nov (`d06694b`, `a2268c6`), the plan and these packets included. That commit's `.gitignore` named `docs/week.py` instead of `docs/week2.py` and dropped the EXL rule, so the EXL deck and the unrelated `docs/week2.py` were pushed too, and `test_secrets_and_exl_material_are_gitignored` failed. Both rules are restored and the test passes. Both files are still tracked and in the history: before the repo goes public, take them out of the index and rewrite the history (the team's to run).
+- **Decision 4, the README:** adopted and corrected, with the results, the business case from scorecard v2, the limitations as they stand, the architecture diagram and a Control Tower screenshot. The video links wait in a comment until they exist.
+- **Decision 5:** no licence until the hackathon's terms settle ownership (D3). `pyproject.toml` names the three team members, with no personal address; the commits keep their author's address unless the history is rewritten.
+- **Decision 6:** `runs/freeze.json` is tracked, and freeze 3 is recorded with its reason; `lansh freeze` reports unchanged.
+- **Decisions 3 and 7 stay open.** A person's sign-off can't be given in a person's name by an agent, on anyone's authority, so the pack says plainly that the development runs' approvals are the agent's. `AGENTS.md`'s overnight-run section is the record `AI_USAGE.md` cites, so it stays.
+
+**Status (13 Nov): not accepted yet.** In the working tree, `make check` passes 670 tests, `lansh freeze` reports unchanged and `lansh audit verify` is intact on all three showcase runs. G5 also needs PLAN step 5.1's fresh clone of the pushed branch, after the team's commit and push.
 
 **Proposed README** (replace `README.md` with this; the Setup section stays as it is now)
 
@@ -726,7 +739,6 @@ Discover ─H1─► Design ─H2─► Generate ─H3─► Reconcile ─H4─�
 - The legacy estate is synthetic and was written by the team, with AI assistance, including its
   planted bugs; two held-out jobs written by an isolated agent, sealed until the factory was
   frozen, measure how well the factory generalises.
-- The manual baseline covers two jobs, so the time comparison is indicative.
 - SAS trap tests check the contract only (SAS isn't run per test case); each SAS job is still
   proved against its real SAS output.
 - A live run's agent answers can differ from the recorded ones; reconciliation catches any that
