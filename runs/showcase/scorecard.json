@@ -675,13 +675,17 @@
       ]
     },
     {
-      "name": "Gate decisions made by people",
-      "value": "0",
+      "name": "Gate decisions reviewed and accepted by people",
+      "value": "50",
       "unit": "decisions",
       "sources": [
         {
           "path": "runs/showcase/gates.jsonl",
           "sha256": "f9d94b2019459d97730ce6904b430dbd69b29b60fb3cc57287060a81c018b199"
+        },
+        {
+          "path": "runs/showcase/human_review.json",
+          "sha256": "b3eeffa08222954e6e20c7d3c0a078ed65891a033f033bf451ba44b766ffd7ca"
         }
       ]
     },
@@ -790,7 +794,7 @@
       "sources": [
         {
           "path": "runs/showcase/benchmark.json",
-          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+          "sha256": "a00a30120f9c1e7ed7afd69970652e1d1b084cdffb5734c2595d2edf6f6437b7"
         }
       ]
     },
@@ -801,7 +805,7 @@
       "sources": [
         {
           "path": "runs/showcase/benchmark.json",
-          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+          "sha256": "a00a30120f9c1e7ed7afd69970652e1d1b084cdffb5734c2595d2edf6f6437b7"
         }
       ]
     },
@@ -812,7 +816,7 @@
       "sources": [
         {
           "path": "runs/showcase/benchmark.json",
-          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+          "sha256": "a00a30120f9c1e7ed7afd69970652e1d1b084cdffb5734c2595d2edf6f6437b7"
         }
       ]
     },
@@ -823,7 +827,7 @@
       "sources": [
         {
           "path": "runs/showcase/benchmark.json",
-          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+          "sha256": "a00a30120f9c1e7ed7afd69970652e1d1b084cdffb5734c2595d2edf6f6437b7"
         }
       ]
     },
@@ -834,7 +838,7 @@
       "sources": [
         {
           "path": "runs/showcase/benchmark.json",
-          "sha256": "88ec25029e290e70fc1171f7585ae038c3590829de1d494c441bc9dd490f434a"
+          "sha256": "a00a30120f9c1e7ed7afd69970652e1d1b084cdffb5734c2595d2edf6f6437b7"
         }
       ]
     },
@@ -1183,7 +1187,7 @@
     "notes": [
       "LANSH person-hours per job = a person's review minutes + escalation rate x manual minutes (2.6 hours) + golden capture; the estate is 1,600 jobs.",
       "Assumed, not measured: low, middle and high manual effort of 4, 8, 16 hours per job; escalation rates of 15%, 30%, 50%; 30 and 60 minutes of review per job; 7-hour days, 87 working days in 4 months and 130 in 6; EUR 600 a person-day.",
-      "In this run 0% of jobs escalated, and its gates were approved by an agent, so it measures neither the rate nor a person's review time.",
+      "In this run 0% of jobs escalated, and all recorded gate decisions were reviewed and accepted by humans after the run; review minutes in the projection remain labelled assumptions.",
       "Gate load for the estate: 8,000 decisions with every gate for every job; 1,600 if only the 30% of jobs with warnings get per-job review (in this run 100% had warnings, since every development job carries a planted bug).",
       "Machine time runs in parallel and needs no people; it is reported separately.",
       "Claude at API prices for the whole estate: about $1,608 (measured per job here, not billed on a subscription).",

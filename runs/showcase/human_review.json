@@ -1,0 +1,1786 @@
+{
+  "status": "reviewed_and_accepted",
+  "confirmed_by": "person:team-lansh",
+  "confirmation_recorded_on": "2026-11-16",
+  "source": "Team member confirmation: all three team members reviewed and accepted the decisions; Gregory and Vansh did most of the review work.",
+  "scope": "All recorded gate decisions, associated defect and protected-flow decisions, and the reported run outcomes have been reviewed and accepted by humans.",
+  "gate_log_sha256": "f9d94b2019459d97730ce6904b430dbd69b29b60fb3cc57287060a81c018b199",
+  "gate_decision_ids": [
+    "48d34fdc743a",
+    "f7b2aa2d0f30",
+    "8fd1ee29ddd2",
+    "8aa8e1f36f8a",
+    "e0b17d93e04f",
+    "d85ec871abd5",
+    "bcb8402b654e",
+    "78dbba617b0c",
+    "ae8786881858",
+    "aeee1eb2a6ce",
+    "0d97782fd0f7",
+    "0383d311f74f",
+    "3b6b2f7a7d5c",
+    "bae48f705fb1",
+    "6915f42843d8",
+    "e815751f17a8",
+    "5f10749103b4",
+    "ba2d23eaa8e0",
+    "da748a422e66",
+    "edd8e01d3839",
+    "f139531f2446",
+    "41992d4e132c",
+    "5f272441638f",
+    "b06c86a4f3d7",
+    "2f44ba42f6e9",
+    "104e7c616beb",
+    "b8ab72af9f25",
+    "59a47e336ae0",
+    "0af9813684b5",
+    "57f30c2f9546",
+    "9aa9393fbe53",
+    "339fcd46f6fb",
+    "4031d0625523",
+    "2001e928245b",
+    "e40664b5335f",
+    "26e3e3a1305f",
+    "ef8e10c766fa",
+    "1cfe63b8673e",
+    "1385091fcea3",
+    "7961bfb35b1c",
+    "067f63645e00",
+    "05384c0d750d",
+    "bbf27903cb20",
+    "6a130917e253",
+    "991cb48bbdfb",
+    "1a9db4a9f19f",
+    "2fdda78898e0",
+    "b099801c60e3",
+    "b0aebea46110",
+    "365ed1e41eca"
+  ],
+  "note": "Original recording identities, timestamps, warnings, test results and escalations are preserved. Acceptance includes the reported first-run escalation; it does not change reconciliation results. Human review durations were not supplied with this confirmation.",
+  "review_timing": "after_run",
+  "reviews": [
+    {
+      "decision_id": "48d34fdc743a",
+      "gate": "H1",
+      "job_ids": [
+        "S01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S01/discovery.json",
+          "sha256": "b3328897183ff70e1079661d99d8f2ab65c55201665440fd5384515de9b12d99"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/S01/lineage.json",
+          "sha256": "ac62c3e686223f7654cf2c796ca6eabfcb20e0895ce648c6f15b277230149a68"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/S01/traps.json",
+          "sha256": "e62af871e0aad5f773d1dbd2f101b985a4a2c03f65b1ac139b1cd9764b276141"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "f7b2aa2d0f30",
+      "gate": "H2",
+      "job_ids": [
+        "S01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/S01/contracts/dw.claims_enriched.json",
+          "sha256": "542da2a1e2f44466ae8e8b03b4b4bd5801d742b32ec86d4ab89242413d6eaae5"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/S01/defects.json",
+          "sha256": "ae7ef9d4efe7eda90dbb96378cfbfcad36331d6b4a38bf6434733b388622ed40"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/S01/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "8fd1ee29ddd2",
+      "gate": "H3",
+      "job_ids": [
+        "S01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/S01/jobs/s01.py",
+          "sha256": "cef22a14495b21a67773320086d43309674d2e6435403c176d63a1aa521be9c1"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S01/guardrails.json",
+          "sha256": "a90b0377182e7f8872aa3853a0736ec18f9ccda798e5318bb65e2c9b25d8410e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S01/tests.json",
+          "sha256": "3bb6a45d9f030f39fe873d6d4dfc6233a58ebf46f3f78854ee999c852dc0a211"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S01/tests/cases/s01.json",
+          "sha256": "c7adc05f857b9a3049d16bd80dcf747b0999ea8009cddc80d965e526b0ee2201"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "8aa8e1f36f8a",
+      "gate": "H4",
+      "job_ids": [
+        "S01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/S01/recon/dw.claims_enriched.json",
+          "sha256": "d60559cae35173ef33905104f673bcc063f3e048360225870cc843b603996e44"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/S01/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "e0b17d93e04f",
+      "gate": "H1",
+      "job_ids": [
+        "T01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T01/discovery.json",
+          "sha256": "7b029a7514a29ad44eba6e4ddbc139a4880e269c6760c90d87314f92b2ac8750"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T01/lineage.json",
+          "sha256": "c4749da891ce85a65033e1687ef55796ba2a3dafcb0451d980196bdf4b14fb8f"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T01/traps.json",
+          "sha256": "7297338f564070c8758103eb09fc0ad4929ad3a407d0a54e616274958734f43d"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "d85ec871abd5",
+      "gate": "H2",
+      "job_ids": [
+        "T01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T01/contracts/dw.dim_customer.json",
+          "sha256": "a10e00791c63452abb174d2633300dd6d37b9a168749964837d3ee55e80ce0ea"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T01/defects.json",
+          "sha256": "16197fccb5a200f87d6aff78415652e255ce853ebecf621a71ed246b5ed332d6"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T01/flows.json",
+          "sha256": "97ef86a90d0eed292839f38abe49df1c809774dedc5afdab62d3ab965d78330b"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "bcb8402b654e",
+      "gate": "H3",
+      "job_ids": [
+        "T01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T01/jobs/t01.py",
+          "sha256": "cf127dfa3efa1a51520d36cf2e258b3e491b3e07779485fd3cb86402b9e9ebdd"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T01/guardrails.json",
+          "sha256": "0f791e0e3eb77ebb63dcc4a62569e095b1029f0b587009ff3612ac2be6dcc59f"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T01/tests.json",
+          "sha256": "396fdb148cb76f07c4d9cea765a1a962659196397147122ce4d71924e1731587"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T01/tests/cases/t01.json",
+          "sha256": "68e353893b0eccedb0a16175d3da5d976ec7c1b073a73fde45fe9741af1e806a"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "78dbba617b0c",
+      "gate": "H4",
+      "job_ids": [
+        "T01"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T01/recon/dw.dim_customer.json",
+          "sha256": "cc48c20112a41908b0703d0baf1a67546f1cb8bae15ebdf7b906560e77a7ac05"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T01/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "ae8786881858",
+      "gate": "H1",
+      "job_ids": [
+        "T04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T04/discovery.json",
+          "sha256": "3773bdd13baae252f9b1197182eb0e27d92c62a3d87b8151ff6d69b22ecc6262"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T04/lineage.json",
+          "sha256": "dab063cfa455e4d7a197e6bb45f7d5bc7374c26128e00ae1d37afdbe49f0f2ce"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T04/traps.json",
+          "sha256": "491e4f77a4648cd6c8b22d27262bb49888e3b2a199aec601e078524aa4c9f8c6"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "aeee1eb2a6ce",
+      "gate": "H2",
+      "job_ids": [
+        "T04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T04/contracts/rpt.claims_summary.json",
+          "sha256": "a7d9b30f5af0a97db229f42a7479e48b2d0a6e2141fd29f0cb7d6da748708452"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T04/defects.json",
+          "sha256": "dba7e8df06b1027f0eeb1146f892889546ba525211fb73d5af46b4df07b47f13"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T04/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "0d97782fd0f7",
+      "gate": "H3",
+      "job_ids": [
+        "T04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T04/jobs/t04.py",
+          "sha256": "1b8939e774a444bc93a859c163959adf8754d6d4e1764074c4d633d8eb47d972"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T04/guardrails.json",
+          "sha256": "779fb2181aa9afa600437bbaf80fe5e355e486a37594a68752fa8c0545d40226"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T04/tests.json",
+          "sha256": "e8d26a10a064a6e21f4f87707a44089c83334a88d1c93856d2c0fa0251c93331"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T04/tests/cases/t04.json",
+          "sha256": "5dadd6511b02b62473ad464a8a6049843d8942b6e42220d4146339dcbc5ba4e8"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "0383d311f74f",
+      "gate": "H4",
+      "job_ids": [
+        "T04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T04/recon/rpt.claims_summary.json",
+          "sha256": "c512461eb0c410c2be21147278dcda438b008e189c9d5c87a1a8c4e65e9c7ae8"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T04/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "3b6b2f7a7d5c",
+      "gate": "H1",
+      "job_ids": [
+        "T05"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T05/discovery.json",
+          "sha256": "b33d26f93a4e7cd6d9aaa5ca730798faa8fbe531a11c9eb4f831c3a76052c50b"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T05/lineage.json",
+          "sha256": "7a5ff5320843a672247a3a55859c1d7428c7a1c20f779625e512f3ef566f672d"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T05/traps.json",
+          "sha256": "e8d7f1e9e322aca72824fb475f80e135a422026dab69b4292ee331c95354dfd4"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "bae48f705fb1",
+      "gate": "H2",
+      "job_ids": [
+        "T05"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T05/contracts/rpt.claim_aging.json",
+          "sha256": "d27196088642a993c6e9af5605536fe8b22e0678075672780fd39f0a83d51e8d"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T05/defects.json",
+          "sha256": "64a7b902d7b445b1f8f87b0f4f9c4310fc276a1f1c2365ebffb3cbfd65a32882"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T05/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "6915f42843d8",
+      "gate": "H3",
+      "job_ids": [
+        "T05"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T05/jobs/t05.py",
+          "sha256": "5cb945e3b84952dfde95c307b613b593a664c99a9ee5df85780d5d025267c2ab"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T05/guardrails.json",
+          "sha256": "c1f1f718f48d9725c4ff89d70926ba9a1b239c3d3179552140b22c927ffe2ca5"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T05/tests.json",
+          "sha256": "050a2871d1705223648095cdd7c23a37f8fc4bb9d4f5404b089690daf2efb896"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T05/tests/cases/t05.json",
+          "sha256": "53a73e39846e3975cb31c040ee283d4943a97a762d3a090924eaa1f6a82481d4"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "e815751f17a8",
+      "gate": "H4",
+      "job_ids": [
+        "T05"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T05/recon/rpt.claim_aging.json",
+          "sha256": "b90da8a21e462de0b6260eb261525c858d340020cad26d59189a6bfb20581856"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T05/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "5f10749103b4",
+      "gate": "H1",
+      "job_ids": [
+        "T06"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T06/discovery.json",
+          "sha256": "a78e2754a68c1fac204036252a5ef5795719bdeff24c06556f3d9cdc5454d589"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T06/lineage.json",
+          "sha256": "286f17f543e6eb5d3528f4727765779844f241dce5cbf958ec894ad5d8f0cc9c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T06/traps.json",
+          "sha256": "8e025f534a14ef75ad835afce9a202373a0119a43aa32c80353b21cccd854704"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "ba2d23eaa8e0",
+      "gate": "H2",
+      "job_ids": [
+        "T06"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T06/contracts/rpt.loss_triangle_paid.json",
+          "sha256": "aa4b48deb1f0b9e02ca651557ec322124d3491164c9f6883893d42bbd9fc7c2d"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T06/defects.json",
+          "sha256": "ee5599e075d6b24b44cbc5bb14124e50f0bb507f5b9f0e3d6ecf75031daeff39"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T06/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "da748a422e66",
+      "gate": "H5",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "edd8e01d3839",
+      "gate": "H1",
+      "job_ids": [
+        "T02"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T02/discovery.json",
+          "sha256": "71b3aeab6ff84551357216c8dbf94885e71323fdc1487764123efd3f29b6e8aa"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T02/lineage.json",
+          "sha256": "c9754f351ae0a5c33149004260008d842905564a9904eac8d44515c88c3ffe8c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T02/traps.json",
+          "sha256": "cd66c47086d3c66e2c28ef790b74d48ab5be1585dfa85b715dc3964b30390a7c"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "f139531f2446",
+      "gate": "H2",
+      "job_ids": [
+        "T02"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T02/contracts/dw.dim_policy.json",
+          "sha256": "cc4e986c80157fd8f5357ab495ae25940a3d8487e747813157291c7303905b35"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T02/defects.json",
+          "sha256": "b5ca553e6cefb96ee2257894cd9592de0f13bbb5797bd560dd5b3193a8e15efe"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T02/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "41992d4e132c",
+      "gate": "H3",
+      "job_ids": [
+        "T06"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T06/jobs/t06.py",
+          "sha256": "beffffb76844623877592771f084846001b26a49a6631ee5104fbd1631e3c806"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T06/guardrails.json",
+          "sha256": "3d86211c3dbd57e3e5be0e7443c47d344a24535dfbdf530f3e48c8ce15282637"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T06/tests.json",
+          "sha256": "2be09848f4385f2f10c04594afab1a8bc01c45880b5494c2fa84c10ab1769134"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T06/tests/cases/t06.json",
+          "sha256": "cc96299c249630257a1dfb65434e7a8ea7ee47f9475bf8eb591d4a0c149d4025"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "5f272441638f",
+      "gate": "H4",
+      "job_ids": [
+        "T06"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T06/recon/rpt.loss_triangle_paid.json",
+          "sha256": "8315e0172ac279ea541fb0a2f268128ea6a11899147cb634a85f5b5b409d220b"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T06/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b06c86a4f3d7",
+      "gate": "H5",
+      "job_ids": [
+        "S01",
+        "T01",
+        "T04",
+        "T05",
+        "T06"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/S01/operate.json",
+          "sha256": "44e723ada2022c16427fb810a28f74cc50dd72f854066b08be2645c0e2fb19ec"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T01/operate.json",
+          "sha256": "c310fbc98a2ecb6a204d6e1808f3b716aeb37594e8c63f3f100a196771d4abce"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T04/operate.json",
+          "sha256": "3e2472998906e97afca945f9eba5a0499a6528d8a12cb82d53dd46699014b883"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T05/operate.json",
+          "sha256": "4621c129356772da8f3760afb889b95bd424d34e1a84ec68393fb89b8bb72e6e"
+        },
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T06/operate.json",
+          "sha256": "8771ef7a397abaf9befdd17711f1a37f6d7772efe98858f3bf4a32018a5aa56a"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "2f44ba42f6e9",
+      "gate": "H3",
+      "job_ids": [
+        "T02"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T02/jobs/t02.py",
+          "sha256": "fc399a765138ecb78055a1719f79de8bac5d12104b48e53996c94762fb722369"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T02/guardrails.json",
+          "sha256": "1444528d1f1b2a83218fe3c2adc5146049640a0d365cbe175a10ce5fa563a72b"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T02/tests.json",
+          "sha256": "26e1abb6768cdfbbeb813fc3ff35e2c838346fd969bd696561fb4026cb864f02"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T02/tests/cases/t02.json",
+          "sha256": "3c46f58283ffe52b070f09651d7f2248033a34f671d247c002abb369e5f53c21"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "104e7c616beb",
+      "gate": "H4",
+      "job_ids": [
+        "T02"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T02/recon/dw.dim_policy.json",
+          "sha256": "d7c9105aab09281eccff6242ce8479a5990b6776b3d407d360e2947fdb44836f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T02/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b8ab72af9f25",
+      "gate": "H1",
+      "job_ids": [
+        "T08"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T08/discovery.json",
+          "sha256": "b61d5ac743cbe2bd81f83c75f6c5a6922cabcc656a1326d491518336ec797d83"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T08/lineage.json",
+          "sha256": "40506417b3f76d420856716c0a62b39f0daa0780ab4b2606aafd69ba663564b4"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T08/traps.json",
+          "sha256": "44575e42374f2b5ee19a8d38a04cd41463cc605f806d013e2dc72b59d028a67c"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "59a47e336ae0",
+      "gate": "H2",
+      "job_ids": [
+        "T08"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T08/contracts/rpt.claim_fraud_flags.json",
+          "sha256": "7f7fac9583a26bf54b246469e75cc64535c8e0cf47f92920698824604cd2754b"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T08/defects.json",
+          "sha256": "92938ed70efa3593aab7c0a14d358a26f63a6e27b457e7c31f125e2360b33d64"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T08/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "0af9813684b5",
+      "gate": "H5",
+      "job_ids": [
+        "T02"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T02/operate.json",
+          "sha256": "b8b550f0442234530ba425d82c52afc0abb8e4f1651dc338225d61d709b3be45"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "57f30c2f9546",
+      "gate": "H1",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T03/discovery.json",
+          "sha256": "2530a2808c14a941b299bb154ab51972f5606dfb04538c3b93b9170fdf3c5271"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/T03/lineage.json",
+          "sha256": "139051047e8d0fa0b9081548f3c5cf17f71be261a80b796f18fc7112f35bde4c"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/T03/traps.json",
+          "sha256": "1fbc8045e78f82d20a9a951bfe9fa2fe589bcaa7e5fceefe7ed198560dc90764"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "9aa9393fbe53",
+      "gate": "H2",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/T03/contracts/dw.fact_premium_earned.json",
+          "sha256": "120ddcb9c8d7af1ee37a4e55f2a5bb41a1c166005f06e3390012025e651847c4"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/T03/defects.json",
+          "sha256": "bb82f3109fe75a76d5fc6d18159d426d9d719c0c08a21528aa477ce127098693"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/T03/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "339fcd46f6fb",
+      "gate": "H3",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T03/jobs/t03.py",
+          "sha256": "2c58a87e3ae4faab8fe56633986dec4128709017ed8e61ab7e6ba03c7cfb6e46"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T03/guardrails.json",
+          "sha256": "4bef98383828357884dd0e79e8e4e08c6f08634c09d8427e7f47e0eb8cfe3bba"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T03/tests.json",
+          "sha256": "955de7c2dad4fd6aae6e4a28e685fd37410127895412de7164c9366d37deab1e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T03/tests/cases/t03.json",
+          "sha256": "9e0de9c960dfaababf669c357bdc59276070e8d4c40f9c794b91176ed04d483b"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "4031d0625523",
+      "gate": "H4",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T03/recon/dw.fact_premium_earned.json",
+          "sha256": "193a79523a1143bf6afe5397c5fa6af1beb6c8b202c7d1186dd14d97a5eee468"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T03/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "2001e928245b",
+      "gate": "H5",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T03/operate.json",
+          "sha256": "e1354cc0a79b659610bfb6c22b55a723314c8c07585305c498017e1da1a9fe4a"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "e40664b5335f",
+      "gate": "H1",
+      "job_ids": [
+        "S03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S03/discovery.json",
+          "sha256": "548840dbfd0f5a5dd4f21081acea15f473f52c1e871e65519c83d510b2f7f812"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/S03/lineage.json",
+          "sha256": "cd90cc97ce97c4d1b001b54b2e5448c35b67a620ab1e3fa86b8bc3f2fe596591"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/S03/traps.json",
+          "sha256": "8d0e700333ac3c55fd1304d4597ca03144fbb4a8150dc970b51397c3e74d7c77"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "26e3e3a1305f",
+      "gate": "H2",
+      "job_ids": [
+        "S03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/S03/contracts/rpt.premium_band_summary.json",
+          "sha256": "921f37d31ca36b73908ee2a9c91e466e61ac1d740430b177499538bf33972a88"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/S03/defects.json",
+          "sha256": "691fefc3176b351237ac5f85f0205ea036ad201882276b7ba410d773f8b8fa78"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/S03/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "ef8e10c766fa",
+      "gate": "H1",
+      "job_ids": [
+        "S04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S04/discovery.json",
+          "sha256": "79f3bbc7aa89295faf9e9811d91d304bf0a906f10f26985ea14143b5e5132c7f"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-estate/S04/lineage.json",
+          "sha256": "35f557ec61e4dcfaf8761f79c3ed7f279b7793864499ddeaec6c4ba6849a46ab"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-estate/S04/traps.json",
+          "sha256": "3cd3ee4e48349e1a862c35ab405f687b7be09e0e1152a11f7a0ba52a933d5097"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "1cfe63b8673e",
+      "gate": "H2",
+      "job_ids": [
+        "S04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-estate/S04/contracts/rpt.risk_scores.json",
+          "sha256": "50f226be8182d9452061f368faa8c164757f87a5531f1072be2d53721909573f"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-estate/S04/defects.json",
+          "sha256": "7482a49c65c6ebe6ca68d8392beccc9b3797659d8fb05b7ec5818d5a5f4636be"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-estate/S04/flows.json",
+          "sha256": "4e1d077844193c94603d4b7bc6a11c43eba9d841b3a7d7780d3873eb06bb4f46"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "1385091fcea3",
+      "gate": "H3",
+      "job_ids": [
+        "S04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/S04/jobs/s04.py",
+          "sha256": "29cd1747fbf6fdb50c379baca60519398d4aaa1b3f9c66e0e70c6e64afb0b2a5"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S04/guardrails.json",
+          "sha256": "c76d05d54bbdc12af0108a94ce25d5b9999e23ecf2f87bc369b22813e1d71b82"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S04/tests.json",
+          "sha256": "dbbdfdd5077323716071333acd9efa8ceeba4b6e8fff4aceeedf3f0857d6663e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S04/tests/cases/s04.json",
+          "sha256": "0b1fcce1159ae5ba4d6a6b48f734701a455466bd034c504fdd4b22f3a5d95cab"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "7961bfb35b1c",
+      "gate": "H4",
+      "job_ids": [
+        "S04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/S04/recon/rpt.risk_scores.json",
+          "sha256": "5696f6eed63138714e7ef1c88d1a8405ff5374f7b2c94d419511de6fe3dd606f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/S04/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "067f63645e00",
+      "gate": "H3",
+      "job_ids": [
+        "T08"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T08/jobs/t08.py",
+          "sha256": "51554b00b50d6e9b87220bc8eb7d5b22b046a5e9d9fc0a6f8d70838029bfa08b"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T08/guardrails.json",
+          "sha256": "55d90b2fcae7b72df901f66f9d19e1e5803bd8b34c7658e93e29093eba3bced9"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T08/tests.json",
+          "sha256": "407a85deeedbcf7840c3120085be1d269c9ba71952c5dbbd67290dde201699e8"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T08/tests/cases/t08.json",
+          "sha256": "36d547130b0ada02b8269bc8aaf89bf5a30bb708eefc8826618384400c73a477"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "05384c0d750d",
+      "gate": "H4",
+      "job_ids": [
+        "T08"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T08/recon/rpt.claim_fraud_flags.json",
+          "sha256": "7574d3848041a3fa7e99b99c080b49f70f23ac352e46c858a16a0e05f9cb6007"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T08/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "bbf27903cb20",
+      "gate": "H5",
+      "job_ids": [
+        "T08"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T08/operate.json",
+          "sha256": "7d4fae671e874706b92ab322c24f1eba4b8d31b605aabf869640b3a0ab601d29"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "6a130917e253",
+      "gate": "H3",
+      "job_ids": [
+        "S03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/S03/jobs/s03.py",
+          "sha256": "12217d640e36100f9b363aba66ab9f7aa494f39a512de0ca98a222cfb521cf0b"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/S03/guardrails.json",
+          "sha256": "7b93daa8549724921242db84a7f89e97e2f7591db40254fb428da2f334a90279"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S03/tests.json",
+          "sha256": "9f98e51965dcb8ef21ee18d7f10755a83450ecaf0f2f20005c79e605061d8e6f"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/S03/tests/cases/s03.json",
+          "sha256": "2a129233ed03b1169e719f62037bdea1999c58562e881d53ebec25ccc2d52c93"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "991cb48bbdfb",
+      "gate": "H4",
+      "job_ids": [
+        "S03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/S03/recon/rpt.premium_band_summary.json",
+          "sha256": "527ac3a4dbf6a3a0b3a437427f80fa08b011e62864e00c7135cd7be9c7e5f0c4"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/S03/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "1a9db4a9f19f",
+      "gate": "H5",
+      "job_ids": [
+        "S03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/S03/operate.json",
+          "sha256": "cc87d4679fdfc50c85f84e28f441c0037aa61c9a5ad6028bdd16d02ad837c791"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "2fdda78898e0",
+      "gate": "H5",
+      "job_ids": [
+        "S04"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/S04/operate.json",
+          "sha256": "258b1e9933f6efb060d27e0c3de6cbc2b6107b4d7c128686c804f49de3262c52"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b099801c60e3",
+      "gate": "H3",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-estate/T03/jobs/t03.py",
+          "sha256": "ba9048a1fa89b01c4926078d7af32becfcb344c9bf786436c4623e3f8136bc9c"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-estate/T03/guardrails.json",
+          "sha256": "9ed3c86de00f13fc67a9443b3ce1a0011cd7badb0270feaf7a11efd762b8667a"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T03/tests.json",
+          "sha256": "955de7c2dad4fd6aae6e4a28e685fd37410127895412de7164c9366d37deab1e"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-estate/T03/tests/cases/t03.json",
+          "sha256": "9e0de9c960dfaababf669c357bdc59276070e8d4c40f9c794b91176ed04d483b"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b0aebea46110",
+      "gate": "H4",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-estate/T03/recon/dw.fact_premium_earned.json",
+          "sha256": "a23615d388e09186f768ddb099338d853c5539d911f19ceb293cefd26a57122f"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-estate/T03/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "365ed1e41eca",
+      "gate": "H5",
+      "job_ids": [
+        "T03"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-estate/T03/operate.json",
+          "sha256": "e1354cc0a79b659610bfb6c22b55a723314c8c07585305c498017e1da1a9fe4a"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    }
+  ],
+  "attribution_status": "Collective reviewers confirmed by the team; individual allocations, original review timestamps and contemporaneous reasons are not reconstructed.",
+  "reviewer_names": [
+    "Gregory Korchagin",
+    "Vansh Agarwal",
+    "Charly Martin Avila"
+  ],
+  "leading_reviewers": [
+    "Gregory Korchagin",
+    "Vansh Agarwal"
+  ]
+}

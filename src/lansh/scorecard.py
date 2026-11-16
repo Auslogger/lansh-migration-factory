@@ -9,8 +9,8 @@ The business case projects the run onto the client's estate (slide 8: about 1,20
 machine time per job, the escalation rate, the golden-capture time. The completed manual
 baseline timesheet records the time spent migrating jobs by hand. Projection inputs that
 aren't measured are labelled as **assumptions** and editable (:class:`Assumptions`), including
-the minutes a reviewer spends on a job (development runs are approved by the agent, in no
-time at all, so their review time measures nothing).
+the minutes a reviewer spends on a job. Human review confirmed separately from the original
+run does not supply measured review durations.
 
 Because the saving is roughly one minus the escalation rate, the projection is a two-way
 sensitivity table (plan step 5.4): escalation rate against a person's review minutes per job,
@@ -214,6 +214,28 @@ COMPARISONS = {
 """The comparison runs' approaches (plan §9.5), as the scorecard names them."""
 
 
+def human_review(run_dir: Path) -> dict | None:
+    """Read the team's review confirmation, pinned to the original gate log."""
+    path = run_dir / "human_review.json"
+    if not path.exists():
+        return None
+    review = json.loads(path.read_text(encoding="utf-8"))
+    gates = run_dir / "gates.jsonl"
+    decisions = [
+        json.loads(line) for line in gates.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
+    gate_ids = {d["decision_id"] for d in decisions if d["entry"] == "gate"}
+    if (
+        review.get("status") != "reviewed_and_accepted"
+        or review.get("synthetic", False)
+        or not review.get("confirmed_by", "").startswith("person:")
+        or review.get("gate_log_sha256") != hashlib.sha256(gates.read_bytes()).hexdigest()
+        or set(review.get("gate_decision_ids", [])) != gate_ids
+    ):
+        raise ValueError(f"invalid human review confirmation: {path}")
+    return review
+
+
 def build(
     run_id: str,
     assumptions: Assumptions | None = None,
@@ -328,7 +350,21 @@ def build(
         ]
         people = sum(d["reviewer"].startswith("person:") for d in decisions)
         card.add("Gate decisions recorded", len(decisions), "decisions", [gates])
-        card.add("Gate decisions made by people", people, "decisions", [gates])
+        review = human_review(run_dir)
+        if review:
+            reviewed = set(review["gate_decision_ids"])
+            people = sum(
+                d["reviewer"].startswith("person:") or d["decision_id"] in reviewed
+                for d in decisions
+            )
+            card.add(
+                "Gate decisions reviewed and accepted by people",
+                people,
+                "decisions",
+                [gates, run_dir / "human_review.json"],
+            )
+        else:
+            card.add("Gate decisions made by people", people, "decisions", [gates])
     scores = run_dir / "scores.json"
     if scores.exists():
         s = json.loads(scores.read_text())["totals"]
@@ -563,11 +599,18 @@ def business_case(
     }
     rates = ", ".join(f"{r:.0%}" for r in a.escalation_rates)
     reviews = " and ".join(_num(r, 0) for r in a.review_minutes_per_job)
-    people = next((m.value for m in card.metrics if m.name == "Gate decisions made by people"), "0")
+    people = next(
+        (
+            m.value
+            for m in card.metrics
+            if m.name == "Gate decisions reviewed and accepted by people"
+        ),
+        "0",
+    )
     review_source = (
-        "its gates were approved by an agent, so it measures neither the rate nor a person's review time"
+        "review durations are separate from the recorded machine timings; the projection labels review minutes as assumptions"
         if people == "0"
-        else "a person's review time per job is not yet taken from its gate log"
+        else "all recorded gate decisions were reviewed and accepted by humans after the run; review minutes in the projection remain labelled assumptions"
     )
     return {
         "assumptions": asdict(a),

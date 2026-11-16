@@ -1,201 +1,127 @@
-# LANSH demo video: recording script (3:00 max)
+# LANSH demo: the proof travels with the migration
 
-One screen recording of the LANSH Control Tower plus one terminal clip, with a voice-over.
-The voice-over is about 410 words, which is a calm 140 words a minute. **Hard stop at 3:00.**
 
----
 
-## A. Before recording (once, about 15 minutes)
+## Before recording
 
-Do this on the Mac that has Java 21 (the setup in `README.md`).
+Run `LANSH_DEMO_RUNS=1 uv run lansh ui` and open [http://localhost:8501](http://localhost:8501).
+The **Demo** page opens automatically. Use full screen at a readable zoom and start on
+**The risk**. The **Next** button moves through six scenes without sidebar navigation.
 
-### A1. Make a real sign-off to film (this is clip D)
+Record the screen and voice separately. In scene 2, actually press **Replay the migration
+now** and let it finish. It usually takes about 75 seconds. Keep the click, a short portion
+of the wait, and the completion message in the edit. Use an **Offline replay · wait
+shortened** caption over the cut. Recorded model answers drive a fresh pipeline execution;
+this does not make a new live model call. Do not manufacture progress or a completion result.
 
-1. Turn on Do Not Disturb. Close Slack, mail and everything else.
-2. Open Terminal and set the font to 18 pt (Terminal → Settings → Profiles → Text).
-3. `cd` into the repo.
-4. **Start a screen recording now:** Cmd+Shift+5 → *Record Selected Portion* → draw a box
-   around the Terminal window → *Record*.
-5. Run this, putting your real name in place of `Your Name`:
+If presenting without editing, allow the full replay time in addition to the narration.
+The other screens use the published verified results. The human-review screen explicitly
+shows the completed review of the published run, separately from this new replay.
 
-   ```bash
-   uv run lansh run-job T04 --run video --mode replay --reviewer "person:Your Name" --interactive
-   ```
+## 0:00–0:25 · Put a financial consequence on screen
 
-6. Answer each prompt as follows. **Read each prompt for at least 20 seconds before you
-   answer.** A faster approval is flagged in the log as "fast", and the reading is real review.
-   You'll cut the waiting out in editing.
+**Action**
 
-   | Prompt | Type | Then at `Reason:` / `reason:` type |
-   |---|---|---|
-   | `=== H1 for T04 ===` … `Approve? [y/N]` | `y` | `Lineage checked against the legacy code and sqlglot.` |
-   | `--- suspected defect T04-D1: Payment/reserve join fan-out…` `decision: [r]eproduce…` | `r` | `Finance reports paid-to-date this way today. Reproduce for cut-over, fix later by change request.` |
-   | `--- suspected defect T04-D2` / `D3` / `D4` | `r` | `Reproduce the legacy behaviour at cut-over.` |
-   | `=== H2 for T04 ===` `Approve? [y/N]` | `y` | `Contract exact on every column; defects decided.` |
-   | Each later `Approve? [y/N]` (H3, H4, H5) | `y` | One sentence on what you checked |
+Open [the guided demo](http://localhost:8501). On **The risk**, let the €1,288,029.36 overstatement and 289 affected claims register.
+Turn on **Show one affected claim**. Point from **Payments in the ledger** to
+**Legacy report says**. Keep this concrete example visible while speaking.
 
-7. Wait for the last line, `T04: MATCH (run video)`. Stop the recording (the stop button in the
-   menu bar). Rename the file `clip-D-terminal.mov`.
+Reference files: [claims-report SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) and [the measured defect report](../runs/showcase/T04/evidence.md#suspected-legacy-defects).
 
-If the run stops with a missing recorded answer, run the same command again with
-`--mode auto` instead of `--mode replay`. That calls Claude live for the missing answers (it
-uses subscription quota).
+**What I say**
 
-If the team has already done plan step 5.3 (the person-signed showcase run), you can skip A1.
-Film clip D during that run instead and use that run for the Audit shot (H2).
+> "A migration can run successfully and still change an insurer’s financial numbers. This claims report contains a bug we deliberately planted. Joining payments to reserve rows counts some payments twice. Here is one affected claim. Across the report, the overstatement is almost 1.29 million euro. LANSH exposes that risk before anyone approves the migration."
 
-### A2. Set up the Control Tower
+## 0:25–0:50 · Show the system doing the work
 
-1. In a second Terminal tab, run `uv run lansh ui`. It opens <http://localhost:8501>.
-2. Use Chrome in full screen (Ctrl+Cmd+F) at 1920×1080. Set the browser zoom to **80%**
-   (Cmd+−) so all nine tabs and the tables fit.
-3. Click Streamlit's **⋮** menu (top right) → *Settings* → *Theme: Light*.
-4. Check that the sidebar's **Run** list shows `showcase`, `showcase/held-out`,
-   `showcase/learning` and `video`.
-5. Rehearse every click in section B once, with a stopwatch.
+**Action**
 
-### A3. How to record
+Click **Next: The translation**. Show the lineage, trap-finding and test counts, then the
+SQL and generated PySpark side by side. Point to the marked join. Click **Replay the
+migration now**. Record the real run through to its **MATCH** completion message and
+shorten the idle wait as described above.
 
-- Record the screen **silently**, one clip per segment (B1 to B9). Use Cmd+Shift+5 →
-  *Record Entire Screen*.
-- Then record the **voice-over in one take** with a headset mic, reading section B's "Say"
-  lines against a stopwatch. One person reads, or split it: speaker 1 takes B1–B4, speaker 2
-  takes B5–B9.
-- Edit in iMovie, CapCut or DaVinci Resolve: lay the voice on the timeline, then trim each
-  clip to its slot. **Export at 1080p, and check the length is 3:00 or less.**
-- Move the mouse slowly. Hover the pointer over the thing being talked about.
+Source files shown side by side: [original SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) and [generated PySpark](../runs/showcase/T04/jobs/t04.py#L75).
 
----
+**What I say**
 
-## B. The script
+> "LANSH understands the job before translating it. It traces the columns, tests risky language behaviours and blocks unjustified constants that could fake a match. Here is the original SQL beside its PySpark translation. The inherited bug is marked explicitly. Now I’m replaying the migration through the actual factory using recorded model answers."
 
-Each segment gives its time slot, the exact clicks, what's on screen, and the words to say.
-Unless a step says otherwise, the run is **`showcase`**.
+## 0:50–1:20 · Make the proof unmistakable
 
-### B1 · 0:00–0:15 · The hook
+**Action**
 
-**Clicks:**
-1. Sidebar → **Run** `showcase` → **Page** `Scorecard`.
-2. Scroll down to **"Comparison runs: what the proof loop adds"**.
-3. Keep the bar chart in view: `LANSH` 10, `oneshot_claude` 8, `oneshot_claude+heal` 10,
-   `sqlglot_only` 0.
+After the replay completes, click **Next: The proof**. Show **823 / 823** matched rows,
+**0** unexplained row differences and **12 / 12** passing tests. Show the isolated-execution and Delta checks together, then the green result confirming
+both checks passed. Leave the optional fingerprint details closed.
 
-**Say:**
-> "AI can translate legacy code. We gave Claude our ten legacy jobs, one shot each. All ten ran. Eight matched. Two ran without a single error and were still wrong, on 805 rows. Only a record-by-record check catches that."
+Reference file: [T04 reconciliation report](../runs/showcase/T04/recon/rpt.claims_summary.md). The screen displays these results directly.
 
-### B2 · 0:15–0:35 · The factory and the estate
+**What I say**
 
-**Clicks:**
-1. Sidebar → **Page** `Estate`.
-2. Hover the five tiles at the top: `Jobs 10`, `Record-for-record MATCH 10`.
-3. Scroll to **Waves** (Wave 1 to Wave 5), then the green dependency graph.
-4. Scroll to the **Jobs** table and hover the `legacy` column (`.sql` and `.sas` files).
+> "The job has finished, but successful execution is only the beginning. LANSH checks the schema, counts, totals and every column of every claim. All 823 rows match, with an identical output fingerprint. All twelve trap tests pass. Then it writes to the Delta lakehouse and reconciles again. The financial behaviour is preserved, including the bug we have made visible."
 
-**On-screen text (add in the editor, bottom of the frame, B2 only):** *Synthetic data only.
-Agents' answers were recorded live in the estate run and are replayed here.*
+## 1:20–1:50 · Show who remains in control
 
-**Say:**
-> "This is LANSH, a reconciliation-first migration factory. Ten SQL Server and SAS jobs from a synthetic Irish insurer, migrated to PySpark on Delta, in five waves by dependency. All ten match the legacy output record for record. Every job passes five stages, Discover, Design, Generate, Reconcile, Operate, and a gate after each."
+**Action**
 
-### B3 · 0:35–1:15 · One job: the claims summary
+Click **Next: The human decision**. Show the recorded **Reproduce** decision and the named
+team review. Turn on **Show the five review stages**, then **Show the bias check**.
+Point to **14.3%** versus **5.3%**. Keep the privacy caption visible.
 
-**Clicks:**
-1. Sidebar → **Page** `Job`. **Job** is already `T04`.
-2. Tab **Code** (0:35–0:45): legacy T-SQL on the left, PySpark on the right. In the right pane,
-   scroll to the `#money` block and hover a line ending in `# LANSH-DEFECT: T04-D1`.
-3. Tab **Traps** (0:45–0:53): hover rows `TSQL-01`, `TSQL-02` (line 73) and `TSQL-05`
-   (line 136).
-4. Tab **Lineage** (0:53–1:00): hover the `sqlglot agrees` column.
-5. Tab **Defects** (1:00–1:15): hover **T04-D1 Payment/reserve join fan-out inflates
-   total_paid and incurred** and its line `Impact on the legacy output: 289 rows,
-   1288029.36 in total_paid`.
+Reference files: [human review record](human_reviews.md) and [bias figures in the scorecard](../runs/showcase/scorecard.md#bias-s04s-legacy-risk-tiers).
 
-**Say:**
-> "One job: the open-claims summary. Legacy T-SQL on the left, the PySpark LANSH wrote on the right."
->
-> "Discover found fifteen traps, places where SQL Server and Spark disagree, like case-insensitive comparison and NULL concatenation, each pinned to its line."
->
-> "It mapped column-level lineage and cross-checked it with sqlglot."
->
-> "And it found the bug we planted: payments counted twice, overstating paid-to-date by one point two nine million euro on 289 claims. LANSH doesn't silently fix it. It reproduces it, marks it in the code, and asks a person."
+**What I say**
 
-### B4 · 1:15–1:35 · A person decides (terminal clip D)
+> "An AI should not decide which financial rules to change. The reviewed decision here preserves the existing calculation for cut-over, with correction handled separately. People reviewed the evidence across all five stages. Oversight also includes bias: the inherited risk model rates younger customers HIGH more often. LANSH surfaces that pattern for review. Our data is synthetic, and the model agents have no tools."
 
-**Clip:** `clip-D-terminal.mov`, cut to three moments:
-1. The `--- suspected defect T04-D1 …` prompt, with its impact line (about 8 s).
-2. Typing `r` and the reason (about 6 s, speed it up 2× if needed).
-3. `=== H2 for T04 ===`, then `y` and the reason (about 6 s).
+## 1:50–2:20 · Prove why the extra machinery matters
 
-**Say:**
-> "Every stage stops at a gate. Here a person decides: reproduce it now, so finance's numbers don't move at cut-over, and fix it later by change request. The decision, with a name and a reason, goes into a hash-chained log."
+**Action**
 
-### B5 · 1:35–1:55 · The proof
+Click **Next: The repair**. Pause on the **719** differing rows from the separate one-shot
+comparison. Turn on **Show the repair** to reveal **0** differences and **MATCH after
+1 repair attempt**. Keep the before and after visible together. Do not open the patch details.
 
-**Clicks:**
-1. Back in the browser, still on **Job** `T04`, open the **Reconciliation** tab.
-2. Hover the first block, `rpt.claims_summary (sandbox): ✅ MATCH`, then the line
-   `Rows 823 vs 823 · matched 823 · content hash identical`.
-3. Hover the totals table (`legacy` and `candidate` columns side by side).
-4. Scroll to the second block, `rpt.claims_summary (Delta lakehouse): ✅ MATCH`.
+Source files: [original SAS risk-scoring job](../estate/sas/S04_risk_scoring.sas) and [the repaired PySpark job](../runs/showcase/benchmark/oneshot_claude+heal/S04/attempts/attempt-1/jobs/s04.py).
 
-**Say:**
-> "The proof: schema, counts, totals, then a full outer join on the key and every column compared. 823 of 823 rows match, content hash identical. Then it runs again on the Delta lakehouse, fed by its upstream migrated jobs, and matches again."
+**What I say**
 
-### B6 · 1:55–2:15 · Healing a wrong translation
+> "Here is why translation alone is not enough. In our comparison, one-shot Claude ran the risk-scoring job without an error but changed 719 rows. It missed SAS’s text-length and rounding behaviour. LANSH’s reconciliation caught the differences. Its repair loop diagnosed the causes, patched the translation and checked it again. One attempt later, the output matched. This is a recorded repair, not a staged failure."
 
-**Clicks:**
-1. Sidebar → **Page** `Scorecard`.
-2. Scroll to **"The heal loop on the one-shot translations that failed"**.
-3. Click the expander **`S04: MATCH after 1 attempt(s)`**.
-4. Hover `score before` `[0, 0, 0, 719]`, then `status after` `MATCH`. Then hover the
-   `diagnosis` cell (its text begins "tier (654 rows, all 'MEDIUM' vs 'MEDI')").
+## 2:20–2:55 · Close the technical and business case
 
-**Say:**
-> "When a translation is wrong, LANSH heals it. One-shot Claude's risk-scoring job was wrong on 719 rows, mostly MEDIUM where SAS stores MEDI. The fixer diagnosed SAS's fixed text length, patched it, and it matched in one attempt."
+**Action**
 
-### B7 · 2:15–2:40 · Held-out jobs and the business case
+Click **Next: The outcome**. Show the ten matching jobs and the comparison chart, with
+LANSH at ten, one-shot Claude at eight and sqlglot at zero. Scroll once to the manual-effort
+projection. Keep its assumptions visible, then finish on the held-out result below it.
 
-**Clicks:**
-1. Sidebar → **Run** `showcase/held-out` → **Page** `Estate`. In the **Jobs** table, hover
-   `X1 ⚠️ ESCALATED`, then `X2 ✅ MATCH` (2:15–2:22).
-2. Sidebar → **Run** `showcase` → **Page** `Scorecard`.
-3. Scroll to **"Business case: the client's 1,600 jobs (a projection)"**.
-4. In the first table, hover the `manual baseline` row: `4229` person-hours.
-5. In the second table, hover the row `30%` / `30`: `2070` person-hours.
+Reference files: [results and business-case scorecard](../runs/showcase/scorecard.md), [manual timesheet](../baseline/timesheet.csv) and [Azure architecture](architecture.md).
 
-**Say:**
-> "We also tested on two sealed jobs that an isolated agent wrote. On the first run one matched, and the other was stopped by a failing test and escalated, never shipped. By hand, a job took us 2.6 hours. For the client's 1,600 jobs that's 4,200 person-hours. With LANSH it's about 2,100 at a 30% escalation rate. That rate is an assumption, so we show it as a range."
+**What I say**
 
-### B8 · 2:40–2:55 · Responsible AI
+> "Across the estate, LANSH matched all ten SQL Server and SAS jobs first time, proving over 165,000 rows. One-shot Claude matched eight. Our manual baseline averaged 2.6 hours per job. The labelled projection roughly halves person-hours for 1,600 jobs. We also tested two sealed jobs: one matched immediately, while a failing test stopped the other from shipping. After the learning fixes, both matched. The same PySpark and Delta design maps onto Azure Databricks."
 
-**Clicks:**
-1. Still on **Scorecard**, scroll to **"Bias: S04's legacy risk tiers by age band"**. Hover
-   `under 25` → `14.3` (2:40–2:47).
-2. Sidebar → **Run** `video` → **Page** `Audit`. Hover the green box **"The gate log is
-   intact: … each chained to the one before."** and the line **"… gate decisions, … by
-   people, 0 by agents."**
+## 2:55–3:00 · Finish on the product promise
 
-**Say:**
-> "Responsible AI: the legacy risk score rates under-25s HIGH almost three times as often as other ages. LANSH reproduces it and flags it for a person. Every sign-off sits in a verified hash chain."
+**Action**
 
-### B9 · 2:55–3:00 · Close
+Hold on **The proof travels with the migration**. Add the repository URL beneath it in the edit.
+Do not navigate to another page.
 
-**Screen:** a title card, white text on black: **LANSH: the proof is the product**, and under
-it the GitHub repo URL (once the repo is public, plan step 5.14).
+Use [this repository URL](https://github.com/Auslogger/Agentic-Data-Platform-Modernisation) for the closing overlay.
 
-**Say:**
-> "Translation is the easy part. The proof is the product."
+**What I say**
 
----
+> "LANSH makes migration a provable change, with people in control."
 
-## C. Final checks before you upload
+## Recording checks
 
-- [ ] Length is **3:00 or less**. If it's long, cut words from B3 and B7 first, never from
-      B1, B5 or B9.
-- [ ] Every number you said is on screen at the moment you said it: 805, 10, 823,
-      1.29 million, 289, 719, 2.6 hours, 4,200, 2,100, under-25s.
-- [ ] No agent approval is presented as a person's. The Audit shot uses run `video` (or the
-      5.3 run), never `showcase`, which reads "0 by people".
-- [ ] The B2 caption about synthetic data and replayed answers is visible.
-- [ ] No passwords, `.env`, email or notifications appear in any frame.
-- [ ] Upload to YouTube (unlisted), OneDrive and Google Drive (plan step 5.10).
+- Every scene shows a consequence, transformation, verification or decision.
+- Start and completion of the replay come from the same actual execution. Its idle wait is
+  visibly shortened in the edited video.
+- The planted bug, recorded repair, completed after-run reviews and business projection
+  retain their labels. No new approval is implied by navigating the demo.
+- Keep the numbers readable. Leave the repair details and full evidence tables closed.
+- Export at 1080p and check the final video is no longer than three minutes.

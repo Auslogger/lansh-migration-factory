@@ -17,7 +17,7 @@
 | Claude model time per job | 4.84 | minutes | runs/showcase/S01/evidence.json, runs/showcase/S03/evidence.json … |
 | Live Claude calls in this run | 71 | calls | runs/showcase/llm_usage.jsonl |
 | Gate decisions recorded | 50 | decisions | runs/showcase/gates.jsonl |
-| Gate decisions made by people | 0 | decisions | runs/showcase/gates.jsonl |
+| Gate decisions reviewed and accepted by people | 50 | decisions | runs/showcase/gates.jsonl, runs/showcase/human_review.json |
 | Planted bugs flagged with the planted diagnosis (read by the evaluator) | 6 | of 8 | runs/showcase/scores.json |
 | Planted bugs reproduced exactly (their jobs MATCH record for record) | 8 | of 8 | runs/showcase/scores.json, runs/showcase/S01/metrics.json … |
 | Labelled trap occurrences detected | 81 | of 82 | runs/showcase/scores.json |
@@ -66,7 +66,7 @@ The notes identify measured inputs and the assumptions used to project them onto
 
 - LANSH person-hours per job = a person's review minutes + escalation rate x manual minutes (2.6 hours) + golden capture; the estate is 1,600 jobs.
 - Assumed, not measured: low, middle and high manual effort of 4, 8, 16 hours per job; escalation rates of 15%, 30%, 50%; 30 and 60 minutes of review per job; 7-hour days, 87 working days in 4 months and 130 in 6; EUR 600 a person-day.
-- In this run 0% of jobs escalated, and its gates were approved by an agent, so it measures neither the rate nor a person's review time.
+- In this run 0% of jobs escalated, and all recorded gate decisions were reviewed and accepted by humans after the run; review minutes in the projection remain labelled assumptions.
 - Gate load for the estate: 8,000 decisions with every gate for every job; 1,600 if only the 30% of jobs with warnings get per-job review (in this run 100% had warnings, since every development job carries a planted bug).
 - Machine time runs in parallel and needs no people; it is reported separately.
 - Claude at API prices for the whole estate: about $1,608 (measured per job here, not billed on a subscription).

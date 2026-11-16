@@ -185,7 +185,7 @@ Sending the prompt on stdin worked in all six calls. It also avoids three proble
 
 ### Open points
 
-- Found when the spike was verified, for step 2.2 ([G1 packet](../docs/gates.md#gate-1-foundations)): the usage-limit detector also matches "Context limit reached", and a usage-limit message inside a non-error result isn't detected.
+- Found when the spike was verified, for step 2.2 ([gate review record](../docs/gates.md)): the usage-limit detector also matches "Context limit reached", and a usage-limit message inside a non-error result isn't detected.
 
 ## SAS round trip
 

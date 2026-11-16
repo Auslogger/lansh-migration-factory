@@ -569,6 +569,7 @@ def audit_verify(
     """
     from lansh.config import RUNS_DIR
     from lansh.governance.gatelog import GateLog
+    from lansh.scorecard import human_review
 
     log = GateLog(RUNS_DIR / run / "gates.jsonl")
     entries = log.entries()
@@ -579,10 +580,14 @@ def audit_verify(
         typer.echo(f"BROKEN {problem}")
     if problems:
         raise typer.Exit(1)
-    people = sum(d.reviewer.startswith("person:") for d in log.decisions())
+    review = human_review(RUNS_DIR / run)
+    reviewed = set(review["gate_decision_ids"]) if review else set()
+    people = sum(
+        d.reviewer.startswith("person:") or d.decision_id in reviewed for d in log.decisions()
+    )
+    label = "reviewed and accepted by people after the run" if review else "by people"
     typer.echo(
-        f"intact: {len(entries)} entries, {len(log.decisions())} gate decisions "
-        f"({people} by people)"
+        f"intact: {len(entries)} entries, {len(log.decisions())} gate decisions ({people} {label})"
     )
 
 

@@ -69,3 +69,7 @@ supports: no RDDs, no `.cache()`, no I/O inside a job.
 | Gate sign-off | Local hash-chained gate log | Entra ID identities; approvals in the client's workflow tool |
 | Secrets | `.env` and `~/.authinfo` | Azure Key Vault |
 | Legacy side | SQL Server container and SAS OnDemand | The client's SQL Server and SAS, read by the parallel runs |
+
+**Completed human review.** The team confirmed on 16 Nov 2026 that all build gates and recorded product gate decisions were reviewed and accepted by humans. Each published run keeps that confirmation in `human_review.json`, pinned to its original gate log. The manual baseline was completed by hand: T05 148 minutes, S01 169 minutes (mean 158.5), both ending at zero differences.
+
+The completed reviews were performed collectively by Gregory Korchagin, Vansh Agarwal and Charly Martin Avila, with Gregory and Vansh leading most of the work. Reviews are recorded as completed after the run; the confirmation date does not reconstruct original review times.

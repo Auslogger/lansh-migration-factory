@@ -234,7 +234,7 @@ def test_sensitivity_gives_people_and_cost_per_assumption(
         ("30%", "30"): "7.6", ("30%", "60"): "8.9",
         ("50%", "30"): "11.8", ("50%", "60"): "13.1",
     }  # fmt: skip
-    assert any("approved by an agent" in note for note in bc["notes"])
+    assert any("review minutes as assumptions" in note for note in bc["notes"])
 
 
 def test_manual_baseline_drives_projection(
@@ -304,6 +304,46 @@ def test_published_scorecard_uses_the_committed_baseline() -> None:
         ("30%", "30"): "3.4", ("30%", "60"): "4.7",
         ("50%", "30"): "4.8", ("50%", "60"): "6.1",
     }  # fmt: skip
+
+
+def test_human_review_is_pinned_to_the_log_and_included_in_the_scorecard(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from lansh.contracts import Gate, GateOutcome
+    from lansh.governance.gatelog import GateLog
+
+    _one_job_run(tmp_path, monkeypatch)
+    run = tmp_path / "r"
+    log = GateLog(run / "gates.jsonl")
+    decision = log.decide(log.show(Gate.H1, ["T04"]), GateOutcome.APPROVE, "agent:dev")
+    original = log.path.read_bytes()
+    review = {
+        "status": "reviewed_and_accepted",
+        "confirmed_by": "person:team-lansh",
+        "confirmation_recorded_on": "2026-11-16",
+        "gate_log_sha256": hashlib.sha256(original).hexdigest(),
+        "gate_decision_ids": [decision.decision_id],
+    }
+    path = run / "human_review.json"
+    path.write_text(json.dumps(review))
+    card = scorecard.build("r")
+    metric = next(
+        m for m in card.metrics if m.name == "Gate decisions reviewed and accepted by people"
+    )
+    assert metric.value == "1"
+    assert len(metric.sources) == 2
+    assert log.path.read_bytes() == original
+    assert log.verify() == []
+    assert any("reviewed and accepted by humans" in n for n in card.business_case["notes"])
+    # A confirmation cannot silently carry over to decisions added after the human review.
+    log.decide(log.show(Gate.H2, ["T04"]), GateOutcome.APPROVE, "agent:dev")
+    with pytest.raises(ValueError, match="invalid human review confirmation"):
+        scorecard.build("r")
+    # Re-pinning the log alone cannot claim review of a decision absent from the confirmation.
+    review["gate_log_sha256"] = hashlib.sha256(log.path.read_bytes()).hexdigest()
+    path.write_text(json.dumps(review))
+    with pytest.raises(ValueError, match="invalid human review confirmation"):
+        scorecard.human_review(run)
 
 
 def test_bias_table_reproduces_from_the_golden_outputs() -> None:

@@ -1,0 +1,266 @@
+{
+  "status": "reviewed_and_accepted",
+  "confirmed_by": "person:team-lansh",
+  "confirmation_recorded_on": "2026-11-16",
+  "source": "Team member confirmation: all three team members reviewed and accepted the decisions; Gregory and Vansh did most of the review work.",
+  "scope": "All recorded gate decisions, associated defect and protected-flow decisions, and the reported run outcomes have been reviewed and accepted by humans.",
+  "gate_log_sha256": "b82a177e3e2eceb94da3c9d5b874492a87d1f39f52417b8f43fff33081691d5d",
+  "gate_decision_ids": [
+    "4aa3cd91386f",
+    "b60440cac16a",
+    "f5a2dd77b9f7",
+    "fde66defc1a8",
+    "36c4e2d4f7ac",
+    "50bb49353d62",
+    "b4652f00a9cd"
+  ],
+  "note": "Original recording identities, timestamps, warnings, test results and escalations are preserved. Acceptance includes the reported first-run escalation; it does not change reconciliation results. Human review durations were not supplied with this confirmation.",
+  "review_timing": "after_run",
+  "reviews": [
+    {
+      "decision_id": "4aa3cd91386f",
+      "gate": "H1",
+      "job_ids": [
+        "X1"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-holdout/X1/discovery.json",
+          "sha256": "a0707f1efe90004e73c656b0ccb7d678070b13de78177d70037773c7298732b6"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-holdout/X1/lineage.json",
+          "sha256": "fa99f3753a63f446aa159e907fe9be6f009adbf4fa6d54ae1d59643d9af8406a"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-holdout/X1/traps.json",
+          "sha256": "db6370bb040c5cd97ea75b3829ee582da9e457b23b47f58883c1b6b6ef8ecfb2"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b60440cac16a",
+      "gate": "H2",
+      "job_ids": [
+        "X1"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-holdout/X1/contracts/rpt.broker_production.json",
+          "sha256": "5f39ed2f705d2db9647970ea4b75c93f1e09b407803f95b9170a9750bc717163"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-holdout/X1/defects.json",
+          "sha256": "02f00890951bab482e47c1d605ef532b0e746de882e670d1959e4570ad8cc139"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-holdout/X1/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "f5a2dd77b9f7",
+      "gate": "H1",
+      "job_ids": [
+        "X2"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Scope, source code, lineage and trap findings",
+      "evidence": [
+        {
+          "kind": "other",
+          "ref": "runs/dev-holdout/X2/discovery.json",
+          "sha256": "64f0079c5a1965355dd5e9643f4ae5ee9c53ef55de919627e0fba8df02e1db38"
+        },
+        {
+          "kind": "lineage",
+          "ref": "runs/dev-holdout/X2/lineage.json",
+          "sha256": "d1457c8ff31b3c54655805dbf2052a82aa4aa81e9d0bcb59f457deac42a4c794"
+        },
+        {
+          "kind": "traps",
+          "ref": "runs/dev-holdout/X2/traps.json",
+          "sha256": "b30ef9e9014700fbe242fbed728b5e48f23c24630c0075b339a47cddce0874f4"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "fde66defc1a8",
+      "gate": "H2",
+      "job_ids": [
+        "X2"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Contract, comparison policies, defect decisions and protected-column flows",
+      "evidence": [
+        {
+          "kind": "contract",
+          "ref": "runs/dev-holdout/X2/contracts/rpt.large_loss_watchlist.json",
+          "sha256": "fe8bbfca70e30ca9a5f6dc3ff27b9e07b7101722721ceac39931d239686d966f"
+        },
+        {
+          "kind": "defects",
+          "ref": "runs/dev-holdout/X2/defects.json",
+          "sha256": "d9ac1b5873d05a288cc6358c2a394f116e1a47633b29c7134e5064956eda8cd3"
+        },
+        {
+          "kind": "flows",
+          "ref": "runs/dev-holdout/X2/flows.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "36c4e2d4f7ac",
+      "gate": "H3",
+      "job_ids": [
+        "X2"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Generated code, literal guardrails and trap-test results",
+      "evidence": [
+        {
+          "kind": "code",
+          "ref": "runs/dev-holdout/X2/jobs/x2.py",
+          "sha256": "aa82f4c3224848246ee344444eaa93ce43a665eff6e5edac7e2208816515c552"
+        },
+        {
+          "kind": "other",
+          "ref": "runs/dev-holdout/X2/guardrails.json",
+          "sha256": "d5ac01989a81139843f44f3c9701716b167316ec2d74b03241aa31ed4a8e7917"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-holdout/X2/tests.json",
+          "sha256": "cb588571723817ebc642787ea20c0761abc39c76dabf61f606a70e8526fa6180"
+        },
+        {
+          "kind": "tests",
+          "ref": "runs/dev-holdout/X2/tests/cases/x2.json",
+          "sha256": "74a1bf2f90444b35a31470a453c80bef112f9e7434e12039d73abeb7ac1af9d7"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "50bb49353d62",
+      "gate": "H4",
+      "job_ids": [
+        "X2"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Record-level reconciliation, differences, totals and reported outcome",
+      "evidence": [
+        {
+          "kind": "recon_report",
+          "ref": "runs/dev-holdout/X2/recon/rpt.large_loss_watchlist.json",
+          "sha256": "4b2145c0fbe23fc47fa9c4c56220c1cd5d7456912303bd2f0d598735fa8dc46d"
+        },
+        {
+          "kind": "heal",
+          "ref": "runs/dev-holdout/X2/heal.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    },
+    {
+      "decision_id": "b4652f00a9cd",
+      "gate": "H5",
+      "job_ids": [
+        "X2"
+      ],
+      "outcome": "accepted",
+      "review_timing": "after_run",
+      "review_scope": "Wave cut-over, Delta reconciliation, upstream dependencies and SLA evidence",
+      "evidence": [
+        {
+          "kind": "sla",
+          "ref": "runs/dev-holdout/X2/operate.json",
+          "sha256": "7c8ac10cdc852907d0e6ef38cea7a6cd63abf34054b2e37ba4b22b828cffefb6"
+        }
+      ],
+      "reason": null,
+      "reviewed_at": null,
+      "review_seconds": null,
+      "reviewer_names": [
+        "Gregory Korchagin",
+        "Vansh Agarwal",
+        "Charly Martin Avila"
+      ]
+    }
+  ],
+  "attribution_status": "Collective reviewers confirmed by the team; individual allocations, original review timestamps and contemporaneous reasons are not reconstructed.",
+  "reviewer_names": [
+    "Gregory Korchagin",
+    "Vansh Agarwal",
+    "Charly Martin Avila"
+  ],
+  "leading_reviewers": [
+    "Gregory Korchagin",
+    "Vansh Agarwal"
+  ]
+}

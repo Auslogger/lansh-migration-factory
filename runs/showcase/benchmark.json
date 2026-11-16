@@ -4,7 +4,7 @@
     "job_id": "S01",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/S01/dw.claims_enriched.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/S01/dw.claims_enriched.recon.json"
     ],
     "rows_differing": 86,
     "status": "MISMATCH"
@@ -14,7 +14,7 @@
     "job_id": "S03",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/S03/rpt.premium_band_summary.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/S03/rpt.premium_band_summary.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -24,7 +24,7 @@
     "job_id": "S04",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/S04/rpt.risk_scores.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/S04/rpt.risk_scores.recon.json"
     ],
     "rows_differing": 719,
     "status": "MISMATCH"
@@ -34,7 +34,7 @@
     "job_id": "T01",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T01/dw.dim_customer.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T01/dw.dim_customer.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -44,7 +44,7 @@
     "job_id": "T02",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T02/dw.dim_policy.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T02/dw.dim_policy.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -54,7 +54,7 @@
     "job_id": "T03",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T03/dw.fact_premium_earned.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T03/dw.fact_premium_earned.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -64,7 +64,7 @@
     "job_id": "T04",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T04/rpt.claims_summary.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T04/rpt.claims_summary.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -74,7 +74,7 @@
     "job_id": "T05",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T05/rpt.claim_aging.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T05/rpt.claim_aging.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -84,7 +84,7 @@
     "job_id": "T06",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T06/rpt.loss_triangle_paid.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T06/rpt.loss_triangle_paid.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -94,7 +94,7 @@
     "job_id": "T08",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude/T08/rpt.claim_fraud_flags.recon.json"
+      "runs/showcase/benchmark/oneshot_claude/T08/rpt.claim_fraud_flags.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -104,7 +104,7 @@
     "job_id": "S01",
     "note": "1 heal attempts",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude+heal/S01/dw.claims_enriched.recon.json"
+      "runs/showcase/benchmark/oneshot_claude+heal/S01/dw.claims_enriched.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -114,7 +114,7 @@
     "job_id": "S04",
     "note": "1 heal attempts",
     "reports": [
-      "runs/dev-estate/benchmark/oneshot_claude+heal/S04/rpt.risk_scores.recon.json"
+      "runs/showcase/benchmark/oneshot_claude+heal/S04/rpt.risk_scores.recon.json"
     ],
     "rows_differing": 0,
     "status": "MATCH"
@@ -148,7 +148,7 @@
     "job_id": "T01",
     "note": "pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(rtrim(first_name) +  )\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTERVAL YEAR TO MONTH\" or \"INTERVAL\"), not \"STRIN",
     "reports": [
-      "runs/dev-estate/benchmark/sqlglot_only/T01/dw.dim_customer.recon.json"
+      "runs/showcase/benchmark/sqlglot_only/T01/dw.dim_customer.recon.json"
     ],
     "rows_differing": null,
     "status": "ERROR"
@@ -166,7 +166,7 @@
     "job_id": "T03",
     "note": "pyspark.errors.exceptions.captured.AnalysisException: [WRONG_NUM_ARGS.WITHOUT_SUGGESTION] The `round` requires [1, 2] parameters but the actual number is 3. Please, refer to 'https://spark.apache.org/docs/latest/sql-ref-functions.html' for a fix. SQLSTATE: 42605; line 1 pos 576",
     "reports": [
-      "runs/dev-estate/benchmark/sqlglot_only/T03/dw.fact_premium_earned.recon.json"
+      "runs/showcase/benchmark/sqlglot_only/T03/dw.fact_premium_earned.recon.json"
     ],
     "rows_differing": null,
     "status": "ERROR"
@@ -176,7 +176,7 @@
     "job_id": "T04",
     "note": "",
     "reports": [
-      "runs/dev-estate/benchmark/sqlglot_only/T04/rpt.claims_summary.recon.json"
+      "runs/showcase/benchmark/sqlglot_only/T04/rpt.claims_summary.recon.json"
     ],
     "rows_differing": 823,
     "status": "MISMATCH"
@@ -202,7 +202,7 @@
     "job_id": "T08",
     "note": "pyspark.errors.exceptions.captured.AnalysisException: [DATATYPE_MISMATCH.BINARY_OP_WRONG_TYPE] Cannot resolve \"(Notified  + CAST(date_format(reported_date, dd/MM/yyyy) AS STRING))\" due to data type mismatch: the binary operator requires the input type (\"NUMERIC\" or \"INTERVAL DAY TO SECOND\" or \"INTER",
     "reports": [
-      "runs/dev-estate/benchmark/sqlglot_only/T08/rpt.claim_fraud_flags.recon.json"
+      "runs/showcase/benchmark/sqlglot_only/T08/rpt.claim_fraud_flags.recon.json"
     ],
     "rows_differing": null,
     "status": "ERROR"

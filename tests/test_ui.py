@@ -16,6 +16,24 @@ from lansh.contracts import EvidenceReport
 APP = Path(__file__).resolve().parents[1] / "src" / "lansh" / "ui" / "app.py"
 
 
+def test_demo_run_filter_preserves_local_runs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from lansh.ui import app
+
+    names = ["showcase", "showcase/held-out", "showcase/learning", "video", "dev-estate"]
+    for name in names:
+        job = tmp_path / name / "T04"
+        job.mkdir(parents=True)
+        (job / "evidence.json").write_text("{}")
+    monkeypatch.setattr(app, "RUNS_DIR", tmp_path)
+    monkeypatch.setenv("LANSH_DEMO_RUNS", "1")
+    assert app.runs() == names[:4]
+    assert (tmp_path / "dev-estate" / "T04" / "evidence.json").exists()
+    monkeypatch.delenv("LANSH_DEMO_RUNS")
+    assert "dev-estate" in app.runs()
+
+
 def test_every_page_renders(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from streamlit.testing.v1 import AppTest
 
@@ -34,9 +52,36 @@ def test_every_page_renders(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
     app = AppTest.from_file(str(APP), default_timeout=60)
     app.run()
     assert not app.exception
-    for page in ("Estate", "Job", "Scorecard", "Audit"):
+    for page in ("Estate", "Demo", "Job", "Scorecard", "Audit"):
         app.sidebar.radio[0].set_value(page).run()
         assert not app.exception, page
+
+
+def test_guided_demo_shows_verified_examples_and_navigates(monkeypatch: pytest.MonkeyPatch) -> None:
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("LANSH_DEMO_RUNS", "1")
+    app = AppTest.from_file(str(APP), default_timeout=60).run()
+    assert not app.exception
+    assert app.sidebar.radio[0].value == "Demo"
+    for step in range(6):
+        assert not app.exception, step
+        if step in (0, 3, 4):
+            for toggle in list(app.toggle):
+                toggle.set_value(True)
+            app.run()
+            assert not app.exception, step
+        if step == 0:
+            metrics = {m.label: m.value for m in app.metric}
+            assert metrics["Claims affected"] == "289"
+            assert metrics["Payments in the ledger"] != metrics["Legacy report says"]
+        if step == 2:
+            assert {m.label: m.value for m in app.metric}["Rows matched"] == "823 / 823"
+        if step == 4:
+            assert {m.label: m.value for m in app.metric}["Before repair · differing rows"] == "719"
+            assert {m.label: m.value for m in app.metric}["After repair · differing rows"] == "0"
+        next(b for b in app.button if b.key == "demo_next").click().run()
+    assert app.session_state["demo_step"] == 0
 
 
 def test_estate_shows_the_runs_own_jobs_and_open_escalations(

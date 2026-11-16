@@ -37,7 +37,12 @@ def _table(header: list[str], rows: list[list[object]]) -> list[str]:
     return out
 
 
-def render(report: EvidenceReport, *, migrated_code: str | None = None) -> str:
+def render(
+    report: EvidenceReport,
+    *,
+    migrated_code: str | None = None,
+    human_review: dict | None = None,
+) -> str:
     """
     Render an evidence report as Markdown.
 
@@ -88,8 +93,43 @@ def render(report: EvidenceReport, *, migrated_code: str | None = None) -> str:
     ]
 
     lines += ["## Gate decisions", ""]
+    if human_review:
+        lines += [
+            "**Human review: completed and accepted after the run.** "
+            "The team confirmed review of all "
+            f"recorded gate decisions on {human_review['confirmation_recorded_on']}. "
+            "[Review confirmation](../human_review.json) is pinned to the original gate log. "
+            "Original agent timings are separate from the later human review.",
+            "",
+        ]
+        gate_ids = {g.decision_id for g in report.gates}
+        lines += _table(
+            ["Gate", "Human acceptance", "Reviewer", "Review scope", "Human reason"],
+            [
+                [
+                    r["gate"],
+                    "accepted after the run",
+                    ", ".join(r.get("reviewer_names", [])) or "Team confirmation",
+                    r["review_scope"],
+                    r.get("reason")
+                    or "Team confirmed acceptance; original individual rationale not recorded",
+                ]
+                for r in human_review.get("reviews", [])
+                if r["decision_id"] in gate_ids
+            ],
+        )
+        lines += ["", "### Original automated run recordings", ""]
     lines += _table(
-        ["Gate", "Outcome", "Reviewer", "Review time", "Flags", "Reason"],
+        [
+            "Gate",
+            "Outcome",
+            "Original recorder",
+            "Recorded interval",
+            "Recording flags",
+            "Original recording note",
+        ]
+        if human_review
+        else ["Gate", "Outcome", "Reviewer", "Review time", "Flags", "Reason"],
         [
             [
                 f"{g.gate.value} {_GATE_NAMES[g.gate.value]}",
