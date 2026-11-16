@@ -18,103 +18,84 @@ If presenting without editing, allow the full replay time in addition to the nar
 The other screens use the published verified results. The human-review screen explicitly
 shows the completed review of the published run, separately from this new replay.
 
-## 0:00–0:25 · Put a financial consequence on screen
+## How to read this script
 
-**Action**
+Each scene is a table: do the **🎬 ACTION** in the left column, then say the **🎤 SCRIPT**
+in the right column. Rows marked *(silent)* have no narration.
 
-Open [the guided demo](http://localhost:8501). On **The risk**, let the €1,288,029.36 overstatement and 289 affected claims register.
-Turn on **Show one affected claim**. Point from **Payments in the ledger** to
-**Legacy report says**. Keep this concrete example visible while speaking.
+---
 
-Reference files: [claims-report SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) and [the measured defect report](../runs/showcase/T04/evidence.md#suspected-legacy-defects).
+## ⏱ 0:00–0:25 · The risk
 
-**What I say**
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Open [the guided demo](http://localhost:8501) on **The risk** | "Dear EXL Judges, we are team LANSH, presenting our solution for Challenge 3: agentic data platform modernisation. A migration can run successfully and still change an insurer's financial numbers. This claims report contains a bug we deliberately planted. Joining payments to reserve rows counts some payments twice." |
+| **2** | Turn on **Show one affected claim** | "Here is one affected claim. Across the report, the overstatement is almost 1.29 million euro. LANSH exposes that risk before anyone approves the migration." |
 
-> "A migration can run successfully and still change an insurer’s financial numbers. This claims report contains a bug we deliberately planted. Joining payments to reserve rows counts some payments twice. Here is one affected claim. Across the report, the overstatement is almost 1.29 million euro. LANSH exposes that risk before anyone approves the migration."
+Refs: [claims-report SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) · [defect report](../runs/showcase/T04/evidence.md#suspected-legacy-defects)
 
-## 0:25–0:50 · Show the system doing the work
+---
 
-**Action**
+## ⏱ 0:25–0:50 · The translation
 
-Click **Next: The translation**. Show the lineage, trap-finding and test counts, then the
-SQL and generated PySpark side by side. Point to the marked join. Click **Replay the
-migration now**. Record the real run through to its **MATCH** completion message and
-shorten the idle wait as described above.
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Click **Next: The translation** | "LANSH understands the job before translating it. It traces the columns, tests risky language behaviours and blocks unjustified constants that could fake a match. Here is the original SQL beside its PySpark translation. The inherited bug is marked explicitly." |
+| **2** | Click **Replay the migration now**, wait for **MATCH** | "Now I'm replaying the migration through the actual factory using recorded model answers." *(cut the idle wait, caption **Offline replay · wait shortened**)* |
 
-Source files shown side by side: [original SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) and [generated PySpark](../runs/showcase/T04/jobs/t04.py#L75).
+Refs: [original SQL](../estate/tsql/T04_usp_build_claims_summary.sql#L103) · [generated PySpark](../runs/showcase/T04/jobs/t04.py#L75)
 
-**What I say**
+---
 
-> "LANSH understands the job before translating it. It traces the columns, tests risky language behaviours and blocks unjustified constants that could fake a match. Here is the original SQL beside its PySpark translation. The inherited bug is marked explicitly. Now I’m replaying the migration through the actual factory using recorded model answers."
+## ⏱ 0:50–1:20 · The proof
 
-## 0:50–1:20 · Make the proof unmistakable
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Click **Next: The proof** | "The job has finished, but successful execution is only the beginning. LANSH checks the schema, counts, totals and every column of every claim. All 823 rows match, with an identical output fingerprint. All twelve trap tests pass. Then it writes to the Delta lakehouse and reconciles again. The financial behaviour is preserved, including the bug we have made visible." |
 
-**Action**
+Refs: [T04 reconciliation report](../runs/showcase/T04/recon/rpt.claims_summary.md)
 
-After the replay completes, click **Next: The proof**. Show **823 / 823** matched rows,
-**0** unexplained row differences and **12 / 12** passing tests. Show the isolated-execution and Delta checks together, then the green result confirming
-both checks passed. Leave the optional fingerprint details closed.
+---
 
-Reference file: [T04 reconciliation report](../runs/showcase/T04/recon/rpt.claims_summary.md). The screen displays these results directly.
+## ⏱ 1:20–1:50 · The human decision — CHARLES
 
-**What I say**
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Click **Next: The human decision** | "An AI should not decide which financial rules to change. The reviewed decision here preserves the existing calculation for cut-over, with correction handled separately." |
+| **2** | Turn on **Show the five review stages** | "People reviewed the evidence across all five stages." |
+| **3** | Turn on **Show the bias check** | "Oversight also includes bias: the inherited risk model rates younger customers HIGH more often. LANSH surfaces that pattern for review. Our data is synthetic, and the model agents have no tools." |
 
-> "The job has finished, but successful execution is only the beginning. LANSH checks the schema, counts, totals and every column of every claim. All 823 rows match, with an identical output fingerprint. All twelve trap tests pass. Then it writes to the Delta lakehouse and reconciles again. The financial behaviour is preserved, including the bug we have made visible."
+Refs: [human review record](human_reviews.md) · [bias figures](../runs/showcase/scorecard.md#bias-s04s-legacy-risk-tiers)
 
-## 1:20–1:50 · Show who remains in control
+---
 
-**Action**
+## ⏱ 1:50–2:20 · The repair — CHARLES
 
-Click **Next: The human decision**. Show the recorded **Reproduce** decision and the named
-team review. Turn on **Show the five review stages**, then **Show the bias check**.
-Point to **14.3%** versus **5.3%**. Keep the privacy caption visible.
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Click **Next: The repair** | "Here is why translation alone is not enough. In our comparison, one-shot Claude ran the risk-scoring job without an error but changed 719 rows. It missed SAS's text-length and rounding behaviour. LANSH's reconciliation caught the differences." |
+| **2** | Turn on **Show the repair** | "Its repair loop diagnosed the causes, patched the translation and checked it again. One attempt later, the output matched. This is a recorded repair, not a staged failure." |
 
-Reference files: [human review record](human_reviews.md) and [bias figures in the scorecard](../runs/showcase/scorecard.md#bias-s04s-legacy-risk-tiers).
+Refs: [original SAS job](../estate/sas/S04_risk_scoring.sas) · [repaired PySpark](../runs/showcase/benchmark/oneshot_claude+heal/S04/attempts/attempt-1/jobs/s04.py)
 
-**What I say**
+---
 
-> "An AI should not decide which financial rules to change. The reviewed decision here preserves the existing calculation for cut-over, with correction handled separately. People reviewed the evidence across all five stages. Oversight also includes bias: the inherited risk model rates younger customers HIGH more often. LANSH surfaces that pattern for review. Our data is synthetic, and the model agents have no tools."
+## ⏱ 2:20–2:55 · The outcome — VANSH
 
-## 1:50–2:20 · Prove why the extra machinery matters
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Click **Next: The outcome** | "Across the estate, LANSH matched all ten SQL Server and SAS jobs first time, proving over 165,000 rows. One-shot Claude matched eight." |
+| **2** | Scroll once to the manual-effort projection | "Our manual baseline averaged 2.6 hours per job. The labelled projection roughly halves person-hours for 1,600 jobs. We also tested two sealed jobs: one matched immediately, while a failing test stopped the other from shipping. After the learning fixes, both matched. The same PySpark and Delta design maps onto Azure Databricks." |
 
-**Action**
+Refs: [scorecard](../runs/showcase/scorecard.md) · [manual timesheet](../baseline/timesheet.csv) · [Azure architecture](architecture.md)
 
-Click **Next: The repair**. Pause on the **719** differing rows from the separate one-shot
-comparison. Turn on **Show the repair** to reveal **0** differences and **MATCH after
-1 repair attempt**. Keep the before and after visible together. Do not open the patch details.
+---
 
-Source files: [original SAS risk-scoring job](../estate/sas/S04_risk_scoring.sas) and [the repaired PySpark job](../runs/showcase/benchmark/oneshot_claude+heal/S04/attempts/attempt-1/jobs/s04.py).
+## ⏱ 2:55–3:00 · Close — VANSH
 
-**What I say**
-
-> "Here is why translation alone is not enough. In our comparison, one-shot Claude ran the risk-scoring job without an error but changed 719 rows. It missed SAS’s text-length and rounding behaviour. LANSH’s reconciliation caught the differences. Its repair loop diagnosed the causes, patched the translation and checked it again. One attempt later, the output matched. This is a recorded repair, not a staged failure."
-
-## 2:20–2:55 · Close the technical and business case
-
-**Action**
-
-Click **Next: The outcome**. Show the ten matching jobs and the comparison chart, with
-LANSH at ten, one-shot Claude at eight and sqlglot at zero. Scroll once to the manual-effort
-projection. Keep its assumptions visible, then finish on the held-out result below it.
-
-Reference files: [results and business-case scorecard](../runs/showcase/scorecard.md), [manual timesheet](../baseline/timesheet.csv) and [Azure architecture](architecture.md).
-
-**What I say**
-
-> "Across the estate, LANSH matched all ten SQL Server and SAS jobs first time, proving over 165,000 rows. One-shot Claude matched eight. Our manual baseline averaged 2.6 hours per job. The labelled projection roughly halves person-hours for 1,600 jobs. We also tested two sealed jobs: one matched immediately, while a failing test stopped the other from shipping. After the learning fixes, both matched. The same PySpark and Delta design maps onto Azure Databricks."
-
-## 2:55–3:00 · Finish on the product promise
-
-**Action**
-
-Hold on **The proof travels with the migration**. Add the repository URL beneath it in the edit.
-Do not navigate to another page.
-
-Use [this repository URL](https://github.com/Auslogger/Agentic-Data-Platform-Modernisation) for the closing overlay.
-
-**What I say**
-
-> "LANSH makes migration a provable change, with people in control."
+| # | 🎬 ACTION (do this) | 🎤 SCRIPT (say this) |
+|:-:|---|---|
+| **1** | Hold on **The proof travels with the migration** *(add [repo URL](https://github.com/Auslogger/Agentic-Data-Platform-Modernisation) overlay in edit)* | "LANSH makes migration a provable change, with people in control. Thank you for the opportunity, and thank you for listening." |
 
 ## Recording checks
 
