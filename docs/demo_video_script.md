@@ -1,7 +1,5 @@
 # LANSH demo: the proof travels with the migration
 
-
-
 ## Before recording
 
 Run `LANSH_DEMO_RUNS=1 uv run lansh ui` and open [http://localhost:8501](http://localhost:8501).
@@ -14,9 +12,9 @@ of the wait, and the completion message in the edit. Use an **Offline replay · 
 shortened** caption over the cut. Recorded model answers drive a fresh pipeline execution;
 this does not make a new live model call. Do not manufacture progress or a completion result.
 
-If presenting without editing, allow the full replay time in addition to the narration.
-The other screens use the published verified results. The human-review screen explicitly
-shows the completed review of the published run, separately from this new replay.
+* [ ] If presenting without editing, allow the full replay time in addition to the narration.
+  The other screens use the published verified results. The human-review screen explicitly
+  shows the completed review of the published run, separately from this new replay.
 
 ## How to read this script
 
